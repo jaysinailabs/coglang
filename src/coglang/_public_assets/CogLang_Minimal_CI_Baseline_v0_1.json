@@ -1,0 +1,42 @@
+{
+  "schema_version": "coglang-minimal-ci-baseline/v0.1",
+  "status": "defined-for-formal-open-source-prep",
+  "intent": "release-facing verification baseline",
+  "workflow_template": {
+    "source": "plans/coglang/CogLang_Public_CI_Workflow_v0_1.yml",
+    "destination": ".github/workflows/ci.yml"
+  },
+  "commands": [
+    {
+      "name": "bundle",
+      "command": "coglang bundle",
+      "purpose": "single release-facing summary"
+    },
+    {
+      "name": "release_check",
+      "command": "coglang release-check",
+      "purpose": "minimal public artifact check"
+    },
+    {
+      "name": "smoke",
+      "command": "coglang smoke",
+      "purpose": "doctor plus smoke conformance"
+    },
+    {
+      "name": "conformance_smoke",
+      "command": "coglang conformance smoke",
+      "purpose": "standalone smoke conformance evidence"
+    }
+  ],
+  "evidence_outputs": [
+    "bundle",
+    "release_check",
+    "doctor",
+    "smoke"
+  ],
+  "scope": [
+    "release-facing CLI surface",
+    "public docs presence",
+    "smoke verification"
+  ]
+}

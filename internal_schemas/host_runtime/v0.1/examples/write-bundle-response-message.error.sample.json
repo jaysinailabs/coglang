@@ -1,0 +1,22 @@
+{
+  "header": {
+    "correlation_id": "corr-2",
+    "message_type": "KnowledgeMessage",
+    "operation": "write_bundle_response",
+    "payload_kind": "ErrorReport",
+    "submission_id": "sub-2"
+  },
+  "metadata": {
+    "owner": "tester"
+  },
+  "payload": {
+    "correlation_id": "corr-2",
+    "error_kind": "ValidationError",
+    "errors": [
+      "bad payload"
+    ],
+    "owner": "tester",
+    "retryable": false,
+    "submission_id": "sub-2"
+  }
+}

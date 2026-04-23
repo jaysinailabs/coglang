@@ -1,0 +1,48 @@
+# CogLang
+
+CogLang is a graph-first intermediate language designed for LLM-generated graph queries and updates, with auditable execution under explicit host contracts.
+
+Status:
+
+- experimental
+- pre-release
+- reference implementation
+
+When to use CogLang:
+
+- when you want to inspect or approve LLM-generated graph operations before they modify a knowledge graph
+- when you need errors to remain explicit values instead of hidden exceptions
+- when you need replayable traces for what an agent intended, submitted, and actually executed
+- when you want host-side profile and capability checks before execution
+
+When not to use CogLang:
+
+- as a general-purpose programming language
+- as a schema definition language
+- as a claim that it replaces the native query language of a specific graph database
+
+Key design choices:
+
+- canonical M-expression text for parse determinism and generation stability
+- errors as values because partial failure is common in AI-driven graph operations
+- profile and capability boundaries so hosts can reject unsafe or unsupported execution paths early
+
+Core documents:
+
+- README.md: public document index and entry points
+- CogLang_Quickstart_v1_1_0.md: first-pass guide and common patterns
+- CogLang_Specification_v1_1_0_Draft.md: language semantics
+- CogLang_Conformance_Suite_v1_1_0.md: executable examples and regression boundaries
+- CogLang_Profiles_and_Capabilities_v1_1_0.md: profile and capability boundaries
+- CogLang_Host_Runtime_Contract_v0_1.md: minimal host contract
+- CogLang_Release_Notes_v1_1_0_pre.md: what is promised and what is not
+- ROADMAP.md: current direction, not a release contract
+- MAINTENANCE.md: maintenance, freeze, transfer, and archive policy
+
+Short runnable examples:
+
+```powershell
+coglang execute 'Query[n_, Equal[Get[n_, "category"], "Person"]]'
+coglang execute 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
+coglang demo
+```

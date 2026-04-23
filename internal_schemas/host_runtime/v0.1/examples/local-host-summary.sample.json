@@ -1,0 +1,12 @@
+{
+  "edge_count": 0,
+  "node_count": 1,
+  "query_result_count": 1,
+  "request_count": 1,
+  "response_count": 1,
+  "status_counts": {
+    "committed": 1
+  },
+  "submission_record_count": 1,
+  "trace_count": 1
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coglang:host-runtime:v0.1:local-write-header",
+  "title": "LocalWriteHeader",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "correlation_id",
+    "submission_id",
+    "status",
+    "payload_kind"
+  ],
+  "properties": {
+    "correlation_id": {
+      "type": "string"
+    },
+    "submission_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "committed",
+        "failed",
+        "not_found"
+      ]
+    },
+    "payload_kind": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "WriteResult",
+        "ErrorReport",
+        null
+      ]
+    }
+  }
+}

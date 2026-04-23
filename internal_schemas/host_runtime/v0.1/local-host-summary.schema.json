@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coglang:host-runtime:v0.1:local-host-summary",
+  "title": "LocalHostSummary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "node_count",
+    "edge_count",
+    "request_count",
+    "response_count",
+    "submission_record_count",
+    "query_result_count",
+    "trace_count",
+    "status_counts"
+  ],
+  "properties": {
+    "node_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "edge_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "request_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "response_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "submission_record_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "query_result_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "trace_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "status_counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    }
+  }
+}

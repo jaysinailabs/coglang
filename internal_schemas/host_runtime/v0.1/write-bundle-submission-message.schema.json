@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coglang:host-runtime:v0.1:write-bundle-submission-message",
+  "title": "WriteBundleSubmissionMessage",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "header",
+    "payload",
+    "metadata"
+  ],
+  "properties": {
+    "header": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "message_type",
+        "operation",
+        "correlation_id",
+        "submission_id"
+      ],
+      "properties": {
+        "message_type": {
+          "const": "KnowledgeMessage"
+        },
+        "operation": {
+          "const": "submit_write_bundle"
+        },
+        "correlation_id": {
+          "type": "string"
+        },
+        "submission_id": {
+          "type": "string"
+        }
+      }
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate",
+        "commit_plan"
+      ],
+      "properties": {
+        "candidate": {
+          "$ref": "./write-bundle-candidate.schema.json"
+        },
+        "commit_plan": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "phase_1a_create_nodes",
+            "phase_1b_create_edges",
+            "phase_1c_update_delete"
+          ],
+          "properties": {
+            "phase_1a_create_nodes": {
+              "type": "array",
+              "items": {
+                "$ref": "./write-operation.schema.json"
+              }
+            },
+            "phase_1b_create_edges": {
+              "type": "array",
+              "items": {
+                "$ref": "./write-operation.schema.json"
+              }
+            },
+            "phase_1c_update_delete": {
+              "type": "array",
+              "items": {
+                "$ref": "./write-operation.schema.json"
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "owner"
+      ],
+      "properties": {
+        "owner": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

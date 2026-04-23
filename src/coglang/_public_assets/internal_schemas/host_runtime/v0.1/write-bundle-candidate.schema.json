@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coglang:host-runtime:v0.1:write-bundle-candidate",
+  "title": "WriteBundleCandidate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "owner",
+    "base_node_ids",
+    "operations"
+  ],
+  "properties": {
+    "owner": {
+      "type": "string"
+    },
+    "base_node_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "$ref": "./write-operation.schema.json"
+      }
+    }
+  }
+}

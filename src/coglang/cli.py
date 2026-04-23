@@ -1,0 +1,1819 @@
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from importlib.metadata import PackageNotFoundError, version as package_version
+from pathlib import Path
+from tempfile import gettempdir
+from textwrap import dedent
+from typing import Any
+import tomllib
+
+from .executor import PythonCogLangExecutor
+from .local_host import LocalCogLangHost, LocalHostSnapshot, LocalHostSummary
+from .parser import CogLangExpr, CogLangVar, canonicalize, parse
+from .validator import valid_coglang
+from .vocab import COGLANG_VOCAB, ERROR_HEADS
+from .write_bundle import WriteBundleCandidate, WriteOperation
+
+EXAMPLES: dict[str, str] = {
+    "parse": 'Equal[1, 1]',
+    "query": 'Query[n_, Equal[Get[n_, "category"], "Person"]]',
+    "bind": 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]',
+    "write": 'Create["Entity", {"category": "Person", "label": "Ada"}]',
+    "trace": 'Trace[Equal[1, 1]]',
+}
+
+CLI_SCHEMA_VERSION = "coglang-cli-manifest/v0.1"
+HOST_DEMO_SCHEMA_VERSION = "coglang-host-demo/v0.1"
+COGLANG_LANGUAGE_RELEASE = "v1.1.0-pre"
+HOST_DEMO_TOP_LEVEL_KEYS = (
+    "schema_version",
+    "tool",
+    "version",
+    "ok",
+    "write_header",
+    "typed_write_header",
+    "status",
+    "payload_kind",
+    "node_id",
+    "correlation_id",
+    "submission_id",
+    "typed_submission_message",
+    "typed_response",
+    "typed_submission_record",
+    "typed_query_result",
+    "typed_trace",
+    "typed_snapshot",
+    "typed_summary",
+    "snapshot_summary",
+    "steps",
+)
+
+
+def _project_root() -> Path:
+    current = Path(__file__).resolve()
+    for parent in current.parents:
+        if (parent / "pyproject.toml").exists():
+            return parent
+    return current.parents[3]
+
+
+def _package_dir() -> Path:
+    return Path(__file__).resolve().parent
+
+
+def _package_assets_root() -> Path:
+    return _package_dir() / "_public_assets"
+
+
+def _installed_public_package_mode() -> bool:
+    return _package_assets_root().exists() and not (_project_root() / "src" / "coglang").exists()
+
+
+def _paths_exist(root: Path, paths: list[str]) -> bool:
+    if not paths:
+        return False
+    for raw_path in paths:
+        path = Path(raw_path)
+        candidate = path if path.is_absolute() else root / path
+        if not candidate.exists():
+            return False
+    return True
+
+
+def _conformance_base() -> Path:
+    root = _project_root()
+    project_base = root / "tests" / "coglang"
+    if project_base.exists():
+        return project_base
+    assets_base = _package_assets_root() / "tests" / "coglang"
+    if assets_base.exists():
+        return assets_base
+    return project_base
+
+
+def _cli_version() -> str:
+    distribution = _distribution_metadata()
+    candidates = [distribution["name"], "logos", "coglang"]
+    for candidate in candidates:
+        if not candidate:
+            continue
+        try:
+            return package_version(candidate)
+        except PackageNotFoundError:
+            continue
+    return "0.1.0"
+
+
+def _resolve_project_artifact(*relative_candidates: str) -> tuple[Path, str]:
+    root = _project_root()
+    assets_root = _package_assets_root()
+    normalized = [candidate.replace("\\", "/") for candidate in relative_candidates]
+    for candidate, normalized_candidate in zip(relative_candidates, normalized):
+        path = root / Path(candidate)
+        if path.exists():
+            return path, normalized_candidate
+    if assets_root.exists():
+        for candidate, normalized_candidate in zip(relative_candidates, normalized):
+            path = assets_root / Path(candidate)
+            if path.exists():
+                return path, normalized_candidate
+    return root / Path(relative_candidates[0]), normalized[0]
+
+
+def _read_expr(args: argparse.Namespace) -> str:
+    if args.expr is not None:
+        return args.expr
+    if args.file is not None:
+        return Path(args.file).read_text(encoding="utf-8")
+    return sys.stdin.read()
+
+
+def _jsonable(value: Any) -> Any:
+    if isinstance(value, CogLangVar):
+        return {
+            "kind": "var",
+            "name": value.name,
+            "is_anonymous": value.is_anonymous,
+        }
+    if isinstance(value, CogLangExpr):
+        payload: dict[str, Any] = {
+            "kind": "expr",
+            "head": value.head,
+            "args": [_jsonable(arg) for arg in value.args],
+        }
+        if value.partial is not None:
+            payload["partial"] = _jsonable(value.partial)
+        return payload
+    if isinstance(value, dict):
+        return {str(k): _jsonable(v) for k, v in value.items()}
+    if isinstance(value, tuple):
+        return [_jsonable(v) for v in value]
+    if isinstance(value, list):
+        return [_jsonable(v) for v in value]
+    return value
+
+
+def _emit(value: Any, output_format: str) -> None:
+    if output_format == "json":
+        print(json.dumps(_jsonable(value), ensure_ascii=False, indent=2))
+        return
+    if output_format == "repr":
+        print(repr(value))
+        return
+    print(canonicalize(value))
+
+
+def _info_payload() -> dict[str, Any]:
+    distribution = _distribution_metadata()
+    return {
+        "tool": "coglang",
+        "package": distribution["name"] or "logos",
+        "version": _cli_version(),
+        "language_release": COGLANG_LANGUAGE_RELEASE,
+        "commands": [
+            "parse",
+            "canonicalize",
+            "validate",
+            "execute",
+            "conformance",
+            "repl",
+            "info",
+            "manifest",
+            "bundle",
+            "doctor",
+            "vocab",
+            "examples",
+            "smoke",
+        "demo",
+        "host-demo",
+        "release-check",
+        ],
+        "conformance_suites": ["smoke", "core", "full"],
+    }
+
+
+def _distribution_metadata() -> dict[str, Any]:
+    root = _project_root()
+    package_dir = _package_dir()
+    pyproject_path, _ = _resolve_project_artifact("pyproject.toml")
+    if not pyproject_path.exists():
+        return {
+            "name": None,
+            "console_script": None,
+            "console_script_target": None,
+            "entry_module": None,
+            "module_entry": None,
+            "runtime_entry_paths": [],
+        }
+    pyproject = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
+    project = pyproject.get("project", {})
+    console_script = project.get("scripts", {}).get("coglang")
+    entry_module = None
+    module_entry = None
+    runtime_entry_paths: list[str] = []
+    if console_script:
+        entry_module = console_script.split(":", 1)[0]
+        module_entry = ".".join(entry_module.split(".")[:-1]) if "." in entry_module else entry_module
+        cli_path = root / "src" / Path(*entry_module.split(".")).with_suffix(".py")
+        if cli_path.exists():
+            runtime_entry_paths.append(str(cli_path.relative_to(root)).replace("\\", "/"))
+        else:
+            runtime_entry_paths.append(str((package_dir / "cli.py").resolve()))
+        if module_entry:
+            main_path = root / "src" / Path(*module_entry.split(".")) / "__main__.py"
+            if main_path.exists():
+                runtime_entry_paths.append(str(main_path.relative_to(root)).replace("\\", "/"))
+            else:
+                runtime_entry_paths.append(str((package_dir / "__main__.py").resolve()))
+    return {
+        "name": project.get("name"),
+        "console_script": "coglang" if console_script else None,
+        "console_script_target": console_script,
+        "entry_module": entry_module,
+        "module_entry": module_entry,
+        "runtime_entry_paths": runtime_entry_paths,
+    }
+
+
+def _open_source_boundary_payload() -> dict[str, Any]:
+    root = _project_root()
+    descriptor_path, descriptor_relpath = _resolve_project_artifact(
+        "plans/coglang/CogLang_Open_Source_Boundary_v0_1.json",
+        "CogLang_Open_Source_Boundary_v0_1.json",
+    )
+    if not descriptor_path.exists():
+        return {
+            "path": descriptor_relpath,
+            "schema_version": None,
+            "status": "missing",
+            "repository_strategy": None,
+            "public_distribution_name": None,
+            "public_console_script": None,
+            "current_internal_module": None,
+            "release_roots": [],
+            "release_roots_exist": False,
+        }
+    payload = json.loads(descriptor_path.read_text(encoding="utf-8"))
+    release_roots = payload.get("release_roots", [])
+    release_roots_exist = bool(release_roots) and all(
+        (root / Path(path)).exists() for path in release_roots
+    )
+    if not release_roots_exist and (root / "pyproject.toml").exists():
+        release_roots_exist = (root / "src" / "coglang").exists() and (root / "tests" / "coglang").exists()
+    if not release_roots_exist and _installed_public_package_mode():
+        release_roots_exist = _package_dir().exists() and _package_assets_root().exists()
+    payload["path"] = descriptor_relpath
+    payload["release_roots_exist"] = release_roots_exist
+    return payload
+
+
+def _minimal_ci_baseline_payload() -> dict[str, Any]:
+    root = _project_root()
+    descriptor_path, descriptor_relpath = _resolve_project_artifact(
+        "plans/coglang/CogLang_Minimal_CI_Baseline_v0_1.json",
+        "CogLang_Minimal_CI_Baseline_v0_1.json",
+    )
+    workflow_template_path, workflow_template_relpath = _resolve_project_artifact(
+        "plans/coglang/CogLang_Public_CI_Workflow_v0_1.yml",
+        ".github/workflows/ci.yml",
+    )
+    required_command_names = ["bundle", "release_check", "smoke", "conformance_smoke"]
+    if not descriptor_path.exists():
+        return {
+            "path": descriptor_relpath,
+            "schema_version": None,
+            "status": "missing",
+            "commands": [],
+            "workflow_template_path": workflow_template_relpath,
+            "workflow_template_present": False,
+            "required_command_names": required_command_names,
+            "required_command_names_present": False,
+            "public_entrypoint_only": False,
+        }
+    payload = json.loads(descriptor_path.read_text(encoding="utf-8"))
+    commands = payload.get("commands", [])
+    command_names = [item.get("name") for item in commands if isinstance(item, dict)]
+    public_entrypoint_only = all(
+        isinstance(item, dict) and str(item.get("command", "")).startswith("coglang ")
+        for item in commands
+    )
+    payload["path"] = descriptor_relpath
+    payload["workflow_template_path"] = workflow_template_relpath
+    payload["workflow_template_present"] = workflow_template_path.exists()
+    payload["required_command_names"] = required_command_names
+    payload["required_command_names_present"] = all(
+        name in command_names for name in required_command_names
+    )
+    payload["public_entrypoint_only"] = public_entrypoint_only
+    return payload
+
+
+def _public_repo_extract_manifest_payload() -> dict[str, Any]:
+    root = _project_root()
+    descriptor_path, descriptor_relpath = _resolve_project_artifact(
+        "plans/coglang/CogLang_Public_Repo_Extract_Manifest_v0_1.json",
+        "CogLang_Public_Repo_Extract_Manifest_v0_1.json",
+    )
+    required_destinations = [
+        "pyproject.toml",
+        "README.md",
+        ".gitignore",
+        "pytest.ini",
+        "src/coglang",
+        "tests/coglang",
+        "LICENSE",
+    ]
+    if not descriptor_path.exists():
+        return {
+            "path": descriptor_relpath,
+            "schema_version": None,
+            "status": "missing",
+            "repository_strategy": None,
+            "public_distribution_name": None,
+            "entry_count": 0,
+            "required_destinations": required_destinations,
+            "required_destinations_present": False,
+            "source_paths_exist": False,
+            "destination_paths_unique": False,
+        }
+    payload = json.loads(descriptor_path.read_text(encoding="utf-8"))
+    entries = payload.get("entries", [])
+    sources = [str(item.get("source", "")) for item in entries if isinstance(item, dict)]
+    destinations = [str(item.get("destination", "")) for item in entries if isinstance(item, dict)]
+    payload["path"] = descriptor_relpath
+    payload["entry_count"] = len(entries)
+    payload["required_destinations"] = required_destinations
+    payload["required_destinations_present"] = all(
+        destination in destinations for destination in required_destinations
+    )
+    materialized_public_root = descriptor_path.parent == root and all(
+        (root / Path(path)).exists() for path in required_destinations
+    )
+    payload["source_paths_exist"] = (
+        bool(sources) and all((root / Path(path)).exists() for path in sources)
+    ) or materialized_public_root
+    if not payload["source_paths_exist"] and _installed_public_package_mode():
+        payload["source_paths_exist"] = _package_dir().exists() and _package_assets_root().exists()
+    payload["destination_paths_unique"] = bool(destinations) and len(destinations) == len(set(destinations))
+    return payload
+
+
+def _formal_open_source_readiness_payload() -> dict[str, Any]:
+    root = _project_root()
+    distribution = _distribution_metadata()
+    boundary = _open_source_boundary_payload()
+    ci_baseline = _minimal_ci_baseline_payload()
+    public_repo_extract_manifest = _public_repo_extract_manifest_payload()
+    info = _info_payload()
+    internal_docs_layout = (root / "plans" / "coglang").exists()
+
+    readme_path, _ = _resolve_project_artifact("plans/coglang/README.md", "README.md")
+    quickstart_path, _ = _resolve_project_artifact(
+        "plans/coglang/CogLang_Quickstart_v1_1_0.md",
+        "CogLang_Quickstart_v1_1_0.md",
+    )
+    install_guide_path, _ = _resolve_project_artifact(
+        "plans/coglang/CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
+        "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
+    )
+    contribution_guide_path, _ = _resolve_project_artifact(
+        "plans/coglang/CogLang_Contribution_Guide_v0_1.md",
+        "CogLang_Contribution_Guide_v0_1.md",
+    )
+    release_notes_path, _ = _resolve_project_artifact(
+        "plans/coglang/CogLang_Release_Notes_v1_1_0_pre.md",
+        "CogLang_Release_Notes_v1_1_0_pre.md",
+    )
+    roadmap_path, _ = _resolve_project_artifact("plans/coglang/ROADMAP.md", "ROADMAP.md")
+    maintenance_path, _ = _resolve_project_artifact("plans/coglang/MAINTENANCE.md", "MAINTENANCE.md")
+    public_docs_checklist_path, _ = _resolve_project_artifact(
+        "plans/coglang/CogLang_Public_Docs_Readiness_Checklist_v0_1.md",
+    )
+    llms_path, _ = _resolve_project_artifact("plans/coglang/llms.txt", "llms.txt")
+    llms_full_path, _ = _resolve_project_artifact("plans/coglang/llms-full.txt", "llms-full.txt")
+
+    gates = [
+        {
+            "name": "G1_public_docs_boundary",
+            "ok": (
+                (public_docs_checklist_path.exists() or not internal_docs_layout)
+                and readme_path.exists()
+                and quickstart_path.exists()
+                and llms_path.exists()
+                and llms_full_path.exists()
+            ),
+            "detail": "public docs set + readiness checklist",
+        },
+        {
+            "name": "G2_public_release_surface",
+            "ok": (
+                distribution["console_script"] == "coglang"
+                and bool(distribution["console_script_target"])
+                and boundary["public_distribution_name"] == "coglang"
+                and boundary["public_console_script"] == "coglang"
+            ),
+            "detail": "coglang entrypoint + machine-readable release surface",
+        },
+        {
+            "name": "G3_install_and_validation_surface",
+            "ok": (
+                install_guide_path.exists()
+                and "bundle" in info["commands"]
+                and "release-check" in info["commands"]
+                and "smoke" in info["commands"]
+                and ci_baseline["required_command_names_present"] is True
+            ),
+            "detail": "install guide + bundle/release-check/smoke path",
+        },
+        {
+            "name": "G4_repo_package_boundary",
+            "ok": (
+                boundary["schema_version"] == "coglang-open-source-boundary/v0.1"
+                and bool(boundary["repository_strategy"])
+                and boundary["public_distribution_name"] == "coglang"
+                and boundary["release_roots_exist"] is True
+                and public_repo_extract_manifest["schema_version"]
+                == "coglang-public-repo-extract-manifest/v0.1"
+                and public_repo_extract_manifest["source_paths_exist"] is True
+                and public_repo_extract_manifest["destination_paths_unique"] is True
+                and public_repo_extract_manifest["required_destinations_present"] is True
+            ),
+            "detail": boundary["path"],
+        },
+        {
+            "name": "G5_minimal_ci_release_baseline",
+            "ok": (
+                ci_baseline["schema_version"] == "coglang-minimal-ci-baseline/v0.1"
+                and ci_baseline["required_command_names_present"] is True
+                and ci_baseline["public_entrypoint_only"] is True
+                and ci_baseline["workflow_template_present"] is True
+            ),
+            "detail": ci_baseline["path"],
+        },
+        {
+            "name": "G6_maintenance_and_contribution_surface",
+            "ok": (
+                contribution_guide_path.exists()
+                and release_notes_path.exists()
+                and roadmap_path.exists()
+                and maintenance_path.exists()
+            ),
+            "detail": "contribution + release notes + roadmap + maintenance",
+        },
+    ]
+    passed_gate_count = sum(1 for item in gates if item["ok"])
+    ready_for_candidate_decision = passed_gate_count == len(gates)
+    return {
+        "schema_version": "coglang-formal-open-source-readiness/v0.1",
+        "gate_count": len(gates),
+        "passed_gate_count": passed_gate_count,
+        "ready_for_candidate_decision": ready_for_candidate_decision,
+        "status": (
+            "ready-for-formal-open-source-candidate-decision"
+            if ready_for_candidate_decision
+            else "not-ready-for-formal-open-source-candidate-decision"
+        ),
+        "decision_required": True,
+        "gates": gates,
+    }
+
+
+def _manifest_payload() -> dict[str, Any]:
+    info = _info_payload()
+    distribution = _distribution_metadata()
+    open_source_boundary = _open_source_boundary_payload()
+    minimal_ci_baseline = _minimal_ci_baseline_payload()
+    public_repo_extract_manifest = _public_repo_extract_manifest_payload()
+    formal_open_source_readiness = _formal_open_source_readiness_payload()
+    readme_relpath = _resolve_project_artifact("plans/coglang/README.md", "README.md")[1]
+    quickstart_relpath = _resolve_project_artifact(
+        "plans/coglang/CogLang_Quickstart_v1_1_0.md",
+        "CogLang_Quickstart_v1_1_0.md",
+    )[1]
+    spec_relpath = _resolve_project_artifact(
+        "plans/coglang/CogLang_Specification_v1_1_0_Draft.md",
+        "CogLang_Specification_v1_1_0_Draft.md",
+    )[1]
+    install_guide_relpath = _resolve_project_artifact(
+        "plans/coglang/CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
+        "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
+    )[1]
+    release_notes_relpath = _resolve_project_artifact(
+        "plans/coglang/CogLang_Release_Notes_v1_1_0_pre.md",
+        "CogLang_Release_Notes_v1_1_0_pre.md",
+    )[1]
+    contribution_guide_relpath = _resolve_project_artifact(
+        "plans/coglang/CogLang_Contribution_Guide_v0_1.md",
+        "CogLang_Contribution_Guide_v0_1.md",
+    )[1]
+    roadmap_relpath = _resolve_project_artifact("plans/coglang/ROADMAP.md", "ROADMAP.md")[1]
+    maintenance_relpath = _resolve_project_artifact("plans/coglang/MAINTENANCE.md", "MAINTENANCE.md")[1]
+    llms_relpath = _resolve_project_artifact("plans/coglang/llms.txt", "llms.txt")[1]
+    llms_full_relpath = _resolve_project_artifact("plans/coglang/llms-full.txt", "llms-full.txt")[1]
+    docs = {
+        "readme": readme_relpath,
+        "quickstart": quickstart_relpath,
+        "spec": spec_relpath,
+        "install_guide": install_guide_relpath,
+        "release_notes": release_notes_relpath,
+        "contribution_guide": contribution_guide_relpath,
+        "roadmap": roadmap_relpath,
+        "maintenance": maintenance_relpath,
+    }
+    machine_readable_summaries = {
+        "llms": llms_relpath,
+        "llms_full": llms_full_relpath,
+    }
+    return {
+        "schema_version": CLI_SCHEMA_VERSION,
+        "tool": info["tool"],
+        "package": info["package"],
+        "version": info["version"],
+        "language_release": info["language_release"],
+        "status": "experimental-pre-release",
+        "license": "Apache-2.0",
+        "entrypoints": {
+            "recommended": "coglang",
+            "console_script": "coglang",
+        },
+        "implementation_metadata": {
+            "distribution_name": distribution["name"],
+            "console_script_target": distribution["console_script_target"],
+            "module_entry": distribution["module_entry"],
+        },
+        "commands": info["commands"],
+        "conformance_suites": info["conformance_suites"],
+        "docs": docs,
+        "machine_readable_summaries": machine_readable_summaries,
+        "public_release_surface": {
+            "entrypoint": "coglang",
+            "project_docs": {
+                "readme": docs["readme"],
+                "roadmap": docs["roadmap"],
+                "maintenance": docs["maintenance"],
+            },
+            "machine_readable_summaries": machine_readable_summaries,
+        },
+        "open_source_boundary": open_source_boundary,
+        "minimal_ci_baseline": minimal_ci_baseline,
+        "public_repo_extract_manifest": public_repo_extract_manifest,
+        "formal_open_source_readiness": formal_open_source_readiness,
+    }
+
+
+def _bundle_payload() -> dict[str, Any]:
+    manifest = _manifest_payload()
+    release_check = _release_check_payload()
+    doctor = _doctor_payload()
+    return {
+        "schema_version": "coglang-release-bundle/v0.1",
+        "tool": manifest["tool"],
+        "version": manifest["version"],
+        "language_release": manifest["language_release"],
+        "status": manifest["status"],
+        "license": manifest["license"],
+        "manifest": manifest,
+        "public_release_surface": manifest["public_release_surface"],
+        "open_source_boundary": manifest["open_source_boundary"],
+        "minimal_ci_baseline": manifest["minimal_ci_baseline"],
+        "public_repo_extract_manifest": manifest["public_repo_extract_manifest"],
+        "formal_open_source_readiness": manifest["formal_open_source_readiness"],
+        "release_check": {
+            "ok": release_check["ok"],
+            "check_count": len(release_check["checks"]),
+            "failed_checks": [item["name"] for item in release_check["checks"] if not item["ok"]],
+        },
+        "doctor": {
+            "ok": doctor["ok"],
+            "check_count": len(doctor["checks"]),
+            "failed_checks": [item["name"] for item in doctor["checks"] if not item["ok"]],
+        },
+    }
+
+
+def _vocab_payload() -> dict[str, Any]:
+    vocab = sorted(COGLANG_VOCAB)
+    errors = sorted(ERROR_HEADS)
+    return {
+        "tool": "coglang",
+        "version": _cli_version(),
+        "vocab_size": len(vocab),
+        "error_head_count": len(errors),
+        "vocab": vocab,
+        "error_heads": errors,
+    }
+
+
+def _examples_payload() -> dict[str, Any]:
+    return {
+        "tool": "coglang",
+        "version": _cli_version(),
+        "example_count": len(EXAMPLES),
+        "examples": [{"name": name, "expr": expr} for name, expr in EXAMPLES.items()],
+    }
+
+
+def _release_check_payload() -> dict[str, Any]:
+    root = _project_root()
+    pyproject_path, _ = _resolve_project_artifact("pyproject.toml")
+    public_readme_path, _ = _resolve_project_artifact("plans/coglang/README.md", "README.md")
+    roadmap_path, _ = _resolve_project_artifact("plans/coglang/ROADMAP.md", "ROADMAP.md")
+    maintenance_path, _ = _resolve_project_artifact("plans/coglang/MAINTENANCE.md", "MAINTENANCE.md")
+    llms_path, _ = _resolve_project_artifact("plans/coglang/llms.txt", "llms.txt")
+    llms_full_path, _ = _resolve_project_artifact("plans/coglang/llms-full.txt", "llms-full.txt")
+    spec_path, _ = _resolve_project_artifact(
+        "plans/coglang/CogLang_Specification_v1_1_0_Draft.md",
+        "CogLang_Specification_v1_1_0_Draft.md",
+    )
+    quickstart_path, _ = _resolve_project_artifact(
+        "plans/coglang/CogLang_Quickstart_v1_1_0.md",
+        "CogLang_Quickstart_v1_1_0.md",
+    )
+    conformance_path, _ = _resolve_project_artifact(
+        "plans/coglang/CogLang_Conformance_Suite_v1_1_0.md",
+        "CogLang_Conformance_Suite_v1_1_0.md",
+    )
+    host_contract_path, _ = _resolve_project_artifact(
+        "plans/coglang/CogLang_Host_Runtime_Contract_v0_1.md",
+        "CogLang_Host_Runtime_Contract_v0_1.md",
+    )
+    license_path, _ = _resolve_project_artifact("LICENSE")
+
+    distribution = _distribution_metadata()
+    open_source_boundary = _open_source_boundary_payload()
+    minimal_ci_baseline = _minimal_ci_baseline_payload()
+    public_repo_extract_manifest = _public_repo_extract_manifest_payload()
+    formal_open_source_readiness = _formal_open_source_readiness_payload()
+    license_declared = False
+    if pyproject_path.exists():
+        pyproject = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
+        project = pyproject.get("project", {})
+        license_declared = bool(project.get("license"))
+
+    runtime_entry_paths = distribution["runtime_entry_paths"]
+    runtime_entry_ok = _paths_exist(root, runtime_entry_paths)
+
+    checks = [
+        {
+            "name": "pyproject",
+            "ok": pyproject_path.exists(),
+            "detail": "pyproject.toml",
+        },
+        {
+            "name": "distribution_metadata",
+            "ok": bool(distribution["name"]),
+            "detail": distribution["name"] or "missing",
+        },
+        {
+            "name": "console_script",
+            "ok": bool(distribution["console_script_target"]),
+            "detail": (
+                f"{distribution['console_script']} -> declared"
+                if distribution["console_script_target"]
+                else "missing"
+            ),
+        },
+        {
+            "name": "license_declared",
+            "ok": license_declared,
+            "detail": "project.license",
+        },
+        {
+            "name": "license_file",
+            "ok": license_path.exists(),
+            "detail": "LICENSE",
+        },
+        {
+            "name": "runtime_entry",
+            "ok": runtime_entry_ok,
+            "detail": (
+                "module entry + __main__ entry"
+                if runtime_entry_ok
+                else "missing"
+            ),
+        },
+        {
+            "name": "spec_bundle",
+            "ok": (
+                spec_path.exists()
+                and quickstart_path.exists()
+                and conformance_path.exists()
+                and host_contract_path.exists()
+            ),
+            "detail": "spec + quickstart + conformance + host contract",
+        },
+        {
+            "name": "public_release_docs",
+            "ok": (
+                public_readme_path.exists()
+                and roadmap_path.exists()
+                and maintenance_path.exists()
+                and llms_path.exists()
+                and llms_full_path.exists()
+            ),
+            "detail": "README + roadmap + maintenance + llms summaries",
+        },
+        {
+            "name": "open_source_boundary",
+            "ok": (
+                open_source_boundary["schema_version"] == "coglang-open-source-boundary/v0.1"
+                and open_source_boundary["public_console_script"] == "coglang"
+                and open_source_boundary["public_distribution_name"] == "coglang"
+                and open_source_boundary["release_roots_exist"] is True
+            ),
+            "detail": open_source_boundary["path"],
+        },
+        {
+            "name": "minimal_ci_baseline",
+            "ok": (
+                minimal_ci_baseline["schema_version"] == "coglang-minimal-ci-baseline/v0.1"
+                and minimal_ci_baseline["required_command_names_present"] is True
+                and minimal_ci_baseline["public_entrypoint_only"] is True
+                and minimal_ci_baseline["workflow_template_present"] is True
+            ),
+            "detail": minimal_ci_baseline["path"],
+        },
+        {
+            "name": "public_repo_extract_manifest",
+            "ok": (
+                public_repo_extract_manifest["schema_version"]
+                == "coglang-public-repo-extract-manifest/v0.1"
+                and public_repo_extract_manifest["repository_strategy"]
+                == "dedicated_repository_extract"
+                and public_repo_extract_manifest["public_distribution_name"] == "coglang"
+                and public_repo_extract_manifest["source_paths_exist"] is True
+                and public_repo_extract_manifest["destination_paths_unique"] is True
+                and public_repo_extract_manifest["required_destinations_present"] is True
+            ),
+            "detail": public_repo_extract_manifest["path"],
+        },
+        {
+            "name": "formal_open_source_readiness",
+            "ok": formal_open_source_readiness["ready_for_candidate_decision"] is True,
+            "detail": formal_open_source_readiness["status"],
+        },
+    ]
+    return {
+        "tool": "coglang",
+        "version": _cli_version(),
+        "language_release": COGLANG_LANGUAGE_RELEASE,
+        "ok": all(item["ok"] for item in checks),
+        "checks": checks,
+    }
+
+
+def _run_demo() -> dict[str, Any]:
+    executor = PythonCogLangExecutor()
+    steps = [
+        ('Create["Entity", {"id": "einstein", "category": "Person", "label": "Einstein"}]', '"einstein"'),
+        ('Create["Entity", {"id": "ulm", "category": "City", "label": "Ulm"}]', '"ulm"'),
+        (
+            'Create["Edge", {"from": "einstein", "to": "ulm", "relation_type": "born_in"}]',
+            'List["einstein", "born_in", "ulm"]',
+        ),
+        ('Query[n_, Equal[Get[n_, "category"], "Person"]]', 'List["einstein"]'),
+        ('Traverse["einstein", "born_in"]', 'List["ulm"]'),
+    ]
+    results: list[dict[str, Any]] = []
+    ok = True
+    for source, expected in steps:
+        expr = parse(source)
+        result = executor.execute(expr)
+        rendered = canonicalize(result)
+        step_ok = rendered == expected
+        ok = ok and step_ok
+        results.append(
+            {
+                "expr": source,
+                "result": rendered,
+                "expected": expected,
+                "ok": step_ok,
+            }
+        )
+    return {
+        "tool": "coglang",
+        "version": _cli_version(),
+        "language_release": COGLANG_LANGUAGE_RELEASE,
+        "ok": ok,
+        "steps": results,
+    }
+
+
+def _host_demo_failure_payload() -> dict[str, Any]:
+    return {
+        "schema_version": HOST_DEMO_SCHEMA_VERSION,
+        "tool": "coglang",
+        "version": _cli_version(),
+        "ok": False,
+        "write_header": None,
+        "typed_write_header": None,
+        "status": "not_found",
+        "payload_kind": None,
+        "node_id": None,
+        "correlation_id": None,
+        "submission_id": None,
+        "typed_submission_message": None,
+        "typed_response": None,
+        "typed_submission_record": None,
+        "typed_query_result": None,
+        "typed_trace": None,
+        "typed_snapshot": None,
+        "typed_summary": None,
+        "snapshot_summary": None,
+        "steps": [
+            {
+                "name": "create",
+                "ok": False,
+                "detail": "failed to execute and submit through LocalCogLangHost",
+            }
+        ],
+    }
+
+
+def _host_demo_error_report_step() -> dict[str, Any]:
+    error_host = LocalCogLangHost()
+    error_candidate = WriteBundleCandidate(
+        owner="coglang_executor",
+        operations=[
+            WriteOperation(
+                "create_edge",
+                {"source_id": "Einstein", "target_id": "dog_1", "relation": "knows"},
+            )
+        ],
+    )
+    error_response, error_trace = error_host.submit_candidate_and_trace(
+        candidate=error_candidate,
+        correlation_id="host-demo-error-report",
+    )
+    if error_response is None or error_trace is None:
+        return {
+            "name": "error_report",
+            "ok": False,
+            "detail": "failed to submit invalid write candidate through LocalCogLangHost",
+        }
+
+    correlation_id = error_response.correlation_id
+    write_header = error_host.query_write_header_dict(correlation_id)
+    typed_submission_message = error_host.query_write_submission_message_dict(correlation_id)
+    typed_response = error_host.query_write_response_message_dict(correlation_id)
+    typed_submission_record = error_host.query_write_submission_record_dict(correlation_id)
+    typed_query_result = error_host.query_write_dict(correlation_id)
+    typed_trace = error_host.query_write_trace_dict(correlation_id)
+    if (
+        typed_submission_message is None
+        or typed_response is None
+        or typed_submission_record is None
+        or typed_trace is None
+    ):
+        return {
+            "name": "error_report",
+            "ok": False,
+            "detail": "failed to query ErrorReport public views through LocalCogLangHost",
+        }
+
+    payload = typed_response["payload"]
+    ok = (
+        write_header["payload_kind"] == "ErrorReport"
+        and write_header["status"] == "failed"
+        and typed_response["header"]["payload_kind"] == "ErrorReport"
+        and typed_query_result["status"] == "failed"
+        and typed_submission_record["status"] == "failed"
+        and _primary_views_match_write_header(
+            write_header=write_header,
+            typed_submission_message=typed_submission_message,
+            typed_response=typed_response,
+            typed_submission_record=typed_submission_record,
+            typed_query_result=typed_query_result,
+        )
+        and _trace_view_is_consistent(
+            write_header=write_header,
+            typed_submission_message=typed_submission_message,
+            typed_response=typed_response,
+            typed_submission_record=typed_submission_record,
+            typed_query_result=typed_query_result,
+            typed_trace=typed_trace,
+        )
+        and payload.get("error_kind") == "ValidationError"
+        and isinstance(payload.get("errors"), list)
+        and len(payload["errors"]) >= 1
+    )
+    return {
+        "name": "error_report",
+        "ok": ok,
+        "correlation_id": write_header["correlation_id"],
+        "submission_id": write_header["submission_id"],
+        "status": write_header["status"],
+        "payload_kind": write_header["payload_kind"],
+        "error_kind": payload["error_kind"],
+        "retryable": payload["retryable"],
+        "error_count": len(payload["errors"]),
+    }
+
+
+def _summary_from_snapshot_dict(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return LocalHostSummary.from_snapshot(
+        LocalHostSnapshot.from_dict(snapshot)
+    ).to_dict()
+
+
+def _trace_view_is_consistent(
+    *,
+    write_header: dict[str, Any],
+    typed_submission_message: dict[str, Any],
+    typed_response: dict[str, Any],
+    typed_submission_record: dict[str, Any],
+    typed_query_result: dict[str, Any],
+    typed_trace: dict[str, Any] | None,
+) -> bool:
+    if typed_trace is None:
+        return False
+    return (
+        typed_trace["correlation_id"] == write_header["correlation_id"]
+        and typed_trace["submission_id"] == write_header["submission_id"]
+        and typed_trace["request"] == typed_submission_message
+        and typed_trace["response"] == typed_response
+        and typed_trace["record"] == typed_submission_record
+        and typed_trace["query_result"] == typed_query_result
+    )
+
+
+def _primary_views_match_write_header(
+    *,
+    write_header: dict[str, Any],
+    typed_submission_message: dict[str, Any],
+    typed_response: dict[str, Any],
+    typed_submission_record: dict[str, Any],
+    typed_query_result: dict[str, Any],
+) -> bool:
+    message_header = typed_submission_message.get("header", {})
+    response_header = typed_response.get("header", {})
+    return (
+        message_header.get("correlation_id") == write_header["correlation_id"]
+        and message_header.get("submission_id") == write_header["submission_id"]
+        and response_header.get("correlation_id") == write_header["correlation_id"]
+        and response_header.get("submission_id") == write_header["submission_id"]
+        and response_header.get("payload_kind") == write_header["payload_kind"]
+        and typed_submission_record["correlation_id"] == write_header["correlation_id"]
+        and typed_submission_record["submission_id"] == write_header["submission_id"]
+        and typed_submission_record["status"] == write_header["status"]
+        and typed_query_result["correlation_id"] == write_header["correlation_id"]
+        and typed_query_result["submission_id"] == write_header["submission_id"]
+        and typed_query_result["status"] == write_header["status"]
+    )
+
+
+def _node_view_is_consistent(
+    *,
+    create_result: str,
+    typed_submission_message: dict[str, Any],
+    typed_response: dict[str, Any],
+    typed_snapshot: dict[str, Any],
+) -> bool:
+    submission_payload = typed_submission_message.get("payload", {})
+    candidate = submission_payload.get("candidate", {})
+    candidate_operations = candidate.get("operations", [])
+    commit_plan = submission_payload.get("commit_plan", {})
+    create_nodes = commit_plan.get("phase_1a_create_nodes", [])
+    response_payload = typed_response.get("payload", {})
+    touched_node_ids = response_payload.get("touched_node_ids", [])
+    snapshot_graph = typed_snapshot.get("graph", {})
+    graph_nodes = snapshot_graph.get("nodes", [])
+    return (
+        any(
+            operation.get("op") == "create_node"
+            and operation.get("payload", {}).get("id") == create_result
+            for operation in candidate_operations
+        )
+        and any(
+            operation.get("op") == "create_node"
+            and operation.get("payload", {}).get("id") == create_result
+            for operation in create_nodes
+        )
+        and
+        create_result in touched_node_ids
+        and any(node.get("id") == create_result for node in graph_nodes)
+    )
+
+
+def _snapshot_primary_views_are_consistent(
+    *,
+    typed_snapshot: dict[str, Any],
+    typed_submission_message: dict[str, Any],
+    typed_response: dict[str, Any],
+    typed_submission_record: dict[str, Any],
+    typed_query_result: dict[str, Any],
+    typed_trace: dict[str, Any] | None,
+) -> bool:
+    submission_messages = typed_snapshot.get("write_submission_messages", [])
+    response_messages = typed_snapshot.get("write_response_messages", [])
+    submission_records = typed_snapshot.get("write_submission_records", [])
+    query_results = typed_snapshot.get("write_query_results", [])
+    traces = typed_snapshot.get("write_traces", [])
+    return (
+        len(submission_messages) >= 1
+        and len(response_messages) >= 1
+        and len(submission_records) >= 1
+        and len(query_results) >= 1
+        and len(traces) >= 1
+        and submission_messages[0] == typed_submission_message
+        and response_messages[0] == typed_response
+        and submission_records[0] == typed_submission_record
+        and query_results[0] == typed_query_result
+        and traces[0] == typed_trace
+    )
+
+
+def _host_demo_success_payload(
+    *,
+    create_result: str,
+    response: dict[str, Any],
+    write_header: dict[str, Any],
+    typed_write_header: dict[str, Any],
+    typed_submission_message: dict[str, Any],
+    typed_response: dict[str, Any],
+    typed_submission_record: dict[str, Any],
+    typed_query_result: dict[str, Any],
+    typed_trace: dict[str, Any] | None,
+    typed_snapshot: dict[str, Any],
+    typed_summary: dict[str, Any],
+    error_report_step: dict[str, Any],
+) -> dict[str, Any]:
+    payload_kind = write_header["payload_kind"]
+    response_header = None if typed_response is None else typed_response["header"]
+    snapshot_summary = _summary_from_snapshot_dict(typed_snapshot)
+    primary_views_match_header = _primary_views_match_write_header(
+        write_header=write_header,
+        typed_submission_message=typed_submission_message,
+        typed_response=typed_response,
+        typed_submission_record=typed_submission_record,
+        typed_query_result=typed_query_result,
+    )
+    node_consistent = _node_view_is_consistent(
+        create_result=create_result,
+        typed_submission_message=typed_submission_message,
+        typed_response=typed_response,
+        typed_snapshot=typed_snapshot,
+    )
+    trace_consistent = _trace_view_is_consistent(
+        write_header=write_header,
+        typed_submission_message=typed_submission_message,
+        typed_response=typed_response,
+        typed_submission_record=typed_submission_record,
+        typed_query_result=typed_query_result,
+        typed_trace=typed_trace,
+    )
+    snapshot_consistent = _snapshot_primary_views_are_consistent(
+        typed_snapshot=typed_snapshot,
+        typed_submission_message=typed_submission_message,
+        typed_response=typed_response,
+        typed_submission_record=typed_submission_record,
+        typed_query_result=typed_query_result,
+        typed_trace=typed_trace,
+    )
+    ok = (
+        payload_kind == "WriteResult"
+        and typed_query_result["status"] == "committed"
+        and typed_query_result["submission_id"] == write_header["submission_id"]
+        and typed_write_header == write_header
+        and primary_views_match_header
+        and node_consistent
+        and trace_consistent
+        and snapshot_consistent
+        and typed_summary == snapshot_summary
+        and error_report_step["ok"] is True
+    )
+    return {
+        "schema_version": HOST_DEMO_SCHEMA_VERSION,
+        "tool": "coglang",
+        "version": _cli_version(),
+        "ok": ok,
+        "write_header": write_header,
+        "typed_write_header": typed_write_header,
+        "status": write_header["status"],
+        "payload_kind": payload_kind,
+        "node_id": create_result,
+        "correlation_id": write_header["correlation_id"],
+        "submission_id": write_header["submission_id"],
+        "typed_submission_message": typed_submission_message,
+        "typed_response": typed_response,
+        "typed_submission_record": typed_submission_record,
+        "typed_query_result": typed_query_result,
+        "typed_trace": typed_trace,
+        "typed_snapshot": typed_snapshot,
+        "typed_summary": typed_summary,
+        "snapshot_summary": snapshot_summary,
+        "steps": [
+            {
+                "name": "execute_and_submit_to",
+                "ok": response is not None,
+                "node_id": create_result,
+                "correlation_id": write_header["correlation_id"],
+                "submission_id": write_header["submission_id"],
+            },
+            {
+                "name": "typed_response",
+                "ok": response_header is not None,
+                "payload_kind": None if response_header is None else response_header["payload_kind"],
+                "correlation_id": None if response_header is None else response_header["correlation_id"],
+                "submission_id": None if response_header is None else response_header["submission_id"],
+            },
+            {
+                "name": "query_result",
+                "ok": typed_query_result["status"] == "committed",
+                "status": typed_query_result["status"],
+                "submission_id": typed_query_result["submission_id"],
+            },
+            {
+                "name": "trace",
+                "ok": typed_trace is not None,
+                "submission_id": None if typed_trace is None else typed_trace["submission_id"],
+            },
+            error_report_step,
+        ],
+    }
+
+
+def _run_host_demo() -> dict[str, Any]:
+    source_host = LocalCogLangHost()
+    target_host = LocalCogLangHost()
+
+    create_result, response, trace = source_host.execute_and_submit_to_trace(
+        target_host,
+        'Create["Entity", {"category": "Person", "label": "Ada"}]'
+    )
+    if not isinstance(create_result, str) or response is None or trace is None:
+        return _host_demo_failure_payload()
+
+    correlation_id = trace.correlation_id
+    write_header = target_host.query_write_header_dict(correlation_id)
+    typed_write_header = target_host.query_write_header(correlation_id).to_dict()
+    typed_submission_message = target_host.query_write_submission_message_dict(
+        correlation_id
+    )
+    typed_response = target_host.query_write_response_message_dict(correlation_id)
+    typed_submission_record = target_host.query_write_submission_record_dict(
+        correlation_id
+    )
+    typed_query_result = target_host.query_write_dict(correlation_id)
+    typed_trace = target_host.query_write_trace_dict(correlation_id)
+    typed_snapshot = target_host.export_snapshot_dict()
+    typed_summary = target_host.export_summary_dict()
+    if (
+        typed_submission_message is None
+        or typed_response is None
+        or typed_submission_record is None
+        or typed_trace is None
+    ):
+        return _host_demo_failure_payload()
+    error_report_step = _host_demo_error_report_step()
+    return _host_demo_success_payload(
+        create_result=create_result,
+        response=response.to_dict(),
+        write_header=write_header,
+        typed_write_header=typed_write_header,
+        typed_submission_message=typed_submission_message,
+        typed_response=typed_response,
+        typed_submission_record=typed_submission_record,
+        typed_query_result=typed_query_result,
+        typed_trace=typed_trace,
+        typed_snapshot=typed_snapshot,
+        typed_summary=typed_summary,
+        error_report_step=error_report_step,
+    )
+
+
+def _doctor_payload() -> dict[str, Any]:
+    checks: list[dict[str, Any]] = []
+
+    def add_check(name: str, ok: bool, detail: str) -> None:
+        checks.append({"name": name, "ok": ok, "detail": detail})
+
+    add_check("python", True, sys.version.split()[0])
+    add_check("tempdir", True, gettempdir())
+
+    expr = parse('Equal[1, 1]')
+    add_check("parse", expr.head != "ParseError", canonicalize(expr))
+    add_check("validate", expr.head != "ParseError" and valid_coglang(expr), "Equal[1, 1]")
+
+    executor = PythonCogLangExecutor()
+    result = executor.execute(expr)
+    add_check(
+        "execute",
+        isinstance(result, CogLangExpr) and result.head == "True",
+        canonicalize(result),
+    )
+
+    try:
+        import pytest  # noqa: F401
+
+        add_check("pytest", True, "available")
+    except ImportError:
+        add_check("pytest", False, "not installed")
+
+    ok = all(item["ok"] for item in checks)
+    return {
+        "tool": "coglang",
+        "version": _cli_version(),
+        "language_release": COGLANG_LANGUAGE_RELEASE,
+        "ok": ok,
+        "checks": checks,
+    }
+
+
+def _run_smoke(pytest_args: list[str] | None = None) -> int:
+    doctor = _doctor_payload()
+    if not doctor["ok"]:
+        print(json.dumps({"doctor": doctor, "conformance": None}, ensure_ascii=False, indent=2))
+        return 1
+    conformance_code = _run_conformance_suite("smoke", pytest_args)
+    payload = {
+        "doctor": {
+            "ok": doctor["ok"],
+            "check_count": len(doctor["checks"]),
+        },
+        "conformance": {
+            "suite": "smoke",
+            "exit_code": conformance_code,
+            "ok": conformance_code == 0,
+        },
+    }
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
+    return 0 if conformance_code == 0 else 1
+
+
+def _run_repl(stdin: Any = None, stdout: Any = None) -> int:
+    inp = sys.stdin if stdin is None else stdin
+    out = sys.stdout if stdout is None else stdout
+    executor = PythonCogLangExecutor()
+    out.write(
+        dedent(
+            """\
+            CogLang REPL
+            Type one expression per line.
+            Commands: :help, :quit, :exit
+            """
+        )
+    )
+    while True:
+        out.write("coglang> ")
+        out.flush()
+        line = inp.readline()
+        if line == "":
+            out.write("\n")
+            return 0
+        source = line.strip()
+        if not source:
+            continue
+        if source in {":quit", ":exit"}:
+            return 0
+        if source == ":help":
+            out.write(
+                "Enter one CogLang expression. Results print in canonical form.\n"
+            )
+            continue
+        expr = parse(source)
+        if expr.head == "ParseError":
+            out.write(canonicalize(expr) + "\n")
+            continue
+        result = executor.execute(expr)
+        out.write(canonicalize(result) + "\n")
+
+
+def _print_text_mapping_block(label: str, payload: dict[str, Any] | None) -> None:
+    print(f"{label}:")
+    if payload is None:
+        print("  null")
+        return
+    for key, value in payload.items():
+        print(f"  {key}: {value}")
+
+
+def _print_text_step_blocks(steps: list[dict[str, Any]]) -> None:
+    for idx, step in enumerate(steps, start=1):
+        status = "ok" if step["ok"] else "fail"
+        print(f"step{idx}: {status}")
+        print(f"  name: {step['name']}")
+        for key, value in step.items():
+            if key in {"name", "ok"}:
+                continue
+            print(f"  {key}: {value}")
+
+
+def _conformance_targets(suite: str) -> list[str]:
+    base = _conformance_base()
+    suites = {
+        "smoke": [
+            str(base / "test_cli.py"),
+            str(base / "test_parser.py"),
+            str(base / "test_validator.py"),
+        ],
+        "core": [
+            str(base / "test_cli.py"),
+            str(base / "test_parser.py"),
+            str(base / "test_validator.py"),
+            str(base / "test_unify.py"),
+            str(base / "test_graph_ops.py"),
+            str(base / "test_boundary.py"),
+            str(base / "test_composition.py"),
+            str(base / "test_completeness.py"),
+        ],
+        "full": [str(base)],
+    }
+    return suites[suite]
+
+
+def _run_conformance_suite(suite: str, pytest_args: list[str] | None = None) -> int:
+    try:
+        import os
+        import shutil
+        import tempfile
+
+        import pytest
+    except ImportError:
+        print("pytest is required for the conformance runner.")
+        return 2
+
+    root = _project_root()
+    targets = _conformance_targets(suite)
+    tmp = root / ".tmp_pytest"
+    previous_temp = os.environ.get("TEMP")
+    previous_tmp = os.environ.get("TMP")
+    previous_tempdir = tempfile.tempdir
+    tmp.mkdir(exist_ok=True)
+    os.environ["TEMP"] = str(tmp)
+    os.environ["TMP"] = str(tmp)
+    tempfile.tempdir = str(tmp)
+    args = targets + (pytest_args or [])
+    try:
+        return pytest.main(args)
+    finally:
+        tempfile.tempdir = previous_tempdir
+        if previous_temp is None:
+            os.environ.pop("TEMP", None)
+        else:
+            os.environ["TEMP"] = previous_temp
+        if previous_tmp is None:
+            os.environ.pop("TMP", None)
+        else:
+            os.environ["TMP"] = previous_tmp
+        # Clean up redirected tempdir so transitively-invoked libraries
+        # (filelock / huggingface_hub / etc.) don't leave sentinel files
+        # accumulating across runs. ignore_errors covers Windows file-lock races.
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="coglang",
+        description="Minimal standalone CLI for CogLang parse/validate/execute flows.",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {_cli_version()}",
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    def add_expr_source(subparser: argparse.ArgumentParser) -> None:
+        source = subparser.add_mutually_exclusive_group()
+        source.add_argument("expr", nargs="?", help="CogLang expression text.")
+        source.add_argument("--file", help="Read expression text from a UTF-8 file.")
+
+    parse_cmd = subparsers.add_parser("parse", help="Parse one CogLang expression.")
+    add_expr_source(parse_cmd)
+    parse_cmd.add_argument(
+        "--format",
+        choices=("canonical", "repr", "json"),
+        default="canonical",
+        help="Output format for the parsed AST.",
+    )
+
+    canonical_cmd = subparsers.add_parser(
+        "canonicalize", help="Parse one expression and print canonical text."
+    )
+    add_expr_source(canonical_cmd)
+
+    validate_cmd = subparsers.add_parser(
+        "validate", help="Validate one expression against the current CogLang vocabulary."
+    )
+    add_expr_source(validate_cmd)
+    validate_cmd.add_argument(
+        "--json",
+        action="store_true",
+        help="Emit a JSON object instead of plain true/false.",
+    )
+
+    execute_cmd = subparsers.add_parser(
+        "execute", help="Execute one expression against an empty in-memory graph."
+    )
+    add_expr_source(execute_cmd)
+    execute_cmd.add_argument(
+        "--format",
+        choices=("canonical", "repr", "json"),
+        default="canonical",
+        help="Output format for the execution result.",
+    )
+
+    conformance_cmd = subparsers.add_parser(
+        "conformance", help="Run the packaged CogLang conformance test suites."
+    )
+    conformance_cmd.add_argument(
+        "suite",
+        nargs="?",
+        choices=("smoke", "core", "full"),
+        default="smoke",
+        help="Named conformance suite to execute.",
+    )
+    conformance_cmd.add_argument(
+        "pytest_args",
+        nargs=argparse.REMAINDER,
+        help="Additional pytest arguments. Put them after '--'.",
+    )
+
+    subparsers.add_parser(
+        "repl", help="Run a minimal in-memory CogLang REPL."
+    )
+
+    info_cmd = subparsers.add_parser(
+        "info", help="Print minimal package and command metadata."
+    )
+    info_cmd.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="Output format for tool metadata.",
+    )
+
+    manifest_cmd = subparsers.add_parser(
+        "manifest", help="Print stable machine-readable release-facing metadata."
+    )
+    manifest_cmd.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="Output format for the manifest payload.",
+    )
+
+    bundle_cmd = subparsers.add_parser(
+        "bundle", help="Print a minimal release-facing bundle summary for scripts and CI."
+    )
+    bundle_cmd.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="Output format for the release bundle payload.",
+    )
+
+    doctor_cmd = subparsers.add_parser(
+        "doctor", help="Run a minimal local environment self-check."
+    )
+    doctor_cmd.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="Output format for the self-check report.",
+    )
+
+    vocab_cmd = subparsers.add_parser(
+        "vocab", help="Print the packaged CogLang vocabulary."
+    )
+    vocab_cmd.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="Output format for the vocabulary dump.",
+    )
+
+    examples_cmd = subparsers.add_parser(
+        "examples", help="Print packaged starter examples."
+    )
+    examples_cmd.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="Output format for the examples listing.",
+    )
+    examples_cmd.add_argument(
+        "--name",
+        choices=tuple(EXAMPLES.keys()),
+        help="Print one named example instead of the full listing.",
+    )
+
+    smoke_cmd = subparsers.add_parser(
+        "smoke", help="Run the minimal release-facing health check path."
+    )
+    smoke_cmd.add_argument(
+        "pytest_args",
+        nargs=argparse.REMAINDER,
+        help="Additional pytest arguments forwarded to the smoke conformance suite.",
+    )
+
+    demo_cmd = subparsers.add_parser(
+        "demo", help="Run a minimal standalone in-memory CogLang workflow."
+    )
+    demo_cmd.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="Output format for the demo run.",
+    )
+
+    host_demo_cmd = subparsers.add_parser(
+        "host-demo", help="Run a minimal LocalCogLangHost request/submit/query workflow."
+    )
+    host_demo_cmd.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="Output format for the host-demo run.",
+    )
+
+    release_check_cmd = subparsers.add_parser(
+        "release-check", help="Check whether the minimal release-facing artifact set exists."
+    )
+    release_check_cmd.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="Output format for the release-facing check report.",
+    )
+
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = _build_parser()
+    args = parser.parse_args(argv)
+
+    if args.command == "conformance":
+        pytest_args = list(args.pytest_args)
+        if pytest_args and pytest_args[0] == "--":
+            pytest_args = pytest_args[1:]
+        return _run_conformance_suite(args.suite, pytest_args)
+
+    if args.command == "repl":
+        return _run_repl()
+
+    if args.command == "info":
+        payload = _info_payload()
+        if args.format == "text":
+            print(f"tool: {payload['tool']}")
+            print(f"package: {payload['package']}")
+            print(f"version: {payload['version']}")
+            print(f"language_release: {payload['language_release']}")
+            print("commands: " + ", ".join(payload["commands"]))
+            print("conformance_suites: " + ", ".join(payload["conformance_suites"]))
+        else:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+
+    if args.command == "manifest":
+        payload = _manifest_payload()
+        if args.format == "text":
+            print(f"schema_version: {payload['schema_version']}")
+            print(f"tool: {payload['tool']}")
+            print(f"package: {payload['package']}")
+            print(f"version: {payload['version']}")
+            print(f"language_release: {payload['language_release']}")
+            print(f"status: {payload['status']}")
+            print(f"license: {payload['license']}")
+            print(f"recommended_entrypoint: {payload['entrypoints']['recommended']}")
+            print(f"console_script: {payload['entrypoints']['console_script']}")
+            print(
+                "implementation.console_script_target: "
+                + str(payload["implementation_metadata"]["console_script_target"])
+            )
+            print("commands: " + ", ".join(payload["commands"]))
+            print("conformance_suites: " + ", ".join(payload["conformance_suites"]))
+            print(f"readme: {payload['docs']['readme']}")
+            print(f"install_guide: {payload['docs']['install_guide']}")
+            print(f"roadmap: {payload['docs']['roadmap']}")
+            print(f"maintenance: {payload['docs']['maintenance']}")
+            print(f"llms: {payload['machine_readable_summaries']['llms']}")
+            print(f"llms_full: {payload['machine_readable_summaries']['llms_full']}")
+            print(
+                "open_source_boundary.strategy: "
+                + str(payload["open_source_boundary"]["repository_strategy"])
+            )
+            print(
+                "open_source_boundary.distribution: "
+                + str(payload["open_source_boundary"]["public_distribution_name"])
+            )
+            print(
+                "minimal_ci_baseline.path: "
+                + str(payload["minimal_ci_baseline"]["path"])
+            )
+            print(
+                "public_repo_extract_manifest.path: "
+                + str(payload["public_repo_extract_manifest"]["path"])
+            )
+            print(
+                "formal_open_source_readiness.status: "
+                + str(payload["formal_open_source_readiness"]["status"])
+            )
+        else:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+
+    if args.command == "bundle":
+        payload = _bundle_payload()
+        if args.format == "text":
+            print(f"schema_version: {payload['schema_version']}")
+            print(f"tool: {payload['tool']}")
+            print(f"version: {payload['version']}")
+            print(f"language_release: {payload['language_release']}")
+            print(f"status: {payload['status']}")
+            print(f"license: {payload['license']}")
+            print(
+                "public_release.entrypoint: "
+                + payload["public_release_surface"]["entrypoint"]
+            )
+            print(
+                "public_release.readme: "
+                + payload["public_release_surface"]["project_docs"]["readme"]
+            )
+            print(
+                "open_source_boundary.strategy: "
+                + str(payload["open_source_boundary"]["repository_strategy"])
+            )
+            print(
+                "minimal_ci_baseline.path: "
+                + str(payload["minimal_ci_baseline"]["path"])
+            )
+            print(
+                "public_repo_extract_manifest.path: "
+                + str(payload["public_repo_extract_manifest"]["path"])
+            )
+            print(
+                "formal_open_source_readiness.status: "
+                + str(payload["formal_open_source_readiness"]["status"])
+            )
+            print(f"release_check.ok: {str(payload['release_check']['ok']).lower()}")
+            print(f"doctor.ok: {str(payload['doctor']['ok']).lower()}")
+            print("release_check.failed_checks: " + ", ".join(payload["release_check"]["failed_checks"]))
+            print("doctor.failed_checks: " + ", ".join(payload["doctor"]["failed_checks"]))
+        else:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0 if payload["release_check"]["ok"] and payload["doctor"]["ok"] else 1
+
+    if args.command == "doctor":
+        payload = _doctor_payload()
+        if args.format == "text":
+            print(f"tool: {payload['tool']}")
+            print(f"version: {payload['version']}")
+            print(f"language_release: {payload['language_release']}")
+            print(f"ok: {str(payload['ok']).lower()}")
+            for check in payload["checks"]:
+                status = "ok" if check["ok"] else "fail"
+                print(f"{check['name']}: {status} ({check['detail']})")
+        else:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0 if payload["ok"] else 1
+
+    if args.command == "vocab":
+        payload = _vocab_payload()
+        if args.format == "text":
+            print(f"tool: {payload['tool']}")
+            print(f"version: {payload['version']}")
+            print(f"vocab_size: {payload['vocab_size']}")
+            print(f"error_head_count: {payload['error_head_count']}")
+            print("vocab: " + ", ".join(payload["vocab"]))
+            print("error_heads: " + ", ".join(payload["error_heads"]))
+        else:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+
+    if args.command == "examples":
+        if args.name is not None:
+            print(EXAMPLES[args.name])
+            return 0
+        payload = _examples_payload()
+        if args.format == "text":
+            print(f"tool: {payload['tool']}")
+            print(f"version: {payload['version']}")
+            print(f"example_count: {payload['example_count']}")
+            for item in payload["examples"]:
+                print(f"{item['name']}: {item['expr']}")
+        else:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+
+    if args.command == "smoke":
+        pytest_args = list(args.pytest_args)
+        if pytest_args and pytest_args[0] == "--":
+            pytest_args = pytest_args[1:]
+        return _run_smoke(pytest_args)
+
+    if args.command == "demo":
+        payload = _run_demo()
+        if args.format == "text":
+            print(f"tool: {payload['tool']}")
+            print(f"version: {payload['version']}")
+            print(f"language_release: {payload['language_release']}")
+            print(f"ok: {str(payload['ok']).lower()}")
+            for idx, step in enumerate(payload["steps"], start=1):
+                status = "ok" if step["ok"] else "fail"
+                print(f"step{idx}: {status}")
+                print(f"  expr: {step['expr']}")
+                print(f"  result: {step['result']}")
+        else:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0 if payload["ok"] else 1
+
+    if args.command == "host-demo":
+        payload = _run_host_demo()
+        if args.format == "text":
+            print(f"schema_version: {payload['schema_version']}")
+            print(f"tool: {payload['tool']}")
+            print(f"version: {payload['version']}")
+            print(f"ok: {str(payload['ok']).lower()}")
+            print(f"status: {payload['status']}")
+            print(f"payload_kind: {payload['payload_kind']}")
+            print(f"correlation_id: {payload['correlation_id']}")
+            print(f"submission_id: {payload['submission_id']}")
+            print(f"node_id: {payload['node_id']}")
+            _print_text_step_blocks(payload["steps"])
+            for label in (
+                "typed_query_result",
+                "typed_submission_message",
+                "typed_response",
+                "typed_submission_record",
+                "typed_trace",
+                "write_header",
+                "typed_write_header",
+                "typed_snapshot",
+                "typed_summary",
+                "snapshot_summary",
+            ):
+                if label in payload:
+                    _print_text_mapping_block(label, payload[label])
+        else:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0 if payload["ok"] else 1
+
+    if args.command == "release-check":
+        payload = _release_check_payload()
+        if args.format == "text":
+            print(f"tool: {payload['tool']}")
+            print(f"version: {payload['version']}")
+            print(f"language_release: {payload['language_release']}")
+            print(f"ok: {str(payload['ok']).lower()}")
+            for check in payload["checks"]:
+                status = "ok" if check["ok"] else "fail"
+                print(f"{check['name']}: {status} ({check['detail']})")
+        else:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0 if payload["ok"] else 1
+
+    source = _read_expr(args)
+    expr = parse(source)
+
+    if args.command == "parse":
+        if expr.head == "ParseError":
+            _emit(expr, args.format)
+            return 1
+        _emit(expr, args.format)
+        return 0
+
+    if args.command == "canonicalize":
+        if expr.head == "ParseError":
+            print(canonicalize(expr))
+            return 1
+        print(canonicalize(expr))
+        return 0
+
+    if args.command == "validate":
+        valid = expr.head != "ParseError" and valid_coglang(expr)
+        if args.json:
+            print(
+                json.dumps(
+                    {
+                        "ok": valid,
+                        "parse_error": expr.head == "ParseError",
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            )
+        else:
+            print("true" if valid else "false")
+        return 0 if valid else 1
+
+    if args.command == "execute":
+        if expr.head == "ParseError":
+            _emit(expr, args.format)
+            return 1
+        executor = PythonCogLangExecutor()
+        result = executor.execute(expr)
+        _emit(result, args.format)
+        return 0 if not (isinstance(result, CogLangExpr) and result.head == "ParseError") else 1
+
+    parser.error(f"unknown command: {args.command}")
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

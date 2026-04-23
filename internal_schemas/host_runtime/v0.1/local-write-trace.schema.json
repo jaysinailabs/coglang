@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coglang:host-runtime:v0.1:local-write-trace",
+  "title": "LocalWriteTrace",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "correlation_id",
+    "submission_id",
+    "request",
+    "response",
+    "record",
+    "query_result"
+  ],
+  "properties": {
+    "correlation_id": {
+      "type": "string"
+    },
+    "submission_id": {
+      "type": "string"
+    },
+    "request": {
+      "$ref": "./write-bundle-submission-message.schema.json"
+    },
+    "response": {
+      "$ref": "./write-bundle-response-message.schema.json"
+    },
+    "record": {
+      "$ref": "./local-write-submission-record.schema.json"
+    },
+    "query_result": {
+      "$ref": "./local-write-query-result.schema.json"
+    }
+  }
+}

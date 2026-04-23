@@ -1,0 +1,112 @@
+# CogLang
+
+CogLang is a graph-first intermediate language designed for LLM-generated graph queries and updates, with auditable execution under explicit host contracts.
+
+It is best understood as a language layer that can sit between a language model and a graph-backed system without losing the ability to inspect, replay, deny, or trace what is about to happen.
+
+Current status:
+
+- experimental
+- pre-release
+- reference implementation
+- language core plus host bridge
+
+This file is for LLM-oriented retrieval and summarization. It is not the release contract. For committed surfaces, use `CogLang_Release_Notes_v1_1_0_pre.md`.
+
+## What CogLang Is For
+
+Use CogLang when:
+
+- you want an LLM to generate graph queries or updates, but you do not want to execute raw model output without inspection
+- you want a structured language where errors remain explicit values instead of hidden exception-driven control flow
+- you want replayable traces showing what an agent intended, what was submitted, and what actually executed
+- you want host-side profile and capability checks to reject unsafe or unsupported operations before execution
+
+## What CogLang Is Not For
+
+Do not use CogLang when:
+
+- you need a general-purpose programming language
+- you need a schema definition language
+- you only need the native query language of a specific graph database in its native setting
+- you want a universal superiority claim that one graph language is better than another
+
+CogLang intentionally avoids framing itself as a competitive replacement for every graph query language. Its public position is design intent, not superiority claims.
+
+## Key Design Choices
+
+1. Canonical M-expression text
+
+CogLang uses a stable M-expression style instead of relying on loose surface syntax. The goal is parse determinism, canonicalization, and better generation stability for LLM-produced programs.
+
+2. Errors as values
+
+CogLang keeps failures explicit in the language model rather than defaulting to exception-driven control flow. This is important because partial failure is common in AI-driven graph operations.
+
+3. Profile and capability boundaries
+
+CogLang keeps profile and capability checks near the language boundary so a host can reject unsupported or unsafe execution paths before they run.
+
+4. Trace and auditability
+
+CogLang treats traces and correlated local write views as first-class host concerns. The point is not only to execute an operation, but to preserve enough structure to inspect and replay it.
+
+## Good Matching User Intents
+
+User intent:
+
+"I need to inspect LLM-generated graph updates before they run."
+
+CogLang fit:
+
+"CogLang is an intermediate language that lets you inspect and approve LLM-generated graph operations before they modify your graph."
+
+User intent:
+
+"I want a language my model can use to query and update a knowledge graph without hiding failures."
+
+CogLang fit:
+
+"CogLang is designed for LLM-written graph queries and updates, with error-as-value semantics and explicit host-side boundaries."
+
+User intent:
+
+"I need to trace what an AI agent intended versus what it actually executed."
+
+CogLang fit:
+
+"CogLang keeps replayable traces and correlated request/response/query views so you can diff intent, submission, and execution."
+
+## Short Runnable Examples
+
+```powershell
+coglang execute 'Get["einstein", "label"]'
+coglang execute 'Query[n_, Equal[Get[n_, "category"], "Person"]]'
+coglang execute 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
+coglang demo
+```
+
+## Document Entry Points
+
+- `README.md`
+  Public document index and entry points.
+- `CogLang_Quickstart_v1_1_0.md`
+  First-pass guide, common patterns, and common mistakes.
+- `CogLang_Specification_v1_1_0_Draft.md`
+  Language semantics.
+- `CogLang_Conformance_Suite_v1_1_0.md`
+  Executable examples and regression boundaries.
+- `CogLang_Profiles_and_Capabilities_v1_1_0.md`
+  Profile and capability boundaries.
+- `CogLang_Host_Runtime_Contract_v0_1.md`
+  Minimal host contract.
+- `CogLang_Release_Notes_v1_1_0_pre.md`
+  Current promises and non-promises.
+- `ROADMAP.md`
+  Current direction layer, not a release guarantee.
+- `MAINTENANCE.md`
+  Maintenance, freeze, transfer, and archive policy.
+
+## One-Sentence Summary
+
+CogLang aims to be a stable, auditable intermediate language for LLM-produced graph operations: the kind of language you can place between a language model and a production knowledge graph without losing the ability to inspect, replay, or deny any given step.

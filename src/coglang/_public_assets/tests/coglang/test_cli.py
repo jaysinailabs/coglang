@@ -1,0 +1,1143 @@
+from __future__ import annotations
+
+import io
+import os
+import sys
+import tempfile
+import types
+from contextlib import redirect_stdout
+
+try:
+    from logos.coglang.cli import (
+        HOST_DEMO_TOP_LEVEL_KEYS,
+        _bundle_payload,
+        _conformance_targets,
+        _distribution_metadata,
+        _doctor_payload,
+        _examples_payload,
+        _formal_open_source_readiness_payload,
+        _info_payload,
+        _manifest_payload,
+        _minimal_ci_baseline_payload,
+        _public_repo_extract_manifest_payload,
+        _open_source_boundary_payload,
+        _release_check_payload,
+        _run_conformance_suite,
+        _run_demo,
+        _run_host_demo,
+        _run_repl,
+        _run_smoke,
+        _vocab_payload,
+        main,
+    )
+    from logos.coglang.local_host import LocalHostSnapshot, LocalHostSummary, LocalHostTrace
+    from logos.coglang.write_bundle import (
+        LocalWriteHeader,
+        LocalWriteQueryResult,
+        LocalWriteSubmissionRecord,
+        WriteBundleResponseMessage,
+        WriteBundleSubmissionMessage,
+    )
+    CLI_MODULE_PATH = "logos.coglang.cli"
+    MODULE_ENTRY = "logos.coglang"
+    DISTRIBUTION_NAME = "logos"
+except ModuleNotFoundError:
+    from coglang.cli import (
+        HOST_DEMO_TOP_LEVEL_KEYS,
+        _bundle_payload,
+        _conformance_targets,
+        _distribution_metadata,
+        _doctor_payload,
+        _examples_payload,
+        _formal_open_source_readiness_payload,
+        _info_payload,
+        _manifest_payload,
+        _minimal_ci_baseline_payload,
+        _public_repo_extract_manifest_payload,
+        _open_source_boundary_payload,
+        _release_check_payload,
+        _run_conformance_suite,
+        _run_demo,
+        _run_host_demo,
+        _run_repl,
+        _run_smoke,
+        _vocab_payload,
+        main,
+    )
+    from coglang.local_host import LocalHostSnapshot, LocalHostSummary, LocalHostTrace
+    from coglang.write_bundle import (
+        LocalWriteHeader,
+        LocalWriteQueryResult,
+        LocalWriteSubmissionRecord,
+        WriteBundleResponseMessage,
+        WriteBundleSubmissionMessage,
+    )
+    CLI_MODULE_PATH = "coglang.cli"
+    MODULE_ENTRY = "coglang"
+    DISTRIBUTION_NAME = "coglang"
+
+
+def _path_in_layout(monorepo_path: str, extracted_path: str) -> str:
+    return monorepo_path if CLI_MODULE_PATH == "logos.coglang.cli" else extracted_path
+
+
+def _cli_attr(name: str) -> str:
+    return f"{CLI_MODULE_PATH}.{name}"
+
+
+def _cli_host_attr(name: str) -> str:
+    return f"{CLI_MODULE_PATH}.LocalCogLangHost.{name}"
+
+
+def _run(argv: list[str]) -> tuple[int, str]:
+    buffer = io.StringIO()
+    with redirect_stdout(buffer):
+        code = main(argv)
+    return code, buffer.getvalue().strip()
+
+
+def test_cli_parse_canonical_output():
+    code, output = _run(["parse", 'Equal[1, 1]'])
+    assert code == 0
+    assert output == 'Equal[1, 1]'
+
+
+def test_cli_parse_json_output():
+    code, output = _run(["parse", "--format", "json", 'Equal[1, 1]'])
+    assert code == 0
+    assert '"head": "Equal"' in output
+
+
+def test_cli_validate_success_plain_text():
+    code, output = _run(["validate", 'Equal[1, 1]'])
+    assert code == 0
+    assert output == "true"
+
+
+def test_cli_validate_failure_unknown_head():
+    code, output = _run(["validate", 'UnknownHead[1]'])
+    assert code == 1
+    assert output == "false"
+
+
+def test_cli_execute_returns_canonical_result():
+    code, output = _run(["execute", 'Equal[1, 1]'])
+    assert code == 0
+    assert output == "True[]"
+
+
+def test_cli_execute_json_result():
+    code, output = _run(["execute", "--format", "json", 'Equal[1, 2]'])
+    assert code == 0
+    assert '"head": "False"' in output
+
+
+def test_cli_conformance_targets_smoke():
+    targets = _conformance_targets("smoke")
+    normalized = [t.replace("\\", "/") for t in targets]
+    assert any(
+        item.endswith("tests/coglang/test_cli.py")
+        or item.endswith("coglang/_public_assets/tests/coglang/test_cli.py")
+        for item in normalized
+    )
+    assert any(
+        item.endswith("tests/coglang/test_parser.py")
+        or item.endswith("coglang/_public_assets/tests/coglang/test_parser.py")
+        for item in normalized
+    )
+    assert any(
+        item.endswith("tests/coglang/test_validator.py")
+        or item.endswith("coglang/_public_assets/tests/coglang/test_validator.py")
+        for item in normalized
+    )
+
+
+def test_cli_conformance_targets_full():
+    normalized = [t.replace("\\", "/") for t in _conformance_targets("full")]
+    assert len(normalized) == 1
+    assert normalized[0].endswith("tests/coglang") or normalized[0].endswith(
+        "coglang/_public_assets/tests/coglang"
+    )
+
+
+def test_cli_conformance_dispatch(monkeypatch):
+    seen: dict[str, object] = {}
+
+    def fake_runner(suite: str, pytest_args: list[str] | None = None) -> int:
+        seen["suite"] = suite
+        seen["pytest_args"] = pytest_args
+        return 0
+
+    monkeypatch.setattr(_cli_attr("_run_conformance_suite"), fake_runner)
+    code, _ = _run(["conformance", "core", "--", "-k", "query_local_write"])
+    assert code == 0
+    assert seen["suite"] == "core"
+    assert seen["pytest_args"] == ["-k", "query_local_write"]
+
+
+def test_run_conformance_suite_cleans_tempdir_and_restores_environment(
+    monkeypatch,
+    tmp_path,
+):
+    root = tmp_path / "workspace"
+    root.mkdir()
+    seen: dict[str, object] = {}
+    original_temp = os.environ.get("TEMP")
+    original_tmp = os.environ.get("TMP")
+    original_tempdir = tempfile.tempdir
+
+    def fake_main(args: list[str]) -> int:
+        redirected_tmp = root / ".tmp_pytest"
+        seen["args"] = list(args)
+        seen["temp"] = os.environ.get("TEMP")
+        seen["tmp"] = os.environ.get("TMP")
+        seen["tempdir"] = tempfile.tempdir
+        seen["tmp_exists_during_run"] = redirected_tmp.exists()
+        (redirected_tmp / "sentinel.lock").write_text("lock", encoding="utf-8")
+        return 0
+
+    monkeypatch.setitem(sys.modules, "pytest", types.SimpleNamespace(main=fake_main))
+    monkeypatch.setattr(_cli_attr("_project_root"), lambda: root)
+    monkeypatch.setattr(
+        _cli_attr("_conformance_targets"),
+        lambda suite: ["tests/coglang/test_cli.py"],
+    )
+
+    assert _run_conformance_suite("smoke") == 0
+    assert seen["args"] == ["tests/coglang/test_cli.py"]
+    assert seen["temp"] == str(root / ".tmp_pytest")
+    assert seen["tmp"] == str(root / ".tmp_pytest")
+    assert seen["tempdir"] == str(root / ".tmp_pytest")
+    assert seen["tmp_exists_during_run"] is True
+    assert not (root / ".tmp_pytest").exists()
+    assert tempfile.tempdir == original_tempdir
+    assert os.environ.get("TEMP") == original_temp
+    assert os.environ.get("TMP") == original_tmp
+
+
+def test_repl_executes_one_expression_then_quits():
+    stdin = io.StringIO('Equal[1, 1]\n:quit\n')
+    stdout = io.StringIO()
+    code = _run_repl(stdin=stdin, stdout=stdout)
+    rendered = stdout.getvalue()
+    assert code == 0
+    assert "CogLang REPL" in rendered
+    assert "True[]" in rendered
+
+
+def test_repl_prints_parse_error():
+    stdin = io.StringIO('Equal[1, 1\n:quit\n')
+    stdout = io.StringIO()
+    code = _run_repl(stdin=stdin, stdout=stdout)
+    rendered = stdout.getvalue()
+    assert code == 0
+    assert 'ParseError[' in rendered
+
+
+def test_repl_help_then_exit():
+    stdin = io.StringIO(':help\n:exit\n')
+    stdout = io.StringIO()
+    code = _run_repl(stdin=stdin, stdout=stdout)
+    rendered = stdout.getvalue()
+    assert code == 0
+    assert "Enter one CogLang expression" in rendered
+
+
+def test_cli_info_payload_shape():
+    payload = _info_payload()
+    assert payload["tool"] == "coglang"
+    assert payload["package"] == DISTRIBUTION_NAME
+    assert payload["language_release"] == "v1.1.0-pre"
+    assert "parse" in payload["commands"]
+    assert "smoke" in payload["conformance_suites"]
+    assert "host-demo" in payload["commands"]
+
+
+def test_cli_info_json_output():
+    code, output = _run(["info"])
+    assert code == 0
+    assert '"tool": "coglang"' in output
+    assert f'"package": "{DISTRIBUTION_NAME}"' in output
+    assert '"language_release": "v1.1.0-pre"' in output
+
+
+def test_cli_info_text_output():
+    code, output = _run(["info", "--format", "text"])
+    assert code == 0
+    assert "tool: coglang" in output
+    assert "language_release: v1.1.0-pre" in output
+    assert "conformance_suites: smoke, core, full" in output
+
+
+def test_cli_manifest_payload_shape():
+    payload = _manifest_payload()
+    assert payload["schema_version"] == "coglang-cli-manifest/v0.1"
+    assert payload["license"] == "Apache-2.0"
+    assert payload["language_release"] == "v1.1.0-pre"
+    assert payload["entrypoints"]["console_script"] == "coglang"
+    assert payload["entrypoints"]["recommended"] == "coglang"
+    assert payload["implementation_metadata"]["distribution_name"] == DISTRIBUTION_NAME
+    assert payload["docs"]["install_guide"].endswith("CogLang_Standalone_Install_and_Release_Guide_v0_1.md")
+    assert payload["docs"]["roadmap"].endswith("ROADMAP.md")
+    assert payload["docs"]["maintenance"].endswith("MAINTENANCE.md")
+    assert payload["machine_readable_summaries"]["llms"].endswith("llms.txt")
+    assert payload["machine_readable_summaries"]["llms_full"].endswith("llms-full.txt")
+    assert payload["public_release_surface"]["entrypoint"] == "coglang"
+    assert payload["public_release_surface"]["project_docs"]["readme"] == payload["docs"]["readme"]
+    assert payload["open_source_boundary"]["schema_version"] == "coglang-open-source-boundary/v0.1"
+    assert payload["open_source_boundary"]["public_distribution_name"] == "coglang"
+    assert payload["open_source_boundary"]["release_roots_exist"] is True
+    assert payload["minimal_ci_baseline"]["schema_version"] == "coglang-minimal-ci-baseline/v0.1"
+    assert payload["minimal_ci_baseline"]["required_command_names_present"] is True
+    assert payload["minimal_ci_baseline"]["public_entrypoint_only"] is True
+    assert payload["public_repo_extract_manifest"]["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
+    assert payload["public_repo_extract_manifest"]["source_paths_exist"] is True
+    assert payload["public_repo_extract_manifest"]["destination_paths_unique"] is True
+    assert payload["formal_open_source_readiness"]["schema_version"] == "coglang-formal-open-source-readiness/v0.1"
+    assert payload["formal_open_source_readiness"]["ready_for_candidate_decision"] is True
+
+
+def test_cli_manifest_json_output():
+    code, output = _run(["manifest"])
+    assert code == 0
+    assert '"schema_version": "coglang-cli-manifest/v0.1"' in output
+    assert '"license": "Apache-2.0"' in output
+    assert '"language_release": "v1.1.0-pre"' in output
+    assert '"public_release_surface"' in output
+    assert '"machine_readable_summaries"' in output
+    assert '"open_source_boundary"' in output
+    assert '"minimal_ci_baseline"' in output
+    assert '"public_repo_extract_manifest"' in output
+    assert '"formal_open_source_readiness"' in output
+
+
+def test_cli_manifest_text_output():
+    code, output = _run(["manifest", "--format", "text"])
+    assert code == 0
+    assert "schema_version: coglang-cli-manifest/v0.1" in output
+    assert "language_release: v1.1.0-pre" in output
+    assert "recommended_entrypoint: coglang" in output
+    assert "console_script: coglang" in output
+    assert f"roadmap: {_path_in_layout('plans/coglang/ROADMAP.md', 'ROADMAP.md')}" in output
+    assert f"maintenance: {_path_in_layout('plans/coglang/MAINTENANCE.md', 'MAINTENANCE.md')}" in output
+    assert f"llms: {_path_in_layout('plans/coglang/llms.txt', 'llms.txt')}" in output
+    assert f"llms_full: {_path_in_layout('plans/coglang/llms-full.txt', 'llms-full.txt')}" in output
+    assert "open_source_boundary.strategy: dedicated_repository_extract" in output
+    assert "open_source_boundary.distribution: coglang" in output
+    assert (
+        f"minimal_ci_baseline.path: "
+        f"{_path_in_layout('plans/coglang/CogLang_Minimal_CI_Baseline_v0_1.json', 'CogLang_Minimal_CI_Baseline_v0_1.json')}"
+        in output
+    )
+    assert (
+        f"public_repo_extract_manifest.path: "
+        f"{_path_in_layout('plans/coglang/CogLang_Public_Repo_Extract_Manifest_v0_1.json', 'CogLang_Public_Repo_Extract_Manifest_v0_1.json')}"
+        in output
+    )
+    assert "formal_open_source_readiness.status: ready-for-formal-open-source-candidate-decision" in output
+
+
+def test_cli_bundle_payload_shape():
+    payload = _bundle_payload()
+    assert payload["schema_version"] == "coglang-release-bundle/v0.1"
+    assert payload["language_release"] == "v1.1.0-pre"
+    assert payload["public_release_surface"]["entrypoint"] == "coglang"
+    assert payload["public_release_surface"]["project_docs"]["readme"].endswith(
+        _path_in_layout("plans/coglang/README.md", "README.md")
+    )
+    assert payload["open_source_boundary"]["repository_strategy"] == "dedicated_repository_extract"
+    assert payload["minimal_ci_baseline"]["schema_version"] == "coglang-minimal-ci-baseline/v0.1"
+    assert payload["public_repo_extract_manifest"]["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
+    assert payload["formal_open_source_readiness"]["ready_for_candidate_decision"] is True
+    assert payload["release_check"]["ok"] is True
+    assert payload["doctor"]["ok"] is True
+
+
+def test_cli_bundle_json_output():
+    code, output = _run(["bundle"])
+    assert code == 0
+    assert '"schema_version": "coglang-release-bundle/v0.1"' in output
+    assert '"language_release": "v1.1.0-pre"' in output
+    assert '"release_check"' in output
+    assert '"doctor"' in output
+    assert '"public_release_surface"' in output
+    assert '"open_source_boundary"' in output
+    assert '"minimal_ci_baseline"' in output
+    assert '"public_repo_extract_manifest"' in output
+    assert '"formal_open_source_readiness"' in output
+
+
+def test_cli_bundle_text_output():
+    code, output = _run(["bundle", "--format", "text"])
+    assert code == 0
+    assert "schema_version: coglang-release-bundle/v0.1" in output
+    assert "language_release: v1.1.0-pre" in output
+    assert "public_release.entrypoint: coglang" in output
+    assert f"public_release.readme: {_path_in_layout('plans/coglang/README.md', 'README.md')}" in output
+    assert "open_source_boundary.strategy: dedicated_repository_extract" in output
+    assert (
+        f"minimal_ci_baseline.path: "
+        f"{_path_in_layout('plans/coglang/CogLang_Minimal_CI_Baseline_v0_1.json', 'CogLang_Minimal_CI_Baseline_v0_1.json')}"
+        in output
+    )
+    assert (
+        f"public_repo_extract_manifest.path: "
+        f"{_path_in_layout('plans/coglang/CogLang_Public_Repo_Extract_Manifest_v0_1.json', 'CogLang_Public_Repo_Extract_Manifest_v0_1.json')}"
+        in output
+    )
+    assert "formal_open_source_readiness.status: ready-for-formal-open-source-candidate-decision" in output
+    assert "release_check.ok: true" in output
+    assert "doctor.ok: true" in output
+
+
+def test_cli_doctor_payload_shape():
+    payload = _doctor_payload()
+    assert payload["tool"] == "coglang"
+    assert payload["language_release"] == "v1.1.0-pre"
+    assert isinstance(payload["checks"], list)
+    assert any(item["name"] == "parse" for item in payload["checks"])
+
+
+def test_cli_doctor_json_output():
+    code, output = _run(["doctor"])
+    assert code == 0
+    assert '"tool": "coglang"' in output
+    assert '"language_release": "v1.1.0-pre"' in output
+    assert '"checks"' in output
+
+
+def test_cli_doctor_text_output():
+    code, output = _run(["doctor", "--format", "text"])
+    assert code == 0
+    assert "tool: coglang" in output
+    assert "language_release: v1.1.0-pre" in output
+    assert "parse: ok" in output
+
+
+def test_cli_vocab_payload_shape():
+    payload = _vocab_payload()
+    assert payload["tool"] == "coglang"
+    assert payload["vocab_size"] >= payload["error_head_count"]
+    assert "Create" in payload["vocab"]
+
+
+def test_cli_vocab_json_output():
+    code, output = _run(["vocab"])
+    assert code == 0
+    assert '"vocab_size"' in output
+    assert '"error_heads"' in output
+
+
+def test_cli_vocab_text_output():
+    code, output = _run(["vocab", "--format", "text"])
+    assert code == 0
+    assert "vocab_size:" in output
+    assert "error_heads:" in output
+
+
+def test_cli_examples_payload_shape():
+    payload = _examples_payload()
+    assert payload["tool"] == "coglang"
+    assert payload["example_count"] >= 1
+    assert any(item["name"] == "query" for item in payload["examples"])
+
+
+def test_cli_examples_json_output():
+    code, output = _run(["examples"])
+    assert code == 0
+    assert '"example_count"' in output
+    assert '"examples"' in output
+
+
+def test_cli_examples_text_output():
+    code, output = _run(["examples", "--format", "text"])
+    assert code == 0
+    assert "example_count:" in output
+    assert "query:" in output
+
+
+def test_cli_examples_named_output():
+    code, output = _run(["examples", "--name", "bind"])
+    assert code == 0
+    assert output == 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
+
+
+def test_cli_smoke_dispatch_success(monkeypatch):
+    monkeypatch.setattr(_cli_attr("_doctor_payload"), lambda: {"ok": True, "checks": [1, 2, 3]})
+    monkeypatch.setattr(_cli_attr("_run_conformance_suite"), lambda suite, pytest_args=None: 0)
+    code, output = _run(["smoke"])
+    assert code == 0
+    assert '"suite": "smoke"' in output
+    assert '"ok": true' in output
+
+
+def test_cli_smoke_stops_on_doctor_failure(monkeypatch):
+    monkeypatch.setattr(_cli_attr("_doctor_payload"), lambda: {"ok": False, "checks": []})
+    code, output = _run(["smoke"])
+    assert code == 1
+    assert '"conformance": null' in output
+
+
+def test_run_smoke_forwards_pytest_args(monkeypatch):
+    seen: dict[str, object] = {}
+    monkeypatch.setattr(_cli_attr("_doctor_payload"), lambda: {"ok": True, "checks": [1]})
+
+    def fake_run(suite: str, pytest_args: list[str] | None = None) -> int:
+        seen["suite"] = suite
+        seen["pytest_args"] = pytest_args
+        return 0
+
+    monkeypatch.setattr(_cli_attr("_run_conformance_suite"), fake_run)
+    code = _run_smoke(["-k", "cli"])
+    assert code == 0
+    assert seen["suite"] == "smoke"
+    assert seen["pytest_args"] == ["-k", "cli"]
+
+
+def test_cli_demo_payload():
+    payload = _run_demo()
+    assert payload["tool"] == "coglang"
+    assert payload["ok"] is True
+    assert len(payload["steps"]) >= 5
+
+
+def test_cli_demo_json_output():
+    code, output = _run(["demo"])
+    assert code == 0
+    assert '"steps"' in output
+    assert '"ok": true' in output
+
+
+def test_cli_demo_text_output():
+    code, output = _run(["demo", "--format", "text"])
+    assert code == 0
+    assert "tool: coglang" in output
+    assert "step1: ok" in output
+
+
+def test_cli_host_demo_payload():
+    payload = _run_host_demo()
+    assert list(payload) == list(HOST_DEMO_TOP_LEVEL_KEYS)
+    assert payload["schema_version"] == "coglang-host-demo/v0.1"
+    assert payload["tool"] == "coglang"
+    assert payload["ok"] is True
+    assert payload["write_header"]["correlation_id"] == payload["correlation_id"]
+    assert payload["write_header"]["submission_id"] == payload["submission_id"]
+    assert payload["write_header"]["status"] == payload["status"]
+    assert payload["write_header"]["payload_kind"] == payload["payload_kind"]
+    assert payload["typed_write_header"] == payload["write_header"]
+    assert (
+        LocalWriteHeader.from_json(
+            LocalWriteHeader.from_dict(payload["typed_write_header"]).to_json()
+        ).to_dict()
+        == payload["typed_write_header"]
+    )
+    assert payload["status"] == "committed"
+    assert payload["payload_kind"] == "WriteResult"
+    assert isinstance(payload["node_id"], str)
+    assert isinstance(payload["correlation_id"], str)
+    assert isinstance(payload["submission_id"], str)
+    assert payload["typed_submission_message"]["header"]["correlation_id"] == payload["correlation_id"]
+    assert payload["typed_submission_message"]["header"]["submission_id"] == payload["submission_id"]
+    assert (
+        WriteBundleSubmissionMessage.from_json(
+            WriteBundleSubmissionMessage.from_dict(
+                payload["typed_submission_message"]
+            ).to_json()
+        ).to_dict()
+        == payload["typed_submission_message"]
+    )
+    assert payload["typed_response"]["header"]["correlation_id"] == payload["correlation_id"]
+    assert payload["typed_response"]["header"]["submission_id"] == payload["submission_id"]
+    assert payload["typed_response"]["header"]["payload_kind"] == payload["payload_kind"]
+    assert (
+        WriteBundleResponseMessage.from_json(
+            WriteBundleResponseMessage.from_dict(payload["typed_response"]).to_json()
+        ).to_dict()
+        == payload["typed_response"]
+    )
+    assert payload["typed_submission_record"]["correlation_id"] == payload["correlation_id"]
+    assert payload["typed_submission_record"]["submission_id"] == payload["submission_id"]
+    assert payload["typed_submission_record"]["status"] == "committed"
+    assert (
+        LocalWriteSubmissionRecord.from_json(
+            LocalWriteSubmissionRecord.from_dict(
+                payload["typed_submission_record"]
+            ).to_json()
+        ).to_dict()
+        == payload["typed_submission_record"]
+    )
+    assert len(payload["steps"]) == 5
+    assert [step["name"] for step in payload["steps"]] == [
+        "execute_and_submit_to",
+        "typed_response",
+        "query_result",
+        "trace",
+        "error_report",
+    ]
+    assert payload["steps"][0]["ok"] is True
+    assert payload["steps"][0]["node_id"] == payload["node_id"]
+    assert payload["steps"][0]["correlation_id"] == payload["correlation_id"]
+    assert payload["steps"][0]["submission_id"] == payload["submission_id"]
+    assert payload["steps"][0]["correlation_id"] == payload["write_header"]["correlation_id"]
+    assert payload["steps"][0]["submission_id"] == payload["write_header"]["submission_id"]
+    assert payload["steps"][1]["ok"] is True
+    assert payload["steps"][1]["payload_kind"] == payload["payload_kind"]
+    assert payload["steps"][1]["correlation_id"] == payload["correlation_id"]
+    assert payload["steps"][1]["submission_id"] == payload["submission_id"]
+    assert payload["steps"][1]["payload_kind"] == payload["typed_response"]["header"]["payload_kind"]
+    assert payload["steps"][1]["correlation_id"] == payload["typed_response"]["header"]["correlation_id"]
+    assert payload["steps"][1]["submission_id"] == payload["typed_response"]["header"]["submission_id"]
+    assert payload["steps"][2]["ok"] is True
+    assert payload["steps"][2]["status"] == payload["status"]
+    assert payload["steps"][2]["submission_id"] == payload["submission_id"]
+    assert payload["steps"][2]["status"] == payload["typed_query_result"]["status"]
+    assert payload["steps"][2]["submission_id"] == payload["typed_query_result"]["submission_id"]
+    assert payload["steps"][3]["ok"] is True
+    assert payload["steps"][3]["submission_id"] == payload["submission_id"]
+    assert payload["steps"][3]["submission_id"] == payload["typed_trace"]["submission_id"]
+    assert payload["steps"][4]["ok"] is True
+    assert payload["steps"][4]["status"] == "failed"
+    assert payload["steps"][4]["payload_kind"] == "ErrorReport"
+    assert payload["steps"][4]["error_kind"] == "ValidationError"
+    assert payload["steps"][4]["retryable"] is True
+    assert payload["steps"][4]["error_count"] >= 1
+    assert payload["steps"][4]["correlation_id"] != payload["correlation_id"]
+    assert payload["steps"][4]["submission_id"] != payload["submission_id"]
+    assert payload["typed_query_result"]["status"] == "committed"
+    assert payload["typed_query_result"]["status"] == payload["status"]
+    assert payload["typed_query_result"]["correlation_id"] == payload["correlation_id"]
+    assert payload["typed_query_result"]["submission_id"] == payload["submission_id"]
+    assert (
+        LocalWriteQueryResult.from_json(
+            LocalWriteQueryResult.from_dict(payload["typed_query_result"]).to_json()
+        ).to_dict()
+        == payload["typed_query_result"]
+    )
+    assert payload["typed_trace"]["query_result"]["status"] == "committed"
+    assert payload["typed_trace"]["correlation_id"] == payload["correlation_id"]
+    assert payload["typed_trace"]["submission_id"] == payload["submission_id"]
+    assert payload["typed_trace"]["request"] == payload["typed_submission_message"]
+    assert payload["typed_trace"]["response"] == payload["typed_response"]
+    assert payload["typed_trace"]["record"] == payload["typed_submission_record"]
+    assert payload["typed_trace"]["query_result"] == payload["typed_query_result"]
+    assert (
+        LocalHostTrace.from_json(
+            LocalHostTrace.from_dict(payload["typed_trace"]).to_json()
+        ).to_dict()
+        == payload["typed_trace"]
+    )
+    assert payload["typed_snapshot"]["graph"]["directed"] is True
+    assert len(payload["typed_snapshot"]["graph"]["nodes"]) == 1
+    assert len(payload["typed_snapshot"]["graph"]["edges"]) == 0
+    assert len(payload["typed_snapshot"]["write_submission_messages"]) == 1
+    assert len(payload["typed_snapshot"]["write_response_messages"]) == 1
+    assert len(payload["typed_snapshot"]["write_submission_records"]) == 1
+    assert len(payload["typed_snapshot"]["write_query_results"]) == 1
+    assert len(payload["typed_snapshot"]["write_traces"]) == 1
+    assert (
+        LocalHostSnapshot.from_json(
+            LocalHostSnapshot.from_dict(payload["typed_snapshot"]).to_json()
+        ).to_dict()
+        == payload["typed_snapshot"]
+    )
+    assert (
+        payload["typed_snapshot"]["write_submission_messages"][0]
+        == payload["typed_submission_message"]
+    )
+    assert (
+        payload["typed_snapshot"]["write_response_messages"][0]
+        == payload["typed_response"]
+    )
+    assert (
+        payload["typed_snapshot"]["write_submission_records"][0]
+        == payload["typed_submission_record"]
+    )
+    assert (
+        payload["typed_snapshot"]["write_query_results"][0]
+        == payload["typed_query_result"]
+    )
+    assert payload["typed_snapshot"]["write_traces"][0] == payload["typed_trace"]
+    assert payload["typed_summary"]["node_count"] == 1
+    assert payload["typed_summary"]["edge_count"] == 0
+    assert payload["typed_summary"]["request_count"] == 1
+    assert payload["typed_summary"]["trace_count"] == 1
+    assert payload["typed_summary"]["response_count"] == 1
+    assert payload["typed_summary"]["submission_record_count"] == 1
+    assert payload["typed_summary"]["query_result_count"] == 1
+    assert payload["typed_summary"]["status_counts"] == {"committed": 1}
+    assert (
+        LocalHostSummary.from_json(
+            LocalHostSummary.from_dict(payload["typed_summary"]).to_json()
+        ).to_dict()
+        == payload["typed_summary"]
+    )
+    assert payload["typed_summary"]["node_count"] == len(payload["typed_snapshot"]["graph"]["nodes"])
+    assert payload["typed_summary"]["edge_count"] == len(payload["typed_snapshot"]["graph"]["edges"])
+    assert (
+        payload["typed_summary"]["request_count"]
+        == len(payload["typed_snapshot"]["write_submission_messages"])
+    )
+    assert (
+        payload["typed_summary"]["response_count"]
+        == len(payload["typed_snapshot"]["write_response_messages"])
+    )
+    assert (
+        payload["typed_summary"]["submission_record_count"]
+        == len(payload["typed_snapshot"]["write_submission_records"])
+    )
+    assert (
+        payload["typed_summary"]["query_result_count"]
+        == len(payload["typed_snapshot"]["write_query_results"])
+    )
+    assert (
+        payload["typed_summary"]["trace_count"]
+        == len(payload["typed_snapshot"]["write_traces"])
+    )
+    assert payload["snapshot_summary"] == LocalHostSummary.from_snapshot(
+        LocalHostSnapshot.from_dict(payload["typed_snapshot"])
+    ).to_dict()
+    assert payload["typed_summary"] == payload["snapshot_summary"]
+    assert payload["snapshot_summary"]["node_count"] == 1
+    assert payload["snapshot_summary"]["edge_count"] == 0
+    assert payload["snapshot_summary"]["request_count"] == 1
+    assert payload["snapshot_summary"]["trace_count"] == 1
+    assert payload["snapshot_summary"]["response_count"] == 1
+    assert payload["snapshot_summary"]["submission_record_count"] == 1
+    assert payload["snapshot_summary"]["query_result_count"] == 1
+    assert payload["snapshot_summary"]["status_counts"] == {"committed": 1}
+
+
+def test_cli_host_demo_json_output():
+    code, output = _run(["host-demo"])
+    assert code == 0
+    assert '"schema_version": "coglang-host-demo/v0.1"' in output
+    assert '"name": "execute_and_submit_to"' in output
+    assert '"name": "typed_response"' in output
+    assert '"name": "query_result"' in output
+    assert '"name": "trace"' in output
+    assert '"name": "error_report"' in output
+    assert '"correlation_id"' in output
+    assert '"submission_id"' in output
+    assert '"status": "committed"' in output
+    assert '"payload_kind": "WriteResult"' in output
+    assert '"payload_kind": "ErrorReport"' in output
+    assert '"error_kind": "ValidationError"' in output
+    assert '"write_header"' in output
+    assert '"typed_write_header"' in output
+    assert '"node_id"' in output
+    assert '"typed_submission_message"' in output
+    assert '"typed_response"' in output
+    assert '"typed_submission_record"' in output
+    assert '"steps"' in output
+    assert '"ok": true' in output
+    assert '"status": "committed"' in output
+    assert '"typed_query_result"' in output
+    assert '"typed_snapshot"' in output
+    assert '"typed_summary"' in output
+    assert '"snapshot_summary"' in output
+
+
+def test_cli_host_demo_text_output():
+    code, output = _run(["host-demo", "--format", "text"])
+    assert code == 0
+    assert "schema_version: coglang-host-demo/v0.1" in output
+    assert "tool: coglang" in output
+    assert "correlation_id:" in output
+    assert "submission_id:" in output
+    assert "payload_kind: WriteResult" in output
+    assert "node_id:" in output
+    assert "write_header:" in output
+    assert "typed_write_header:" in output
+    assert "  correlation_id:" in output
+    assert "status: committed" in output
+    assert "step1: ok" in output
+    assert "name: execute_and_submit_to" in output
+    assert "name: typed_response" in output
+    assert "name: query_result" in output
+    assert "name: trace" in output
+    assert "name: error_report" in output
+    assert "payload_kind: ErrorReport" in output
+    assert "error_kind: ValidationError" in output
+    assert "typed_submission_message:" in output
+    assert "typed_response:" in output
+    assert "typed_submission_record:" in output
+    assert "typed_query_result:" in output
+    assert "typed_trace:" in output
+    assert "typed_snapshot:" in output
+    assert "typed_summary:" in output
+    assert "snapshot_summary:" in output
+
+
+def test_cli_host_demo_failure_payload_shape(monkeypatch):
+    monkeypatch.setattr(
+        _cli_host_attr("execute_and_submit_to_trace"),
+        lambda self, target_host, expr, env=None, correlation_id=None, metadata=None: (None, None, None),
+    )
+    payload = _run_host_demo()
+    assert list(payload) == list(HOST_DEMO_TOP_LEVEL_KEYS)
+    assert payload["schema_version"] == "coglang-host-demo/v0.1"
+    assert payload["ok"] is False
+    assert payload["write_header"] is None
+    assert payload["typed_write_header"] is None
+    assert payload["status"] == "not_found"
+    assert payload["payload_kind"] is None
+    assert payload["node_id"] is None
+    assert payload["correlation_id"] is None
+    assert payload["submission_id"] is None
+    assert payload["typed_submission_message"] is None
+    assert payload["typed_response"] is None
+    assert payload["typed_submission_record"] is None
+    assert payload["typed_query_result"] is None
+    assert payload["typed_trace"] is None
+    assert payload["typed_snapshot"] is None
+    assert payload["typed_summary"] is None
+    assert payload["snapshot_summary"] is None
+    assert payload["steps"] == [
+        {
+            "name": "create",
+            "ok": False,
+            "detail": "failed to execute and submit through LocalCogLangHost",
+        }
+    ]
+
+
+def test_cli_host_demo_failure_when_public_trace_view_missing(monkeypatch):
+    monkeypatch.setattr(
+        _cli_host_attr("query_write_trace_dict"),
+        lambda self, correlation_id: None,
+    )
+    payload = _run_host_demo()
+    assert payload["ok"] is False
+    assert payload["write_header"] is None
+    assert payload["typed_trace"] is None
+    assert payload["typed_submission_message"] is None
+    assert payload["typed_response"] is None
+    assert payload["typed_submission_record"] is None
+    assert payload["typed_query_result"] is None
+    assert payload["typed_snapshot"] is None
+    assert payload["typed_summary"] is None
+    assert payload["steps"] == [
+        {
+            "name": "create",
+            "ok": False,
+            "detail": "failed to execute and submit through LocalCogLangHost",
+        }
+    ]
+
+
+def test_cli_host_demo_not_ok_when_typed_write_header_disagrees(monkeypatch):
+    monkeypatch.setattr(
+        _cli_host_attr("query_write_header"),
+        lambda self, correlation_id: LocalWriteHeader(
+            correlation_id="mismatch-correlation",
+            submission_id="mismatch-submission",
+            status="failed",
+            payload_kind="ErrorReport",
+        ),
+    )
+    payload = _run_host_demo()
+    assert payload["ok"] is False
+    assert payload["write_header"]["status"] == "committed"
+    assert payload["typed_write_header"]["status"] == "failed"
+    assert payload["write_header"] != payload["typed_write_header"]
+    assert payload["typed_trace"] is not None
+    assert payload["typed_snapshot"] is not None
+    assert payload["typed_summary"] is not None
+    assert payload["snapshot_summary"] is not None
+
+
+def test_cli_host_demo_not_ok_when_typed_trace_disagrees_with_public_views(monkeypatch):
+    def _mismatched_trace(self, correlation_id):
+        trace = self.query_write_trace(correlation_id)
+        assert trace is not None
+        trace_dict = trace.to_dict()
+        trace_dict["query_result"] = dict(trace_dict["query_result"])
+        trace_dict["query_result"]["status"] = "failed"
+        return trace_dict
+
+    monkeypatch.setattr(
+        _cli_host_attr("query_write_trace_dict"),
+        _mismatched_trace,
+    )
+    payload = _run_host_demo()
+    assert payload["ok"] is False
+    assert payload["typed_trace"] is not None
+    assert payload["typed_query_result"]["status"] == "committed"
+    assert payload["typed_trace"]["query_result"]["status"] == "failed"
+    assert payload["typed_trace"]["query_result"] != payload["typed_query_result"]
+    assert payload["typed_snapshot"] is not None
+    assert payload["snapshot_summary"] is not None
+
+
+def test_cli_host_demo_not_ok_when_submission_message_disagrees_with_write_header(monkeypatch):
+    def _mismatched_submission_message(self, correlation_id):
+        message = self.query_write_submission_message_dict_by_submission_id(
+            self.query_write(correlation_id).submission_id
+        )
+        assert message is not None
+        message = dict(message)
+        message["header"] = dict(message["header"])
+        message["header"]["correlation_id"] = "mismatch-correlation"
+        return message
+
+    monkeypatch.setattr(
+        _cli_host_attr("query_write_submission_message_dict"),
+        _mismatched_submission_message,
+    )
+    payload = _run_host_demo()
+    assert payload["ok"] is False
+    assert payload["typed_submission_message"]["header"]["correlation_id"] == "mismatch-correlation"
+    assert payload["write_header"]["correlation_id"] != payload["typed_submission_message"]["header"]["correlation_id"]
+    assert payload["typed_trace"] is not None
+    assert payload["typed_snapshot"] is not None
+
+
+def test_cli_host_demo_not_ok_when_node_id_disagrees_with_response_payload(monkeypatch):
+    def _mismatched_response(self, correlation_id):
+        response = self.query_write_response_message_dict_by_submission_id(
+            self.query_write(correlation_id).submission_id
+        )
+        assert response is not None
+        response = dict(response)
+        response["payload"] = dict(response["payload"])
+        response["payload"]["touched_node_ids"] = ["mismatch-node-id"]
+        return response
+
+    monkeypatch.setattr(
+        _cli_host_attr("query_write_response_message_dict"),
+        _mismatched_response,
+    )
+    payload = _run_host_demo()
+    assert payload["ok"] is False
+    assert payload["node_id"] != payload["typed_response"]["payload"]["touched_node_ids"][0]
+    assert payload["typed_snapshot"] is not None
+    assert payload["typed_summary"] is not None
+
+
+def test_cli_host_demo_not_ok_when_node_id_disagrees_with_submission_message(monkeypatch):
+    def _mismatched_submission_message(self, correlation_id):
+        message = self.query_write_submission_message_dict_by_submission_id(
+            self.query_write(correlation_id).submission_id
+        )
+        assert message is not None
+        message = dict(message)
+        payload = dict(message["payload"])
+        candidate = dict(payload["candidate"])
+        operations = [dict(item) for item in candidate["operations"]]
+        operations[0] = dict(operations[0])
+        operations[0]["payload"] = dict(operations[0]["payload"])
+        operations[0]["payload"]["id"] = "mismatch-node-id"
+        candidate["operations"] = operations
+        payload["candidate"] = candidate
+        message["payload"] = payload
+        return message
+
+    monkeypatch.setattr(
+        _cli_host_attr("query_write_submission_message_dict"),
+        _mismatched_submission_message,
+    )
+    payload = _run_host_demo()
+    assert payload["ok"] is False
+    assert payload["typed_submission_message"]["payload"]["candidate"]["operations"][0]["payload"]["id"] == "mismatch-node-id"
+    assert payload["node_id"] != payload["typed_submission_message"]["payload"]["candidate"]["operations"][0]["payload"]["id"]
+    assert payload["typed_response"] is not None
+    assert payload["typed_snapshot"] is not None
+
+
+def test_cli_host_demo_not_ok_when_error_report_demo_is_missing(monkeypatch):
+    monkeypatch.setattr(
+        _cli_host_attr("submit_candidate_and_trace"),
+        lambda self, candidate=None, correlation_id=None, metadata=None, consume=False: (None, None),
+    )
+    payload = _run_host_demo()
+    assert payload["ok"] is False
+    assert payload["steps"][-1]["name"] == "error_report"
+    assert payload["steps"][-1]["ok"] is False
+    assert "invalid write candidate" in payload["steps"][-1]["detail"]
+
+
+def test_cli_host_demo_failure_text_output(monkeypatch):
+    monkeypatch.setattr(
+        _cli_host_attr("execute_and_submit_to_trace"),
+        lambda self, target_host, expr, env=None, correlation_id=None, metadata=None: (None, None, None),
+    )
+    code, output = _run(["host-demo", "--format", "text"])
+    assert code == 1
+    assert "schema_version: coglang-host-demo/v0.1" in output
+    assert "status: not_found" in output
+    assert "payload_kind: None" in output
+    assert "correlation_id: None" in output
+    assert "submission_id: None" in output
+    assert "node_id: None" in output
+    assert "step1: fail" in output
+    assert "name: create" in output
+    assert "detail: failed to execute and submit through LocalCogLangHost" in output
+    assert "write_header:" in output
+    assert "typed_write_header:" in output
+    assert "typed_submission_message:" in output
+    assert "typed_response:" in output
+    assert "typed_submission_record:" in output
+    assert "typed_query_result:" in output
+    assert "typed_trace:" in output
+    assert "typed_snapshot:" in output
+    assert "typed_summary:" in output
+    assert "snapshot_summary:" in output
+    assert "  null" in output
+
+
+def test_cli_release_check_payload_shape():
+    payload = _release_check_payload()
+    assert payload["tool"] == "coglang"
+    assert payload["language_release"] == "v1.1.0-pre"
+    assert isinstance(payload["checks"], list)
+    assert any(item["name"] == "console_script" for item in payload["checks"])
+    assert any(item["name"] == "distribution_metadata" for item in payload["checks"])
+    assert any(item["name"] == "license_file" and item["ok"] is True for item in payload["checks"])
+    assert any(item["name"] == "public_release_docs" and item["ok"] is True for item in payload["checks"])
+    assert any(item["name"] == "open_source_boundary" and item["ok"] is True for item in payload["checks"])
+    assert any(item["name"] == "minimal_ci_baseline" and item["ok"] is True for item in payload["checks"])
+    assert any(item["name"] == "public_repo_extract_manifest" and item["ok"] is True for item in payload["checks"])
+    assert any(item["name"] == "formal_open_source_readiness" and item["ok"] is True for item in payload["checks"])
+    assert payload["ok"] is True
+
+
+def test_cli_release_check_json_output():
+    code, output = _run(["release-check"])
+    assert code == 0
+    assert '"language_release": "v1.1.0-pre"' in output
+    assert '"checks"' in output
+    assert '"license_file"' in output
+    assert '"distribution_metadata"' in output
+    assert '"public_release_docs"' in output
+    assert '"open_source_boundary"' in output
+    assert '"minimal_ci_baseline"' in output
+    assert '"public_repo_extract_manifest"' in output
+    assert '"formal_open_source_readiness"' in output
+
+
+def test_cli_release_check_text_output():
+    code, output = _run(["release-check", "--format", "text"])
+    assert code == 0
+    assert "tool: coglang" in output
+    assert "language_release: v1.1.0-pre" in output
+    assert "license_file: ok (LICENSE)" in output
+    assert "public_release_docs: ok (README + roadmap + maintenance + llms summaries)" in output
+    assert (
+        f"open_source_boundary: ok "
+        f"({_path_in_layout('plans/coglang/CogLang_Open_Source_Boundary_v0_1.json', 'CogLang_Open_Source_Boundary_v0_1.json')})"
+        in output
+    )
+    assert (
+        f"minimal_ci_baseline: ok "
+        f"({_path_in_layout('plans/coglang/CogLang_Minimal_CI_Baseline_v0_1.json', 'CogLang_Minimal_CI_Baseline_v0_1.json')})"
+        in output
+    )
+    assert (
+        f"public_repo_extract_manifest: ok "
+        f"({_path_in_layout('plans/coglang/CogLang_Public_Repo_Extract_Manifest_v0_1.json', 'CogLang_Public_Repo_Extract_Manifest_v0_1.json')})"
+        in output
+    )
+    assert "formal_open_source_readiness: ok (ready-for-formal-open-source-candidate-decision)" in output
+
+
+def test_cli_open_source_boundary_payload_shape():
+    payload = _open_source_boundary_payload()
+    assert payload["schema_version"] == "coglang-open-source-boundary/v0.1"
+    assert payload["repository_strategy"] == "dedicated_repository_extract"
+    assert payload["public_distribution_name"] == "coglang"
+    assert payload["public_console_script"] == "coglang"
+    assert payload["current_internal_module"] == "logos.coglang"
+    assert "src/logos/coglang" in payload["release_roots"]
+    assert payload["release_roots_exist"] is True
+
+
+def test_cli_minimal_ci_baseline_payload_shape():
+    payload = _minimal_ci_baseline_payload()
+    assert payload["schema_version"] == "coglang-minimal-ci-baseline/v0.1"
+    assert payload["status"] == "defined-for-formal-open-source-prep"
+    assert payload["workflow_template_path"] in {
+        "plans/coglang/CogLang_Public_CI_Workflow_v0_1.yml",
+        ".github/workflows/ci.yml",
+    }
+    assert payload["workflow_template_present"] is True
+    assert payload["required_command_names_present"] is True
+    assert payload["public_entrypoint_only"] is True
+    assert payload["required_command_names"] == [
+        "bundle",
+        "release_check",
+        "smoke",
+        "conformance_smoke",
+    ]
+
+
+def test_cli_public_repo_extract_manifest_payload_shape():
+    payload = _public_repo_extract_manifest_payload()
+    assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
+    assert payload["repository_strategy"] == "dedicated_repository_extract"
+    assert payload["public_distribution_name"] == "coglang"
+    assert payload["entry_count"] == 25
+    assert payload["required_destinations"] == [
+        "pyproject.toml",
+        "README.md",
+        ".gitignore",
+        "pytest.ini",
+        "src/coglang",
+        "tests/coglang",
+        "LICENSE",
+    ]
+    assert payload["required_destinations_present"] is True
+    assert payload["source_paths_exist"] is True
+    assert payload["destination_paths_unique"] is True
+    assert "plans/coglang/CogLang_Operator_Catalog_v1_1_0.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "plans/coglang/internal_schemas/host_runtime/v0.1" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "plans/coglang/CogLang_Public_CI_Workflow_v0_1.yml" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "plans/coglang/CogLang_Public_Gitignore_v0_1.txt" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "plans/coglang/CogLang_Public_Pytest_v0_1.ini" in [
+        item["source"] for item in payload["entries"]
+    ]
+
+
+def test_cli_formal_open_source_readiness_payload_shape():
+    payload = _formal_open_source_readiness_payload()
+    assert payload["schema_version"] == "coglang-formal-open-source-readiness/v0.1"
+    assert payload["gate_count"] == 6
+    assert payload["passed_gate_count"] == 6
+    assert payload["ready_for_candidate_decision"] is True
+    assert payload["status"] == "ready-for-formal-open-source-candidate-decision"
+    assert payload["decision_required"] is True
+    assert [item["name"] for item in payload["gates"]] == [
+        "G1_public_docs_boundary",
+        "G2_public_release_surface",
+        "G3_install_and_validation_surface",
+        "G4_repo_package_boundary",
+        "G5_minimal_ci_release_baseline",
+        "G6_maintenance_and_contribution_surface",
+    ]
+
+
+def test_cli_distribution_metadata_shape():
+    payload = _distribution_metadata()
+    assert payload["name"] == DISTRIBUTION_NAME
+    assert payload["console_script"] == "coglang"
+    assert payload["console_script_target"] == f"{MODULE_ENTRY}.cli:main"
+    assert payload["module_entry"] == MODULE_ENTRY
+    normalized = [item.replace("\\", "/") for item in payload["runtime_entry_paths"]]
+    assert any(
+        item == _path_in_layout("src/logos/coglang/cli.py", "src/coglang/cli.py")
+        or item.endswith("/site-packages/coglang/cli.py")
+        for item in normalized
+    )
+    assert any(
+        item == _path_in_layout("src/logos/coglang/__main__.py", "src/coglang/__main__.py")
+        or item.endswith("/site-packages/coglang/__main__.py")
+        for item in normalized
+    )

@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coglang:host-runtime:v0.1:write-bundle-response-message",
+  "title": "WriteBundleResponseMessage",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "header",
+    "payload",
+    "metadata"
+  ],
+  "properties": {
+    "header": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "message_type",
+        "operation",
+        "correlation_id",
+        "submission_id",
+        "payload_kind"
+      ],
+      "properties": {
+        "message_type": {
+          "const": "KnowledgeMessage"
+        },
+        "operation": {
+          "const": "write_bundle_response"
+        },
+        "correlation_id": {
+          "type": "string"
+        },
+        "submission_id": {
+          "type": "string"
+        },
+        "payload_kind": {
+          "type": "string",
+          "enum": [
+            "WriteResult",
+            "ErrorReport"
+          ]
+        }
+      }
+    },
+    "payload": {
+      "oneOf": [
+        {
+          "$ref": "./write-result.schema.json"
+        },
+        {
+          "$ref": "./error-report.schema.json"
+        }
+      ]
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "owner"
+      ],
+      "properties": {
+        "owner": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

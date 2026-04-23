@@ -1,0 +1,6 @@
+{
+  "correlation_id": "corr-1",
+  "payload_kind": "WriteResult",
+  "status": "committed",
+  "submission_id": "sub-1"
+}

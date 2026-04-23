@@ -1,0 +1,129 @@
+from __future__ import annotations
+
+import importlib
+import sys
+import tomllib
+from pathlib import Path
+
+from logos.coglang.open_source_extract import materialize_public_repo_extract
+
+
+def test_materialize_public_repo_extract_creates_importable_public_root(monkeypatch, tmp_path):
+    destination = tmp_path / "coglang-public-root"
+    payload = materialize_public_repo_extract(destination)
+
+    assert payload["schema_version"] == "coglang-public-repo-extract-run/v0.1"
+    assert payload["entry_count"] == 25
+    assert payload["copied_trees"] == 3
+    assert payload["copied_files"] == 22
+
+    assert (destination / "pyproject.toml").exists()
+    assert (destination / ".gitignore").exists()
+    assert (destination / "pytest.ini").exists()
+    assert (destination / "README.md").exists()
+    assert (destination / "CogLang_Open_Source_Boundary_v0_1.json").exists()
+    assert (destination / "CogLang_Minimal_CI_Baseline_v0_1.json").exists()
+    assert (destination / "CogLang_Public_Repo_Extract_Manifest_v0_1.json").exists()
+    assert (destination / "CogLang_Operator_Catalog_v1_1_0.md").exists()
+    assert (destination / ".github" / "workflows" / "ci.yml").exists()
+    assert (destination / "src" / "coglang" / "_public_assets" / "README.md").exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "CogLang_Open_Source_Boundary_v0_1.json"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "pytest.ini"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / ".github"
+        / "workflows"
+        / "ci.yml"
+    ).exists()
+    assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_cli.py").exists()
+    assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "conftest.py").exists()
+    assert (destination / "internal_schemas" / "host_runtime" / "v0.1" / "schema-pack.json").exists()
+    assert (destination / "src" / "coglang" / "cli.py").exists()
+    assert (destination / "tests" / "coglang").exists()
+    assert (destination / "LICENSE").exists()
+    pyproject = tomllib.loads((destination / "pyproject.toml").read_text(encoding="utf-8"))
+    assert pyproject["project"]["license"] == "Apache-2.0"
+    assert pyproject["project"]["license-files"] == ["LICENSE"]
+    assert "License :: OSI Approved :: Apache Software License" not in pyproject["project"]["classifiers"]
+    assert not (destination / "src" / "coglang" / "nglm_adapter.py").exists()
+    assert not (destination / "src" / "coglang" / "nglm_adapter_suite.py").exists()
+    assert not (destination / "tests" / "coglang" / "test_nglm_adapter.py").exists()
+    assert not (destination / "tests" / "coglang" / "test_nglm_adapter_suite.py").exists()
+    assert not (destination / "tests" / "coglang" / "fixtures" / "nglm_adapter").exists()
+
+    leak_needle = "NG" + "LM"
+    leaked_nglm_count = 0
+    for path in destination.rglob("*"):
+        if path.is_file() and path.suffix in {".py", ".json", ".md", ".toml", ".txt"}:
+            leaked_nglm_count += path.read_text(encoding="utf-8").count(leak_needle)
+    assert leaked_nglm_count == 0
+
+    monkeypatch.syspath_prepend(str(destination / "src"))
+    importlib.invalidate_caches()
+    sys.modules.pop("coglang", None)
+    sys.modules.pop("coglang.cli", None)
+    extracted_cli = importlib.import_module("coglang.cli")
+
+    distribution = extracted_cli._distribution_metadata()
+    manifest = extracted_cli._manifest_payload()
+    release_check = extracted_cli._release_check_payload()
+    public_extract_manifest = extracted_cli._public_repo_extract_manifest_payload()
+
+    assert manifest["package"] == "coglang"
+    assert manifest["docs"]["readme"] == "README.md"
+    assert manifest["docs"]["roadmap"] == "ROADMAP.md"
+    assert manifest["machine_readable_summaries"]["llms"] == "llms.txt"
+    assert distribution["console_script"] == "coglang"
+    assert distribution["console_script_target"] == "coglang.cli:main"
+    assert public_extract_manifest["path"] == "CogLang_Public_Repo_Extract_Manifest_v0_1.json"
+    assert public_extract_manifest["required_destinations_present"] is True
+    assert manifest["minimal_ci_baseline"]["workflow_template_present"] is True
+    assert release_check["ok"] is True
+    assert callable(extracted_cli.main)
+
+    monkeypatch.setattr(extracted_cli, "_project_root", lambda: destination / "_installed_like_root")
+    installed_like_manifest = extracted_cli._manifest_payload()
+    installed_like_release_check = extracted_cli._release_check_payload()
+
+    assert installed_like_manifest["docs"]["readme"] == "README.md"
+    assert installed_like_manifest["open_source_boundary"]["status"] != "missing"
+    assert installed_like_manifest["minimal_ci_baseline"]["workflow_template_present"] is True
+    assert installed_like_release_check["ok"] is True
+    installed_like_targets = [item.replace("\\", "/") for item in extracted_cli._conformance_targets("smoke")]
+    assert any(item.endswith("coglang/_public_assets/tests/coglang/test_cli.py") for item in installed_like_targets)
+    assert any(item.endswith("coglang/_public_assets/tests/coglang/test_parser.py") for item in installed_like_targets)
+    assert any(item.endswith("coglang/_public_assets/tests/coglang/test_validator.py") for item in installed_like_targets)
+
+    gitignore_lines = (destination / ".gitignore").read_text(encoding="utf-8").splitlines()
+    assert ".venv/" in gitignore_lines
+    assert "dist/" in gitignore_lines
+    pytest_ini_text = (destination / "pytest.ini").read_text(encoding="utf-8")
+    assert "L1: level 1 smoke and conformance marker" in pytest_ini_text
+    assert "L2: level 2 smoke and conformance marker" in pytest_ini_text
+
+
+def test_materialize_public_repo_extract_rejects_existing_destination_without_overwrite(tmp_path):
+    destination = tmp_path / "coglang-public-root"
+    materialize_public_repo_extract(destination)
+
+    try:
+        materialize_public_repo_extract(destination)
+    except FileExistsError as exc:
+        assert "pyproject.toml" in str(exc) or "src" in str(exc)
+    else:
+        raise AssertionError("Expected FileExistsError when destination already contains extract output")

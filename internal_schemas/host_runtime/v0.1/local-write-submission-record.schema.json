@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coglang:host-runtime:v0.1:local-write-submission-record",
+  "title": "LocalWriteSubmissionRecord",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "correlation_id",
+    "submission_id",
+    "status",
+    "request",
+    "response"
+  ],
+  "properties": {
+    "correlation_id": {
+      "type": "string"
+    },
+    "submission_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "committed",
+        "failed"
+      ]
+    },
+    "request": {
+      "$ref": "./write-bundle-submission-message.schema.json"
+    },
+    "response": {
+      "$ref": "./write-bundle-response-message.schema.json"
+    }
+  }
+}

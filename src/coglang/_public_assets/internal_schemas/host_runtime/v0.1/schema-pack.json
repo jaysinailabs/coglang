@@ -1,0 +1,235 @@
+{
+  "pack_id": "urn:coglang:host-runtime-schema-pack:v0.1",
+  "status": "internal-seed",
+  "schema_version": "v0.1",
+  "scope": "stable-host-runtime-objects",
+  "v0_2_position": {
+    "recommended_companion": true,
+    "freeze_blocker": false,
+    "formal_export_required": false
+  },
+  "reference_rules": {
+    "sample_files_relative_to_pack_root": true,
+    "sample_files_under_examples_dir": true,
+    "schema_files_relative_to_pack_root": true,
+    "schema_ids_match_embedded_ids": true
+  },
+  "versioning_rules": {
+    "breaking_changes_require_new_pack_version": true,
+    "existing_schema_files_stable_within_pack": true,
+    "existing_schema_ids_stable_within_pack": true,
+    "sample_files_are_illustrative_not_normative": true
+  },
+  "promotion_rules": {
+    "candidate_track_does_not_imply_public_export": true,
+    "candidate_track_targets_minimal_response_or_summary_objects": true,
+    "request_side_and_rebuild_objects_remain_seed_only_in_v0_1": true
+  },
+  "candidate_field_rules": {
+    "fields_describe_minimal_future_surface_only": true,
+    "unlisted_fields_remain_seed_detail_in_v0_1": true,
+    "envelope_fields_may_reference_other_candidate_objects": true
+  },
+  "candidate_detail_rules": {
+    "write_result_audit_fields_remain_seed_detail_in_v0_1": true,
+    "response_metadata_extensions_remain_seed_detail_in_v0_1": true
+  },
+  "schemas": [
+    {
+      "file": "error-report.schema.json",
+      "name": "ErrorReport",
+      "schema_id": "urn:coglang:host-runtime:v0.1:error-report",
+      "stability": "seed",
+      "promotion_track": "candidate",
+      "promotion_reason": "minimal_response_surface",
+      "candidate_surface_fields": [
+        "correlation_id",
+        "submission_id",
+        "owner",
+        "error_kind",
+        "retryable",
+        "errors"
+      ]
+    },
+    {
+      "file": "local-host-summary.schema.json",
+      "name": "LocalHostSummary",
+      "schema_id": "urn:coglang:host-runtime:v0.1:local-host-summary",
+      "stability": "seed",
+      "promotion_track": "candidate",
+      "promotion_reason": "minimal_summary_surface",
+      "candidate_surface_fields": [
+        "node_count",
+        "edge_count",
+        "request_count",
+        "response_count",
+        "submission_record_count",
+        "query_result_count",
+        "trace_count",
+        "status_counts"
+      ]
+    },
+    {
+      "file": "local-write-header.schema.json",
+      "name": "LocalWriteHeader",
+      "schema_id": "urn:coglang:host-runtime:v0.1:local-write-header",
+      "stability": "seed",
+      "promotion_track": "candidate",
+      "promotion_reason": "minimal_response_surface",
+      "candidate_surface_fields": [
+        "correlation_id",
+        "submission_id",
+        "status",
+        "payload_kind"
+      ]
+    },
+    {
+      "file": "local-write-query-result.schema.json",
+      "name": "LocalWriteQueryResult",
+      "schema_id": "urn:coglang:host-runtime:v0.1:local-write-query-result",
+      "stability": "seed",
+      "promotion_track": "seed_only",
+      "promotion_reason": "aggregate_rebuild_surface"
+    },
+    {
+      "file": "local-write-submission-record.schema.json",
+      "name": "LocalWriteSubmissionRecord",
+      "schema_id": "urn:coglang:host-runtime:v0.1:local-write-submission-record",
+      "stability": "seed",
+      "promotion_track": "seed_only",
+      "promotion_reason": "aggregate_rebuild_surface"
+    },
+    {
+      "file": "local-write-trace.schema.json",
+      "name": "LocalWriteTrace",
+      "schema_id": "urn:coglang:host-runtime:v0.1:local-write-trace",
+      "stability": "seed",
+      "promotion_track": "seed_only",
+      "promotion_reason": "aggregate_rebuild_surface"
+    },
+    {
+      "file": "write-bundle-candidate.schema.json",
+      "name": "WriteBundleCandidate",
+      "schema_id": "urn:coglang:host-runtime:v0.1:write-bundle-candidate",
+      "stability": "seed",
+      "promotion_track": "seed_only",
+      "promotion_reason": "request_side_surface"
+    },
+    {
+      "file": "write-bundle-response-message.schema.json",
+      "name": "WriteBundleResponseMessage",
+      "schema_id": "urn:coglang:host-runtime:v0.1:write-bundle-response-message",
+      "stability": "seed",
+      "promotion_track": "candidate",
+      "promotion_reason": "minimal_response_surface",
+      "candidate_surface_fields": [
+        "header.message_type",
+        "header.operation",
+        "header.correlation_id",
+        "header.submission_id",
+        "header.payload_kind",
+        "payload",
+        "metadata.owner"
+      ],
+      "seed_detail_fields": [
+        "metadata.additionalProperties"
+      ]
+    },
+    {
+      "file": "write-bundle-submission-message.schema.json",
+      "name": "WriteBundleSubmissionMessage",
+      "schema_id": "urn:coglang:host-runtime:v0.1:write-bundle-submission-message",
+      "stability": "seed",
+      "promotion_track": "seed_only",
+      "promotion_reason": "request_side_surface"
+    },
+    {
+      "file": "write-operation.schema.json",
+      "name": "WriteOperation",
+      "schema_id": "urn:coglang:host-runtime:v0.1:write-operation",
+      "stability": "seed",
+      "promotion_track": "seed_only",
+      "promotion_reason": "request_side_surface"
+    },
+    {
+      "file": "write-result.schema.json",
+      "name": "WriteResult",
+      "schema_id": "urn:coglang:host-runtime:v0.1:write-result",
+      "stability": "seed",
+      "promotion_track": "candidate",
+      "promotion_reason": "minimal_response_surface",
+      "candidate_surface_fields": [
+        "correlation_id",
+        "submission_id",
+        "owner",
+        "commit_timestamp",
+        "applied_ops"
+      ],
+      "seed_detail_fields": [
+        "phase_counts",
+        "touched_node_ids",
+        "touched_edge_refs"
+      ]
+    }
+  ],
+  "samples": [
+    {
+      "file": "examples/local-host-summary.sample.json",
+      "matches": [
+        "LocalHostSummary"
+      ],
+      "name": "local-host-summary"
+    },
+    {
+      "file": "examples/local-write-header.sample.json",
+      "matches": [
+        "LocalWriteHeader"
+      ],
+      "name": "local-write-header"
+    },
+    {
+      "file": "examples/local-write-query-result.sample.json",
+      "matches": [
+        "LocalWriteQueryResult"
+      ],
+      "name": "local-write-query-result"
+    },
+    {
+      "file": "examples/local-write-submission-record.sample.json",
+      "matches": [
+        "LocalWriteSubmissionRecord"
+      ],
+      "name": "local-write-submission-record"
+    },
+    {
+      "file": "examples/local-write-trace.sample.json",
+      "matches": [
+        "LocalWriteTrace"
+      ],
+      "name": "local-write-trace"
+    },
+    {
+      "file": "examples/write-bundle-response-message.error.sample.json",
+      "matches": [
+        "WriteBundleResponseMessage",
+        "ErrorReport"
+      ],
+      "name": "write-bundle-response-message.error"
+    },
+    {
+      "file": "examples/write-bundle-response-message.success.sample.json",
+      "matches": [
+        "WriteBundleResponseMessage",
+        "WriteResult"
+      ],
+      "name": "write-bundle-response-message.success"
+    },
+    {
+      "file": "examples/write-bundle-submission-message.sample.json",
+      "matches": [
+        "WriteBundleSubmissionMessage"
+      ],
+      "name": "write-bundle-submission-message"
+    }
+  ]
+}

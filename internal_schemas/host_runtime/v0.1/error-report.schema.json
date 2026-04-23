@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coglang:host-runtime:v0.1:error-report",
+  "title": "ErrorReport",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "correlation_id",
+    "submission_id",
+    "owner",
+    "error_kind",
+    "retryable",
+    "errors"
+  ],
+  "properties": {
+    "correlation_id": {
+      "type": "string"
+    },
+    "submission_id": {
+      "type": "string"
+    },
+    "owner": {
+      "type": "string"
+    },
+    "error_kind": {
+      "type": "string"
+    },
+    "retryable": {
+      "type": "boolean"
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

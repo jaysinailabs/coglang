@@ -1,0 +1,22 @@
+{
+  "header": {
+    "correlation_id": "corr-1",
+    "message_type": "KnowledgeMessage",
+    "operation": "write_bundle_response",
+    "payload_kind": "WriteResult",
+    "submission_id": "sub-1"
+  },
+  "metadata": {
+    "owner": "tester"
+  },
+  "payload": {
+    "applied_ops": 1,
+    "commit_timestamp": "2026-04-18T00:00:00Z",
+    "correlation_id": "corr-1",
+    "owner": "tester",
+    "phase_counts": {},
+    "submission_id": "sub-1",
+    "touched_edge_refs": [],
+    "touched_node_ids": []
+  }
+}

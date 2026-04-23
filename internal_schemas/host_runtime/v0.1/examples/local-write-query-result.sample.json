@@ -1,0 +1,99 @@
+{
+  "correlation_id": "corr-1",
+  "record": {
+    "correlation_id": "corr-1",
+    "request": {
+      "header": {
+        "correlation_id": "corr-1",
+        "message_type": "KnowledgeMessage",
+        "operation": "submit_write_bundle",
+        "submission_id": "sub-1"
+      },
+      "metadata": {
+        "owner": "tester"
+      },
+      "payload": {
+        "candidate": {
+          "base_node_ids": [],
+          "operations": [
+            {
+              "op": "create_node",
+              "payload": {
+                "attrs": {
+                  "name": "Tesla"
+                },
+                "node_id": "node-1",
+                "node_type": "Entity"
+              }
+            }
+          ],
+          "owner": "tester"
+        },
+        "commit_plan": {
+          "phase_1a_create_nodes": [
+            {
+              "op": "create_node",
+              "payload": {
+                "attrs": {
+                  "name": "Tesla"
+                },
+                "node_id": "node-1",
+                "node_type": "Entity"
+              }
+            }
+          ],
+          "phase_1b_create_edges": [],
+          "phase_1c_update_delete": []
+        }
+      }
+    },
+    "response": {
+      "header": {
+        "correlation_id": "corr-1",
+        "message_type": "KnowledgeMessage",
+        "operation": "write_bundle_response",
+        "payload_kind": "WriteResult",
+        "submission_id": "sub-1"
+      },
+      "metadata": {
+        "owner": "tester"
+      },
+      "payload": {
+        "applied_ops": 1,
+        "commit_timestamp": "2026-04-18T00:00:00Z",
+        "correlation_id": "corr-1",
+        "owner": "tester",
+        "phase_counts": {},
+        "submission_id": "sub-1",
+        "touched_edge_refs": [],
+        "touched_node_ids": []
+      }
+    },
+    "status": "committed",
+    "submission_id": "sub-1"
+  },
+  "response": {
+    "header": {
+      "correlation_id": "corr-1",
+      "message_type": "KnowledgeMessage",
+      "operation": "write_bundle_response",
+      "payload_kind": "WriteResult",
+      "submission_id": "sub-1"
+    },
+    "metadata": {
+      "owner": "tester"
+    },
+    "payload": {
+      "applied_ops": 1,
+      "commit_timestamp": "2026-04-18T00:00:00Z",
+      "correlation_id": "corr-1",
+      "owner": "tester",
+      "phase_counts": {},
+      "submission_id": "sub-1",
+      "touched_edge_refs": [],
+      "touched_node_ids": []
+    }
+  },
+  "status": "committed",
+  "submission_id": "sub-1"
+}

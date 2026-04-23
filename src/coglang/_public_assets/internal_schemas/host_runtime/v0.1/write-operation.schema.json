@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coglang:host-runtime:v0.1:write-operation",
+  "title": "WriteOperation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "op",
+    "payload"
+  ],
+  "properties": {
+    "op": {
+      "type": "string"
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

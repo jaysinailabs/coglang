@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coglang:host-runtime:v0.1:local-write-query-result",
+  "title": "LocalWriteQueryResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "correlation_id",
+    "status",
+    "submission_id",
+    "response",
+    "record"
+  ],
+  "properties": {
+    "correlation_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "committed",
+        "failed",
+        "not_found"
+      ]
+    },
+    "submission_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "response": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "./write-bundle-response-message.schema.json"
+        }
+      ]
+    },
+    "record": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "./local-write-submission-record.schema.json"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "coglang"
+version = "0.1.0"
+description = "Graph-first intermediate language for auditable LLM-produced graph operations"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+dependencies = ["networkx"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Interpreters",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Database",
+]
+
+[project.scripts]
+coglang = "coglang.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+coglang = [
+    "_public_assets/pyproject.toml",
+    "_public_assets/LICENSE",
+    "_public_assets/README.md",
+    "_public_assets/ROADMAP.md",
+    "_public_assets/MAINTENANCE.md",
+    "_public_assets/llms.txt",
+    "_public_assets/llms-full.txt",
+    "_public_assets/CogLang_Quickstart_v1_1_0.md",
+    "_public_assets/CogLang_Specification_v1_1_0_Draft.md",
+    "_public_assets/CogLang_Conformance_Suite_v1_1_0.md",
+    "_public_assets/CogLang_Operator_Catalog_v1_1_0.md",
+    "_public_assets/CogLang_Profiles_and_Capabilities_v1_1_0.md",
+    "_public_assets/CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
+    "_public_assets/CogLang_Release_Notes_v1_1_0_pre.md",
+    "_public_assets/CogLang_Contribution_Guide_v0_1.md",
+    "_public_assets/CogLang_Host_Runtime_Contract_v0_1.md",
+    "_public_assets/CogLang_Open_Source_Boundary_v0_1.json",
+    "_public_assets/CogLang_Minimal_CI_Baseline_v0_1.json",
+    "_public_assets/CogLang_Public_Repo_Extract_Manifest_v0_1.json",
+    "_public_assets/pytest.ini",
+    "_public_assets/.github/workflows/ci.yml",
+    "_public_assets/tests/coglang/*.py",
+    "_public_assets/internal_schemas/host_runtime/v0.1/*.json",
+    "_public_assets/internal_schemas/host_runtime/v0.1/examples/*.json",
+]

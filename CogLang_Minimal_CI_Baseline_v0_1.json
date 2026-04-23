@@ -28,7 +28,27 @@
       "purpose": "standalone smoke conformance evidence"
     }
   ],
+  "packaging_verification": [
+    {
+      "name": "build_distributions",
+      "command": "python -m build --sdist --wheel",
+      "purpose": "build release-facing sdist and wheel artifacts"
+    },
+    {
+      "name": "wheel_install_release_check",
+      "command": "install built wheel in a fresh venv and run coglang manifest/release-check",
+      "purpose": "verify installed wheel exposes release-facing CLI and public assets"
+    },
+    {
+      "name": "sdist_install_release_check",
+      "command": "install built sdist in a fresh venv and run coglang manifest/release-check",
+      "purpose": "verify source distribution install path exposes release-facing CLI and public assets"
+    }
+  ],
   "evidence_outputs": [
+    "build_artifacts",
+    "installed_wheel_release_check",
+    "installed_sdist_release_check",
     "bundle",
     "release_check",
     "doctor",
@@ -37,6 +57,7 @@
   "scope": [
     "release-facing CLI surface",
     "public docs presence",
-    "smoke verification"
+    "smoke verification",
+    "distribution build and install verification"
   ]
 }

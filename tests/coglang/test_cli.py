@@ -1062,12 +1062,25 @@ def test_cli_minimal_ci_baseline_payload_shape():
     }
     assert payload["workflow_template_present"] is True
     assert payload["required_command_names_present"] is True
+    assert payload["required_packaging_check_names_present"] is True
+    assert payload["workflow_required_step_names_present"] is True
     assert payload["public_entrypoint_only"] is True
     assert payload["required_command_names"] == [
         "bundle",
         "release_check",
         "smoke",
         "conformance_smoke",
+    ]
+    assert payload["required_packaging_check_names"] == [
+        "build_distributions",
+        "wheel_install_release_check",
+        "sdist_install_release_check",
+    ]
+    assert payload["workflow_required_step_names"] == [
+        "Install build frontend",
+        "Build sdist and wheel",
+        "Validate installed wheel",
+        "Validate installed sdist",
     ]
 
 

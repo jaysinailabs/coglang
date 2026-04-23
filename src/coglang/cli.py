@@ -281,6 +281,17 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
         ".github/workflows/ci.yml",
     )
     required_command_names = ["bundle", "release_check", "smoke", "conformance_smoke"]
+    required_packaging_check_names = [
+        "build_distributions",
+        "wheel_install_release_check",
+        "sdist_install_release_check",
+    ]
+    workflow_required_step_names = [
+        "Install build frontend",
+        "Build sdist and wheel",
+        "Validate installed wheel",
+        "Validate installed sdist",
+    ]
     if not descriptor_path.exists():
         return {
             "path": descriptor_relpath,
@@ -291,14 +302,28 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
             "workflow_template_present": False,
             "required_command_names": required_command_names,
             "required_command_names_present": False,
+            "packaging_verification": [],
+            "required_packaging_check_names": required_packaging_check_names,
+            "required_packaging_check_names_present": False,
+            "workflow_required_step_names": workflow_required_step_names,
+            "workflow_required_step_names_present": False,
             "public_entrypoint_only": False,
         }
     payload = json.loads(descriptor_path.read_text(encoding="utf-8"))
     commands = payload.get("commands", [])
     command_names = [item.get("name") for item in commands if isinstance(item, dict)]
+    packaging_verification = payload.get("packaging_verification", [])
+    packaging_check_names = [
+        item.get("name") for item in packaging_verification if isinstance(item, dict)
+    ]
     public_entrypoint_only = all(
         isinstance(item, dict) and str(item.get("command", "")).startswith("coglang ")
         for item in commands
+    )
+    workflow_text = (
+        workflow_template_path.read_text(encoding="utf-8")
+        if workflow_template_path.exists()
+        else ""
     )
     payload["path"] = descriptor_relpath
     payload["workflow_template_path"] = workflow_template_relpath
@@ -306,6 +331,14 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
     payload["required_command_names"] = required_command_names
     payload["required_command_names_present"] = all(
         name in command_names for name in required_command_names
+    )
+    payload["required_packaging_check_names"] = required_packaging_check_names
+    payload["required_packaging_check_names_present"] = all(
+        name in packaging_check_names for name in required_packaging_check_names
+    )
+    payload["workflow_required_step_names"] = workflow_required_step_names
+    payload["workflow_required_step_names_present"] = all(
+        name in workflow_text for name in workflow_required_step_names
     )
     payload["public_entrypoint_only"] = public_entrypoint_only
     return payload
@@ -425,6 +458,7 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
                 and "release-check" in info["commands"]
                 and "smoke" in info["commands"]
                 and ci_baseline["required_command_names_present"] is True
+                and ci_baseline["required_packaging_check_names_present"] is True
             ),
             "detail": "install guide + bundle/release-check/smoke path",
         },
@@ -448,8 +482,10 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
             "ok": (
                 ci_baseline["schema_version"] == "coglang-minimal-ci-baseline/v0.1"
                 and ci_baseline["required_command_names_present"] is True
+                and ci_baseline["required_packaging_check_names_present"] is True
                 and ci_baseline["public_entrypoint_only"] is True
                 and ci_baseline["workflow_template_present"] is True
+                and ci_baseline["workflow_required_step_names_present"] is True
             ),
             "detail": ci_baseline["path"],
         },
@@ -731,8 +767,10 @@ def _release_check_payload() -> dict[str, Any]:
             "ok": (
                 minimal_ci_baseline["schema_version"] == "coglang-minimal-ci-baseline/v0.1"
                 and minimal_ci_baseline["required_command_names_present"] is True
+                and minimal_ci_baseline["required_packaging_check_names_present"] is True
                 and minimal_ci_baseline["public_entrypoint_only"] is True
                 and minimal_ci_baseline["workflow_template_present"] is True
+                and minimal_ci_baseline["workflow_required_step_names_present"] is True
             ),
             "detail": minimal_ci_baseline["path"],
         },

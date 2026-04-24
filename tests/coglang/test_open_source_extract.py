@@ -61,6 +61,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "tests" / "coglang").exists()
     assert (destination / "LICENSE").exists()
     pyproject = tomllib.loads((destination / "pyproject.toml").read_text(encoding="utf-8"))
+    assert pyproject["project"]["authors"] == [{"name": "Jason Xin"}]
     assert pyproject["project"]["license"] == "Apache-2.0"
     assert pyproject["project"]["license-files"] == ["LICENSE"]
     assert "License :: OSI Approved :: Apache Software License" not in pyproject["project"]["classifiers"]

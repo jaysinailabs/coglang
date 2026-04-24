@@ -7,6 +7,7 @@ name = "coglang"
 version = "0.1.0"
 description = "Graph-first intermediate language for auditable LLM-produced graph operations"
 readme = "README.md"
+authors = [{ name = "Jason Xin" }]
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 requires-python = ">=3.11"

@@ -95,7 +95,7 @@ The following directions must not be treated as stable operators that are availa
 | `Inspect` | `Reserved` | Object-structure inspection boundaries are described, but the default implementation may remain a stub. |
 | Non-default `Query.mode` | `Reserved` | A default implementation is not required. |
 | Query `cost / gain` meta-reasoning interfaces | `Reserved` | Key names are reserved. The complete schema is not frozen. |
-| Rule candidate envelope | `Reserved` | Reserved as a bridge point for `Abstract -> Encoder -> Logic Engine`. |
+| Rule candidate envelope | `Reserved` | Reserved as a bridge point for downstream rule-induction and validation stages. |
 | Rule publish / rollback chain schema | `Reserved` | Not frozen in `v1.1`. |
 | Concrete surface syntax for explicitly qualified names | `Reserved` | Only the existence of the capability is frozen, not the spelling. This is an implementer-reserved capability, not ordinary teachable user syntax. |
 

@@ -95,7 +95,7 @@
 | `Inspect` | `Reserved` | 对象结构检视边界已写明，默认实现仍可留桩 |
 | 非默认 `Query.mode` | `Reserved` | 不要求默认实现 |
 | 查询 `cost / gain` 相关元推理接口 | `Reserved` | 键名已预留，完整 schema 未冻结 |
-| 规则候选 envelope | `Reserved` | 为 `Abstract -> Encoder -> Logic Engine` 桥留位 |
+| 规则候选 envelope | `Reserved` | 为后续规则归纳与验证阶段预留桥接点 |
 | 规则发布 / 回滚链 schema | `Reserved` | 不在 `v1.1` 冻结 |
 | 显式限定名称的具体表面语法 | `Reserved` | 仅冻结“存在该能力”，不冻结写法；属于实现者保留能力，不属于普通使用者可教学语法 |
 

@@ -794,9 +794,7 @@ The main specification freezes only the field type and semantic boundary of `tri
 
 `Abstract` MUST NOT delete, overwrite, or implicitly merge original instances merely because it forms a representative or prototype. It can only provide a trigger summary for later normalization, induction, or explanation-layer operations.
 
-`Abstract` does **not** directly generate rule candidates, does **not** execute Logic Engine validation, and does **not** directly write to the draft graph or main graph. Rule generation and validation belong to the downstream pipeline:
-
-`Abstract -> Encoder -> Logic Engine -> draft/promote`
+`Abstract` does **not** directly generate rule candidates, does **not** execute downstream validation, and does **not** directly write to any draft or primary graph. Rule generation, validation, and promotion belong to later host or application stages outside the `Abstract` operator contract.
 
 **Baseline Availability**: Normal execution
 **Effect Category**: `meta`

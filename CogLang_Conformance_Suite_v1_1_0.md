@@ -233,7 +233,7 @@ It also satisfies:
 
 - does not directly return a rule object
 - does not directly write to the primary graph
-- does not replace `Encoder -> Logic Engine -> draft/promote`
+- does not replace downstream rule-induction, validation, or promotion stages
 
 ### GE-006 Value transparency of `Trace`
 

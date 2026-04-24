@@ -233,7 +233,7 @@ Abstract[List["case_a", "case_b", "case_c"]]
 
 - 不直接返回规则对象
 - 不直接写入主图谱
-- 不替代 `Encoder -> Logic Engine -> draft/promote`
+- 不替代后续的规则归纳、验证或晋升阶段
 
 ### GE-006 `Trace` 的值透明
 

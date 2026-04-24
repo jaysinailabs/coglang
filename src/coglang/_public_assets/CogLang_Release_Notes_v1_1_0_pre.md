@@ -62,6 +62,7 @@ The minimal CLI commands publicly committed to exist and be callable are:
 - `examples`
 - `smoke`
 - `demo`
+- `host-demo`
 - `release-check`
 
 If help output shows additional reference commands, those commands do not automatically become stable public commitments for this pre-release. The committed minimum remains the command set listed above.

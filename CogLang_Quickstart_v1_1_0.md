@@ -51,12 +51,12 @@ Under the current pre-release posture, `release-check` should pass. If it fails,
 
 For a first mental model, read `CogLang` as this:
 
-`CogLang` is a **graph-first expression language** designed to be easier for language models to generate and to execute under an auditable host contract.
+`CogLang` is a **graph-first intermediate language** designed for parse determinism, canonicalization, and inspectable LLM-generated graph operations under an auditable host contract.
 
 It currently makes several explicit design choices:
 
 1. It uses a stable `M-expression / canonical text` form instead of relying on a freer surface syntax.
-The reason: parsing, normalization, and generation stability come first; more elaborate syntax can come later.
+The reason: parsing, normalization, and inspectable generated structure come first; more elaborate syntax can come later.
 2. It treats errors as values instead of making evaluation failure an automatic exception-style interruption.
 The reason: in AI-driven graph operations, partial failure and locally unavailable results are normal conditions, not exceptional ones.
 3. It keeps `profile / capability` close to the language boundary instead of leaving the host to infer them later.
@@ -76,7 +76,7 @@ If you need a mature general-purpose language ecosystem, a complete application 
 
 For a first pass, remember five things:
 
-1. CogLang is a **graph-first working language**. Learn queries, conditionals, and tracing before extension syntax.
+1. CogLang is a **graph-first intermediate language**. Learn queries, conditionals, and tracing before extension syntax.
 2. The form you normally write is **canonical text**. `readable render` is a more human-readable display form, not a separate syntax.
 3. `Baseline` is the entry point for ordinary users. `Reserved` is not a capability to rely on by default.
 4. `Create / Update / Delete` freeze **language-level write intent**. They do not mean that an executor directly writes to a particular persistence backend.
@@ -232,12 +232,12 @@ Create["Entity", {"id": "tesla_01", "label": "Tesla"}]
 But you should not infer from that expression that:
 
 - The executor must directly write to a fixed backend
-- There is no `WriteBundle` or owning-module proxy chain
+- The host-mediated persistence submission path is absent
 - The language return value is the same thing as an architectural commit object
 
 The language layer freezes expression semantics. The architecture layer freezes the commit path.
 
-This also does not mean the executor "does nothing." Within the `v1.1.0` frozen boundary, the host runtime is responsible for pre-allocating IDs, forming a `WriteBundleCandidate` or equivalent intermediate write request, and mapping the commit result back to the language-level return value.
+This also does not mean the executor "does nothing." Within the `v1.1.0` frozen boundary, the host runtime is responsible for pre-allocating IDs, forming a host-mediated persistence request, and mapping the commit result back to the language-level return value.
 
 ---
 
@@ -283,4 +283,4 @@ Read next:
 
 When starting out, treat CogLang as:
 
-**A graph-first working language where you learn `Baseline`, queries, and conditionals first, and leave extensions and architecture details for later.**
+**A graph-first intermediate language where you learn `Baseline`, queries, and conditionals first, and leave extensions and architecture details for later.**

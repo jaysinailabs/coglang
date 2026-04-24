@@ -53,8 +53,8 @@ if _EXTRACTED_LAYOUT:
     MODULE_ENTRY = "coglang"
 
 
-def _path_in_layout(monorepo_path: str, extracted_path: str) -> str:
-    return extracted_path if _EXTRACTED_LAYOUT else monorepo_path
+def _path_in_layout(source_path: str, extracted_path: str) -> str:
+    return extracted_path if _EXTRACTED_LAYOUT else source_path
 
 
 def _cli_attr(name: str) -> str:

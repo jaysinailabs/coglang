@@ -1,7 +1,7 @@
 # CogLang Language Specification
 
 **Version: v1.1.0-pre**
-**Status: pre-release state (the filename temporarily retains `Draft` for compatibility with existing references)**
+**Status: pre-release state (the filename temporarily retains `Draft` for compatibility with existing references; this `v1.1.0-pre` document is no longer a free-form draft)**
 **Position: authoritative main document for the current CogLang specification set; intended for implementation, conformance, external trials, and cross-host alignment**
 
 ---
@@ -168,7 +168,7 @@ The following changes are considered breaking changes:
 
 Breaking changes are allowed only:
 
-- During the `-draft` stage
+- During a future unreleased draft stage before a `-pre` or stable release candidate is declared
 - And only when migration notes and golden examples are updated at the same time
 
 For any released non-draft version, every breaking change must be accompanied by a new version number and migration documentation.

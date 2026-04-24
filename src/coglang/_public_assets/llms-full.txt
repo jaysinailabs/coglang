@@ -37,7 +37,7 @@ CogLang intentionally avoids framing itself as a competitive replacement for eve
 
 1. Canonical M-expression text
 
-CogLang uses a stable M-expression style instead of relying on loose surface syntax. The goal is parse determinism, canonicalization, and better generation stability for LLM-produced programs.
+CogLang uses a stable M-expression style instead of relying on loose surface syntax. The goal is parse determinism, canonicalization, and inspectable generated structure for LLM-produced programs.
 
 2. Errors as values
 
@@ -119,4 +119,4 @@ Public-facing canonical documentation is English-first. Chinese companion transl
 
 ## One-Sentence Summary
 
-CogLang aims to be a stable, auditable intermediate language for LLM-produced graph operations: the kind of language you can place between a language model and a production knowledge graph without losing the ability to inspect, replay, or deny any given step.
+CogLang aims to become a stable, auditable intermediate language for LLM-produced graph operations: the kind of language you can place between a language model and a graph-backed system without losing the ability to inspect, replay, or deny any given step. The current release remains experimental and pre-release.

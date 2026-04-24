@@ -19,7 +19,6 @@ from coglang.write_bundle import (
 def _resolve_schema_dir() -> Path:
     root = Path(__file__).resolve().parents[2]
     candidates = [
-        root / "plans" / "coglang" / "internal_schemas" / "host_runtime" / "v0.1",
         root / "internal_schemas" / "host_runtime" / "v0.1",
     ]
     for candidate in candidates:

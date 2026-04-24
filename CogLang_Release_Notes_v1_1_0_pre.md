@@ -113,8 +113,7 @@ Their intended roles are:
 
 The publicly committed language positioning is:
 
-- a graph-first working language
-- a structured intermediate language core for AI systems
+- an experimental, pre-release graph-first intermediate language for LLM-generated graph operations
 - expression-level execution semantics plus observability and host-bridge boundaries
 
 ### 1.7 Primary Intended Use Cases
@@ -145,11 +144,7 @@ This pre-release does not commit to:
 
 ### 2.2 Not Every Companion Note Is a Stable Protocol
 
-The following documents remain companion notes or roadmap material. They should not be read as stable core protocols:
-
-- `CogLang_Decoupling_and_Open_Source_Roadmap_v0_1.md`
-- `CogLang_V4_Boundary_Note_v1_1_0.md`
-- `CogLang_Abstract_Triggering_Note_v1_1_0.md`
+Only the documents included in the public repository should be read as public release material. Any external, unpublished, or internal companion notes are not part of this public release and should not be treated as stable core protocols.
 
 ### 2.3 No Commitment to a Frozen User-Facing Extension Call Syntax
 

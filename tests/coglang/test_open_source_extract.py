@@ -74,15 +74,23 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert pyproject["project"]["license"] == "Apache-2.0"
     assert pyproject["project"]["license-files"] == ["LICENSE"]
     assert "License :: OSI Approved :: Apache Software License" not in pyproject["project"]["classifiers"]
-    internal_adapter_marker = ("NG" + "LM").lower()
-    leaked_internal_adapter_count = 0
+    forbidden_markers = [
+        ("NG" + "LM").lower(),
+        ("Lo" + "gos").lower(),
+        ("plans" + "/coglang").lower(),
+        ("src" + "/lo" + "gos").lower(),
+        ("lo" + "gos.coglang").lower(),
+    ]
+    leaked_forbidden_markers = {marker: 0 for marker in forbidden_markers}
     for path in destination.rglob("*"):
-        assert internal_adapter_marker not in str(path.relative_to(destination)).lower()
-        if path.is_file() and path.suffix in {".py", ".json", ".md", ".toml", ".txt"}:
-            leaked_internal_adapter_count += path.read_text(encoding="utf-8").lower().count(
-                internal_adapter_marker
-            )
-    assert leaked_internal_adapter_count == 0
+        relative_path = str(path.relative_to(destination)).replace("\\", "/").lower()
+        for marker in forbidden_markers:
+            assert marker not in relative_path
+        if path.is_file() and path.suffix in {".py", ".json", ".md", ".toml", ".txt", ".yml", ".yaml"}:
+            text = path.read_text(encoding="utf-8").lower()
+            for marker in forbidden_markers:
+                leaked_forbidden_markers[marker] += text.count(marker)
+    assert leaked_forbidden_markers == {marker: 0 for marker in forbidden_markers}
 
     monkeypatch.syspath_prepend(str(destination / "src"))
     importlib.invalidate_caches()

@@ -23,7 +23,7 @@ When not to use CogLang:
 
 Key design choices:
 
-- canonical M-expression text for parse determinism and generation stability
+- canonical M-expression text for parse determinism and inspectable generated structure
 - errors as values because partial failure is common in AI-driven graph operations
 - profile and capability boundaries so hosts can reject unsafe or unsupported execution paths early
 

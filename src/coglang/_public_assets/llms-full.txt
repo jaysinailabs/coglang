@@ -98,14 +98,24 @@ coglang demo
   Executable examples and regression boundaries.
 - `CogLang_Profiles_and_Capabilities_v1_1_0.md`
   Profile and capability boundaries.
+- `CogLang_Operator_Catalog_v1_1_0.md`
+  Operator status and call-surface summary.
+- `CogLang_Standalone_Install_and_Release_Guide_v0_1.md`
+  Install, build, and local release verification.
 - `CogLang_Host_Runtime_Contract_v0_1.md`
   Minimal host contract.
 - `CogLang_Release_Notes_v1_1_0_pre.md`
   Current promises and non-promises.
+- `CogLang_Contribution_Guide_v0_1.md`
+  Contribution boundaries and review expectations.
 - `ROADMAP.md`
   Current direction layer, not a release guarantee.
 - `MAINTENANCE.md`
   Maintenance, freeze, transfer, and archive policy.
+
+## Documentation Language Policy
+
+Public-facing canonical documentation is English-first. Chinese companion translations may appear as `.zh-CN.md` files. If an English document and a translation disagree, the English document, executable conformance suite, and implementation tests take precedence.
 
 ## One-Sentence Summary
 

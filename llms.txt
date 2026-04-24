@@ -34,10 +34,19 @@ Core documents:
 - CogLang_Specification_v1_1_0_Draft.md: language semantics
 - CogLang_Conformance_Suite_v1_1_0.md: executable examples and regression boundaries
 - CogLang_Profiles_and_Capabilities_v1_1_0.md: profile and capability boundaries
+- CogLang_Operator_Catalog_v1_1_0.md: operator status and call-surface summary
+- CogLang_Standalone_Install_and_Release_Guide_v0_1.md: install, build, and local release verification
 - CogLang_Host_Runtime_Contract_v0_1.md: minimal host contract
 - CogLang_Release_Notes_v1_1_0_pre.md: what is promised and what is not
+- CogLang_Contribution_Guide_v0_1.md: contribution boundaries and review expectations
 - ROADMAP.md: current direction, not a release contract
 - MAINTENANCE.md: maintenance, freeze, transfer, and archive policy
+
+Documentation language policy:
+
+- Public-facing canonical docs are English-first.
+- Chinese companion translations may appear as `.zh-CN.md` files.
+- If an English document and a translation disagree, the English document, executable conformance suite, and implementation tests take precedence.
 
 Short runnable examples:
 

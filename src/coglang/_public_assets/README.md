@@ -127,6 +127,8 @@ Integration and release-facing documents:
 Chinese companion translations:
 
 - [CogLang_Quickstart_v1_1_0.zh-CN.md](CogLang_Quickstart_v1_1_0.zh-CN.md)
+- [CogLang_Specification_v1_1_0_Draft.zh-CN.md](CogLang_Specification_v1_1_0_Draft.zh-CN.md)
+- [CogLang_Conformance_Suite_v1_1_0.zh-CN.md](CogLang_Conformance_Suite_v1_1_0.zh-CN.md)
 - [CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md)
 - [CogLang_Release_Notes_v1_1_0_pre.zh-CN.md](CogLang_Release_Notes_v1_1_0_pre.zh-CN.md)
 - [CogLang_Contribution_Guide_v0_1.zh-CN.md](CogLang_Contribution_Guide_v0_1.zh-CN.md)

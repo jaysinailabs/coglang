@@ -1,37 +1,37 @@
-# CogLang Language Specification
+# CogLang 语言规范
 
-**Version: v1.1.0-pre**
-**Status: pre-release state (the filename temporarily retains `Draft` for compatibility with existing references)**
-**Position: authoritative main document for the current CogLang specification set; intended for implementation, conformance, external trials, and cross-host alignment**
-
----
-
-## 0. Role of This Document
-
-This document is the pre-release main specification for CogLang `v1.1.0`. It carries forward:
-
-- The frozen core syntax, evaluation semantics, and error semantics from `v1.0.2`
-- Requirements for extension mechanisms, meta-reasoning, observability, query interfaces, and rule bridging under the current architecture boundaries
-- Reserved capabilities that need language-level declaration ahead of time, while leaving implementation details unfrozen by this version of the main text
-
-This document is no longer used as a "chapter skeleton draft". For the current stage, it should be treated as:
-
-- The pre-release authoritative source for the language surface, evaluation semantics, error model, and expression-level observability
-- The primary basis for companion docs, conformance, migration documents, and host integration references
-- The judgment baseline for later convergence of `Reserved / Experimental` capabilities and implementation alignment
+**版本：v1.1.0-pre**
+**状态：预发布态（文件名暂保留 `Draft` 以兼容既有引用）**
+**定位：当前 CogLang 规范集的权威主文；用于实现、conformance、外部试用与跨宿主对齐**
 
 ---
 
-## 1. Specification Status and Versioning Strategy
+## 0. 本文档的角色
 
-### 1.1 Document Nature
+本文档是 CogLang `v1.1.0` 的预发布主规范，用于承接：
 
-This specification distinguishes two kinds of content:
+- `v1.0.2` 已冻结的核心语法、求值、错误语义
+- 当前架构边界下对扩展机制、元推理、可观测性、查询接口、规则桥接的要求
+- 需要在语言层提前声明、但不由本版主文直接冻结实现细节的保留能力
 
-- **Normative**: implementations, tests, training data, and compatibility judgments must comply with it
-- **Informative**: design motivation, examples, non-binding explanation, and future direction
+本文档已不再作为“章节骨架草案”使用。对当前阶段而言，它应被视为：
 
-The body text should explicitly use the following terms:
+- 语言表面、求值语义、错误模型与表达式级可观测性的预发布权威源
+- companion docs、conformance、迁移文档与宿主集成引用时的主依据
+- 后续 `Reserved / Experimental` 收口与实现对齐的判断基线
+
+---
+
+## 1. 规范地位与版本策略
+
+### 1.1 文档性质
+
+本规范区分两类内容：
+
+- **Normative**：实现、测试、训练数据、兼容性判断必须遵守
+- **Informative**：设计动机、示例、非约束性解释、未来方向
+
+正文中应显式使用以下术语：
 
 - `MUST`
 - `SHOULD`
@@ -39,320 +39,320 @@ The body text should explicitly use the following terms:
 - `RESERVED`
 - `EXPERIMENTAL`
 
-If an Informative description in the body conflicts with a Normative rule, the Normative rule takes precedence.
+若正文中的 Informative 描述与 Normative 规则冲突，以 Normative 规则为准。
 
-### 1.1.1 Compatibility Surfaces
+### 1.1.1 兼容性表面
 
-CogLang compatibility is not a single dimension. It includes at least the following five surfaces:
+CogLang 的兼容性不是单一维度，而是至少包含以下 5 个表面：
 
-1. **Parser surface**: whether text can be parsed into an AST
-2. **Validator surface**: whether an expression is a valid CogLang program
-3. **Execution surface**: whether executors implement semantics and error behavior consistently
-4. **Rendering surface**: whether readable rendering and trace presentation remain stable
-5. **Canonical serialization surface**: whether canonical serialization remains stable
+1. **Parser surface**：文本能否被解析为 AST
+2. **Validator surface**：表达式是否是合法的 CogLang 程序
+3. **Execution surface**：执行器对语义和错误行为的实现是否一致
+4. **Rendering surface**：可读渲染与 trace 展示是否稳定
+5. **Canonical serialization surface**：规范序列化是否仍保持稳定
 
-Compatibility statements in the specification **SHOULD** state the affected surface explicitly.
+规范中的兼容性声明 **SHOULD** 明确指出作用表面。
 
-Unless otherwise specified:
+若未特别说明：
 
-- For `Core` capabilities, compatibility means at least that the `parser / validator / execution` surfaces are not broken
-- If a change affects the `rendering` or `canonical serialization` surface, the body text **MUST** say so explicitly
+- 对 `Core` 能力，兼容性默认至少指不破坏 `parser / validator / execution` 三个表面
+- 若某项变更会影响 `rendering` 或 `canonical serialization` 表面，正文 **MUST** 显式写出
 
-### 1.1.2 Computational Scope and Language Identity
+### 1.1.2 计算范围与语言身份
 
-In `v1.1.0`, `CogLang` **MUST** be understood as:
+`CogLang` 在 `v1.1.0` 中的定位 **MUST** 被理解为：
 
-- A graph-first execution language
-- An AI-specific semantic interface
-- A language that supports procedural composition, but does not target general-purpose programming
+- 图优先执行语言
+- AI 专用语义接口
+- 支持程序性组合，但不以通用编程语言为目标
 
-This specification only freezes:
+本规范只冻结：
 
-- The language surface and canonical serialization
-- Minimum consistency requirements for parser / validator / execution
-- Expression-level observability and extension boundaries
+- 语言表面与 canonical serialization
+- parser / validator / execution 的最小一致性要求
+- 表达式级可观测性与扩展边界
 
-This specification does **not** directly freeze:
+本规范**不**直接冻结：
 
-- The canonical status or field responsibilities of application-side exchange objects
-- The physical storage shape of persistence backends
-- The classification scheme for message or task dispatch protocols
-- The full lifecycle object model for rule candidates, publication, and rollback
+- 应用侧交换对象的 canonical 地位或字段职责
+- 持久化后端的物理存储形态
+- 消息或任务分发协议的分类方式
+- 规则候选、发布、回滚的完整生命周期对象模型
 
-"Graph-first" means:
+这里的“图优先”指：
 
-- The core public object model is centered on graph nodes, edges, rule objects, and their auditable results
-- The introduction of control flow, structural values, and composition capabilities primarily serves graph queries, graph updates, rule triggering, pre-validation representation, and observable execution
+- 核心公开对象模型围绕图谱节点、边、规则对象及其可审计结果展开
+- 控制流、结构值、组合能力的引入，首先服务于图查询、图更新、规则触发、验证前表示与可观测执行
 
-"Supports procedural composition" means:
+这里的“支持程序性组合”指：
 
-- Capabilities such as `If / Do / ForEach / Compose / List / Dict` can be used to organize local execution processes
-- The main purpose of these capabilities is to support the main graph semantics path, not to expand `CogLang` into a general-purpose scripting language for humans to write by hand
+- `If / Do / ForEach / Compose / List / Dict` 等能力可用于组织局部执行过程
+- 这些能力的主要目的，是支撑图语义主链，而不是把 `CogLang` 扩张为面向人类手写的通用脚本语言
 
-Therefore, if a new capability mainly serves:
+因此，若某项新增能力主要服务于：
 
-- Syntactic convenience for human hand-writing comfort
-- Alignment with traditional general-purpose language surfaces
-- Large-scale general runtime capability unrelated to the main graph semantics path
+- 面向人类手写舒适度的语法便利
+- 与传统通用语言表面对齐
+- 与图语义主链无直接关系的大规模通用运行时能力
 
-Then that capability **SHOULD NOT** enter `Core` directly without a clear graph-first rationale.
+则该能力 **SHOULD NOT** 在没有明确图优先理由的前提下直接进入 `Core`。
 
-### 1.2 Version Evolution Principles
+### 1.2 版本演化原则
 
-The freeze of `v1.0.2` applies only during the P0 dependency period and is not a permanent freeze.
+`v1.0.2` 的冻结仅适用于 P0 依赖期，不构成永久冻结。
 
-The goals of `v1.1.0` are:
+`v1.1.0` 的目标是：
 
-- Keep the `v1.0.2` core semantics stable
-- Introduce the structured extension points required by the current stage
-- Establish clear boundaries for Reserved / Experimental capabilities
+- 保持 `v1.0.2` 核心语义稳定
+- 引入当前阶段所需的结构化扩展点
+- 为 Reserved / Experimental 能力建立清晰边界
 
-The primary goal of `v1.1.0` is not to expand the freedom of the CogLang surface syntax. Instead, it is to make:
+`v1.1.0` 的首要目标不是扩大 CogLang 的表面语法自由度，而是让：
 
-- Language semantics
-- Extension boundaries
-- Human-readable interfaces
-- Interface contracts for executor / runtime bridge / trace
+- 语言语义
+- 扩展边界
+- 人类可读界面
+- 执行器 / runtime bridge / trace 的接口契约
 
-share one consistent judgment standard in the same specification.
+在同一份规范里具有一致的判定标准。
 
-### 1.2.1 Version Numbering Rules
+### 1.2.1 版本号规则
 
-This specification uses the following version semantics:
+本规范采用以下版本语义：
 
-- `v1.0.x`: errata versions; only compatible fixes, disambiguation, and missing clarifications are allowed
-- `v1.x`: backward-compatible extensions; new `Reserved` / `Experimental` / new `Core` capabilities are allowed, but existing `Core` must not be broken
-- `v2.x`: breaking changes are allowed; migration documentation and compatibility notes are required
+- `v1.0.x`：勘误版本；仅允许兼容性修正、消歧义、遗漏补充
+- `v1.x`：向后兼容扩展；允许新增 `Reserved` / `Experimental` / 新 `Core` 能力，但不得破坏既有 `Core`
+- `v2.x`：允许破坏性变更；必须附带迁移文档与兼容性说明
 
-### 1.3 Three-Tier Feature System
+### 1.3 三层特性体系
 
-CogLang features are divided into three tiers:
+CogLang 特性分为三层：
 
-| Tier | Meaning | Compatibility commitment |
-|------|---------|--------------------------|
-| `Core` | Frozen core language capability | Name and semantics are stable |
-| `Reserved` | Reserved and callable, but semantics or implementation are not fully frozen | Name is stable; semantics may converge |
-| `Experimental` | Capability under exploration | Name and semantics may both change |
+| 层级 | 含义 | 兼容性承诺 |
+|------|------|------------|
+| `Core` | 已冻结的核心语言能力 | 名称与语义均稳定 |
+| `Reserved` | 已占位、可被调用、但语义或实现未完整冻结 | 名称稳定，语义可收敛 |
+| `Experimental` | 探索中能力 | 名称与语义均可能调整 |
 
-### 1.4 Feature Promotion Rules
+### 1.4 特性晋升规则
 
 #### `Experimental -> Reserved`
 
-For a capability to be promoted from `Experimental` to `Reserved`, it must satisfy at least:
+某项能力从 `Experimental` 晋升到 `Reserved`，至少必须满足：
 
-- Frozen name: the operator name or abstract capability name is fixed
-- Fixed owning layer: it is clear which layer it belongs to among `language / executor / runtime_bridge / observability / adapter`
-- Fixed minimum signature: argument count, argument roles, and default error behavior are clear
-- Validation-stage failure forms and runtime default failure behavior are both clear
-- Trace strategy is clear: whether it needs to enter the reasoning trace, and what the minimum recorded fields are
+- 名称冻结：operator 名称或抽象能力名称固定
+- 所属层固定：明确是 `language / executor / runtime_bridge / observability / adapter` 中哪一层
+- 最小签名固定：参数个数、参数角色、默认错误行为明确
+- 验证阶段失败形式与运行阶段默认失败行为均明确
+- trace 策略明确：是否需要进入推理轨迹，最小记录字段是什么
 
 #### `Reserved -> Core`
 
-For a capability to be promoted from `Reserved` to `Core`, it must satisfy at least:
+某项能力从 `Reserved` 晋升到 `Core`，至少必须满足：
 
-- Normative semantics are complete and do not depend on key branches being "left for implementers to decide"
-- At least one reference implementation passes conformance tests
-- The impact on parser / validator / executor / readable render has been implemented
-- Error semantics, permission boundaries, and observability fields are frozen
-- The training and data-generation pipeline has a stable canonical form
+- Normative 语义完整，不依赖“由实现者自行判断”的关键分支
+- 至少一份参考实现通过一致性测试
+- 对 parser / validator / executor / readable render 的影响均已落地
+- 错误语义、权限边界、可观测性字段均已冻结
+- 训练与数据生成链路已有稳定 canonical 写法
 
-#### Breaking Change Window
+#### Breaking Change 窗口
 
-The following changes are considered breaking changes:
+以下变更视为 breaking change：
 
-- Signature changes to an existing `Core` operator
-- Structural changes to `Core` error expressions
-- Changes to canonical serialization
-- Changes to the name semantics of a frozen Head
-- Structural changes in readable render that cause humans to lose location information
+- 已有 `Core` operator 的签名变化
+- `Core` 错误表达式结构变化
+- canonical 序列化变化
+- 已冻结 Head 的名称语义变化
+- readable render 中导致人类定位失效的结构变化
 
-Breaking changes are allowed only:
+breaking change 仅允许发生在：
 
-- During the `-draft` stage
-- And only when migration notes and golden examples are updated at the same time
+- `-draft` 阶段
+- 且必须同步更新迁移说明与 golden examples
 
-For any released non-draft version, every breaking change must be accompanied by a new version number and migration documentation.
+对已发布的非 draft 版本，任何 breaking change 都必须伴随新版本号和迁移文档。
 
-#### Linkage Requirements for Companion Assets
+#### 与伴随资产的联动要求
 
-Once any of the following content enters `Reserved` or `Core`, the corresponding assets must be updated at the same time:
+以下内容一旦进入 `Reserved` 或 `Core`，必须同步更新：
 
 - conformance suite
 - operator catalog
-- migration documents
-- rendering / UI contract
-- training data specification, if the training format is affected
+- migration 文档
+- rendering / UI 契约
+- 如影响训练格式，则更新训练数据规范
 
 ---
 
-## 2. Terms and Consistency Conventions
+## 2. 术语与一致性约定
 
-This section defines stable terms used in the body text.
+本节定义正文中的稳定术语。
 
-| Term | Meaning |
-|------|---------|
-| `expression` | A syntactic CogLang expression |
-| `Head` | The symbol name at the head position of an expression in the AST, used for name resolution |
-| `operator head` | A Head that starts with an uppercase letter and can participate in operator name resolution |
-| `term head` | A Head that starts with a lowercase letter and is used to represent structured terms or patterns |
-| `AST` | The parsed internal structured representation; the authoritative object for execution semantics |
-| `canonical text` | The unique canonical serialization form, used for training data, storage, and regression tests |
-| `readable render` | Stable text generated for human presentation; it is not required to be a canonical spelling |
-| `transport envelope` | A structured wrapper for trace, UI, and cross-component transport |
-| `primitive` | A core operation that cannot be derived from other operations |
-| `built-in` | An operation whose semantics are provided natively by the executor; special-form or native type dispatch is a common implementation approach, not a requirement |
-| `shortcut` | A common pattern preconfigured to reduce generation difficulty |
-| `ABSTRACT` | Module/mechanism spelling used in architecture documents; unless version migration notes state otherwise, the canonical Head on the current language surface remains `Abstract` |
-| `extension-backed operator` | An operator implemented by a registry or external adapter |
-| `graph-read` | An effect category that reads the graph but does not modify it |
-| `graph-write` | An effect category that modifies the graph, rule layer, or persistent state |
-| `meta` | Operations on meta-layer objects such as execution plans, costs, and rule state |
-| `diagnostic` | An effect category used only for trace, assertions, diagnostics, and rendering |
-| `external` | An effect category that depends on external plugins, external systems, or external knowledge sources |
-| `deterministic` | The result should be exactly the same under the same input and the same state |
-| `graph-state-dependent` | The result depends on the current graph state |
-| `model-dependent` | The result depends on a model or learned component |
-| `implementation-defined` | The specification permits the implementation to decide details, but those details must be documented |
+| 术语 | 含义 |
+|------|------|
+| `expression` | 语法上的 CogLang 表达式 |
+| `Head` | AST 中位于表达式首位、用于名称解析的符号名 |
+| `operator head` | 以大写字母开头、可参与 operator 名称解析的 Head |
+| `term head` | 以小写字母开头、用于结构化项或模式表示的 Head |
+| `AST` | 解析后的内部结构化表示；执行语义的权威对象 |
+| `canonical text` | 唯一规范序列化形式，用于训练数据、存储、回归测试 |
+| `readable render` | 为人类展示而生成的稳定文本，不要求作为规范写法 |
+| `transport envelope` | 为 trace、UI、跨组件传输而包装的结构化对象 |
+| `primitive` | 不能从其他操作派生的核心操作 |
+| `built-in` | 由执行器原生提供语义的操作；special-form 或原生类型分派只是常见实现方式，不是必要条件 |
+| `shortcut` | 为降低生成难度而预置的常用模式 |
+| `ABSTRACT` | 架构文中的模块/机制写法；除非版本迁移说明另有声明，当前语言表面的 canonical Head 仍记作 `Abstract` |
+| `extension-backed operator` | 由注册表或外部 adapter 提供实现的 operator |
+| `graph-read` | 读取图谱但不修改图谱的效果类别 |
+| `graph-write` | 修改图谱、规则层或持久状态的效果类别 |
+| `meta` | 对执行计划、成本、规则状态等元层对象进行操作 |
+| `diagnostic` | 仅用于 trace、断言、诊断、渲染的效果类别 |
+| `external` | 依赖外部插件、外部系统或外部知识源的效果类别 |
+| `deterministic` | 在相同输入与相同状态下结果应完全一致 |
+| `graph-state-dependent` | 结果依赖当前图谱状态 |
+| `model-dependent` | 结果依赖模型或 learned component |
+| `implementation-defined` | 规范允许实现决定细节，但必须文档化 |
 
-Unless otherwise specified:
+除非特别声明：
 
-- `Head` refers to the name at the syntax layer
-- `operator` refers to a callable capability after name resolution
-- `operator head` and `term head` share the same applicative syntax shape, but only the former enters the default operator resolution process
+- `Head` 指语法层的名称
+- `operator` 指名称解析完成后可被调用的能力
+- `operator head` 与 `term head` 共享同一应用式语法外形，但只前者进入默认 operator 解析流程
 
-The same name may map to different operator implementations at different runtime layers, but the `Head` in its AST is still a single syntax object.
+同一名称在不同运行时层可映射到不同的 operator 实现，但其 AST 中的 `Head` 仍是单一语法对象。
 
 ---
 
-## 3. Representation-Layer Model
+## 3. 表示层模型
 
-### 3.1 Four Representation Layers
+### 3.1 四层表示
 
-CogLang specification objects must be divided into four layers:
+CogLang 的规范对象必须分为四层：
 
-1. **AST / internal semantic object**
-2. **Canonical Text / canonical serialization**
-3. **Readable Render / human-readable presentation**
-4. **Transport Envelope / wrapper for trace, UI, and cross-component transport**
+1. **AST / 内部语义对象**
+2. **Canonical Text / 规范序列化**
+3. **Readable Render / 人类可读展示**
+4. **Transport Envelope / trace、UI、跨组件传输包装**
 
-### 3.2 Four-Layer Conversion Constraints
+### 3.2 四层转换约束
 
 #### `AST <-> Canonical Text`
 
-`AST` and `canonical text` must satisfy lossless round-trip:
+`AST` 与 `canonical text` 之间必须满足无损 round-trip：
 
 - `parse(canonical_text(expr)) == expr`
-- `canonical_text(parse(text))` must produce the unique canonical form
+- `canonical_text(parse(text))` 必须产生唯一规范形式
 
-Here, "equal" means **structurally equal**, ignoring source spans, render hints, and transport-only metadata.
+此处“相等”指**结构相等**，忽略 source span、render hint 与 transport-only metadata。
 
-If a textual spelling can be accepted by the parser but is not canonical, the pretty-printer must normalize it to the canonical form.
+若某种文本写法可被 parser 接受但不是 canonical 形式，pretty-printer 必须将其归一化为 canonical 形式。
 
 #### `AST -> Readable Render`
 
-The goal of `readable render` is to help humans understand, not to replace the canonical form. Therefore:
+`readable render` 的目标是帮助人类理解，而不是替代 canonical 形式。因此：
 
-- `readable render` is not required to be directly parseable back into the same AST
-- The same AST under the same render profile must nevertheless produce stable output
-- `readable render` must not introduce semantic information that is not present in the AST
-- If readable render is embedded in a trace or UI envelope, it must preserve location information traceable back to the original AST node
+- `readable render` 不要求可直接反解析为同一 AST
+- 但同一 AST 在同一 render profile 下必须得到稳定输出
+- `readable render` 不得凭空引入 AST 中不存在的语义信息
+- 若 readable render 被嵌入 trace 或 UI envelope，必须保留可追溯到原 AST 节点的定位信息
 
 #### `AST -> Transport Envelope`
 
-`transport envelope` is used for UI, trace, and cross-component communication. Its minimum responsibilities are:
+`transport envelope` 用于 UI、trace、跨组件通信。其最小职责是：
 
-- Carry the original AST or a reference locatable to the AST
-- Carry canonical text or a reference to it
-- Optionally carry readable render
-- Carry auxiliary fields related to the current execution, such as trace / source / capability / confidence
+- 携带原始 AST 或可定位到 AST 的引用
+- 携带 canonical text 或其引用
+- 可选携带 readable render
+- 携带与本次执行相关的 trace / source / capability / confidence 等辅助字段
 
-`transport envelope` is not part of CogLang core syntax; it is a structured wrapper for the runtime and presentation layers.
+`transport envelope` 不属于 CogLang 核心语法；它是运行时与展示层的结构化包装。
 
-#### UI Noise-Reduction Rules
+#### UI 降噪规则
 
-When presenting to humans, it is allowed to:
+面向人类展示时允许：
 
-- Collapse long lists
-- Hide default values
-- Show structural summaries instead of complete subtrees
+- 折叠长列表
+- 隐藏默认值
+- 展示结构摘要而非完整子树
 
-However, the following information must not be lost:
+但以下信息不得丢失：
 
-- Head name
-- Argument positional relationships
-- Error type
-- Traceable references to rules / trace / source
+- Head 名称
+- 参数位置关系
+- 错误类型
+- 规则 / trace / source 的可追溯引用
 
-### 3.3 CogLang Semantic Objects
+### 3.3 CogLang 的语义对象
 
-CogLang semantic objects are graph structures and ASTs, not token sequences.
+CogLang 的语义对象是图结构与 AST，不是 token 序列。
 
-Therefore:
+因此：
 
-- The authoritative exchange object between the executor and the host runtime bridge should be an AST or equivalent structured object, not a prompt token stream
-- Token order belongs only to the serialization layer and does not determine graph semantics in reverse
-- LLM-facing prompt wrappers and termination tokens such as `<|end_coglang|>` are not part of CogLang core semantics
+- 执行器与宿主运行时桥接层之间的权威交换对象应是 AST 或等价结构对象，而不是 prompt token 流
+- token 顺序只属于序列化层，不反向决定图语义
+- 面向 LLM 的 prompt 包装、`<|end_coglang|>` 等终止 token 不属于 CogLang 核心语义
 
-This specification assumes the following boundaries by default:
+本规范默认以下边界：
 
-- **Language boundary**: `AST`, canonical form, error semantics, operator semantics
-- **Rendering boundary**: readable render, UI presentation, trace readable summary
-- **Runtime boundary**: runtime bridge / host transport / adapter envelope fields and capability checks
+- **语言边界**：`AST`、canonical form、错误语义、operator 语义
+- **渲染边界**：readable render、UI 展示、trace 可读摘要
+- **运行时边界**：runtime bridge / host transport / adapter 的 envelope 字段和 capability 检查
 
-If a piece of information belongs only to the runtime boundary, it should not be forcibly promoted to a core syntax component because of UI or trace needs.
+若某项信息只属于运行时边界，则不应因其 UI 或 trace 需要而被强行提升为核心语法成分。
 
 ---
 
-## 4. Lexical Structure and Syntax
+## 4. 词法与语法
 
-### 4.1 Lexical Rules
+### 4.1 词法规则
 
-The `v1.1.0` canonical surface of CogLang freezes only the minimal lexical set and does not reserve specific delimiters in advance for future qualified-name syntax.
+CogLang 的 `v1.1.0` canonical surface 只冻结最小词法集合，不为未来限定名语法预先占用具体分隔符。
 
-#### Identifiers and Variables
+#### 标识符与变量
 
-- `operator head`: starts with an uppercase letter, followed by letters, digits, or `_`, and must not end with `_`
-- `term head` / `atom`: starts with a lowercase letter, followed by letters, digits, or `_`, and must not end with `_`
-- Named variable: starts with a letter, followed by letters, digits, or `_`, and ends with a single trailing `_`
-- Anonymous wildcard: the single character `_`
+- `operator head`：以大写字母开头，后跟字母、数字或 `_`，且不得以 `_` 结尾
+- `term head` / `atom`：以小写字母开头，后跟字母、数字或 `_`，且不得以 `_` 结尾
+- 命名变量：以字母开头，后跟字母、数字或 `_`，并以单个尾部 `_` 结束
+- 匿名通配符：单独的 `_`
 
-Therefore, `Traverse` is a valid `operator head`, `f` is a valid `term head`, `person_` is a valid named variable, and `Traverse_` is not a valid `operator head`.
+因此，`Traverse` 是合法 `operator head`，`f` 是合法 `term head`，`person_` 是合法命名变量，而 `Traverse_` 不是合法 `operator head`。
 
-#### String Literals
+#### 字符串字面量
 
-- Enclosed in double quotes
-- The canonical surface supports at least the `\"` and `\\` escapes
-- Extra escape sequences such as newline and tab may be supported by implementations, but the canonical serializer must output them stably
+- 使用双引号包围
+- canonical surface 至少支持 `\"` 与 `\\` 转义
+- 换行、制表等额外转义序列可由实现支持，但 canonical serializer 必须稳定输出
 
-#### Numbers
+#### 数字
 
-- Decimal integers and decimal floating-point numbers are supported
-- A leading `+` is not allowed
-- The canonical form of an integer has no decimal point
+- 支持十进制整数与十进制浮点数
+- 不允许前导 `+`
+- 整数 canonical form 不带小数点
 
-#### Reserved Symbols
+#### 保留符号
 
 `[ ] { } , : "`
 
-These symbols are used respectively for:
+这些符号分别用于：
 
-- application delimiters
-- dictionary literals
-- argument separators
-- key-value separators
-- string delimiters
+- application 定界
+- 字典字面量
+- 参数分隔
+- 键值分隔
+- 字符串定界
 
-#### Whitespace, Newlines, and Comments
+#### 空白、换行与注释
 
-- In canonical text, whitespace only acts as a separator outside string literals
-- Multiple whitespace characters must not affect the AST
-- Comments are not part of the `v1.1.0` canonical surface
+- canonical text 中，除字符串字面量内部外，空白只承担分隔作用
+- 多个空白字符不得影响 AST
+- 注释不属于 `v1.1.0` 的 canonical surface
 
-If a host tool supports comments, it may only treat them as a non-canonical input convenience; comments must be stripped before canonical serialization and conformance testing.
+宿主工具若支持注释，只能把它作为非 canonical 输入便利；在进入 canonical serialization 与一致性测试前，注释必须被剥离
 
-### 4.2 Syntax Rules
+### 4.2 语法规则
 
-The minimum EBNF for `v1.1.0` is:
+`v1.1.0` 的最小 EBNF 如下：
 
 ```ebnf
 expression      ::= application
@@ -379,60 +379,60 @@ dict_entries     ::= dict_entry { "," dict_entry } ;
 dict_entry       ::= string_literal ":" expression ;
 ```
 
-Supplemental constraints:
+补充约束：
 
-- Both `operator head` and `term head` can syntactically form an `application`
-- Only `operator head` participates by default in the operator name resolution defined in `§10`
-- `term head` and `atom` are used to represent structured terms, patterns, or data items; whether they may appear at a given argument position is determined by the entry for the outer operator
-- `True[]`, `False[]`, `NotFound[]`, and similar forms are zero-argument `application`s
+- `operator head` 与 `term head` 在语法上都可形成 `application`
+- 只有 `operator head` 默认参与 `§10` 的 operator 名称解析
+- `term head` 与 `atom` 用于结构化项、模式、或数据项表示；它们是否可出现在某个参数位置，由外层 operator 的条目决定
+- `True[]`、`False[]`、`NotFound[]` 等是零参数 `application`
 
-This definition explicitly fixes the historical conflict in `v1.0.2` between the "uppercase Head rule" and structured-term examples such as `Unify[f[a], ...]`: a lowercase `term head` is valid, but it is not an executable operator by default.
+这一定义显式修复了 `v1.0.2` 中“大写 Head 规则”与 `Unify[f[a], ...]` 这类结构化项示例之间的历史矛盾：小写 `term head` 合法，但它不是默认可执行 operator。
 
 ### 4.3 Canonical Form
 
-Canonical text is the unique canonical serialization form of a single AST.
+canonical text 是单个 AST 的唯一规范序列化形式。
 
-`v1.1.0` freezes the following canonical rules:
+`v1.1.0` 冻结以下 canonical 规则：
 
-1. There is no space between `Head` and `[`
-2. Arguments are separated by `, `
-3. Applications always spell out square brackets explicitly, and zero-argument applications must also be written as `Head[]`
-4. Strings use double quotes; the canonical serializer must stably escape internal quotes and backslashes
-5. Dictionaries use JSON-style `{}`, with one space after a colon and one space after a comma
-6. Dictionary keys are stably sorted in lexicographic order
-7. Canonical text is always a single line
+1. `Head` 与 `[` 之间无空格
+2. 参数之间使用 `, ` 分隔
+3. application 始终显式写出方括号，零参数 application 也必须写成 `Head[]`
+4. 字符串使用双引号；canonical serializer 必须稳定转义内部引号与反斜杠
+5. 字典使用 JSON 风格 `{}`，冒号后一个空格，逗号后一个空格
+6. 字典键按字典序稳定排序
+7. canonical text 始终是单行
 
-For numbers:
+对于数字：
 
-- Integers must be output in decimal form without a decimal point
-- Non-integers must be output in a stable decimal form that the implementation can round-trip
+- 整数必须输出为不带小数点的十进制形式
+- 非整数必须输出为实现可 round-trip 的稳定十进制形式
 
-Multiline text is not canonical text. This specification defines the handling rules for "multiline sequential input" as follows:
+多行文本不是 canonical text。本规范对“多行顺序输入”的处理规则如下：
 
-- If a host allows one text segment to contain multiple top-level expressions
-- It must be explicitly lowered to a sequence container before entering the AST / validator
-- Under the default semantics of `v1.1.0`, that sequence container is `Do[...]`
+- 若宿主允许一段文本包含多个顶层表达式
+- 它必须在进入 AST / validator 之前被显式降格为一个顺序容器
+- 在 `v1.1.0` 的默认语义下，该顺序容器是 `Do[...]`
 
-Therefore, multiline input is a host input convenience, not a new core syntax structure.
+因此，多行是宿主输入便利，不是核心语法新增结构。
 
 ### 4.4 Readable Render
 
-Readable Render is stable presentation for humans. It is not required to be a unique spelling, but it must be generated stably.
+Readable Render 是面向人类的稳定展示，不要求是唯一写法，但必须可稳定生成。
 
-The recommended baseline line-wrapping rules are:
+推荐的基础折行规则如下：
 
-- Single-line expressions may be displayed directly in canonical style
-- Multiline expressions use 2-space indentation
-- Multiline applications use a stable layout with each argument on its own line
-- Multiline dictionaries use a stable layout with each key-value pair on its own line
+- 单行表达式可直接显示为 canonical 风格
+- 多行表达式使用 2 空格缩进
+- 多行 application 采用“每个参数单独一行”的稳定布局
+- 多行字典采用“每个键值对单独一行”的稳定布局
 
-Readable Render should prioritize inspectability for the following scenarios:
+Readable Render 应优先提升以下场景的可检查性：
 
-- Deeply nested `Do / ForEach / If / IfFound / Query`
-- Diagnostic logs from `Trace` and `Assert`
-- Partial structure display for `ParseError`
+- 深层嵌套 `Do / ForEach / If / IfFound / Query`
+- `Trace` 与 `Assert` 的诊断日志
+- `ParseError` 的部分结构展示
 
-Readable Render may share token order with canonical text, but it must not be required to remain single-line and must not be used to define AST equality.
+Readable Render 可以与 canonical text 共享 token 顺序，但不得被要求保持单行，也不得被用于定义 AST 等价性。
 
 ---
 

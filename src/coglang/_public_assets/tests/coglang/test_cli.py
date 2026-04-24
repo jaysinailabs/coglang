@@ -1072,7 +1072,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 32
+    assert payload["entry_count"] == 34
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -1089,6 +1089,12 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Quickstart_v1_1_0.zh-CN.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Specification_v1_1_0_Draft.zh-CN.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Conformance_Suite_v1_1_0.zh-CN.md" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Release_Notes_v1_1_0_pre.zh-CN.md" in [

@@ -1,105 +1,105 @@
 # CogLang Conformance Suite v1.1.0
 
-## 0. 本文档的角色
+## 0. Role of This Document
 
-本文档是 `CogLang_Specification_v1_1_0_Draft.md` 的伴随测试与样例文档。
+This document is the companion test and example document for `CogLang_Specification_v1_1_0_Draft.md`.
 
-它的目标不是替代主规范，而是把以下内容写成可执行检查项：
+Its purpose is not to replace the main specification. Its purpose is to turn the following material into executable checks:
 
-- parser / validator 测试分组
-- execution / trace / render 的最小通过条件
+- parser / validator test groups
+- minimum pass criteria for execution / trace / render
 - golden examples
 
-## 1. 适用范围
+## 1. Scope
 
-本文件当前服务于三个对象：
+This file currently serves three audiences:
 
-- `v1.1.0` 规范编撰者
-- CogLang parser / validator / executor 的实现者
-- 后续的回归测试与一致性审稿
+- authors of the `v1.1.0` specification
+- implementers of CogLang parsers / validators / executors
+- future regression testing and conformance review
 
-本文件默认只覆盖：
+By default, this file covers only:
 
 - `Core`
-- `Reserved` 中已冻结签名的最小条目
+- the minimum frozen-signature entries in `Reserved`
 
-不覆盖：
+It does not cover:
 
-- `Experimental` 的完整行为
-- 宿主内部消息、存储或训练实现细节
-- 外部 adapter 的真实联网行为
+- the full behavior of `Experimental`
+- host-internal message, storage, or training implementation details
+- real network behavior of external adapters
 
-补充说明：
+Additional notes:
 
-- 宿主或 adapter 专属的 fixture suite，应作为**独立的 companion suite** 维护，而不应混入当前 `Core / Reserved` conformance 主套件
-- 这类 companion suite 不属于 `Core CLI` 冻结承诺
+- Host-specific or adapter-specific fixture suites should be maintained as **separate companion suites** and should not be mixed into the current `Core / Reserved` conformance suite.
+- Such companion suites are not part of the `Core CLI` freeze commitment.
 
-## 2. 通过准则
+## 2. Pass Criteria
 
-实现通过本套件，不代表实现与参考实现内部一致；只代表它在外部可观察行为上满足规范冻结的兼容性表面。
+Passing this suite does not mean that an implementation is internally identical to the reference implementation. It only means that the implementation satisfies the frozen compatibility surface through externally observable behavior.
 
-通过准则按以下优先级判定：
+Pass criteria are evaluated in this priority order:
 
-1. AST / canonical text 一致
-2. validator 诊断一致
-3. 语义返回值一致
-4. trace / readable render 满足最小字段要求
+1. AST / canonical text consistency
+2. validator diagnostic consistency
+3. semantic return-value consistency
+4. trace / readable render satisfaction of the minimum field requirements
 
-若某实现的内部结构不同，但上述外部行为一致，则视为通过。
+If an implementation has a different internal structure but the externally observable behavior above is consistent, it is considered conformant.
 
-## 3. 测试分组
+## 3. Test Groups
 
 - `PARSER`
-  词法、application、变量、字典、zero-arity application。
+  Lexing, application, variables, dictionaries, and zero-arity application.
 - `VALIDATOR`
-  名称解析、变量位置、arity、作用域、validator 诊断字段。
+  Name resolution, variable positions, arity, scope, and validator diagnostic fields.
 - `EXEC`
-  `Core` operator 的成功路径、边界路径、错误路径。
+  Success paths, boundary paths, and error paths for `Core` operators.
 - `ERR`
-  错误值默认传播与显式阻断点。
+  Default propagation of error values and explicit propagation-blocking points.
 - `TRACE`
-  `Trace` / `Assert` 的值透明、最小字段、事件类型。
+  Value transparency, minimum fields, and event types for `Trace` / `Assert`.
 - `RENDER`
-  canonical text 与 readable render 的稳定输出。
+  Stable output for canonical text and readable render.
 - `EXT`
-  注册表条目、profile-specific availability、未安装 operator、capability 失败。
+  Registry entries, profile-specific availability, uninstalled operators, and capability failures.
 
 ## 4. Golden Examples
 
 ### GE-001 `operator head` vs `term head`
 
-**目的**
+**Purpose**
 
-验证小写结构化项合法，但不参与默认 operator 解析。
+Verify that lowercase structured terms are valid but do not participate in default operator resolution.
 
-**输入**
+**Input**
 
 ```text
 Unify[f[X_, b], f[a, Y_]]
 ```
 
-**期望**
+**Expected**
 
-- parser 成功
-- `f` 被识别为 `term head`
-- 不触发 `§10` 的 operator 名称解析
-- 执行结果：
+- parser succeeds
+- `f` is identified as a `term head`
+- operator name resolution from `§10` is not triggered
+- execution result:
 
 ```text
 {"X": "a", "Y": "b"}
 ```
 
-**必要性**
+**Rationale**
 
-这是 `v1.0.2` 历史矛盾的修复锚点。
+This is the repair anchor for a historical inconsistency in `v1.0.2`.
 
 ### GE-002 canonical text vs readable render
 
-**目的**
+**Purpose**
 
-验证单行 canonical text 与多行 readable render 不是同一层对象。
+Verify that single-line canonical text and multi-line readable render are not the same layer of object.
 
-**输入 AST**
+**Input AST**
 
 ```text
 ForEach[
@@ -112,111 +112,111 @@ ForEach[
 ]
 ```
 
-**期望**
+**Expected**
 
-- canonical text：
+- canonical text:
 
 ```text
 ForEach[Query[n_, Equal[Get[n_, "category"], "Person"]], p_, Do[Trace[Traverse[p_, "born_in"]], Update[p_, {"visited": True[]}]]]
 ```
 
-- readable render 允许多行缩进
-- 两者 round-trip 到同一 AST
+- readable render may use multi-line indentation
+- both round-trip to the same AST
 
-**必要性**
+**Rationale**
 
-防止把显示层写成语义层。
+Prevents the display layer from being treated as the semantic layer.
 
-补充说明：
+Additional note:
 
-- 本组样例中的 `category` 只是示例业务字段，不构成 `v1.1.0` 对统一业务分类键名的冻结
+- The `category` field in this example group is only an example business field. It does not freeze a unified business classification key name for `v1.1.0`.
 
-### GE-003 `Query` 基本成功路径
+### GE-003 Basic success path for `Query`
 
-**前置图谱**
+**Precondition Graph**
 
-- `einstein`，`type = Entity`，`category = "Person"`，`confidence = 1.0`
-- `tesla`，`type = Entity`，`category = "Person"`，`confidence = 1.0`
-- `ulm`，`type = Entity`，`category = "City"`，`confidence = 1.0`
+- `einstein`, `type = Entity`, `category = "Person"`, `confidence = 1.0`
+- `tesla`, `type = Entity`, `category = "Person"`, `confidence = 1.0`
+- `ulm`, `type = Entity`, `category = "City"`, `confidence = 1.0`
 
-**输入**
+**Input**
 
 ```text
 Query[n_, Equal[Get[n_, "category"], "Person"]]
 ```
 
-**期望**
+**Expected**
 
 ```text
 List["einstein", "tesla"]
 ```
 
-返回顺序按 canonical 节点 ID 稳定排序。
+The return order is stably sorted by canonical node ID.
 
-补充说明：
+Additional note:
 
-- 本样例使用 `category` 只是为了避免与公开主节点 `type` 冲突，不意味着业务分类字段名已被冻结
+- This example uses `category` only to avoid conflicting with the public primary node `type`. It does not mean that the business classification field name is frozen.
 
-### GE-004 `Query.k` 的最小语义
+### GE-004 Minimum semantics of `Query.k`
 
-**前置图谱**
+**Precondition Graph**
 
-- `einstein`，`type = Entity`，`category = "Person"`，`confidence = 1.0`
+- `einstein`, `type = Entity`, `category = "Person"`, `confidence = 1.0`
 
-**输入 A**
+**Input A**
 
 ```text
 Query[n_, Equal[Get[n_, "category"], "Person"]]
 ```
 
-**输入 B**
+**Input B**
 
 ```text
 Query[n_, Equal[Get[n_, "category"], "Person"], {"k": 0, "mode": "default"}]
 ```
 
-**输入 C**
+**Input C**
 
 ```text
 Query[n_, Equal[Get[n_, "category"], "Person"], {"k": 2, "mode": "default"}]
 ```
 
-**输入 D**
+**Input D**
 
 ```text
 Query[n_, Equal[Get[n_, "category"], "Person"], {"k": 1, "mode": 7}]
 ```
 
-**期望**
+**Expected**
 
-- A/B/C 三次都成功
-- 三次结果集相同：
+- A/B/C all succeed
+- all three result sets are identical:
 
 ```text
 List["einstein"]
 ```
 
-- D 返回：
+- D returns:
 
 ```text
 TypeError["Query", "mode", ...]
 ```
 
-**必要性**
+**Rationale**
 
-同时锁住二参数默认形式、`k` 的独立语义、以及 `mode` 的动态类型约束。
+Locks down the default two-argument form, the independent semantics of `k`, and the dynamic type constraint on `mode`.
 
-### GE-005 `Abstract` 只做原型提取与触发
+### GE-005 `Abstract` only extracts and triggers prototypes
 
-**输入**
+**Input**
 
 ```text
 Abstract[List["case_a", "case_b", "case_c"]]
 ```
 
-**期望**
+**Expected**
 
-返回一个结构化摘要对象，至少含：
+Returns a structured summary object with at least:
 
 ```text
 {
@@ -229,24 +229,24 @@ Abstract[List["case_a", "case_b", "case_c"]]
 }
 ```
 
-并满足：
+It also satisfies:
 
-- 不直接返回规则对象
-- 不直接写入主图谱
-- 不替代 `Encoder -> Logic Engine -> draft/promote`
+- does not directly return a rule object
+- does not directly write to the primary graph
+- does not replace `Encoder -> Logic Engine -> draft/promote`
 
-### GE-006 `Trace` 的值透明
+### GE-006 Value transparency of `Trace`
 
-**输入**
+**Input**
 
 ```text
 Trace[Traverse["einstein", "born_in"]]
 ```
 
-**期望**
+**Expected**
 
-- 语义返回值与直接执行 `Traverse["einstein", "born_in"]` 完全一致
-- trace 至少记录：
+- the semantic return value is exactly identical to direct execution of `Traverse["einstein", "born_in"]`
+- trace records at least:
   `expr_id`
   `parent_id`
   `canonical_expr`
@@ -254,9 +254,9 @@ Trace[Traverse["einstein", "born_in"]]
   `duration_ms`
   `effect_class`
 
-### GE-007 `Assert` 的非致命语义
+### GE-007 Non-fatal semantics of `Assert`
 
-**输入**
+**Input**
 
 ```text
 Do[
@@ -265,75 +265,75 @@ Do[
 ]
 ```
 
-**期望**
+**Expected**
 
-- 不抛出宿主异常
-- 不转成 CogLang 运行时错误
-- 返回：
+- does not throw a host exception
+- does not convert to a CogLang runtime error
+- returns:
 
 ```text
 "continued"
 ```
 
-- trace / observer 中出现结构化 assertion / anomaly 事件
-- 事件至少可回溯：
+- a structured assertion / anomaly event appears in trace / observer output
+- the event can be traced back at least to:
   `condition = False[]`
   `message = "missing invariant"`
   `passed = False[]`
 
-### GE-008 `ParseError` 与 `partial_ast`
+### GE-008 `ParseError` and `partial_ast`
 
-**输入**
+**Input**
 
 ```text
 Traverse["Einstein",
 ```
 
-**期望**
+**Expected**
 
-- 返回 canonical error expression：
+- returns the canonical error expression:
 
 ```text
 ParseError["unclosed_bracket", position]
 ```
 
-- 诊断对象或 transport envelope 暴露 `partial_ast` 或 `partial_ast_ref`
-- `partial_ast` 指向已恢复的 `Traverse[...]` 前缀结构
+- the diagnostic object or transport envelope exposes `partial_ast` or `partial_ast_ref`
+- `partial_ast` points to the recovered `Traverse[...]` prefix structure
 
-### GE-009 名称未解析不是 `ParseError`
+### GE-009 Unresolved name is not `ParseError`
 
-**输入**
+**Input**
 
 ```text
 NoSuchOperator["x"]
 ```
 
-**期望**
+**Expected**
 
-- parser 成功
-- validator 失败
-- 诊断字段至少包含：
+- parser succeeds
+- validator fails
+- diagnostic fields include at least:
   `head`
   `attempted_resolution_scopes`
   `source_span`
   `diagnostic_code`
-- 不把该问题表示为 `ParseError[...]`
+- this issue is not represented as `ParseError[...]`
 
-### GE-010 `Operation` internal artifact 的对外标注
+### GE-010 Public labeling of the `Operation` internal artifact
 
-**前置条件**
+**Precondition**
 
-实现用内部 `Operation` 节点承载 `Compose` 结果。
+The implementation uses an internal `Operation` node to carry the result of `Compose`.
 
-**输入**
+**Input**
 
 ```text
 Compose["FindBirthplace", List[person_], Traverse[person_, "born_in"]]
 ```
 
-**期望**
+**Expected**
 
-- 对外语义返回值至少包含：
+- the public semantic return value contains at least:
 
 ```text
 {
@@ -342,374 +342,374 @@ Compose["FindBirthplace", List[person_], Traverse[person_, "born_in"]]
 }
 ```
 
-- 对内可生成 executor-internal `Operation` 载体
-- 若实现还保留内部 definition handle，它只能出现在 diagnostics / transport / 管理接口中，不得替代上面的公开返回契约
-- 对外文档、管理界面、trace 或 render 不把它误标为公开主节点类型
-- 公开知识节点类型口径仍保持：
+- an executor-internal `Operation` carrier may be generated internally
+- if the implementation also keeps an internal definition handle, it may only appear in diagnostics / transport / management interfaces and must not replace the public return contract above
+- public documentation, management UI, trace, or render must not mislabel it as a public primary node type
+- the public knowledge-node type terminology remains:
   `Entity / Concept / Rule / Meta`
 
-### GE-011 `Create` 中公开节点 `type` 的唯一来源
+### GE-011 Sole source of public node `type` in `Create`
 
-**输入 A**
+**Input A**
 
 ```text
 Create["Entity", {"id": "tesla_01", "label": "Tesla"}]
 ```
 
-**输入 B**
+**Input B**
 
 ```text
 Create["Entity", {"id": "tesla_02", "type": "Person"}]
 ```
 
-**期望**
+**Expected**
 
-- A 成功并返回：
+- A succeeds and returns:
 
 ```text
 "tesla_01"
 ```
 
-- B 返回：
+- B returns:
 
 ```text
 TypeError["Create", "attrs", ...]
 ```
 
-- 对 A 创建出的节点，公开主类型必须是 `Entity`
-- 不允许把 `attrs["type"]` 当作业务分类字段继续沿用
+- for the node created by A, the public primary type must be `Entity`
+- `attrs["type"]` must not continue to be used as a business classification field
 
-### GE-012 边调用面 alias 与公开返回值
+### GE-012 Edge call-surface alias and public return value
 
-**前置图谱**
+**Precondition Graph**
 
-- `einstein` 存在且可见
-- `ulm` 存在且可见
+- `einstein` exists and is visible
+- `ulm` exists and is visible
 
-**输入**
+**Input**
 
 ```text
 Create["Edge", {"from": "einstein", "to": "ulm", "relation_type": "born_in"}]
 ```
 
-**期望**
+**Expected**
 
-- 成功返回：
+- succeeds and returns:
 
 ```text
 List["einstein", "born_in", "ulm"]
 ```
 
-- 实现内部可映射到 `source_id / target_id / relation`
-- 但这种内部命名差异不得改变公开调用面与返回语义
+- the implementation may internally map this to `source_id / target_id / relation`
+- this internal naming difference must not change the public call surface or return semantics
 
-### GE-013 `Equal` 的结构相等
+### GE-013 Structural equality for `Equal`
 
-**输入 A**
+**Input A**
 
 ```text
 Equal[f[a, b], f[a, b]]
 ```
 
-**输入 B**
+**Input B**
 
 ```text
 Equal[f[a, b], f[a, c]]
 ```
 
-**期望**
+**Expected**
 
-- A 返回：
+- A returns:
 
 ```text
 True[]
 ```
 
-- B 返回：
+- B returns:
 
 ```text
 False[]
 ```
 
-- `f` 必须按 `term head` 处理，不触发 `§10` 名称解析
-- 比较依据是结构相等，而不是包装对象或 render 文本相等
+- `f` must be handled as a `term head` and must not trigger name resolution from `§10`
+- comparison is based on structural equality, not wrapper objects or render-text equality
 
-### GE-014 `Compare` 的最小 delta schema
+### GE-014 Minimum delta schema for `Compare`
 
-**输入 A**
+**Input A**
 
 ```text
 Compare["hello", "hello"]
 ```
 
-**输入 B**
+**Input B**
 
 ```text
 Compare[f[a, b], f[a, c]]
 ```
 
-**期望**
+**Expected**
 
-- A 返回：
+- A returns:
 
 ```text
 {}
 ```
 
-- B 返回：
+- B returns:
 
 ```text
 {"arg1": {"expected": "b", "actual": "c"}}
 ```
 
-- application 参数位差异必须使用 `argN` 命名
-- 相等时必须返回空字典，而不是其他空值
+- differences in application argument positions must use `argN` names
+- equality must return an empty dictionary, not another empty value
 
-### GE-015 `Unify` 的同名变量一致性
+### GE-015 Same-name variable consistency in `Unify`
 
-**输入 A**
+**Input A**
 
 ```text
 Unify[f[X_, X_], f[a, a]]
 ```
 
-**输入 B**
+**Input B**
 
 ```text
 Unify[f[X_, X_], f[a, b]]
 ```
 
-**期望**
+**Expected**
 
-- A 返回：
+- A returns:
 
 ```text
 {"X": "a"}
 ```
 
-- B 返回：
+- B returns:
 
 ```text
 NotFound[]
 ```
 
-- 同名命名变量必须代表同一个逻辑变量
+- same-name named variables must represent the same logical variable
 
-### GE-016 `Unify` 对错误值的结构匹配
+### GE-016 Structural matching of error values in `Unify`
 
-**输入**
+**Input**
 
 ```text
 Unify[TypeError[X_, _, _, _], TypeError["Get", "source", "expected dict/List/string", 7]]
 ```
 
-**期望**
+**Expected**
 
 ```text
 {"X": "Get"}
 ```
 
-补充要求：
+Additional requirements:
 
-- `TypeError[...]` 在 `Unify` 中是可被结构匹配的正常目标项
-- 不得因为它是错误值就再次自动向外传播
+- `TypeError[...]` is a normal target term that can be structurally matched in `Unify`
+- it must not automatically propagate outward again merely because it is an error value
 
-### GE-017 `Match` 是 `Unify` 的精确别名
+### GE-017 `Match` is an exact alias of `Unify`
 
-**输入 A**
+**Input A**
 
 ```text
 Match[f[X_, b], f[a, Y_]]
 ```
 
-**输入 B**
+**Input B**
 
 ```text
 Unify[f[X_, b], f[a, Y_]]
 ```
 
-**期望**
+**Expected**
 
-- A 返回：
-
-```text
-{"X": "a", "Y": "b"}
-```
-
-- B 返回：
+- A returns:
 
 ```text
 {"X": "a", "Y": "b"}
 ```
 
-- 两者的 parser / validator / execution 可观察结果必须一致
+- B returns:
 
-### GE-018 `Explain` 在 `Baseline` 中的默认留桩
+```text
+{"X": "a", "Y": "b"}
+```
 
-**前置条件**
+- the parser / validator / execution observable results of both forms must be identical
 
-- 当前实现声明自己支持 `Baseline`
-- 未额外声明 `Explain` 的增强实现
+### GE-018 Default stub for `Explain` in `Baseline`
 
-**输入**
+**Preconditions**
+
+- the current implementation declares support for `Baseline`
+- it does not additionally declare an enhanced implementation of `Explain`
+
+**Input**
 
 ```text
 Explain[Query[n_, True[]]]
 ```
 
-**期望**
+**Expected**
 
-- 返回：
+- returns:
 
 ```text
 StubError["Explain", ...]
 ```
 
-- 不得把该调用降格成名称未解析
-- 不得伪装成 `ParseError[...]`
-- 至少留下一个 `meta` 或 `stub` 事件
+- the call must not be degraded into an unresolved name
+- the call must not masquerade as `ParseError[...]`
+- at least one `meta` or `stub` event is left behind
 
-**必要性**
+**Rationale**
 
-锁定 `Reserved` 条目的“签名已冻结，但默认基线可留桩”的最小行为。
+Locks down the minimum behavior for `Reserved` entries whose signatures are frozen while the default baseline may use stubs.
 
-### GE-019 extension-backed operator 的 capability denied
+### GE-019 Capability denied for an extension-backed operator
 
-**前置条件**
+**Preconditions**
 
-- 运行时注册表中存在 `ExtFetch[uri]` 条目
-- 该条目名称已解析
-- 该条目要求 capability `external_io`
-- 当前 manifest 未授予 `external_io`
+- the runtime registry contains an entry for `ExtFetch[uri]`
+- the entry name has been resolved
+- the entry requires the `external_io` capability
+- the current manifest has not granted `external_io`
 
-**输入**
+**Input**
 
 ```text
 ExtFetch["dummy://resource"]
 ```
 
-**期望**
+**Expected**
 
-- 返回：
+- returns:
 
 ```text
 PermissionError["ExtFetch", "external_io"]
 ```
 
-- 不得回退成名称未解析
-- 不得返回 `ParseError[...]`
-- 不得真的尝试访问外部资源
-- trace / diagnostic 中应能看见 capability denied 事件
+- must not fall back to unresolved name
+- must not return `ParseError[...]`
+- must not actually attempt to access the external resource
+- trace / diagnostics should show a capability-denied event
 
-**必要性**
+**Rationale**
 
-锁定“名称已解析但 capability 不足”的失败形态，防止与未安装实现或未解析名称混同。
+Locks down the failure shape for "name resolved but capability insufficient" and prevents it from being confused with uninstalled implementations or unresolved names.
 
-### GE-020 名称已解析但实现未安装
+### GE-020 Name resolved but implementation not installed
 
-**前置条件**
+**Preconditions**
 
-- 运行时注册表中存在 `ExtRank[input]` 条目的元数据
-- 名称解析能够命中该条目
-- 对应执行实现未安装或当前不可用
+- the runtime registry contains metadata for an `ExtRank[input]` entry
+- name resolution can hit that entry
+- the corresponding execution implementation is not installed or is currently unavailable
 
-**输入**
+**Input**
 
 ```text
 ExtRank["sample"]
 ```
 
-**期望**
+**Expected**
 
-- 返回：
+- returns:
 
 ```text
 StubError["ExtRank", "operator_unavailable"]
 ```
 
-- 不得被归类成名称未解析
-- 不得被归类成 `ParseError[...]`
-- 这一路径与 `GE-009` 的“根本未解析”必须可区分
+- must not be classified as an unresolved name
+- must not be classified as `ParseError[...]`
+- this path must be distinguishable from the "not resolved at all" case in `GE-009`
 
-**必要性**
+**Rationale**
 
-锁定 extension-backed operator 在“已解析但不可执行”时的最小失败行为。
+Locks down the minimum failure behavior for an extension-backed operator when it is resolved but not executable.
 
-### GE-021 `If` 对自动传播错误值的条件分支处理
+### GE-021 `If` handling of auto-propagating error values in the condition branch
 
-**输入**
+**Input**
 
 ```text
 If[Get[1, "type"], "then", "else"]
 ```
 
-**期望**
+**Expected**
 
-- 返回：
+- returns:
 
 ```text
 "else"
 ```
 
-- `condition` 中产生的自动传播错误值不得继续自动向外传播
-- trace 中必须能区分 `condition_result_kind = error` 与 `branch_taken = else`
+- the auto-propagating error value produced in `condition` must not keep auto-propagating outward
+- trace must distinguish `condition_result_kind = error` from `branch_taken = else`
 
-**必要性**
+**Rationale**
 
-锁定 `If` 在自动系统中最容易漂移的语义边界：错误值按假值处理，但不等于静默吞掉 trace。
+Locks down the semantic boundary most likely to drift in automated systems: error values are treated as false values in `If`, but this is not the same as silently swallowing trace.
 
-### GE-022 `IfFound` 对 `NotFound[]`、错误值与 `List[]` 的分流
+### GE-022 `IfFound` dispatch for `NotFound[]`, error values, and `List[]`
 
-**输入 A**
+**Input A**
 
 ```text
 IfFound[NotFound[], x_, x_, "fallback"]
 ```
 
-**期望 A**
+**Expected A**
 
-- 返回 `"fallback"`
+- returns `"fallback"`
 
-**输入 B**
+**Input B**
 
 ```text
 IfFound[List[], x_, x_, "fallback"]
 ```
 
-**期望 B**
+**Expected B**
 
-- 返回 `List[]`
+- returns `List[]`
 
-**必要性**
+**Rationale**
 
-锁定 `IfFound` 与 `If` 的分层：`NotFound[]` 与自动传播错误值进入 `else`，`List[]` 不是错误值。
+Locks down the layering between `IfFound` and `If`: `NotFound[]` and auto-propagating error values enter `else`, while `List[]` is not an error value.
 
-### GE-023 `ForEach` 的稳定映射与结果保留
+### GE-023 Stable mapping and result preservation in `ForEach`
 
-**输入**
+**Input**
 
 ```text
 ForEach[List["a", "b"], x_, Equal[x_, x_]]
 ```
 
-**期望**
+**Expected**
 
-- 返回：
+- returns:
 
 ```text
 List[True[], True[]]
 ```
 
-- 结果顺序必须与输入快照顺序一致
-- trace 中必须能看见快照大小为 `2`
+- result order must match the input snapshot order
+- trace must show a snapshot size of `2`
 
-**必要性**
+**Rationale**
 
-锁定 `ForEach` 的最小稳定性：一次求值快照、逐项映射、顺序不漂移。
+Locks down the minimum stability of `ForEach`: one evaluation snapshot, item-by-item mapping, and no order drift.
 
-### GE-024 `Do` 的顺序执行与非自动中止
+### GE-024 Sequential execution and non-automatic abort in `Do`
 
-**输入**
+**Input**
 
 ```text
 Do[
@@ -718,48 +718,48 @@ Do[
 ]
 ```
 
-**期望**
+**Expected**
 
-- 返回：
+- returns:
 
 ```text
 "still_runs"
 ```
 
-- `Do` 的返回值必须是最后一个已执行子表达式的结果，而不是全部步骤结果的聚合
-- 第一条子表达式产生的错误值不得自动中止第二条
-- trace 中必须能看见两个步骤都被执行
+- the return value of `Do` must be the result of the last executed subexpression, not an aggregation of all step results
+- the error value produced by the first subexpression must not automatically abort the second subexpression
+- trace must show that both steps were executed
 
-**必要性**
+**Rationale**
 
-锁定 `Do` 最容易被实现者“顺手修成异常即中断”的行为边界。
+Locks down the boundary in `Do` that implementers are most likely to accidentally "fix" into exception-style interruption.
 
-### GE-025 `Inspect` 在 `Baseline` 中的默认留桩
+### GE-025 Default stub for `Inspect` in `Baseline`
 
-**输入**
+**Input**
 
 ```text
 Inspect["einstein"]
 ```
 
-**期望**
+**Expected**
 
-- 返回：
+- returns:
 
 ```text
 StubError["Inspect", "einstein"]
 ```
 
-- trace 中必须能留下 `stub` 或 `meta` 类事件
-- 不得因为 `Inspect` 留桩而触发 graph write
+- trace must leave a `stub` or `meta` class event
+- the `Inspect` stub must not trigger a graph write
 
-**必要性**
+**Rationale**
 
-锁定 `Inspect` 作为 `Reserved` 条目的最小可靠性：签名冻结、默认失败形态冻结、可观测性要求冻结。
+Locks down the minimum reliability of `Inspect` as a `Reserved` entry: signature freeze, default failure-shape freeze, and observability requirement freeze.
 
-### GE-026 `IfFound` 的 bind-and-continue 惯用法
+### GE-026 Bind-and-continue idiom for `IfFound`
 
-**输入**
+**Input**
 
 ```text
 IfFound[
@@ -770,230 +770,230 @@ IfFound[
 ]
 ```
 
-**期望**
+**Expected**
 
-- 返回：
+- returns:
 
 ```text
 List["Einstein", True[]]
 ```
 
-- `Get["einstein", "label"]` 的结果必须被绑定到 `label_`
-- `thenExpr` 必须只在绑定成功时求值
-- trace 中必须能看见 `branch_taken = then`
+- the result of `Get["einstein", "label"]` must be bound to `label_`
+- `thenExpr` must be evaluated only when binding succeeds
+- trace must show `branch_taken = then`
 
-**必要性**
+**Rationale**
 
-锁定 `IfFound` 在当前 `v1.1.0` 中作为 bind-and-continue 官方惯用法的最小可依赖行为，而不改变 `Do` 的步间不绑定语义。
+Locks down `IfFound` as the official bind-and-continue idiom in current `v1.1.0` without changing the no-between-step-binding semantics of `Do`.
 
-### GE-027 `AllNodes` 的可见性与稳定顺序
+### GE-027 Visibility and stable order of `AllNodes`
 
-**前置图谱**
+**Precondition Graph**
 
-- `einstein`，`type = Entity`，`confidence = 1.0`
-- `tesla`，`type = Entity`，`confidence = 1.0`
-- `ghost`，`type = Entity`，`confidence = 0`
+- `einstein`, `type = Entity`, `confidence = 1.0`
+- `tesla`, `type = Entity`, `confidence = 1.0`
+- `ghost`, `type = Entity`, `confidence = 0`
 
-**输入**
+**Input**
 
 ```text
 AllNodes[]
 ```
 
-**期望**
+**Expected**
 
 ```text
 List["einstein", "tesla"]
 ```
 
-- 结果中不得出现 `ghost`
-- 结果顺序必须稳定；默认按 canonical 节点 ID 升序
+- the result must not contain `ghost`
+- result order must be stable; by default it is ascending by canonical node ID
 
-**必要性**
+**Rationale**
 
-锁定 `AllNodes` 的默认可见性与稳定排序，避免不同实现把 soft-deleted / hidden 节点重新暴露出来。
+Locks down the default visibility and stable sorting of `AllNodes`, avoiding implementations that re-expose soft-deleted / hidden nodes.
 
-### GE-028 `Update` 的成功路径与 `confidence = 0` 拒绝
+### GE-028 Success path of `Update` and rejection of `confidence = 0`
 
-**前置图谱**
+**Precondition Graph**
 
-- `einstein`，`type = Entity`，`label = "Einstein"`，`confidence = 1.0`
+- `einstein`, `type = Entity`, `label = "Einstein"`, `confidence = 1.0`
 
-**输入 A**
+**Input A**
 
 ```text
 Update["einstein", {"label": "Albert Einstein"}]
 ```
 
-**期望 A**
+**Expected A**
 
-- 返回：
+- returns:
 
 ```text
 True[]
 ```
 
-- 后续执行：
+- subsequent execution of:
 
 ```text
 Get["einstein", "label"]
 ```
 
-  必须返回：
+  must return:
 
 ```text
 "Albert Einstein"
 ```
 
-**输入 B**
+**Input B**
 
 ```text
 Update["einstein", {"confidence": 0}]
 ```
 
-**期望 B**
+**Expected B**
 
-- 返回：
+- returns:
 
 ```text
 TypeError["Update", "changes", "use Delete for soft-delete", ...]
 ```
 
-**必要性**
+**Rationale**
 
-同时锁定 `Update` 的正常字段覆盖路径与“不得借 `confidence = 0` 模拟删除”的硬边界。
+Locks down both the normal field-overwrite path of `Update` and the hard boundary that `confidence = 0` must not be used to simulate deletion.
 
-### GE-029 `Delete` 的 soft-delete 与幂等性
+### GE-029 Soft-delete and idempotence of `Delete`
 
-**前置图谱**
+**Precondition Graph**
 
-- `tesla`，`type = Entity`，`confidence = 1.0`
+- `tesla`, `type = Entity`, `confidence = 1.0`
 
-**输入 A**
+**Input A**
 
 ```text
 Delete["tesla"]
 ```
 
-**期望 A**
+**Expected A**
 
-- 返回：
+- returns:
 
 ```text
 "tesla"
 ```
 
-**输入 B**
+**Input B**
 
 ```text
 Delete["tesla"]
 ```
 
-**期望 B**
+**Expected B**
 
-- 返回：
+- returns:
 
 ```text
 NotFound[]
 ```
 
-- 后续执行：
+- subsequent execution of:
 
 ```text
 AllNodes[]
 ```
 
-  不得再包含 `tesla`
+  must no longer contain `tesla`
 
-**必要性**
+**Rationale**
 
-锁定 `Delete` 的 soft-delete 语义、幂等性与默认可见性后果。
+Locks down the soft-delete semantics, idempotence, and default visibility consequences of `Delete`.
 
-### GE-030 `ForEach` 对 body 错误的结果保留
+### GE-030 Result preservation for body errors in `ForEach`
 
-**输入**
+**Input**
 
 ```text
 ForEach[List["einstein", "missing"], x_, Get[x_, "label"]]
 ```
 
-**期望**
+**Expected**
 
-- 返回：
+- returns:
 
 ```text
 List["Einstein", NotFound[]]
 ```
 
-- 第二个位置的 `NotFound[]` 必须保留在结果列表中
-- 第一项成功不得因第二项缺失而被抹去
-- 整轮迭代不得提前中止
+- `NotFound[]` in the second position must be preserved in the result list
+- the first successful item must not be erased because the second item is missing
+- the full iteration must not abort early
 
-**必要性**
+**Rationale**
 
-锁定 `ForEach` 的“逐项保留结果”语义，避免实现把 body 错误重新做成全局失败。
+Locks down the "preserve per-item results" semantics of `ForEach`, avoiding implementations that convert body errors back into global failure.
 
-### GE-031 `Get` 的 `Dict / List / node_attr` 三路分派
+### GE-031 Three-way dispatch for `Get`: `Dict / List / node_attr`
 
-**输入 A**
+**Input A**
 
 ```text
 Get[{"name": "Einstein"}, "name"]
 ```
 
-**期望 A**
+**Expected A**
 
 ```text
 "Einstein"
 ```
 
-**输入 B**
+**Input B**
 
 ```text
 Get[List["a", "b"], 1]
 ```
 
-**期望 B**
+**Expected B**
 
 ```text
 "b"
 ```
 
-**输入 C**
+**Input C**
 
 ```text
 Get["einstein", "label"]
 ```
 
-**期望 C**
+**Expected C**
 
 ```text
 "Einstein"
 ```
 
-**输入 D**
+**Input D**
 
 ```text
 Get[List["a"], "name"]
 ```
 
-**期望 D**
+**Expected D**
 
 ```text
 TypeError["Get", "key", ...]
 ```
 
-**必要性**
+**Rationale**
 
-锁定 `Get` 的三路运行时分派、`0-based` 列表索引与“分派确定后再校验 key 类型”的错误语义。
+Locks down the three-way runtime dispatch of `Get`, `0-based` list indexing, and the error semantics of validating the key type only after dispatch is determined.
 
-### GE-032 `Create` 缺省 ID 的唯一分配与返回一致性
+### GE-032 Unique allocation and return consistency for default IDs in `Create`
 
-**前置图谱**
+**Precondition Graph**
 
-- `einstein` 存在且可见
+- `einstein` exists and is visible
 
-**输入**
+**Input**
 
 ```text
 IfFound[
@@ -1004,30 +1004,30 @@ IfFound[
 ]
 ```
 
-**期望**
+**Expected**
 
-- 整体成功
-- 最终返回：
+- the whole expression succeeds
+- the final return value is:
 
 ```text
 List["einstein", "knows", "<allocated_id>"]
 ```
 
-- 其中 `<allocated_id>` 必须是本次创建为节点分配的唯一 ID
-- 该 ID 必须在语言层节点返回值、后续同次表达式内部引用、以及内部写入候选中保持一致
-- 实现不得把该 ID 延迟到持久化提交成功后再回填生成
+- `<allocated_id>` must be the unique ID allocated to the node created in this execution
+- that ID must remain consistent across the language-level node return value, later references inside the same expression, and the internal write candidate
+- the implementation must not delay allocating and backfilling that ID until after persistent commit succeeds
 
-**必要性**
+**Rationale**
 
-锁定 `Create` 在 `attrs.id` 缺失时的冻结语义：唯一 ID 必须在内部写入请求形成前就被分配，并成为本次表达式后续引用的共同标识。
+Locks down the frozen semantics of `Create` when `attrs.id` is missing: the unique ID must be allocated before the internal write request is formed, and it becomes the shared identifier for later references in the same expression.
 
-### GE-033 `Create["Edge", ...]` 的 alias 归一化早于内部引用校验
+### GE-033 Alias normalization in `Create["Edge", ...]` occurs before internal reference validation
 
-**前置图谱**
+**Precondition Graph**
 
-- `einstein` 存在且可见
+- `einstein` exists and is visible
 
-**输入**
+**Input**
 
 ```text
 Do[
@@ -1036,26 +1036,26 @@ Do[
 ]
 ```
 
-**期望**
+**Expected**
 
-- 整体成功
-- 最终返回最后一步结果：
+- the whole expression succeeds
+- the final return value is the result of the last step:
 
 ```text
 List["einstein", "knows", "dog_1"]
 ```
 
-- 若实现内部存在字段映射、键名归一化或等价的调用面转换步骤，则这些步骤必须在任何内部引用一致性检查、宿主提交校验或本地引用完整性检查前完成
-- 对外冻结的是“映射早于任何内部引用一致性检查”的时序约束，而不是某一种宿主内部字段名或某一种桥接对象实现
-- 不允许出现“公开调用面合法，但仅因实现内部尚未完成调用面归一化而失败”的行为
+- if the implementation has internal field mapping, key normalization, or an equivalent call-surface conversion step, these steps must occur before any internal reference-consistency check, host commit validation, or local referential-integrity check
+- the public freeze is the timing constraint that "mapping occurs before any internal reference-consistency check", not any particular host-internal field name or bridge-object implementation
+- behavior where the public call surface is valid but fails only because the implementation has not yet completed call-surface normalization is not allowed
 
-**必要性**
+**Rationale**
 
-锁定边调用面 alias 与内部提交对象之间的时序约束，避免不同实现把字段映射放在过晚阶段，从而破坏本地引用一致性。
+Locks down the timing constraint between edge call-surface aliases and internal commit objects, preventing implementations from performing field mapping too late and breaking local reference consistency.
 
-## 5. 最小回归集合
+## 5. Minimum Regression Set
 
-每次规范改动后，至少应回归以下样例：
+After each specification change, at least the following examples should be regressed:
 
 - `GE-001`
 - `GE-002`
@@ -1091,10 +1091,10 @@ List["einstein", "knows", "dog_1"]
 - `GE-032`
 - `GE-033`
 
-## 6. 扩展说明
+## 6. Extension Notes
 
-本文件会随 `v1.1.0` 收敛继续增长，但增长原则应保持克制：
+This file will continue to grow as `v1.1.0` converges, but the growth principle should stay restrained:
 
-- 优先补“能证明语义边界”的样例
-- 不用大量相似样例堆砌覆盖率幻觉
-- 不把宿主内部实现细节写进 golden example
+- prefer examples that prove semantic boundaries
+- do not pile up many similar examples to create an illusion of coverage
+- do not write host-internal implementation details into golden examples

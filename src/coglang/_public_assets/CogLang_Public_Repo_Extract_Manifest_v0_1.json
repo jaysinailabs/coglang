@@ -127,8 +127,18 @@
     },
     {
       "kind": "file",
+      "source": "CogLang_Specification_v1_1_0_Draft.zh-CN.md",
+      "destination": "CogLang_Specification_v1_1_0_Draft.zh-CN.md"
+    },
+    {
+      "kind": "file",
       "source": "CogLang_Conformance_Suite_v1_1_0.md",
       "destination": "CogLang_Conformance_Suite_v1_1_0.md"
+    },
+    {
+      "kind": "file",
+      "source": "CogLang_Conformance_Suite_v1_1_0.zh-CN.md",
+      "destination": "CogLang_Conformance_Suite_v1_1_0.zh-CN.md"
     },
     {
       "kind": "file",

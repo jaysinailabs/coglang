@@ -10,6 +10,18 @@ readme = "README.md"
 authors = [{ name = "Jason Xin" }]
 license = "Apache-2.0"
 license-files = ["LICENSE"]
+keywords = [
+    "llm",
+    "graph",
+    "knowledge graph",
+    "dsl",
+    "intermediate language",
+    "auditable execution",
+    "traceable ai",
+    "m-expression",
+    "unification",
+    "graph queries",
+]
 requires-python = ">=3.11"
 dependencies = ["networkx"]
 classifiers = [

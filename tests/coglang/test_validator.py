@@ -10,10 +10,10 @@ Coverage:
 import pytest
 
 try:
-    from logos.coglang.parser import CogLangExpr, parse
-    from logos.coglang.validator import valid_coglang
-    from logos.coglang.vocab import COGLANG_VOCAB
-    _PARSER_MODULE = "logos.coglang.parser"
+    from coglang.parser import CogLangExpr, parse
+    from coglang.validator import valid_coglang
+    from coglang.vocab import COGLANG_VOCAB
+    _PARSER_MODULE = "coglang.parser"
 except ModuleNotFoundError:
     from coglang.parser import CogLangExpr, parse
     from coglang.validator import valid_coglang
@@ -56,8 +56,8 @@ def test_unify_with_prolog_functor_args_valid():
     term data rather than a top-level CogLang operator. valid_coglang() must
     accept this or it will incorrectly reject normal Unify/Match expressions.
     """
-    if _PARSER_MODULE == "logos.coglang.parser":
-        from logos.coglang.parser import parse as _parse
+    if _PARSER_MODULE == "coglang.parser":
+        from coglang.parser import parse as _parse
     else:
         from coglang.parser import parse as _parse
     # Via parse (the main code path Encoder will use)

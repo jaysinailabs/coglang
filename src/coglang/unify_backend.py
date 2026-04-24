@@ -1,5 +1,4 @@
-# CogLang unification backend (P0-T1, S2b)
-# Spec: plans/P0-T1 任务规格书_CogLang 规范实现.md §2.1 (UNIFY / MATCH semantics)
+# CogLang unification backend.
 # DL-012: janus-swi (SWI-Prolog unify_with_occurs_check/2) as primary backend;
 #         PythonUnifyBackend (Robinson unification, ~80 lines) as fallback.
 # SWI_HOME_DIR must be set BEFORE importing janus_swi — set at module top via setdefault
@@ -222,7 +221,7 @@ class JanusUnifyBackend(UnifyBackend):
 
     Advantages over PythonUnifyBackend:
     - Correct occurs check guaranteed by SWI-Prolog's built-in implementation.
-    - Same janus channel reused in P0-T6 for full Prolog inference.
+    - Same janus channel can be reused for a future full Prolog backend.
 
     Requires:
     - SWI-Prolog installed at the path set in SWI_HOME_DIR.
@@ -281,13 +280,13 @@ class PythonUnifyBackend(UnifyBackend):
 # Factory function (with safe subprocess probe)
 # ---------------------------------------------------------------------------
 
-# TD-003 (PHASE scope, P0-T6 pickup):
+# TD-003:
 #   janus-swi 1.5.2 was compiled against SWI-Prolog 9.x ABI.
 #   The installed SWI-Prolog 10.0.2 has ABI swipl-abi-2-68-*, which causes
 #   _swipl.initialize() to call C-level exit() — uncatchable by Python's
 #   try/except.  A subprocess probe is the only safe detection method.
 #   Fix: rebuild janus-swi from source against SWI-Prolog 10.0.2 headers
-#   (D:\Program Files\swipl\include already present) before P0-T6.
+#   (D:\Program Files\swipl\include already present) before enabling Janus.
 
 _JANUS_AVAILABLE_CACHE: "bool | None" = None
 
@@ -330,7 +329,7 @@ def get_unify_backend() -> UnifyBackend:
         return JanusUnifyBackend()
     warnings.warn(
         "janus-swi not available (see TD-003); using PythonUnifyBackend. "
-        "Fix: rebuild janus-swi against SWI-Prolog 10.0.2 before P0-T6.",
+        "Fix: rebuild janus-swi against SWI-Prolog 10.0.2 before enabling the optional Janus backend.",
         RuntimeWarning,
         stacklevel=2,
     )

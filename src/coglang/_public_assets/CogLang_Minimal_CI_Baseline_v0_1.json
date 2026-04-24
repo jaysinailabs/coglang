@@ -3,7 +3,7 @@
   "status": "defined-for-formal-open-source-prep",
   "intent": "release-facing verification baseline",
   "workflow_template": {
-    "source": "plans/coglang/CogLang_Public_CI_Workflow_v0_1.yml",
+    "source": ".github/workflows/ci.yml",
     "destination": ".github/workflows/ci.yml"
   },
   "commands": [

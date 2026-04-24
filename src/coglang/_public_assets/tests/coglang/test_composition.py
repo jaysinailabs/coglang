@@ -12,9 +12,9 @@ import pytest
 import networkx as nx
 import uuid
 
-from logos.coglang.parser import CogLangExpr, CogLangVar, parse
-from logos.coglang.executor import PythonCogLangExecutor
-from logos.coglang.write_bundle import (
+from coglang.parser import CogLangExpr, CogLangVar, parse
+from coglang.executor import PythonCogLangExecutor
+from coglang.write_bundle import (
     WriteBundleCandidate,
     ErrorReport,
     LocalWriteQueryResult,

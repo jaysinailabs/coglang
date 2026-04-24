@@ -96,7 +96,7 @@ def _conformance_base() -> Path:
 
 def _cli_version() -> str:
     distribution = _distribution_metadata()
-    candidates = [distribution["name"], "logos", "coglang"]
+    candidates = [distribution["name"], "coglang"]
     for candidate in candidates:
         if not candidate:
             continue
@@ -170,7 +170,7 @@ def _info_payload() -> dict[str, Any]:
     distribution = _distribution_metadata()
     return {
         "tool": "coglang",
-        "package": distribution["name"] or "logos",
+        "package": distribution["name"] or "coglang",
         "version": _cli_version(),
         "language_release": COGLANG_LANGUAGE_RELEASE,
         "commands": [
@@ -241,7 +241,7 @@ def _distribution_metadata() -> dict[str, Any]:
 def _open_source_boundary_payload() -> dict[str, Any]:
     root = _project_root()
     descriptor_path, descriptor_relpath = _resolve_project_artifact(
-        "plans/coglang/CogLang_Open_Source_Boundary_v0_1.json",
+        "CogLang_Open_Source_Boundary_v0_1.json",
         "CogLang_Open_Source_Boundary_v0_1.json",
     )
     if not descriptor_path.exists():
@@ -252,7 +252,7 @@ def _open_source_boundary_payload() -> dict[str, Any]:
             "repository_strategy": None,
             "public_distribution_name": None,
             "public_console_script": None,
-            "current_internal_module": None,
+            "public_runtime_module": None,
             "release_roots": [],
             "release_roots_exist": False,
         }
@@ -273,11 +273,11 @@ def _open_source_boundary_payload() -> dict[str, Any]:
 def _minimal_ci_baseline_payload() -> dict[str, Any]:
     root = _project_root()
     descriptor_path, descriptor_relpath = _resolve_project_artifact(
-        "plans/coglang/CogLang_Minimal_CI_Baseline_v0_1.json",
+        "CogLang_Minimal_CI_Baseline_v0_1.json",
         "CogLang_Minimal_CI_Baseline_v0_1.json",
     )
     workflow_template_path, workflow_template_relpath = _resolve_project_artifact(
-        "plans/coglang/CogLang_Public_CI_Workflow_v0_1.yml",
+        "CogLang_Public_CI_Workflow_v0_1.yml",
         ".github/workflows/ci.yml",
     )
     required_command_names = ["bundle", "release_check", "smoke", "conformance_smoke"]
@@ -359,7 +359,7 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
 def _public_repo_extract_manifest_payload() -> dict[str, Any]:
     root = _project_root()
     descriptor_path, descriptor_relpath = _resolve_project_artifact(
-        "plans/coglang/CogLang_Public_Repo_Extract_Manifest_v0_1.json",
+        "CogLang_Public_Repo_Extract_Manifest_v0_1.json",
         "CogLang_Public_Repo_Extract_Manifest_v0_1.json",
     )
     required_destinations = [
@@ -413,39 +413,36 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
     ci_baseline = _minimal_ci_baseline_payload()
     public_repo_extract_manifest = _public_repo_extract_manifest_payload()
     info = _info_payload()
-    internal_docs_layout = (root / "plans" / "coglang").exists()
-
-    readme_path, _ = _resolve_project_artifact("plans/coglang/README.md", "README.md")
+    readme_path, _ = _resolve_project_artifact("README.md", "README.md")
     quickstart_path, _ = _resolve_project_artifact(
-        "plans/coglang/CogLang_Quickstart_v1_1_0.md",
+        "CogLang_Quickstart_v1_1_0.md",
         "CogLang_Quickstart_v1_1_0.md",
     )
     install_guide_path, _ = _resolve_project_artifact(
-        "plans/coglang/CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
+        "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
         "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
     )
     contribution_guide_path, _ = _resolve_project_artifact(
-        "plans/coglang/CogLang_Contribution_Guide_v0_1.md",
+        "CogLang_Contribution_Guide_v0_1.md",
         "CogLang_Contribution_Guide_v0_1.md",
     )
     release_notes_path, _ = _resolve_project_artifact(
-        "plans/coglang/CogLang_Release_Notes_v1_1_0_pre.md",
+        "CogLang_Release_Notes_v1_1_0_pre.md",
         "CogLang_Release_Notes_v1_1_0_pre.md",
     )
-    roadmap_path, _ = _resolve_project_artifact("plans/coglang/ROADMAP.md", "ROADMAP.md")
-    maintenance_path, _ = _resolve_project_artifact("plans/coglang/MAINTENANCE.md", "MAINTENANCE.md")
+    roadmap_path, _ = _resolve_project_artifact("ROADMAP.md", "ROADMAP.md")
+    maintenance_path, _ = _resolve_project_artifact("MAINTENANCE.md", "MAINTENANCE.md")
     public_docs_checklist_path, _ = _resolve_project_artifact(
-        "plans/coglang/CogLang_Public_Docs_Readiness_Checklist_v0_1.md",
+        "CogLang_Public_Docs_Readiness_Checklist_v0_1.md",
     )
-    llms_path, _ = _resolve_project_artifact("plans/coglang/llms.txt", "llms.txt")
-    llms_full_path, _ = _resolve_project_artifact("plans/coglang/llms-full.txt", "llms-full.txt")
+    llms_path, _ = _resolve_project_artifact("llms.txt", "llms.txt")
+    llms_full_path, _ = _resolve_project_artifact("llms-full.txt", "llms-full.txt")
 
     gates = [
         {
             "name": "G1_public_docs_boundary",
             "ok": (
-                (public_docs_checklist_path.exists() or not internal_docs_layout)
-                and readme_path.exists()
+                readme_path.exists()
                 and quickstart_path.exists()
                 and llms_path.exists()
                 and llms_full_path.exists()
@@ -538,31 +535,31 @@ def _manifest_payload() -> dict[str, Any]:
     minimal_ci_baseline = _minimal_ci_baseline_payload()
     public_repo_extract_manifest = _public_repo_extract_manifest_payload()
     formal_open_source_readiness = _formal_open_source_readiness_payload()
-    readme_relpath = _resolve_project_artifact("plans/coglang/README.md", "README.md")[1]
+    readme_relpath = _resolve_project_artifact("README.md", "README.md")[1]
     quickstart_relpath = _resolve_project_artifact(
-        "plans/coglang/CogLang_Quickstart_v1_1_0.md",
+        "CogLang_Quickstart_v1_1_0.md",
         "CogLang_Quickstart_v1_1_0.md",
     )[1]
     spec_relpath = _resolve_project_artifact(
-        "plans/coglang/CogLang_Specification_v1_1_0_Draft.md",
+        "CogLang_Specification_v1_1_0_Draft.md",
         "CogLang_Specification_v1_1_0_Draft.md",
     )[1]
     install_guide_relpath = _resolve_project_artifact(
-        "plans/coglang/CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
+        "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
         "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
     )[1]
     release_notes_relpath = _resolve_project_artifact(
-        "plans/coglang/CogLang_Release_Notes_v1_1_0_pre.md",
+        "CogLang_Release_Notes_v1_1_0_pre.md",
         "CogLang_Release_Notes_v1_1_0_pre.md",
     )[1]
     contribution_guide_relpath = _resolve_project_artifact(
-        "plans/coglang/CogLang_Contribution_Guide_v0_1.md",
+        "CogLang_Contribution_Guide_v0_1.md",
         "CogLang_Contribution_Guide_v0_1.md",
     )[1]
-    roadmap_relpath = _resolve_project_artifact("plans/coglang/ROADMAP.md", "ROADMAP.md")[1]
-    maintenance_relpath = _resolve_project_artifact("plans/coglang/MAINTENANCE.md", "MAINTENANCE.md")[1]
-    llms_relpath = _resolve_project_artifact("plans/coglang/llms.txt", "llms.txt")[1]
-    llms_full_relpath = _resolve_project_artifact("plans/coglang/llms-full.txt", "llms-full.txt")[1]
+    roadmap_relpath = _resolve_project_artifact("ROADMAP.md", "ROADMAP.md")[1]
+    maintenance_relpath = _resolve_project_artifact("MAINTENANCE.md", "MAINTENANCE.md")[1]
+    llms_relpath = _resolve_project_artifact("llms.txt", "llms.txt")[1]
+    llms_full_relpath = _resolve_project_artifact("llms-full.txt", "llms-full.txt")[1]
     docs = {
         "readme": readme_relpath,
         "quickstart": quickstart_relpath,
@@ -669,25 +666,25 @@ def _examples_payload() -> dict[str, Any]:
 def _release_check_payload() -> dict[str, Any]:
     root = _project_root()
     pyproject_path, _ = _resolve_project_artifact("pyproject.toml")
-    public_readme_path, _ = _resolve_project_artifact("plans/coglang/README.md", "README.md")
-    roadmap_path, _ = _resolve_project_artifact("plans/coglang/ROADMAP.md", "ROADMAP.md")
-    maintenance_path, _ = _resolve_project_artifact("plans/coglang/MAINTENANCE.md", "MAINTENANCE.md")
-    llms_path, _ = _resolve_project_artifact("plans/coglang/llms.txt", "llms.txt")
-    llms_full_path, _ = _resolve_project_artifact("plans/coglang/llms-full.txt", "llms-full.txt")
+    public_readme_path, _ = _resolve_project_artifact("README.md", "README.md")
+    roadmap_path, _ = _resolve_project_artifact("ROADMAP.md", "ROADMAP.md")
+    maintenance_path, _ = _resolve_project_artifact("MAINTENANCE.md", "MAINTENANCE.md")
+    llms_path, _ = _resolve_project_artifact("llms.txt", "llms.txt")
+    llms_full_path, _ = _resolve_project_artifact("llms-full.txt", "llms-full.txt")
     spec_path, _ = _resolve_project_artifact(
-        "plans/coglang/CogLang_Specification_v1_1_0_Draft.md",
+        "CogLang_Specification_v1_1_0_Draft.md",
         "CogLang_Specification_v1_1_0_Draft.md",
     )
     quickstart_path, _ = _resolve_project_artifact(
-        "plans/coglang/CogLang_Quickstart_v1_1_0.md",
+        "CogLang_Quickstart_v1_1_0.md",
         "CogLang_Quickstart_v1_1_0.md",
     )
     conformance_path, _ = _resolve_project_artifact(
-        "plans/coglang/CogLang_Conformance_Suite_v1_1_0.md",
+        "CogLang_Conformance_Suite_v1_1_0.md",
         "CogLang_Conformance_Suite_v1_1_0.md",
     )
     host_contract_path, _ = _resolve_project_artifact(
-        "plans/coglang/CogLang_Host_Runtime_Contract_v0_1.md",
+        "CogLang_Host_Runtime_Contract_v0_1.md",
         "CogLang_Host_Runtime_Contract_v0_1.md",
     )
     license_path, _ = _resolve_project_artifact("LICENSE")
@@ -795,7 +792,7 @@ def _release_check_payload() -> dict[str, Any]:
                 public_repo_extract_manifest["schema_version"]
                 == "coglang-public-repo-extract-manifest/v0.1"
                 and public_repo_extract_manifest["repository_strategy"]
-                == "dedicated_repository_extract"
+                == "standalone_repository"
                 and public_repo_extract_manifest["public_distribution_name"] == "coglang"
                 and public_repo_extract_manifest["source_paths_exist"] is True
                 and public_repo_extract_manifest["destination_paths_unique"] is True

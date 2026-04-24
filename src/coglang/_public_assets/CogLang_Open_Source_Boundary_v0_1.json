@@ -1,24 +1,21 @@
 {
   "schema_version": "coglang-open-source-boundary/v0.1",
-  "status": "chosen-for-formal-open-source-prep",
+  "status": "standalone-public-repository",
   "project_name": "CogLang",
-  "repository_strategy": "dedicated_repository_extract",
+  "repository_strategy": "standalone_repository",
   "public_distribution_name": "coglang",
   "public_console_script": "coglang",
-  "current_internal_module": "logos.coglang",
+  "public_runtime_module": "coglang",
   "release_roots": [
-    "src/logos/coglang",
+    "src/coglang",
     "tests/coglang",
-    "plans/coglang",
+    "internal_schemas",
     "LICENSE"
   ],
   "public_docs": {
-    "readme": "plans/coglang/README.md",
-    "roadmap": "plans/coglang/ROADMAP.md",
-    "maintenance": "plans/coglang/MAINTENANCE.md"
+    "readme": "README.md",
+    "roadmap": "ROADMAP.md",
+    "maintenance": "MAINTENANCE.md"
   },
-  "remaining_blockers": [
-    "standalone distribution metadata and packaging root",
-    "minimal CI / release baseline"
-  ]
+  "remaining_blockers": []
 }

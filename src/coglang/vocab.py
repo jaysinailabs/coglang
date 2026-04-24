@@ -23,7 +23,7 @@ COGLANG_VOCAB: frozenset[str] = frozenset({
     "Assert",       # Assertion check [Special Form]
     "Explain",      # Execution plan preview (stub, Phase 2)
 
-    # === Preset Shortcuts (P0-T1 stubs) ===
+    # === Reserved preset shortcuts ===
     "Instantiate", "Probe", "Explore",
     "Estimate", "Decompose", "Defer", "Resume", "Merge",
 

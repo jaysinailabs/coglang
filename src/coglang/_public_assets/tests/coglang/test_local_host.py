@@ -2,14 +2,14 @@ import json
 
 import networkx as nx
 
-from logos.coglang.local_host import (
+from coglang.local_host import (
     LocalCogLangHost,
     LocalHostSnapshot,
     LocalHostSummary,
     LocalHostTrace,
 )
-from logos.coglang.parser import CogLangExpr
-from logos.coglang.write_bundle import (
+from coglang.parser import CogLangExpr
+from coglang.write_bundle import (
     ErrorReport,
     LocalWriteHeader,
     LocalWriteQueryResult,

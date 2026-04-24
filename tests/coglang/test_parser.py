@@ -13,8 +13,8 @@ Coverage:
 import pytest
 
 try:
-    from logos.coglang.parser import CogLangExpr, CogLangVar, canonicalize, parse
-    from logos.coglang.vocab import COGLANG_VOCAB
+    from coglang.parser import CogLangExpr, CogLangVar, canonicalize, parse
+    from coglang.vocab import COGLANG_VOCAB
 except ModuleNotFoundError:
     from coglang.parser import CogLangExpr, CogLangVar, canonicalize, parse
     from coglang.vocab import COGLANG_VOCAB

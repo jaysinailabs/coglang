@@ -1,5 +1,4 @@
-# CogLang M-expression parser and canonical serializer (P0-T1, S1-1 + S1-2)
-# Spec: plans/P0-T1 任务规格书_CogLang 规范实现.md §3.2 + §3.2b
+# CogLang M-expression parser and canonical serializer.
 from __future__ import annotations
 
 from dataclasses import dataclass

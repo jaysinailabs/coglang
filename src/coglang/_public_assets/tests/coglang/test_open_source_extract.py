@@ -6,7 +6,7 @@ import tomllib
 from pathlib import Path
 
 try:
-    from logos.coglang.open_source_extract import materialize_public_repo_extract
+    from coglang.open_source_extract import materialize_public_repo_extract
 except ModuleNotFoundError:
     from coglang.open_source_extract import materialize_public_repo_extract
 
@@ -65,18 +65,15 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert pyproject["project"]["license"] == "Apache-2.0"
     assert pyproject["project"]["license-files"] == ["LICENSE"]
     assert "License :: OSI Approved :: Apache Software License" not in pyproject["project"]["classifiers"]
-    assert not (destination / "src" / "coglang" / "nglm_adapter.py").exists()
-    assert not (destination / "src" / "coglang" / "nglm_adapter_suite.py").exists()
-    assert not (destination / "tests" / "coglang" / "test_nglm_adapter.py").exists()
-    assert not (destination / "tests" / "coglang" / "test_nglm_adapter_suite.py").exists()
-    assert not (destination / "tests" / "coglang" / "fixtures" / "nglm_adapter").exists()
-
-    leak_needle = "NG" + "LM"
-    leaked_nglm_count = 0
+    internal_adapter_marker = ("NG" + "LM").lower()
+    leaked_internal_adapter_count = 0
     for path in destination.rglob("*"):
+        assert internal_adapter_marker not in str(path.relative_to(destination)).lower()
         if path.is_file() and path.suffix in {".py", ".json", ".md", ".toml", ".txt"}:
-            leaked_nglm_count += path.read_text(encoding="utf-8").count(leak_needle)
-    assert leaked_nglm_count == 0
+            leaked_internal_adapter_count += path.read_text(encoding="utf-8").lower().count(
+                internal_adapter_marker
+            )
+    assert leaked_internal_adapter_count == 0
 
     monkeypatch.syspath_prepend(str(destination / "src"))
     importlib.invalidate_caches()

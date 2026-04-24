@@ -1,20 +1,19 @@
-# CogLang stub operations (P0-T1, S2c-1)
-# Operations not implemented in P0-T1; each returns StubError[op_name, ...].
-# Spec: plans/P0-T1 任务规格书_CogLang 规范实现.md §3.1
+# CogLang reserved-operation stubs.
+# Reserved operations return StubError[op_name, ...] until implemented.
 from .parser import CogLangExpr
 
 
 def _stub(op_name: str, *args) -> CogLangExpr:
-    """Return StubError[op_name, *args] — signals 'not implemented in P0-T1'."""
+    """Return StubError[op_name, *args] for a reserved operation."""
     return CogLangExpr("StubError", (op_name,) + tuple(args))
 
 
-# Atomic primitives (P0-T1 stubs — full impl in later tasks)
-def send(*args):    return _stub("Send", *args)      # P0-T4 / P1+
-def inspect(*args): return _stub("Inspect", *args)  # P0-T4 / P1+
+# Atomic primitives reserved for later implementation.
+def send(*args):    return _stub("Send", *args)
+def inspect(*args): return _stub("Inspect", *args)
 
-# Preset shortcuts (P0-T1 stubs)
-def abstract(*args):    return _stub("Abstract", *args)     # P0-T5 / ABSTRACT
+# Preset shortcuts reserved for later implementation.
+def abstract(*args):    return _stub("Abstract", *args)
 def instantiate(*args): return _stub("Instantiate", *args)  # Phase 2+
 def probe(*args):       return _stub("Probe", *args)        # Phase 1+
 def explore(*args):     return _stub("Explore", *args)      # Phase 1+

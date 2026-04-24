@@ -16,8 +16,8 @@ Coverage:
 import pytest
 import networkx as nx
 
-from logos.coglang.graph_backend import GraphBackend
-from logos.coglang.parser import CogLangExpr
+from coglang.graph_backend import GraphBackend
+from coglang.parser import CogLangExpr
 
 
 # ---------------------------------------------------------------------------

@@ -1,6 +1,4 @@
-# logos.coglang — CogLang-in-Python implementation (P0-T1)
-# Populated progressively: S1 (parser/vocab/validator), S2a-b (backends), S2c (executor).
-# See plans/p0/T1_plan.md for implementation order.
+"""CogLang public Python runtime."""
 
 from .parser import CogLangExpr, CogLangVar, canonicalize, parse
 from .validator import valid_coglang

@@ -17,7 +17,6 @@ def _project_root() -> Path:
 def load_public_repo_extract_manifest(project_root: Path | None = None) -> dict[str, Any]:
     root = project_root or _project_root()
     descriptor_candidates = [
-        root / "plans" / "coglang" / "CogLang_Public_Repo_Extract_Manifest_v0_1.json",
         root / "CogLang_Public_Repo_Extract_Manifest_v0_1.json",
     ]
     descriptor_path = next((path for path in descriptor_candidates if path.exists()), descriptor_candidates[0])

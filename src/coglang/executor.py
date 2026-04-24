@@ -1,6 +1,5 @@
-# CogLang executor (P0-T1, S2c)
+# CogLang executor.
 # Implements PythonCogLangExecutor — the evaluation engine for CogLang expressions.
-# Spec: plans/P0-T1 任务规格书_CogLang 规范实现.md §3.4
 # Design notes in T1_handoff_s2c.md and T1_log.md (sessions 1, 3, 4).
 from __future__ import annotations
 
@@ -587,7 +586,7 @@ class PythonCogLangExecutor(CogLangExecutor):
             "Get":             self._do_get,
             "Equal":           self._do_equal,
             "Compare":         self._do_compare,
-            # Stub operations — return StubError[op_name, ...args] (P0-T1 scope)
+            # Stub operations return StubError[op_name, ...args] for reserved operators.
             "Abstract":        self._do_abstract,
             "Instantiate": lambda *a: CogLangExpr("StubError", ("Instantiate",) + a),
             "Probe":       lambda *a: CogLangExpr("StubError", ("Probe",)       + a),

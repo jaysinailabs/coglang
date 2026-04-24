@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-from logos.coglang.local_host import LocalHostSummary
-from logos.coglang.write_bundle import (
+from coglang.local_host import LocalHostSummary
+from coglang.write_bundle import (
     ErrorReport,
     LocalWriteHeader,
     LocalWriteQueryResult,

@@ -15,8 +15,8 @@ Fixture graph quick reference (see conftest._build_fixture_graph):
 
 import pytest
 
-from logos.coglang.parser import CogLangExpr, CogLangVar, parse
-from logos.coglang.executor import PythonCogLangExecutor
+from coglang.parser import CogLangExpr, CogLangVar, parse
+from coglang.executor import PythonCogLangExecutor
 from tests.coglang.conftest import _build_fixture_graph
 
 

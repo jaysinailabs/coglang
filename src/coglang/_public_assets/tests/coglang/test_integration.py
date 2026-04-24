@@ -18,9 +18,9 @@ import time
 
 import networkx as nx
 
-from logos.coglang.parser import CogLangExpr, parse, canonicalize
-from logos.coglang.validator import valid_coglang
-from logos.coglang.executor import PythonCogLangExecutor
+from coglang.parser import CogLangExpr, parse, canonicalize
+from coglang.validator import valid_coglang
+from coglang.executor import PythonCogLangExecutor
 from tests.coglang.conftest import _build_fixture_graph
 
 

@@ -1,5 +1,4 @@
-# CogLang graph operations backend using NetworkX (P0-T1, S2a)
-# Spec: plans/P0-T1 任务规格书_CogLang 规范实现.md §3.5
+# CogLang graph operations backend using NetworkX.
 # DL-013 (Method B): GraphBackend accepts an external nx.DiGraph and is its
 # sole owner. PythonCogLangExecutor does NOT hold self.graph directly.
 from __future__ import annotations

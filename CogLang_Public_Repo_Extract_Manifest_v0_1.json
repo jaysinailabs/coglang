@@ -1,12 +1,12 @@
 {
   "schema_version": "coglang-public-repo-extract-manifest/v0.1",
-  "status": "defined-for-formal-open-source-candidate",
-  "repository_strategy": "dedicated_repository_extract",
+  "status": "standalone-public-repository",
+  "repository_strategy": "standalone_repository",
   "public_distribution_name": "coglang",
   "entries": [
     {
       "kind": "tree",
-      "source": "src/logos/coglang",
+      "source": "src/coglang",
       "destination": "src/coglang",
       "include": [
         "__init__.py",
@@ -47,112 +47,112 @@
     },
     {
       "kind": "tree",
-      "source": "plans/coglang/internal_schemas/host_runtime/v0.1",
+      "source": "internal_schemas/host_runtime/v0.1",
       "destination": "internal_schemas/host_runtime/v0.1"
     },
     {
       "kind": "file",
-      "source": "plans/coglang/CogLang_Public_Package_Pyproject_v0_1.toml",
+      "source": "pyproject.toml",
       "destination": "pyproject.toml"
     },
     {
       "kind": "file",
-      "source": "plans/coglang/CogLang_Open_Source_Boundary_v0_1.json",
+      "source": "CogLang_Open_Source_Boundary_v0_1.json",
       "destination": "CogLang_Open_Source_Boundary_v0_1.json"
     },
     {
       "kind": "file",
-      "source": "plans/coglang/CogLang_Minimal_CI_Baseline_v0_1.json",
+      "source": "CogLang_Minimal_CI_Baseline_v0_1.json",
       "destination": "CogLang_Minimal_CI_Baseline_v0_1.json"
     },
-      {
-        "kind": "file",
-        "source": "plans/coglang/CogLang_Public_CI_Workflow_v0_1.yml",
-        "destination": ".github/workflows/ci.yml"
-      },
-      {
-        "kind": "file",
-        "source": "plans/coglang/CogLang_Public_Gitignore_v0_1.txt",
-        "destination": ".gitignore"
-      },
-      {
-        "kind": "file",
-        "source": "plans/coglang/CogLang_Public_Pytest_v0_1.ini",
-        "destination": "pytest.ini"
-      },
-      {
-        "kind": "file",
-        "source": "plans/coglang/CogLang_Public_Repo_Extract_Manifest_v0_1.json",
-        "destination": "CogLang_Public_Repo_Extract_Manifest_v0_1.json"
-      },
     {
       "kind": "file",
-      "source": "plans/coglang/README.md",
+      "source": ".github/workflows/ci.yml",
+      "destination": ".github/workflows/ci.yml"
+    },
+    {
+      "kind": "file",
+      "source": ".gitignore",
+      "destination": ".gitignore"
+    },
+    {
+      "kind": "file",
+      "source": "pytest.ini",
+      "destination": "pytest.ini"
+    },
+    {
+      "kind": "file",
+      "source": "CogLang_Public_Repo_Extract_Manifest_v0_1.json",
+      "destination": "CogLang_Public_Repo_Extract_Manifest_v0_1.json"
+    },
+    {
+      "kind": "file",
+      "source": "README.md",
       "destination": "README.md"
     },
     {
       "kind": "file",
-      "source": "plans/coglang/ROADMAP.md",
+      "source": "ROADMAP.md",
       "destination": "ROADMAP.md"
     },
     {
       "kind": "file",
-      "source": "plans/coglang/MAINTENANCE.md",
+      "source": "MAINTENANCE.md",
       "destination": "MAINTENANCE.md"
     },
     {
       "kind": "file",
-      "source": "plans/coglang/llms.txt",
+      "source": "llms.txt",
       "destination": "llms.txt"
     },
     {
       "kind": "file",
-      "source": "plans/coglang/llms-full.txt",
+      "source": "llms-full.txt",
       "destination": "llms-full.txt"
     },
     {
       "kind": "file",
-      "source": "plans/coglang/CogLang_Quickstart_v1_1_0.md",
+      "source": "CogLang_Quickstart_v1_1_0.md",
       "destination": "CogLang_Quickstart_v1_1_0.md"
     },
     {
       "kind": "file",
-      "source": "plans/coglang/CogLang_Specification_v1_1_0_Draft.md",
+      "source": "CogLang_Specification_v1_1_0_Draft.md",
       "destination": "CogLang_Specification_v1_1_0_Draft.md"
     },
     {
       "kind": "file",
-      "source": "plans/coglang/CogLang_Conformance_Suite_v1_1_0.md",
+      "source": "CogLang_Conformance_Suite_v1_1_0.md",
       "destination": "CogLang_Conformance_Suite_v1_1_0.md"
     },
     {
       "kind": "file",
-      "source": "plans/coglang/CogLang_Operator_Catalog_v1_1_0.md",
+      "source": "CogLang_Operator_Catalog_v1_1_0.md",
       "destination": "CogLang_Operator_Catalog_v1_1_0.md"
     },
     {
       "kind": "file",
-      "source": "plans/coglang/CogLang_Profiles_and_Capabilities_v1_1_0.md",
+      "source": "CogLang_Profiles_and_Capabilities_v1_1_0.md",
       "destination": "CogLang_Profiles_and_Capabilities_v1_1_0.md"
     },
     {
       "kind": "file",
-      "source": "plans/coglang/CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
+      "source": "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
       "destination": "CogLang_Standalone_Install_and_Release_Guide_v0_1.md"
     },
     {
       "kind": "file",
-      "source": "plans/coglang/CogLang_Release_Notes_v1_1_0_pre.md",
+      "source": "CogLang_Release_Notes_v1_1_0_pre.md",
       "destination": "CogLang_Release_Notes_v1_1_0_pre.md"
     },
     {
       "kind": "file",
-      "source": "plans/coglang/CogLang_Contribution_Guide_v0_1.md",
+      "source": "CogLang_Contribution_Guide_v0_1.md",
       "destination": "CogLang_Contribution_Guide_v0_1.md"
     },
     {
       "kind": "file",
-      "source": "plans/coglang/CogLang_Host_Runtime_Contract_v0_1.md",
+      "source": "CogLang_Host_Runtime_Contract_v0_1.md",
       "destination": "CogLang_Host_Runtime_Contract_v0_1.md"
     },
     {

@@ -17,8 +17,8 @@ incompatible builds can terminate the process at import time.
 """
 import pytest
 
-from logos.coglang.parser import CogLangExpr, CogLangVar
-from logos.coglang.unify_backend import (
+from coglang.parser import CogLangExpr, CogLangVar
+from coglang.unify_backend import (
     JanusUnifyBackend,
     PythonUnifyBackend,
     UnifyBackend,

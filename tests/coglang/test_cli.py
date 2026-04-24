@@ -9,74 +9,40 @@ import tomllib
 from contextlib import redirect_stdout
 from pathlib import Path
 
-try:
-    from logos.coglang.cli import (
-        HOST_DEMO_TOP_LEVEL_KEYS,
-        _bundle_payload,
-        _conformance_targets,
-        _distribution_metadata,
-        _doctor_payload,
-        _examples_payload,
-        _formal_open_source_readiness_payload,
-        _info_payload,
-        _manifest_payload,
-        _minimal_ci_baseline_payload,
-        _public_repo_extract_manifest_payload,
-        _open_source_boundary_payload,
-        _release_check_payload,
-        _run_conformance_suite,
-        _run_demo,
-        _run_host_demo,
-        _run_repl,
-        _run_smoke,
-        _vocab_payload,
-        main,
-    )
-    from logos.coglang.local_host import LocalHostSnapshot, LocalHostSummary, LocalHostTrace
-    from logos.coglang.write_bundle import (
-        LocalWriteHeader,
-        LocalWriteQueryResult,
-        LocalWriteSubmissionRecord,
-        WriteBundleResponseMessage,
-        WriteBundleSubmissionMessage,
-    )
-    CLI_MODULE_PATH = "logos.coglang.cli"
-    MODULE_ENTRY = "logos.coglang"
-    DISTRIBUTION_NAME = "logos"
-except ModuleNotFoundError:
-    from coglang.cli import (
-        HOST_DEMO_TOP_LEVEL_KEYS,
-        _bundle_payload,
-        _conformance_targets,
-        _distribution_metadata,
-        _doctor_payload,
-        _examples_payload,
-        _formal_open_source_readiness_payload,
-        _info_payload,
-        _manifest_payload,
-        _minimal_ci_baseline_payload,
-        _public_repo_extract_manifest_payload,
-        _open_source_boundary_payload,
-        _release_check_payload,
-        _run_conformance_suite,
-        _run_demo,
-        _run_host_demo,
-        _run_repl,
-        _run_smoke,
-        _vocab_payload,
-        main,
-    )
-    from coglang.local_host import LocalHostSnapshot, LocalHostSummary, LocalHostTrace
-    from coglang.write_bundle import (
-        LocalWriteHeader,
-        LocalWriteQueryResult,
-        LocalWriteSubmissionRecord,
-        WriteBundleResponseMessage,
-        WriteBundleSubmissionMessage,
-    )
-    CLI_MODULE_PATH = "coglang.cli"
-    MODULE_ENTRY = "coglang"
-    DISTRIBUTION_NAME = "coglang"
+from coglang.cli import (
+    HOST_DEMO_TOP_LEVEL_KEYS,
+    _bundle_payload,
+    _conformance_targets,
+    _distribution_metadata,
+    _doctor_payload,
+    _examples_payload,
+    _formal_open_source_readiness_payload,
+    _info_payload,
+    _manifest_payload,
+    _minimal_ci_baseline_payload,
+    _public_repo_extract_manifest_payload,
+    _open_source_boundary_payload,
+    _release_check_payload,
+    _run_conformance_suite,
+    _run_demo,
+    _run_host_demo,
+    _run_repl,
+    _run_smoke,
+    _vocab_payload,
+    main,
+)
+from coglang.local_host import LocalHostSnapshot, LocalHostSummary, LocalHostTrace
+from coglang.write_bundle import (
+    LocalWriteHeader,
+    LocalWriteQueryResult,
+    LocalWriteSubmissionRecord,
+    WriteBundleResponseMessage,
+    WriteBundleSubmissionMessage,
+)
+
+CLI_MODULE_PATH = "coglang.cli"
+MODULE_ENTRY = "coglang"
+DISTRIBUTION_NAME = "coglang"
 
 _TEST_PROJECT_ROOT = Path(__file__).resolve().parents[2]
 _PROJECT_PYPROJECT = _TEST_PROJECT_ROOT / "pyproject.toml"
@@ -328,20 +294,20 @@ def test_cli_manifest_text_output():
     assert "language_release: v1.1.0-pre" in output
     assert "recommended_entrypoint: coglang" in output
     assert "console_script: coglang" in output
-    assert f"roadmap: {_path_in_layout('plans/coglang/ROADMAP.md', 'ROADMAP.md')}" in output
-    assert f"maintenance: {_path_in_layout('plans/coglang/MAINTENANCE.md', 'MAINTENANCE.md')}" in output
-    assert f"llms: {_path_in_layout('plans/coglang/llms.txt', 'llms.txt')}" in output
-    assert f"llms_full: {_path_in_layout('plans/coglang/llms-full.txt', 'llms-full.txt')}" in output
-    assert "open_source_boundary.strategy: dedicated_repository_extract" in output
+    assert f"roadmap: {_path_in_layout('ROADMAP.md', 'ROADMAP.md')}" in output
+    assert f"maintenance: {_path_in_layout('MAINTENANCE.md', 'MAINTENANCE.md')}" in output
+    assert f"llms: {_path_in_layout('llms.txt', 'llms.txt')}" in output
+    assert f"llms_full: {_path_in_layout('llms-full.txt', 'llms-full.txt')}" in output
+    assert "open_source_boundary.strategy: standalone_repository" in output
     assert "open_source_boundary.distribution: coglang" in output
     assert (
         f"minimal_ci_baseline.path: "
-        f"{_path_in_layout('plans/coglang/CogLang_Minimal_CI_Baseline_v0_1.json', 'CogLang_Minimal_CI_Baseline_v0_1.json')}"
+        f"{_path_in_layout('CogLang_Minimal_CI_Baseline_v0_1.json', 'CogLang_Minimal_CI_Baseline_v0_1.json')}"
         in output
     )
     assert (
         f"public_repo_extract_manifest.path: "
-        f"{_path_in_layout('plans/coglang/CogLang_Public_Repo_Extract_Manifest_v0_1.json', 'CogLang_Public_Repo_Extract_Manifest_v0_1.json')}"
+        f"{_path_in_layout('CogLang_Public_Repo_Extract_Manifest_v0_1.json', 'CogLang_Public_Repo_Extract_Manifest_v0_1.json')}"
         in output
     )
     assert "formal_open_source_readiness.status: ready-for-formal-open-source-candidate-decision" in output
@@ -353,9 +319,9 @@ def test_cli_bundle_payload_shape():
     assert payload["language_release"] == "v1.1.0-pre"
     assert payload["public_release_surface"]["entrypoint"] == "coglang"
     assert payload["public_release_surface"]["project_docs"]["readme"].endswith(
-        _path_in_layout("plans/coglang/README.md", "README.md")
+        _path_in_layout("README.md", "README.md")
     )
-    assert payload["open_source_boundary"]["repository_strategy"] == "dedicated_repository_extract"
+    assert payload["open_source_boundary"]["repository_strategy"] == "standalone_repository"
     assert payload["minimal_ci_baseline"]["schema_version"] == "coglang-minimal-ci-baseline/v0.1"
     assert payload["public_repo_extract_manifest"]["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["formal_open_source_readiness"]["ready_for_candidate_decision"] is True
@@ -383,16 +349,16 @@ def test_cli_bundle_text_output():
     assert "schema_version: coglang-release-bundle/v0.1" in output
     assert "language_release: v1.1.0-pre" in output
     assert "public_release.entrypoint: coglang" in output
-    assert f"public_release.readme: {_path_in_layout('plans/coglang/README.md', 'README.md')}" in output
-    assert "open_source_boundary.strategy: dedicated_repository_extract" in output
+    assert f"public_release.readme: {_path_in_layout('README.md', 'README.md')}" in output
+    assert "open_source_boundary.strategy: standalone_repository" in output
     assert (
         f"minimal_ci_baseline.path: "
-        f"{_path_in_layout('plans/coglang/CogLang_Minimal_CI_Baseline_v0_1.json', 'CogLang_Minimal_CI_Baseline_v0_1.json')}"
+        f"{_path_in_layout('CogLang_Minimal_CI_Baseline_v0_1.json', 'CogLang_Minimal_CI_Baseline_v0_1.json')}"
         in output
     )
     assert (
         f"public_repo_extract_manifest.path: "
-        f"{_path_in_layout('plans/coglang/CogLang_Public_Repo_Extract_Manifest_v0_1.json', 'CogLang_Public_Repo_Extract_Manifest_v0_1.json')}"
+        f"{_path_in_layout('CogLang_Public_Repo_Extract_Manifest_v0_1.json', 'CogLang_Public_Repo_Extract_Manifest_v0_1.json')}"
         in output
     )
     assert "formal_open_source_readiness.status: ready-for-formal-open-source-candidate-decision" in output
@@ -1035,17 +1001,17 @@ def test_cli_release_check_text_output():
     assert "public_release_docs: ok (README + roadmap + maintenance + llms summaries)" in output
     assert (
         f"open_source_boundary: ok "
-        f"({_path_in_layout('plans/coglang/CogLang_Open_Source_Boundary_v0_1.json', 'CogLang_Open_Source_Boundary_v0_1.json')})"
+        f"({_path_in_layout('CogLang_Open_Source_Boundary_v0_1.json', 'CogLang_Open_Source_Boundary_v0_1.json')})"
         in output
     )
     assert (
         f"minimal_ci_baseline: ok "
-        f"({_path_in_layout('plans/coglang/CogLang_Minimal_CI_Baseline_v0_1.json', 'CogLang_Minimal_CI_Baseline_v0_1.json')})"
+        f"({_path_in_layout('CogLang_Minimal_CI_Baseline_v0_1.json', 'CogLang_Minimal_CI_Baseline_v0_1.json')})"
         in output
     )
     assert (
         f"public_repo_extract_manifest: ok "
-        f"({_path_in_layout('plans/coglang/CogLang_Public_Repo_Extract_Manifest_v0_1.json', 'CogLang_Public_Repo_Extract_Manifest_v0_1.json')})"
+        f"({_path_in_layout('CogLang_Public_Repo_Extract_Manifest_v0_1.json', 'CogLang_Public_Repo_Extract_Manifest_v0_1.json')})"
         in output
     )
     assert "formal_open_source_readiness: ok (ready-for-formal-open-source-candidate-decision)" in output
@@ -1054,11 +1020,11 @@ def test_cli_release_check_text_output():
 def test_cli_open_source_boundary_payload_shape():
     payload = _open_source_boundary_payload()
     assert payload["schema_version"] == "coglang-open-source-boundary/v0.1"
-    assert payload["repository_strategy"] == "dedicated_repository_extract"
+    assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
     assert payload["public_console_script"] == "coglang"
-    assert payload["current_internal_module"] == "logos.coglang"
-    assert "src/logos/coglang" in payload["release_roots"]
+    assert payload["public_runtime_module"] == "coglang"
+    assert "src/coglang" in payload["release_roots"]
     assert payload["release_roots_exist"] is True
 
 
@@ -1067,7 +1033,7 @@ def test_cli_minimal_ci_baseline_payload_shape():
     assert payload["schema_version"] == "coglang-minimal-ci-baseline/v0.1"
     assert payload["status"] == "defined-for-formal-open-source-prep"
     assert payload["workflow_template_path"] in {
-        "plans/coglang/CogLang_Public_CI_Workflow_v0_1.yml",
+        "CogLang_Public_CI_Workflow_v0_1.yml",
         ".github/workflows/ci.yml",
     }
     assert payload["workflow_template_present"] is True
@@ -1104,7 +1070,7 @@ def test_cli_minimal_ci_baseline_payload_shape():
 def test_cli_public_repo_extract_manifest_payload_shape():
     payload = _public_repo_extract_manifest_payload()
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
-    assert payload["repository_strategy"] == "dedicated_repository_extract"
+    assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
     assert payload["entry_count"] == 25
     assert payload["required_destinations"] == [
@@ -1119,19 +1085,19 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["required_destinations_present"] is True
     assert payload["source_paths_exist"] is True
     assert payload["destination_paths_unique"] is True
-    assert "plans/coglang/CogLang_Operator_Catalog_v1_1_0.md" in [
+    assert "CogLang_Operator_Catalog_v1_1_0.md" in [
         item["source"] for item in payload["entries"]
     ]
-    assert "plans/coglang/internal_schemas/host_runtime/v0.1" in [
+    assert "internal_schemas/host_runtime/v0.1" in [
         item["source"] for item in payload["entries"]
     ]
-    assert "plans/coglang/CogLang_Public_CI_Workflow_v0_1.yml" in [
+    assert ".github/workflows/ci.yml" in [
         item["source"] for item in payload["entries"]
     ]
-    assert "plans/coglang/CogLang_Public_Gitignore_v0_1.txt" in [
+    assert ".gitignore" in [
         item["source"] for item in payload["entries"]
     ]
-    assert "plans/coglang/CogLang_Public_Pytest_v0_1.ini" in [
+    assert "pytest.ini" in [
         item["source"] for item in payload["entries"]
     ]
 
@@ -1162,12 +1128,12 @@ def test_cli_distribution_metadata_shape():
     assert payload["module_entry"] == MODULE_ENTRY
     normalized = [item.replace("\\", "/") for item in payload["runtime_entry_paths"]]
     assert any(
-        item == _path_in_layout("src/logos/coglang/cli.py", "src/coglang/cli.py")
+        item == "src/coglang/cli.py"
         or item.endswith("/site-packages/coglang/cli.py")
         for item in normalized
     )
     assert any(
-        item == _path_in_layout("src/logos/coglang/__main__.py", "src/coglang/__main__.py")
+        item == "src/coglang/__main__.py"
         or item.endswith("/site-packages/coglang/__main__.py")
         for item in normalized
     )

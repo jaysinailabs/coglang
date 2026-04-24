@@ -1,5 +1,4 @@
-# CogLang expression validator (P0-T1, S1-3)
-# Spec: plans/P0-T1 任务规格书_CogLang 规范实现.md §3.3
+# CogLang expression validator.
 from __future__ import annotations
 
 from .parser import CogLangExpr

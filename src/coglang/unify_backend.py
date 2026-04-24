@@ -1,13 +1,12 @@
 # CogLang unification backend.
 # DL-012: janus-swi (SWI-Prolog unify_with_occurs_check/2) as primary backend;
 #         PythonUnifyBackend (Robinson unification, ~80 lines) as fallback.
-# SWI_HOME_DIR must be set BEFORE importing janus_swi — set at module top via setdefault
-# so it does not override a value already placed in the environment by the user.
+# SWI_HOME_DIR must be normalized before any optional janus_swi import. Do not
+# invent a platform-specific default; users should provide the value when needed.
 import os
-# Normalize SWI_HOME_DIR: strip whitespace in case system env var has a leading/trailing space,
-# and set the default path if not present. Using get+strip rather than setdefault so that a
-# stale system var with extra whitespace does not propagate into the janus-swi C extension.
-os.environ['SWI_HOME_DIR'] = os.environ.get('SWI_HOME_DIR', r'D:\Program Files\swipl').strip()
+
+if "SWI_HOME_DIR" in os.environ:
+    os.environ["SWI_HOME_DIR"] = os.environ["SWI_HOME_DIR"].strip()
 
 import warnings
 from abc import ABC, abstractmethod
@@ -285,8 +284,8 @@ class PythonUnifyBackend(UnifyBackend):
 #   The installed SWI-Prolog 10.0.2 has ABI swipl-abi-2-68-*, which causes
 #   _swipl.initialize() to call C-level exit() — uncatchable by Python's
 #   try/except.  A subprocess probe is the only safe detection method.
-#   Fix: rebuild janus-swi from source against SWI-Prolog 10.0.2 headers
-#   (D:\Program Files\swipl\include already present) before enabling Janus.
+#   Fix: rebuild janus-swi from source against the installed SWI-Prolog headers
+#   before enabling Janus.
 
 _JANUS_AVAILABLE_CACHE: "bool | None" = None
 

@@ -1270,138 +1270,138 @@ The returned node list MUST use a stable order. Unless an entry says otherwise, 
 
 #### `ForEach`
 
-**状态**：`Core`
-**所属层**：`language`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `language`
+**Syntax and Signature**:
 
 ```text
 ForEach[collection, bindVar_, body]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- 必须且仅接受 3 个参数
-- `collection` 与 `body` 必须是合法 CogLang 表达式
-- `bindVar_` 必须是合法变量位
-- `bindVar_` 只在 `body` 的求值作用域内有效；越界引用属于验证失败
-- 在嵌套绑定作用域中重用同名 `bindVar_` 属于验证失败
+- MUST accept exactly 3 arguments.
+- `collection` and `body` MUST be valid CogLang expressions.
+- `bindVar_` MUST be a valid variable slot.
+- `bindVar_` is valid only within the evaluation scope of `body`; any out-of-scope reference is a validation failure.
+- Reusing the same `bindVar_` name in nested binding scopes is a validation failure.
 
-**返回契约**：
+**Return Contract**:
 
-- `collection` 求值为 `List[v1, ..., vn]` 时：返回 `List[r1, ..., rn]`
-- `collection` 求值为自动传播错误值时：返回 `List[]`
-- `collection` 求值为非列表的正常值时：`TypeError["ForEach", "collection", ...]`
+- If `collection` evaluates to `List[v1, ..., vn]`: returns `List[r1, ..., rn]`.
+- If `collection` evaluates to an auto-propagating error value: returns `List[]`.
+- If `collection` evaluates to a normal non-list value: `TypeError["ForEach", "collection", ...]`.
 
-每个 `ri` 是将第 `i` 个元素绑定到 `bindVar_` 后求值 `body` 的结果；若某次迭代产生错误值，该错误值保留在对应结果位置，不导致整轮迭代提前终止。
+Each `ri` is the result of evaluating `body` after binding the `i`-th element to `bindVar_`. If an iteration produces an error value, that error value is retained at the corresponding result position and does not terminate the whole iteration early.
 
-**语义**：
+**Semantics**:
 
-`ForEach` 是冻结的 `special form`。它先对 `collection` 求值一次得到快照，再按快照顺序逐个求值 `body`。
+`ForEach` is a frozen `special form`. It evaluates `collection` once to obtain a snapshot, then evaluates `body` one element at a time in snapshot order.
 
-核心约束如下：
+The core constraints are:
 
-- `collection` 只在迭代开始前求值一次
-- `body` 在每次迭代时使用当前元素的绑定环境求值
-- `bindVar_` 的作用域严格限定在 `body` 内
-- body 中的副作用不得回写改变当前轮次尚未消费的快照成员
+- `collection` is evaluated only once before iteration starts.
+- `body` is evaluated during each iteration with the binding environment for the current element.
+- The scope of `bindVar_` is strictly limited to `body`.
+- Side effects in `body` MUST NOT write back to change snapshot members that have not yet been consumed in the current iteration.
 
-若执行环境在某轮 `body` 中使显式写图动作生效，则后续迭代里的图查询可以观察到这些已生效变更；但这种可见性不得回溯改变本轮开始前已经冻结的 `collection` 快照成员与迭代顺序。
+If the execution environment makes an explicit graph-write action take effect during some iteration of `body`, graph queries in later iterations may observe those effective changes. However, this visibility MUST NOT retroactively change the `collection` snapshot members or iteration order that were already frozen before this `ForEach` run began.
 
-`ForEach` 是显式传播阻断点：当 `collection` 本身为错误值时，它返回 `List[]` 而不是继续自动传播该错误值。
+`ForEach` is an explicit propagation blocking point: when `collection` itself is an error value, it returns `List[]` instead of continuing to auto-propagate that error value.
 
-**Baseline Availability**：正常执行
-**效果类别**：继承 `collection` 与 `body` 的效果并集
-**确定性类别**：继承 `collection` 与 `body`；迭代顺序本身必须稳定
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: inherits the union of the effects of `collection` and `body`
+**Determinism Category**: inherits `collection` and `body`; the iteration order itself MUST be stable
+**Observability Requirements**:
 
-- 必须记录快照大小
-- 必须记录迭代顺序
-- 必须记录结果计数与耗时
+- MUST record the snapshot size.
+- MUST record the iteration order.
+- MUST record result count and elapsed time.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `ForEach[collection, bindVar_, body]` 的三参数签名在 `v1.1.x` 内冻结
-- 快照语义在 `v1.1.x` 内冻结
-- `collection` 为错误值时返回 `List[]` 的行为在 `v1.1.x` 内冻结
+- The three-argument signature `ForEach[collection, bindVar_, body]` is frozen within `v1.1.x`.
+- Snapshot semantics are frozen within `v1.1.x`.
+- The behavior of returning `List[]` when `collection` is an error value is frozen within `v1.1.x`.
 
 #### `Do`
 
-**状态**：`Core`
-**所属层**：`language`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `language`
+**Syntax and Signature**:
 
 ```text
 Do[expr1, expr2, expr3, ...]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- 必须至少接受 1 个参数
-- 每个参数都必须是合法 CogLang 表达式
-- `Do` 本身不引入新的绑定变量位；绑定与作用域由内部 operator 自身处理
+- MUST accept at least 1 argument.
+- Every argument MUST be a valid CogLang expression.
+- `Do` itself does not introduce new binding variable slots; binding and scope are handled by the internal operators themselves.
 
-**返回契约**：
+**Return Contract**:
 
-- 成功时返回最后一个子表达式的求值结果
-- 前序子表达式的返回值被丢弃，但其副作用保留
-- 某一步返回自动传播错误值时，`Do` 不自动中止；后续步骤继续执行
-- 若最后一个子表达式返回错误值，则 `Do` 返回该错误值
-- `Do` 不返回“所有步骤结果的聚合列表”；除非最后一个子表达式自身返回 `List[...]` 或其他聚合值
+- On success, returns the evaluation result of the last subexpression.
+- Return values from preceding subexpressions are discarded, but their side effects are retained.
+- When some step returns an auto-propagating error value, `Do` does not automatically abort; subsequent steps continue to execute.
+- If the last subexpression returns an error value, `Do` returns that error value.
+- `Do` does not return an "aggregate list of all step results" unless the last subexpression itself returns `List[...]` or another aggregate value.
 
-**语义**：
+**Semantics**:
 
-`Do` 是冻结的 `special form`。它按从左到右顺序逐个求值子表达式，不做“先求完所有参数再调用”的 eager 展开。
+`Do` is a frozen `special form`. It evaluates subexpressions one by one from left to right; it does not perform an eager expansion that first evaluates all arguments and then calls the operator.
 
-`Do` 表达的是顺序执行容器，而不是依赖链恢复器。若要根据前一步结果决定后续控制流，必须显式使用 `If`、`IfFound`、`ForEach` 等结构，而不是依赖 `Do` 的隐式短路。
+`Do` expresses a sequential execution container, not a dependency-chain recovery mechanism. To decide later control flow based on the result of an earlier step, callers MUST explicitly use structures such as `If`, `IfFound`, or `ForEach` instead of relying on implicit short-circuiting by `Do`.
 
-若宿主接受多行顶层输入，并将其降格为 `Do[...]`，其规范语义等同于本条目的从左到右顺序执行，而不是引入额外块语义。
+If a host accepts multi-line top-level input and lowers it to `Do[...]`, its normative semantics are the same as this entry's left-to-right sequential execution; this does not introduce additional block semantics.
 
-**Baseline Availability**：正常执行
-**效果类别**：继承其子表达式效果并集
-**确定性类别**：继承其子表达式序列；求值顺序本身必须确定为从左到右
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: inherits the union of its subexpression effects
+**Determinism Category**: inherits its subexpression sequence; the evaluation order itself MUST be fixed as left-to-right
+**Observability Requirements**:
 
-- 必须记录步骤数
-- 必须记录步骤顺序
-- 必须记录最终返回值摘要
+- MUST record the step count.
+- MUST record the step order.
+- MUST record the final return value summary.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `Do[e1, e2, ...]` 的从左到右顺序求值在 `v1.1.x` 内冻结
-- “`Do` 返回最后一个已求值子表达式的结果，而不是全部中间结果” 在 `v1.1.x` 内冻结
-- “前序步骤出错不自动中止后续步骤” 在 `v1.1.x` 内冻结
-- “多行顶层输入可降格为 `Do[...]`，但不构成额外块语义” 在 `v1.1.x` 内冻结
+- Left-to-right sequential evaluation of `Do[e1, e2, ...]` is frozen within `v1.1.x`.
+- "`Do` returns the result of the last evaluated subexpression, not all intermediate results" is frozen within `v1.1.x`.
+- "An error in a preceding step does not automatically abort subsequent steps" is frozen within `v1.1.x`.
+- "Multi-line top-level input may be lowered to `Do[...]`, but does not constitute additional block semantics" is frozen within `v1.1.x`.
 
 #### `If`
 
-**状态**：`Core`
-**所属层**：`language`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `language`
+**Syntax and Signature**:
 
 ```text
 If[condition, thenExpr, elseExpr]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- 必须且仅接受 3 个参数
-- `condition`、`thenExpr`、`elseExpr` 都必须是合法 CogLang 表达式
-- `If` 本身不引入新的绑定变量位；绑定与作用域仅由其内部子表达式中的其他 operator 自身处理
+- MUST accept exactly 3 arguments.
+- `condition`, `thenExpr`, and `elseExpr` MUST all be valid CogLang expressions.
+- `If` itself does not introduce new binding variable slots; binding and scope are handled only by other operators inside its subexpressions.
 
-**返回契约**：
+**Return Contract**:
 
-- 先求值 `condition`
-- 若 `condition` 的结果为真值：返回 `thenExpr` 的求值结果
-- 若 `condition` 的结果为假值：返回 `elseExpr` 的求值结果
-- `condition` 的结果若属于自动传播错误值集合：不继续自动向外传播，而是按假值处理并进入 `elseExpr`
-- 被执行分支若返回错误值：原样返回该错误值
-- 未被执行的分支不得求值，其潜在副作用与错误不得发生
+- Evaluates `condition` first.
+- If the result of `condition` is truthy: returns the evaluation result of `thenExpr`.
+- If the result of `condition` is falsy: returns the evaluation result of `elseExpr`.
+- If the result of `condition` belongs to the set of auto-propagating error values: it is not auto-propagated outward further, but is treated as falsy and enters `elseExpr`.
+- If the executed branch returns an error value: returns that error value as-is.
+- The non-executed branch MUST NOT be evaluated, and its potential side effects and errors MUST NOT occur.
 
-**语义**：
+**Semantics**:
 
-`If` 是冻结的 `special form`。它先 eager 求值 `condition`，随后只求值一个分支。
+`If` is a frozen `special form`. It first eagerly evaluates `condition`, then evaluates only one branch.
 
-`v1.1.x` 中冻结的假值集合为：
+The falsy set frozen in `v1.1.x` is:
 
 - `False[]`
 - `NotFound[]`
@@ -1409,104 +1409,104 @@ If[condition, thenExpr, elseExpr]
 - `0`
 - `0.0`
 - `""`
-- `§8` 定义的自动传播错误值
+- Auto-propagating error values defined by `§8`
 
-除上述假值外，其他所有合法 CogLang 值都判定为真。
+Except for the falsy values above, all other valid CogLang values are treated as truthy.
 
-`If` 区分的是“真/假”，不是“有结果/无结果”。因此 `List[]` 在 `If` 中是假，但它不是错误值；这一点必须与 `IfFound` 的语义保持分层。
+`If` distinguishes "truthy/falsy", not "has result/no result". Therefore `List[]` is falsy in `If`, but it is not an error value; this MUST remain layered separately from the semantics of `IfFound`.
 
-`If` 是显式传播阻断点，但不是通用错误恢复器；需要按“缺失/出错”分流时，应使用 `IfFound` 而不是复用 `If`。
+`If` is an explicit propagation blocking point, but not a general error recovery mechanism. When control needs to branch on "missing/error", `IfFound` SHOULD be used instead of repurposing `If`.
 
-**Baseline Availability**：正常执行
-**效果类别**：继承 `condition` 与被执行分支的效果并集
-**确定性类别**：继承 `condition` 与被执行分支；分支选择本身必须确定
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: inherits the union of the effects of `condition` and the executed branch
+**Determinism Category**: inherits `condition` and the executed branch; branch selection itself MUST be deterministic
+**Observability Requirements**:
 
-- 必须记录 `condition_result_kind`
-- 必须记录 `branch_taken = then | else`
+- MUST record `condition_result_kind`.
+- MUST record `branch_taken = then | else`.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `If[condition, thenExpr, elseExpr]` 的三参数签名在 `v1.1.x` 内冻结
-- “仅执行一个分支”的 `special form` 语义在 `v1.1.x` 内冻结
-- 本条目定义的假值判定表在 `v1.1.x` 内冻结
-- “自动传播错误值在 `If` 中按假值处理” 在 `v1.1.x` 内冻结
+- The three-argument signature `If[condition, thenExpr, elseExpr]` is frozen within `v1.1.x`.
+- The `special form` semantics of "execute only one branch" are frozen within `v1.1.x`.
+- The falsy classification table defined by this entry is frozen within `v1.1.x`.
+- "Auto-propagating error values are treated as falsy in `If`" is frozen within `v1.1.x`.
 
 #### `IfFound`
 
-**状态**：`Core`
-**所属层**：`language`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `language`
+**Syntax and Signature**:
 
 ```text
 IfFound[expr, bindVar_, thenExpr, elseExpr]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- 必须且仅接受 4 个参数
-- `expr`、`thenExpr`、`elseExpr` 必须是合法 CogLang 表达式
-- `bindVar_` 必须是合法变量位，且仅在 `thenExpr` 的求值作用域内有效
-- `bindVar_` 在 `elseExpr` 或外层作用域中的越界引用属于验证失败
-- 在嵌套绑定作用域中重用同名 `bindVar_` 属于验证失败
+- MUST accept exactly 4 arguments.
+- `expr`, `thenExpr`, and `elseExpr` MUST be valid CogLang expressions.
+- `bindVar_` MUST be a valid variable slot and is valid only within the evaluation scope of `thenExpr`.
+- Any out-of-scope reference to `bindVar_` in `elseExpr` or an outer scope is a validation failure.
+- Reusing the same `bindVar_` name in nested binding scopes is a validation failure.
 
-**返回契约**：
+**Return Contract**:
 
-- 若 `expr` 求值结果既不是 `NotFound[]` 也不是自动传播错误值，则将结果绑定到 `bindVar_`，返回 `thenExpr` 的求值结果
-- 若 `expr` 求值结果为 `NotFound[]` 或自动传播错误值，则返回 `elseExpr` 的求值结果
-- `List[]` 不是错误值；`expr -> List[]` 时，必须进入 `thenExpr` 分支
-- `thenExpr` 或 `elseExpr` 自身求值失败时，传播对应底层错误值
+- If the evaluation result of `expr` is neither `NotFound[]` nor an auto-propagating error value, binds the result to `bindVar_` and returns the evaluation result of `thenExpr`.
+- If the evaluation result of `expr` is `NotFound[]` or an auto-propagating error value, returns the evaluation result of `elseExpr`.
+- `List[]` is not an error value; when `expr -> List[]`, execution MUST enter the `thenExpr` branch.
+- If `thenExpr` or `elseExpr` itself fails during evaluation, the corresponding underlying error value is propagated.
 
-**语义**：
+**Semantics**:
 
-`IfFound` 是冻结的 `special form`。它先 eager 求值 `expr`，然后只求值一个分支。
+`IfFound` is a frozen `special form`. It first eagerly evaluates `expr`, then evaluates only one branch.
 
-`IfFound` 区分的是“结果可用”与“缺失/出错”，不是“真/假”。因此：
+`IfFound` distinguishes "result available" from "missing/error", not "truthy/falsy". Therefore:
 
-- `NotFound[]` 进入 `elseExpr`
-- 自动传播错误值进入 `elseExpr`
-- `List[]` 进入 `thenExpr`
+- `NotFound[]` enters `elseExpr`.
+- Auto-propagating error values enter `elseExpr`.
+- `List[]` enters `thenExpr`.
 
-`IfFound` 是显式恢复边界：它不让 `expr` 的缺失值或错误值继续自动向外传播，而是把控制权交给 `elseExpr`。
+`IfFound` is an explicit recovery boundary: it does not allow missing values or error values from `expr` to continue auto-propagating outward, but instead transfers control to `elseExpr`.
 
-`IfFound` 也是当前 `v1.1.0` 中正式冻结的 bind-and-continue 惯用法：当 `expr` 产出的是后续步骤需要消费的值时，调用者可以使用 `IfFound[expr, v_, thenExpr, elseExpr]` 将该值显式绑定进 `thenExpr`，而不改变 `Do` “只负责顺序执行、不负责步间绑定”的语义。该惯用法不把 `IfFound` 重新定义为通用顺序构件，但它是当前发布版表达“先产值、后消费”链条的官方写法。
+`IfFound` is also the bind-and-continue idiom formally frozen in the current `v1.1.0`: when `expr` produces a value that a later step needs to consume, callers may use `IfFound[expr, v_, thenExpr, elseExpr]` to explicitly bind that value into `thenExpr` without changing the semantics of `Do` as "responsible only for sequential execution, not responsible for binding between steps". This idiom does not redefine `IfFound` as a general sequential construct, but it is the official spelling in the current release for expressing a "produce first, consume later" chain.
 
-**Baseline Availability**：正常执行
-**效果类别**：继承 `expr` 与被执行分支的效果并集
-**确定性类别**：继承 `expr` 与被执行分支
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: inherits the union of the effects of `expr` and the executed branch
+**Determinism Category**: inherits `expr` and the executed branch
+**Observability Requirements**:
 
-- 必须记录 `branch_taken = then | else`
-- 必须记录 `source_expr_result_kind = normal | not_found | error`
+- MUST record `branch_taken = then | else`.
+- MUST record `source_expr_result_kind = normal | not_found | error`.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `IfFound[expr, bindVar_, thenExpr, elseExpr]` 的四参数签名在 `v1.1.x` 内冻结
-- `List[]` 进入 `thenExpr` 分支的行为在 `v1.1.x` 内冻结
-- 自动传播错误值集合由 `§8` 统一定义；本条目只消费该集合，不单独扩展
+- The four-argument signature `IfFound[expr, bindVar_, thenExpr, elseExpr]` is frozen within `v1.1.x`.
+- The behavior of `List[]` entering the `thenExpr` branch is frozen within `v1.1.x`.
+- The set of auto-propagating error values is defined uniformly by `§8`; this entry only consumes that set and does not extend it separately.
 
 #### `Compose`
 
-**状态**：`Core`
-**所属层**：`language`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `language`
+**Syntax and Signature**:
 
 ```text
 Compose[name, params, body]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- 必须且仅接受 3 个参数
-- `name` 必须是与 `operator head` 兼容的字符串字面量
-- `params` 必须是字面量形态的 `List[var1_, var2_, ...]`
-- `params` 内的变量名必须互不重复，且不得使用匿名 `_`
-- `body` 必须是合法 CogLang 表达式
-- `body` 的验证上下文必须显式加入 `params` 中声明的变量，以及当前被注册的 operator 名称自身，以支持递归定义
+- MUST accept exactly 3 arguments.
+- `name` MUST be a string literal compatible with an `operator head`.
+- `params` MUST be a literal-form `List[var1_, var2_, ...]`.
+- Variable names inside `params` MUST be mutually distinct and MUST NOT use the anonymous `_`.
+- `body` MUST be a valid CogLang expression.
+- The validation context for `body` MUST explicitly include the variables declared in `params`, as well as the operator name currently being registered, to support recursive definitions.
 
-**返回契约**：
+**Return Contract**:
 
-- 成功：返回最小 registration receipt，对外至少包含：
+- Success: returns a minimal registration receipt that externally contains at least:
 
 ```text
 {
@@ -1515,427 +1515,427 @@ Compose[name, params, body]
 }
 ```
 
-- `name` 不是与 `operator head` 兼容的字符串字面量：验证失败
-- `params` 不是由互不重复命名变量组成的字面量列表：验证失败
-- 若 `name` 与静态内置 operator 或同一图动态作用域中的既有定义冲突：`TypeError["Compose", "name", "operator already exists or reserved", ...]`
-- 当前 profile 不允许图动态定义：`PermissionError["Compose", "capability denied", ...]`
+- If `name` is not a string literal compatible with an `operator head`: validation failure.
+- If `params` is not a literal list composed of mutually distinct named variables: validation failure.
+- If `name` conflicts with a static built-in operator or an existing definition in the same graph-dynamic scope: `TypeError["Compose", "name", "operator already exists or reserved", ...]`.
+- If the current profile does not allow graph-dynamic definitions: `PermissionError["Compose", "capability denied", ...]`.
 
-实现可以在 transport / diagnostics / 管理 API 中附带内部 definition handle，但该 handle 不是公开语义返回值的一部分。
+Implementations may include an internal definition handle in transport, diagnostics, or management APIs, but that handle is not part of the public semantic return value.
 
-**语义**：
+**Semantics**:
 
-`Compose` 是冻结的 `special form`。它读取字面量 `name` 与 `params`，但**不**在定义时执行 `body`；`body` 以 AST 形式存储为图动态 operator 定义。
+`Compose` is a frozen `special form`. It reads literal `name` and `params`, but **does not** execute `body` at definition time; `body` is stored as an AST as a graph-dynamic operator definition.
 
-成功后，该定义进入 `§10` 的“图内动态 operator 定义”层。`Compose` 只负责注册图内动态定义；名称解析顺序、注册表扩展、外部 adapter 与 capability 约束由 `§10` 统一规定。
+After success, the definition enters the "in-graph dynamic operator definition" layer of `§10`. `Compose` is responsible only for registering in-graph dynamic definitions; name resolution order, registry extension, external adapters, and capability constraints are governed uniformly by `§10`.
 
-`Compose` 不等同于通用插件注册接口，也不负责冻结运行时注册表或外部 adapter 的行为。
+`Compose` is not equivalent to a general plugin registration interface, and it is not responsible for freezing runtime registry or external adapter behavior.
 
-`Compose` 的规范语义是“注册图动态 operator 定义”，而不是“创建公开知识节点”。实现可以使用 executor-internal `Operation` 载体承载该定义，但这类载体不应被误当成公开知识图谱主类型。
+The normative semantics of `Compose` are "register a graph-dynamic operator definition", not "create a public knowledge node". Implementations may use executor-internal `Operation` carriers to hold the definition, but such carriers SHOULD NOT be mistaken for public knowledge graph primary types.
 
-定义出的 operator 可以递归调用自身。默认 baseline profile 必须至少支持递归深度 100；超限时返回 `RecursionError[...]`。
+The defined operator may recursively call itself. The default baseline profile MUST support at least recursion depth 100; when the limit is exceeded, it returns `RecursionError[...]`.
 
-**Baseline Availability**：正常执行
-**效果类别**：`meta`
-**确定性类别**：`graph-state-dependent`
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: `meta`
+**Determinism Category**: `graph-state-dependent`
+**Observability Requirements**:
 
-- 必须记录 `registered_name`
-- 必须记录 `param_count`
-- 必须记录目标作用域为 `graph-local`
-- 必须记录 `registration_outcome`
+- MUST record `registered_name`.
+- MUST record `param_count`.
+- MUST record the target scope as `graph-local`.
+- MUST record `registration_outcome`.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `Compose[name, params, body]` 的三参数签名在 `v1.1.x` 内冻结
-- `name` 为字符串字面量、`params` 为命名变量字面量列表的约束在 `v1.1.x` 内冻结
-- “`body` 在定义时不执行” 在 `v1.1.x` 内冻结
-- “静态内置定义不可被 `Compose` 覆盖” 在 `v1.1.x` 内冻结
-- “默认 baseline profile 的递归深度下限为 100” 在 `v1.1.x` 内冻结
+- The three-argument signature `Compose[name, params, body]` is frozen within `v1.1.x`.
+- The constraints that `name` is a string literal and `params` is a literal list of named variables are frozen within `v1.1.x`.
+- "`body` is not executed at definition time" is frozen within `v1.1.x`.
+- "Static built-in definitions cannot be overridden by `Compose`" is frozen within `v1.1.x`.
+- "The recursion-depth floor for the default baseline profile is 100" is frozen within `v1.1.x`.
 
 #### `Create`
 
-**状态**：`Core`
-**所属层**：`language`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `language`
+**Syntax and Signature**:
 
 ```text
 Create[nodeType, attrs]
 Create["Edge", attrs]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- 必须且仅接受 2 个参数
-- `nodeType` 与 `attrs` 都必须是合法 CogLang 表达式
-- `Create["Edge", attrs]` 表示边创建模式；其余情况进入节点创建模式
-- 基于求值结果的类型约束、字段约束与权限约束不属于 validator 阶段
+- MUST accept exactly 2 arguments.
+- `nodeType` and `attrs` MUST both be valid CogLang expressions.
+- `Create["Edge", attrs]` indicates edge creation mode; all other cases enter node creation mode.
+- Type constraints, field constraints, and permission constraints based on evaluation results are not part of the validator phase.
 
-**返回契约**：
+**Return Contract**:
 
-- `nodeType` 求值后不是字符串：`TypeError["Create", "type", ...]`
-- `attrs` 求值后不是字典：`TypeError["Create", "attrs", ...]`
-- 节点模式下，`nodeType` 不是 `Entity / Concept / Rule / Meta`：`TypeError["Create", "type", "Entity|Concept|Rule|Meta|Edge", ...]`
-- 节点模式下，`attrs` 显式提供保留键 `type`：`TypeError["Create", "attrs", "reserved key type", ...]`
-- 节点模式下，`attrs` 显式提供的 `id` 已存在：`TypeError["Create", "id", "node id already exists", ...]`
-- 节点或边模式下，若显式提供 `confidence` 但不是 `(0, 1]` 内数值：`TypeError["Create", "confidence", ...]`
-- 边模式下，`attrs` 缺少 `from`、`to`、`relation_type` 任一必填字段：`TypeError["Create", "Edge", "missing required field", ...]`
-- 边模式下，`from`、`to`、`relation_type` 任一字段求值后不是字符串：`TypeError["Create", "Edge", "invalid field type", ...]`
-- 边模式下，`from` 或 `to` 指向的节点不存在或不可见：`NotFound[]`
-- 当前 profile 禁止图写入：`PermissionError["Create", "graph_write"]`
-- 节点模式成功：返回节点最终采用的 ID 字符串；若 `attrs.id` 缺失，则这是执行环境为该次创建分配的唯一 ID
-- 边模式成功：返回 `List[from, relation_type, to]`
+- If `nodeType` does not evaluate to a string: `TypeError["Create", "type", ...]`.
+- If `attrs` does not evaluate to a dictionary: `TypeError["Create", "attrs", ...]`.
+- In node mode, if `nodeType` is not `Entity / Concept / Rule / Meta`: `TypeError["Create", "type", "Entity|Concept|Rule|Meta|Edge", ...]`.
+- In node mode, if `attrs` explicitly provides the reserved key `type`: `TypeError["Create", "attrs", "reserved key type", ...]`.
+- In node mode, if the `id` explicitly provided by `attrs` already exists: `TypeError["Create", "id", "node id already exists", ...]`.
+- In node or edge mode, if `confidence` is explicitly provided but is not a numeric value in `(0, 1]`: `TypeError["Create", "confidence", ...]`.
+- In edge mode, if `attrs` is missing any required field among `from`, `to`, and `relation_type`: `TypeError["Create", "Edge", "missing required field", ...]`.
+- In edge mode, if any field among `from`, `to`, and `relation_type` does not evaluate to a string: `TypeError["Create", "Edge", "invalid field type", ...]`.
+- In edge mode, if the node pointed to by `from` or `to` does not exist or is not visible: `NotFound[]`.
+- If the current profile forbids graph writes: `PermissionError["Create", "graph_write"]`.
+- Node mode success: returns the ID string finally used by the node; if `attrs.id` is missing, this is the unique ID assigned by the execution environment for this creation.
+- Edge mode success: returns `List[from, relation_type, to]`.
 
-**语义**：
+**Semantics**:
 
-`Create` 在节点模式下创建公开知识图谱节点，在边模式下创建公开边对象。
+`Create` creates a public knowledge graph node in node mode, and creates a public edge object in edge mode.
 
-节点模式的第一参数 `nodeType` 是公开主类型的唯一权威来源；`attrs` 只负责补充业务属性与可选 `id / confidence`。因此：
+In node mode, the first argument `nodeType` is the only authoritative source of the public primary type; `attrs` is responsible only for supplemental business attributes and optional `id / confidence`. Therefore:
 
-- 公开节点 `type` 只允许 `Entity / Concept / Rule / Meta`
-- 旧式 `attrs["type"] = "Person"` 之类业务分类写法在 `v1.1.x` 中不再合法
-- 业务分类应通过非保留业务字段或图结构表达，但本版不冻结统一字段名
+- Public node `type` only allows `Entity / Concept / Rule / Meta`.
+- Legacy business-classification spellings such as `attrs["type"] = "Person"` are no longer legal in `v1.1.x`.
+- Business classification SHOULD be expressed through non-reserved business fields or graph structure, but this version does not freeze a unified field name.
 
-`Create["Rule", attrs]` 创建的是公开 `Rule` 节点，而不是可执行 operator 定义；图内动态 operator 仍由 `Compose` 负责。
+`Create["Rule", attrs]` creates a public `Rule` node, not an executable operator definition; in-graph dynamic operators remain the responsibility of `Compose`.
 
-边模式中的调用面键名 `from / to / relation_type` 是 call-surface alias；实现内部若采用 `source_id / target_id / relation`，必须做无歧义映射，但不得把这种内部命名差异暴露成语义差异。
+The call-surface key names `from / to / relation_type` in edge mode are call-surface aliases. If an implementation internally uses `source_id / target_id / relation`, it MUST perform an unambiguous mapping, but MUST NOT expose this internal naming difference as a semantic difference.
 
-节点模式下，若 `attrs.id` 显式给出且未冲突，则执行环境必须使用该值作为本次创建采用的节点 ID；若 `attrs.id` 缺失，则执行环境必须在形成内部写入请求、`WriteBundleCandidate` 或等价宿主提交对象之前分配唯一 ID，并以该 ID 作为语言层返回值与后续内部引用的共同标识。ID 的具体格式与生成策略由执行环境定义；一种常见做法是预分配 UUID。
+In node mode, if `attrs.id` is explicitly provided and does not conflict, the execution environment MUST use that value as the node ID adopted for this creation. If `attrs.id` is missing, the execution environment MUST allocate a unique ID before forming the internal write request, `WriteBundleCandidate`, or equivalent host submission object, and MUST use that ID as the common identifier for the language-level return value and subsequent internal references. The concrete ID format and generation strategy are defined by the execution environment; one common approach is to preallocate a UUID.
 
-若内部实现采用 `source_id / target_id / relation`，则 `from / to / relation_type` 到内部字段的映射必须在构造内部写入请求、bundle 校验输入或等价宿主提交对象时完成；不得把这一步推迟到提交后，从而让内部引用校验面对未映射的 call-surface 字段。
+If an internal implementation uses `source_id / target_id / relation`, then the mapping from `from / to / relation_type` to internal fields MUST be completed when constructing the internal write request, bundle validation input, or equivalent host submission object. This step MUST NOT be delayed until after submission in a way that causes internal reference validation to see unmapped call-surface fields.
 
-`Create` 失败时不得产生部分写入。
+`Create` MUST NOT produce partial writes when it fails.
 
-本条冻结的是语言级写意图与成功/失败语义，不规定宿主的持久化提交路径。若上层架构采用 `WriteBundle`、owning-module 或其他代理提交流程，执行器可以先形成中间写入候选，再由宿主在提交成功后映射回本条的语言级返回契约。相同分层适用于 `Update / Delete`。
+This entry freezes language-level write intent and success/failure semantics; it does not prescribe the host's persistence submission path. If an upper-layer architecture uses `WriteBundle`, an owning module, or another delegated submission flow, the executor may first form an intermediate write candidate and then have the host map back to this entry's language-level return contract after submission succeeds. The same layering applies to `Update / Delete`.
 
-**Baseline Availability**：正常执行
-**效果类别**：`graph-write`
-**确定性类别**：`graph-state-dependent`
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: `graph-write`
+**Determinism Category**: `graph-state-dependent`
+**Observability Requirements**:
 
-- 必须记录 `create_mode = node | edge`
-- 必须记录目标主类型或 `relation_type`
-- 必须记录 `creation_outcome`
+- MUST record `create_mode = node | edge`.
+- MUST record the target primary type or `relation_type`.
+- MUST record `creation_outcome`.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `Create[nodeType, attrs]` 与 `Create["Edge", attrs]` 这两种调用外形在 `v1.1.x` 内冻结
-- 节点成功返回字符串 ID、边成功返回三元组的行为在 `v1.1.x` 内冻结
-- `Create["Edge", ...]` 中的 `"Edge"` 是调用模式标记，而不是公开主节点类型
-- 公开节点 `type` 由第一参数决定，`attrs` 不得覆写该字段，这一点在 `v1.1.x` 内冻结
+- The two call shapes `Create[nodeType, attrs]` and `Create["Edge", attrs]` are frozen within `v1.1.x`.
+- The behavior where node success returns a string ID and edge success returns a triple is frozen within `v1.1.x`.
+- `"Edge"` in `Create["Edge", ...]` is a call-mode marker, not a public primary node type.
+- The public node `type` is determined by the first argument, and `attrs` MUST NOT overwrite this field; this is frozen within `v1.1.x`.
 
 #### `Update`
 
-**状态**：`Core`
-**所属层**：`language`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `language`
+**Syntax and Signature**:
 
 ```text
 Update[target, changes]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- 必须且仅接受 2 个参数
-- `target` 与 `changes` 都必须是合法 CogLang 表达式
-- `Update` 在 `v1.1.x` 主规范中只覆盖节点更新，不包含边更新模式
+- MUST accept exactly 2 arguments.
+- `target` and `changes` MUST both be valid CogLang expressions.
+- In the main `v1.1.x` specification, `Update` covers only node updates and does not include an edge update mode.
 
-**返回契约**：
+**Return Contract**:
 
-- `target` 求值后不是字符串：`TypeError["Update", "target", ...]`
-- `changes` 求值后不是字典：`TypeError["Update", "changes", ...]`
-- 目标不存在：`NotFound[]`
-- 目标已软删除：`PermissionError["Update", ...]`
-- 当前 profile 禁止写入，或目标属于不可修改对象：`PermissionError["Update", ...]`
-- `changes` 试图改写受保护系统字段，如 `id / type / provenance / created_at / updated_at`：`TypeError["Update", "changes", "writable field set", ...]`
-- `changes["confidence"] = 0`：`TypeError["Update", "changes", "use Delete for soft-delete", ...]`
-- `changes["confidence"]` 若存在但不是 `(0, 1]` 内数值：`TypeError["Update", "confidence", ...]`
-- 成功：`True[]`
+- If `target` does not evaluate to a string: `TypeError["Update", "target", ...]`.
+- If `changes` does not evaluate to a dictionary: `TypeError["Update", "changes", ...]`.
+- If the target does not exist: `NotFound[]`.
+- If the target has been soft-deleted: `PermissionError["Update", ...]`.
+- If the current profile forbids writes, or the target is a non-modifiable object: `PermissionError["Update", ...]`.
+- If `changes` attempts to rewrite protected system fields, such as `id / type / provenance / created_at / updated_at`: `TypeError["Update", "changes", "writable field set", ...]`.
+- If `changes["confidence"] = 0`: `TypeError["Update", "changes", "use Delete for soft-delete", ...]`.
+- If `changes["confidence"]` exists but is not a numeric value in `(0, 1]`: `TypeError["Update", "confidence", ...]`.
+- Success: `True[]`.
 
-**语义**：
+**Semantics**:
 
-`Update` 是单节点、部分字段覆盖式更新；未出现在 `changes` 中的字段必须保持不变。
+`Update` is a single-node, partial-field overwrite update; fields that do not appear in `changes` MUST remain unchanged.
 
-`Update` 不得承担 soft-delete 或 restore 语义；软删除只能走 `Delete`，恢复不属于当前 `Core` 条目。
+`Update` MUST NOT assume soft-delete or restore semantics. Soft delete can only go through `Delete`, and restore is not part of the current `Core` entry.
 
-运行时管理字段如 `updated_at` 由实现刷新；普通 `Update` 不得伪造覆盖系统管理字段。
+Runtime-managed fields such as `updated_at` are refreshed by the implementation; ordinary `Update` MUST NOT forge overwrites of system-managed fields.
 
-`Update["some_rule", ...]` 修改的是公开 `Rule` 节点内容，不得隐式改写 `Compose` 注册的图内动态 operator 定义。
+`Update["some_rule", ...]` modifies the content of a public `Rule` node; it MUST NOT implicitly rewrite an in-graph dynamic operator definition registered by `Compose`.
 
-`Update` 失败时不得部分应用变更。
+`Update` MUST NOT partially apply changes when it fails.
 
-**Baseline Availability**：正常执行
-**效果类别**：`graph-write`
-**确定性类别**：`graph-state-dependent`
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: `graph-write`
+**Determinism Category**: `graph-state-dependent`
+**Observability Requirements**:
 
-- 必须记录目标节点 ID
-- 必须记录变更字段集合
-- 必须记录 `update_outcome`
+- MUST record the target node ID.
+- MUST record the set of changed fields.
+- MUST record `update_outcome`.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `Update[target, changes]` 的二参数签名在 `v1.1.x` 内冻结
-- “目标不存在返回 `NotFound[]`” 与 “目标已软删除返回 `PermissionError[...]`” 在 `v1.1.x` 内冻结
-- `Update` 不提供边更新模式这一边界在 `v1.1.x` 内冻结
-- `Update` 不允许把 `confidence` 写成 `0` 以模拟删除，这一点在 `v1.1.x` 内冻结
+- The two-argument signature `Update[target, changes]` is frozen within `v1.1.x`.
+- "A missing target returns `NotFound[]`" and "a soft-deleted target returns `PermissionError[...]`" are frozen within `v1.1.x`.
+- The boundary that `Update` does not provide an edge update mode is frozen within `v1.1.x`.
+- The rule that `Update` does not allow writing `confidence` to `0` to simulate deletion is frozen within `v1.1.x`.
 
 #### `Delete`
 
-**状态**：`Core`
-**所属层**：`language`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `language`
+**Syntax and Signature**:
 
 ```text
 Delete[target]
 Delete["Edge", attrs]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- 只允许 1 参数或 2 参数两种形式
-- `Delete[target]` 表示节点删除模式
-- `Delete["Edge", attrs]` 表示边删除模式；两参数形式下第一参数必须是字面字符串 `"Edge"`
-- 所有参数位置都必须是合法 CogLang 表达式
+- Allows only the 1-argument and 2-argument forms.
+- `Delete[target]` indicates node deletion mode.
+- `Delete["Edge", attrs]` indicates edge deletion mode; in the 2-argument form, the first argument MUST be the literal string `"Edge"`.
+- All argument positions MUST be valid CogLang expressions.
 
-**返回契约**：
+**Return Contract**:
 
-- 节点模式下，`target` 求值后不是字符串：`TypeError["Delete", "target", ...]`
-- 边模式下，`attrs` 求值后不是字典：`TypeError["Delete", "attrs", ...]`
-- 边模式下，缺少 `from`、`to`、`relation_type` 或字段值不是字符串：`TypeError["Delete", "Edge", ...]`
-- 节点模式成功：返回被软删除的节点 ID 字符串
-- 边模式成功：返回被软删除边的三元组 `List[from, relation_type, to]`
-- 节点或边不存在：`NotFound[]`
-- 节点或边已软删除：`NotFound[]`
-- 当前 profile 禁止删除，或目标属于受保护对象：`PermissionError["Delete", ...]`
+- In node mode, if `target` does not evaluate to a string: `TypeError["Delete", "target", ...]`.
+- In edge mode, if `attrs` does not evaluate to a dictionary: `TypeError["Delete", "attrs", ...]`.
+- In edge mode, if `from`, `to`, or `relation_type` is missing, or if a field value is not a string: `TypeError["Delete", "Edge", ...]`.
+- Node mode success: returns the ID string of the soft-deleted node.
+- Edge mode success: returns the triple of the soft-deleted edge, `List[from, relation_type, to]`.
+- If the node or edge does not exist: `NotFound[]`.
+- If the node or edge has already been soft-deleted: `NotFound[]`.
+- If the current profile forbids deletion, or the target is a protected object: `PermissionError["Delete", ...]`.
 
-**语义**：
+**Semantics**:
 
-`Delete` 只做 soft-delete，不做物理清除；其规范效果是把目标对象的 `confidence` 置为 `0`，并保留历史。
+`Delete` only performs soft-delete and does not perform physical removal; its normative effect is to set the target object's `confidence` to `0` while retaining history.
 
-节点与边在被软删除后，默认不再参与 `AllNodes`、`Traverse`、`Query` 等普通可见性路径。
+After nodes and edges are soft-deleted, by default they no longer participate in ordinary visibility paths such as `AllNodes`, `Traverse`, and `Query`.
 
-`Delete` 必须是幂等的；对已删除对象再次删除，返回 `NotFound[]`。
+`Delete` MUST be idempotent; deleting an already deleted object again returns `NotFound[]`.
 
-`Delete["Edge", attrs]` 删除的是公开边对象，不要求暴露内部 edge handle。其调用面键名 `from / to / relation_type` 仍是 call-surface alias，而不是内部存储 schema 的唯一命名。
+`Delete["Edge", attrs]` deletes a public edge object and does not require exposing an internal edge handle. Its call-surface key names `from / to / relation_type` remain call-surface aliases, not the only naming of the internal storage schema.
 
-`Delete["some_rule"]` 删除的是公开 `Rule` 节点；它不自动等价于注销某个 `Compose` 定义，也不自动清理所有引用该规则的证据边。
+`Delete["some_rule"]` deletes a public `Rule` node; it is not automatically equivalent to unregistering some `Compose` definition, and it does not automatically clean up all evidence edges that reference that rule.
 
-**Baseline Availability**：正常执行
-**效果类别**：`graph-write`
-**确定性类别**：`graph-state-dependent`
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: `graph-write`
+**Determinism Category**: `graph-state-dependent`
+**Observability Requirements**:
 
-- 必须记录 `delete_mode = node | edge`
-- 必须记录目标对象引用
-- 必须记录 `delete_outcome`
+- MUST record `delete_mode = node | edge`.
+- MUST record the target object reference.
+- MUST record `delete_outcome`.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- 节点一参数形式与边二参数形式在 `v1.1.x` 内冻结
-- soft-delete 而非 hard-delete 的语义在 `v1.1.x` 内冻结
-- “已不存在或已删除返回 `NotFound[]`” 的幂等语义在 `v1.1.x` 内冻结
+- The one-argument node form and the two-argument edge form are frozen within `v1.1.x`.
+- The semantics of soft-delete rather than hard-delete are frozen within `v1.1.x`.
+- The idempotent semantics that "already missing or already deleted returns `NotFound[]`" are frozen within `v1.1.x`.
 
 #### `Trace`
 
-**状态**：`Core`
-**所属层**：`observability`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `observability`
+**Syntax and Signature**:
 
 ```text
 Trace[expr]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- `expr` 必须是合法 CogLang 表达式
+- `expr` MUST be a valid CogLang expression.
 
-**返回契约**：
+**Return Contract**:
 
-- 返回值必须与直接执行 `expr` 的结果完全一致
-- `expr` 返回错误值时，`Trace` 必须原样返回该错误值
+- The return value MUST be exactly identical to the result of directly executing `expr`.
+- When `expr` returns an error value, `Trace` MUST return that error value as-is.
 
-trace sink 不可用不得覆盖业务返回值。
+An unavailable trace sink MUST NOT override the business return value.
 
-**语义**：
+**Semantics**:
 
-`Trace` 是透明包装器。它执行 `expr`，并将本次执行写入可观测性系统，但不改变 `expr` 的语义、返回值或错误传播行为。
+`Trace` is a transparent wrapper. It executes `expr` and writes this execution to the observability system, but does not change the semantics, return value, or error propagation behavior of `expr`.
 
-`Trace` 只负责表达式级执行记录，不负责任务级 ROI、规则级回滚、或成本级汇总事件。
+`Trace` is responsible only for expression-level execution records, not task-level ROI, rule-level rollback, or cost-level aggregate events.
 
-**Baseline Availability**：正常执行
-**效果类别**：`diagnostic`
-**确定性类别**：继承 `expr`；trace 事件编码为 `implementation-defined`
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: `diagnostic`
+**Determinism Category**: inherits `expr`; trace event encoding is `implementation-defined`
+**Observability Requirements**:
 
-- 必须至少记录 `expr_id`
-- 必须至少记录 `parent_id`
-- 必须至少记录 `canonical_expr`
-- 必须至少记录 `result_summary`
-- 必须至少记录 `duration_ms`
-- 必须至少记录 `effect_class`
+- MUST record at least `expr_id`.
+- MUST record at least `parent_id`.
+- MUST record at least `canonical_expr`.
+- MUST record at least `result_summary`.
+- MUST record at least `duration_ms`.
+- MUST record at least `effect_class`.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `Trace[expr]` 的透明包装语义在 `v1.1.x` 内冻结
+- The transparent wrapper semantics of `Trace[expr]` are frozen within `v1.1.x`.
 
 #### `Assert`
 
-**状态**：`Core`
-**所属层**：`observability`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `observability`
+**Syntax and Signature**:
 
 ```text
 Assert[condition, message]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- `condition` 必须是合法 CogLang 表达式
-- `message` 必须是合法 CogLang 表达式
+- `condition` MUST be a valid CogLang expression.
+- `message` MUST be a valid CogLang expression.
 
-**返回契约**：
+**Return Contract**:
 
-- 返回 `condition` 的求值结果
-- 若 `condition` 自身求值出错，原样传播该错误
-- 断言失败本身不是 CogLang 运行时错误
+- Returns the evaluation result of `condition`.
+- If `condition` itself errors during evaluation, propagates that error as-is.
+- Assertion failure itself is not a CogLang runtime error.
 
-**语义**：
+**Semantics**:
 
-`Assert` 执行非致命断言。它先求值 `condition`；若结果为假，则产出断言失败事件，但不终止当前推理链。
+`Assert` performs a non-fatal assertion. It first evaluates `condition`; if the result is falsy, it emits an assertion-failure event but does not terminate the current reasoning chain.
 
-`message` 仅在需要记录断言失败时求值。
+`message` is evaluated only when an assertion failure needs to be recorded.
 
-`Assert` 适用于在组合操作、规则触发、或调试路径中暴露异常状态，而不是替代错误传播机制。
+`Assert` is suitable for exposing anomalous states in composed operations, rule triggering, or debugging paths; it is not a replacement for error propagation mechanisms.
 
-**Baseline Availability**：正常执行
-**效果类别**：`diagnostic`
-**确定性类别**：继承 `condition`；断言事件编码为 `implementation-defined`
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: `diagnostic`
+**Determinism Category**: inherits `condition`; assertion event encoding is `implementation-defined`
+**Observability Requirements**:
 
-- 断言失败时必须记录结构化 assertion / anomaly 事件
-- 事件必须能被上层纳入错误分类与回滚审计
+- When an assertion fails, MUST record a structured assertion / anomaly event.
+- The event MUST be able to be incorporated by upper layers into error classification and rollback audit.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `Assert` 的非致命语义在 `v1.1.x` 内冻结
+- The non-fatal semantics of `Assert` are frozen within `v1.1.x`.
 
-#### Core 条目范围说明
+#### Core Entry Scope Note
 
-本节只冻结本轮优先收口的 `Core` operator 条目。其余仍保留在 catalog 中的旧条目，后续将分别判断是迁入 `Core`、转入 `Reserved`，还是继续维持 `Carry-forward`；不再默认假设它们都会进入本模板。
+This section freezes only the `Core` operator entries prioritized for closure in this pass. Other legacy entries still retained in the catalog will later be evaluated individually for migration into `Core`, transition to `Reserved`, or continued `Carry-forward` status; they are no longer assumed by default to all enter this template.
 
 ### 7.3 Reserved Operators
 
 #### `Explain`
 
-**状态**：`Reserved`
-**所属层**：`observability`
-**语法与签名**：
+**Status**: `Reserved`
+**Layer**: `observability`
+**Syntax and Signature**:
 
 ```text
 Explain[expr]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- `expr` 必须是合法 CogLang 表达式
+- `expr` MUST be a valid CogLang expression.
 
-**返回契约**：
+**Return Contract**:
 
-- 在支持该能力的 profile 中，返回执行计划描述对象
-- 在默认基线 profile 中，允许返回 `StubError["Explain", ...]`
+- In a profile that supports this capability, returns an execution-plan description object.
+- In the default baseline profile, MAY return `StubError["Explain", ...]`.
 
-**语义**：
+**Semantics**:
 
-`Explain` 的语义是“非执行式计划预览”。它用于在不真正执行 `expr` 的前提下，返回对执行步骤、代价或计划结构的说明。
+The semantics of `Explain` are "non-executing plan preview". It is used to return a description of execution steps, cost, or plan structure. It MUST NOT execute `expr`.
 
-`Explain` 一旦实现：
+Once `Explain` is implemented:
 
-- 不得产生 graph write
-- 不得产生外部副作用
-- 不得替代 `Trace`
+- It MUST NOT produce graph writes.
+- It MUST NOT produce external side effects.
+- It MUST NOT replace `Trace`.
 
-**Baseline Availability**：`StubError[...]`
-**效果类别**：`meta`
-**确定性类别**：`implementation-defined`
-**可观测性要求**：
+**Baseline Availability**: `StubError[...]`
+**Effect Category**: `meta`
+**Determinism Category**: `implementation-defined`
+**Observability Requirements**:
 
-- 调用 `Explain` 必须至少留下 `meta` 或 `stub` 事件
+- Calling `Explain` MUST leave at least a `meta` or `stub` event.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `Explain[expr]` 的签名在 `v1.1.x` 内冻结
-- 返回对象的完整 schema 暂未冻结
+- The signature `Explain[expr]` is frozen within `v1.1.x`.
+- The complete schema of the returned object is not yet frozen.
 
 #### `Inspect`
 
-**状态**：`Reserved`
-**所属层**：`meta`
-**语法与签名**：
+**Status**: `Reserved`
+**Layer**: `meta`
+**Syntax and Signature**:
 
 ```text
 Inspect[target]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- `target` 必须是合法 CogLang 表达式
+- `target` MUST be a valid CogLang expression.
 
-**返回契约**：
+**Return Contract**:
 
-- 在支持该能力的 profile 中，返回对象结构描述数据
-- 在默认基线 profile 中，允许返回 `StubError["Inspect", ...]`
+- In a profile that supports this capability, returns object-structure description data.
+- In the default baseline profile, MAY return `StubError["Inspect", ...]`.
 
-**语义**：
+**Semantics**:
 
-`Inspect` 的语义是“把对象结构作为数据返回”，用于检视值、结构化项、或实现公开暴露的对象描述。它不执行计划预览，也不提供时序 trace。
+The semantics of `Inspect` are "return object structure as data". It is used to inspect values, structured items, or object descriptions exposed publicly by an implementation. It does not perform plan preview and does not provide temporal trace.
 
-`Inspect` 一旦实现：
+Once `Inspect` is implemented:
 
-- 不得替代 `Trace`
-- 不得替代 `Explain`
-- 不得因为检视成功就自动暴露宿主私有内部结构
+- It MUST NOT replace `Trace`.
+- It MUST NOT replace `Explain`.
+- It MUST NOT automatically expose host-private internal structures just because inspection succeeds.
 
-**Baseline Availability**：`Profile Baseline: StubError["Inspect", ...]`; `Profile Enhanced: 正常执行`
-**效果类别**：`meta`
-**确定性类别**：`implementation-defined`
-**可观测性要求**：
+**Baseline Availability**: `Profile Baseline: StubError["Inspect", ...]`; `Profile Enhanced: Normal execution`
+**Effect Category**: `meta`
+**Determinism Category**: `implementation-defined`
+**Observability Requirements**:
 
-- 调用 `Inspect` 必须至少留下 `meta` 或 `stub` 事件
+- Calling `Inspect` MUST leave at least a `meta` or `stub` event.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `Inspect[target]` 的一参数签名在 `v1.1.x` 内冻结
-- 默认基线 profile 的 `StubError[...]` 留桩路径在 `v1.1.x` 内冻结
-- 返回对象的完整 schema 暂未冻结
+- The one-argument signature `Inspect[target]` is frozen within `v1.1.x`.
+- The default baseline profile's `StubError[...]` stub path is frozen within `v1.1.x`.
+- The complete schema of the returned object is not yet frozen.
 
-#### Reserved 范围说明
+#### Reserved Scope Note
 
-以下能力在本轮只作为保留位，不在本节写成 `Core`：
+The following capabilities are only placeholders in this pass and are not written as `Core` in this section:
 
-- 显式限定名称的具体表面语法
-- 非默认 `Query.mode`
-- 查询成本 / 信息增益估计
-- 规则候选 envelope
-- 规则发布与回滚链的完整 schema
+- Concrete surface syntax for explicitly qualified names
+- Non-default `Query.mode`
+- Query cost / information-gain estimation
+- Rule-candidate envelope
+- Complete schema for rule publication and rollback chains
 
 ### 7.4 Experimental Operators
 
-本节记录**已进入讨论但尚未具备稳定语义承诺**的 operator 方向。
+This section records operator directions that **have entered discussion but do not yet have stable semantic commitments**.
 
-进入 `Experimental` 的条目至少必须满足：
+Entries entering `Experimental` MUST satisfy at least:
 
-- 名称、层级、效果类别、权限边界有初步描述
-- 尚未满足 `Reserved` 所要求的“签名 + 默认失败行为 + trace 要求”冻结强度
-- 实现者不得把它们作为稳定依赖对外承诺
+- Name, layer, effect category, and permission boundary have preliminary descriptions.
+- They have not yet met the freeze strength required by `Reserved`: "signature + default failure behavior + trace requirements".
+- Implementers MUST NOT externally promise them as stable dependencies.
 
-当前典型实验方向包括：
+Current typical experimental directions include:
 
-- 通用 `Recover[...]`
-- 更强的 `InspectSelf[...]`
-- 规则自修改相关 operator
-- adapter 专用高耦合 operator
+- General `Recover[...]`
+- Stronger `InspectSelf[...]`
+- Operators related to rule self-modification
+- Adapter-specific highly coupled operators
 
-这些条目可以出现在附录、设计记录、或实验 profile 中，但在进入 `Reserved` 之前，不应写入 `Core` operator 目录。
+These entries may appear in appendices, design records, or experimental profiles, but SHOULD NOT be written into the `Core` operator catalog before entering `Reserved`.
 
 ---
 

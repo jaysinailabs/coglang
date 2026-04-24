@@ -675,88 +675,88 @@ Envelope constraints are:
 
 ---
 
-## 7. Operator 规范
+## 7. Operator Specification
 
-### 7.1 条目模板
+### 7.1 Entry Template
 
-每个 operator 条目固定写以下 **7 个核心项**：
+Each operator entry MUST contain the following **7 core items**:
 
-1. **状态**：`Core / Reserved / Experimental`
-2. **所属层**：`language / executor / runtime_bridge / observability / adapter`
-3. **语法与签名**
+1. **Status**: `Core / Reserved / Experimental`
+2. **Layer**: `language / executor / runtime_bridge / observability / adapter`
+3. **Syntax and Signature**
 4. **Validator Constraints**
-5. **返回契约**
-6. **语义**
+5. **Return Contract**
+6. **Semantics**
 7. **Baseline Availability**
 
-并固定写以下 **4 个补充项**：
+Each operator entry MUST also contain the following **4 supplemental items**:
 
-- **效果类别**
-- **确定性类别**
-- **可观测性要求**
-- **兼容性承诺**
+- **Effect Category**
+- **Determinism Category**
+- **Observability Requirements**
+- **Compatibility Commitment**
 
-#### 条目书写规则
+#### Entry Writing Rules
 
-- `Core` operator 的“语义”必须是完整 Normative 描述，不能只写设计意图
-- `Reserved` operator 必须至少冻结签名、验证约束、默认失败行为、trace 要求
-- `Experimental` operator 可以保留实现自由度，但仍必须声明效果类别与权限边界
-- 若一个 operator 依赖外部实现，其条目必须显式说明“名称已冻结”与“行为未冻结”是否同时成立
-- `Validator Constraints` 只描述语法、参数个数、变量位置、名称解析、以及可静态判定的字面量约束；表达式求值后的动态类型不匹配必须写入“返回契约”或“语义”，不得混写为 validator 失败
-- 对透明包装器或条件式包装器，确定性类别可以声明为“继承被包装表达式”；若其诊断事件或元数据编码仍保留实现自由度，必须在“语义”或“可观测性要求”中显式说明
+- A `Core` operator's "Semantics" item MUST be a complete normative description, not only a statement of design intent.
+- A `Reserved` operator MUST at least freeze its signature, validation constraints, default failure behavior, and trace requirements.
+- An `Experimental` operator MAY retain implementation freedom, but it MUST still declare its effect category and permission boundary.
+- If an operator depends on an external implementation, its entry MUST explicitly state whether "name frozen" and "behavior not frozen" are both true.
+- `Validator Constraints` describe only syntax, arity, variable positions, name resolution, and statically decidable literal constraints. Dynamic type mismatches after expression evaluation MUST be documented under "Return Contract" or "Semantics"; they MUST NOT be mixed into validator failure.
+- For transparent wrappers or conditional wrappers, the determinism category MAY be declared as "inherits from the wrapped expression". If diagnostic events or metadata encoding still retain implementation freedom, the entry MUST state that explicitly under "Semantics" or "Observability Requirements".
 
-#### Baseline Availability 的判定
+#### Baseline Availability Determination
 
-本项描述的是**通过验证后的运行时基线可用性**，不覆盖 parser 或 validator 阶段的拒绝。
+This item describes **runtime baseline availability after successful validation**. It does not cover parser-stage or validator-stage rejection.
 
-`Baseline Availability` 只允许使用以下三种形式：
+`Baseline Availability` may use only the following three forms:
 
-- **正常执行**
+- **Normal execution**
 - **`StubError[...]`**
 - **`PermissionError[...]`**
 
-不允许写成“由实现决定”或“可能不可用”。
+It MUST NOT be written as "implementation-defined" or "may be unavailable".
 
-若该可用性依赖 profile，条目必须写成 `Profile <name>: ...` 的形式，且 profile 名称必须在伴随文档或 manifest 中定义。
+If availability depends on a profile, the entry MUST use the form `Profile <name>: ...`, and the profile name MUST be defined in a companion document or manifest.
 
-#### 后续程序层能力的准入原则
+#### Admission Principles for Future Program-Layer Capabilities
 
-当后续版本考虑引入更强的程序层能力时，其进入 `Core` 前 **SHOULD** 至少满足以下条件：
+When a future version considers introducing stronger program-layer capabilities, a capability **SHOULD** satisfy at least the following conditions before entering `Core`:
 
-- 该能力对图查询、图更新、规则触发、验证前表示、或可观测执行具有直接支撑作用
-- 其核心语义可以在不依赖特定宿主实现技巧的前提下被稳定冻结
-- 它不会把临时中间态、局部容器或一次性算法步骤默认提升为图谱对象
-- 它不是主要为了对齐传统通用语言表面，或提高人类手写舒适度而引入
-- 它不能更自然地被实现为 `Reserved`、`Experimental`、`extension-backed operator`、或 profile 特定能力
+- It directly supports graph query, graph update, rule triggering, pre-validation representation, or observable execution.
+- Its core semantics can be stably frozen without depending on host-specific implementation tricks.
+- It does not promote temporary intermediate state, local containers, or one-off algorithmic steps into graph objects by default.
+- It is not introduced primarily to align CogLang with a traditional general-purpose language surface or to improve human hand-writing comfort.
+- It cannot be represented more naturally as a `Reserved` operator, an `Experimental` operator, an `extension-backed operator`, or a profile-specific capability.
 
-若某项能力主要承担：
+If a capability mainly provides:
 
-- 列表 / 字典上的复杂规约、聚合、排序、过滤
-- 强宿主耦合的本地算法、外部系统调用、或工具链桥接
-- 仅服务于单次执行而不形成稳定知识对象的局部处理步骤
+- complex reduction, aggregation, sorting, or filtering over lists or dictionaries,
+- strongly host-coupled local algorithms, external system calls, or toolchain bridges,
+- local processing steps that serve only one execution and do not form stable knowledge objects,
 
-则它 **SHOULD** 先以 profile 扩展、注册表条目、或 `Reserved / Experimental` 条目存在，而不是直接扩大 `Core` 主干。
+then it **SHOULD** first exist as a profile extension, registry entry, or `Reserved / Experimental` entry rather than directly expanding the `Core` trunk.
 
 ### 7.2 Core Operators
 
 #### `Abstract`
 
-**状态**：`Core`
-**所属层**：`language`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `language`
+**Syntax and Signature**:
 
 ```text
 Abstract[instances]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- 必须且仅接受一个参数
-- `instances` 必须是合法 CogLang 表达式
+- MUST accept exactly one argument.
+- `instances` MUST be a valid CogLang expression.
 
-**返回契约**：
+**Return Contract**:
 
-成功时返回一个结构化结果对象：
+On success, returns a structured result object:
 
 ```text
 {
@@ -769,504 +769,504 @@ Abstract[instances]
 }
 ```
 
-失败时：
+On failure:
 
-- `instances` 求值后不是列表：`TypeError["Abstract", "instances", ...]`
-- 名称与参数通过验证但当前 profile 不支持：`StubError["Abstract", ...]`
+- If `instances` evaluates to a non-list value: `TypeError["Abstract", "instances", ...]`
+- If the name and arguments pass validation but the current profile does not support the operator: `StubError["Abstract", ...]`
 
-空列表输入必须返回一个非触发摘要对象；`triggered = False[]` 是合法正常结果，不是错误。
+An empty-list input MUST return a non-triggering summary object. `triggered = False[]` is a valid normal result, not an error.
 
-**语义**：
+**Semantics**:
 
-`Abstract` 的语义是对一组实例进行原型提取与触发判定。它：
+`Abstract` performs prototype extraction and trigger determination over a set of instances. It:
 
-- 接收一批待抽象的实例
-- 先形成等价类或候选聚类，再形成该批实例对应的 prototype / cluster 表示
-- 判断该模式是否达到“足够成熟，可以触发后续归纳”的阈值
-- 返回本次抽象结果的结构化摘要
+- receives a batch of instances to abstract,
+- first forms an equivalence class or candidate cluster, then forms the corresponding prototype / cluster representation for that batch,
+- determines whether the pattern has reached the threshold of "mature enough to trigger downstream induction",
+- returns a structured summary of this abstraction result.
 
-主规范只冻结 `triggered` 的字段类型与语义边界，不冻结具体阈值、具体聚类算法或具体触发启发式；这些实现起步建议应写入 companion / implementation note，而不是写入本条的规范正文。
+The main specification freezes only the field type and semantic boundary of `triggered`. It does not freeze concrete thresholds, concrete clustering algorithms, or concrete trigger heuristics. Implementation starting recommendations for those details belong in a companion / implementation note, not in the normative body of this entry.
 
-`Abstract` 必须保留两类 provenance：
+`Abstract` MUST preserve two kinds of provenance:
 
-- 等价类成员列表的可追溯引用
-- 代表选择或原型形成依据的可追溯说明
+- a traceable reference to the equivalence-class member list,
+- a traceable explanation of the representative selection or prototype formation basis.
 
-`Abstract` 不得因为形成代表或原型而删除、覆盖、或隐式合并原始实例；它只能为后续规范化、归纳、或解释层操作提供触发摘要。
+`Abstract` MUST NOT delete, overwrite, or implicitly merge original instances merely because it forms a representative or prototype. It can only provide a trigger summary for later normalization, induction, or explanation-layer operations.
 
-`Abstract` **不**直接生成规则候选，**不**执行 Logic Engine 验证，**不**直接写入草稿图谱或主图谱。规则生成与验证属于后续流水线：
+`Abstract` does **not** directly generate rule candidates, does **not** execute Logic Engine validation, and does **not** directly write to the draft graph or main graph. Rule generation and validation belong to the downstream pipeline:
 
 `Abstract -> Encoder -> Logic Engine -> draft/promote`
 
-**Baseline Availability**：正常执行
-**效果类别**：`meta`
-**确定性类别**：`model-dependent`
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: `meta`
+**Determinism Category**: `model-dependent`
+**Observability Requirements**:
 
-- 必须记录 `cluster_id`
-- 必须记录 `instance_count`
-- 必须记录 `prototype_ref`
-- 必须记录 `equivalence_class_ref`
-- 必须记录 `selection_basis`
-- 必须记录 `triggered`
+- MUST record `cluster_id`.
+- MUST record `instance_count`.
+- MUST record `prototype_ref`.
+- MUST record `equivalence_class_ref`.
+- MUST record `selection_basis`.
+- MUST record `triggered`.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `Abstract[instances]` 这一签名在 `v1.1.x` 内冻结
-- 返回值中的六个最小字段在 `v1.1.x` 内冻结
-- prototype 的内部编码与具体训练后端仍可演化
+- The `Abstract[instances]` signature is frozen within `v1.1.x`.
+- The six minimal return fields are frozen within `v1.1.x`.
+- The internal encoding of prototypes and the concrete training backend may still evolve.
 
 #### `Equal`
 
-**状态**：`Core`
-**所属层**：`language`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `language`
+**Syntax and Signature**:
 
 ```text
 Equal[a, b]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- 必须且仅接受 2 个参数
-- `a` 与 `b` 都必须是合法 CogLang 表达式
-- `Equal` 不引入新的绑定变量位，也不承担名称解析扩展语义
-- 动态类型差异不属于 validator 失败；它们属于运行时比较语义的一部分
+- MUST accept exactly 2 arguments.
+- `a` and `b` MUST both be valid CogLang expressions.
+- `Equal` does not introduce a new binding-variable position and does not provide name-resolution extension semantics.
+- Dynamic type differences are not validator failures; they are part of runtime comparison semantics.
 
-**返回契约**：
+**Return Contract**:
 
-- `a` 或 `b` 的求值结果为自动传播错误值时：原样传播该错误值
-- 两侧值结构相等时：返回 `True[]`
-- 两侧值结构不相等时：返回 `False[]`
-- `Equal` 不因“值类型不同”而返回 `TypeError[...]`；异类正常值之间的比较结果就是 `False[]`
+- If evaluation of `a` or `b` yields an auto-propagating error value: propagate that error value unchanged.
+- If the two values are structurally equal: return `True[]`.
+- If the two values are not structurally equal: return `False[]`.
+- `Equal` MUST NOT return `TypeError[...]` merely because value types differ; comparison between heterogeneous normal values returns `False[]`.
 
-**语义**：
+**Semantics**:
 
-`Equal` 是普通 eager operator，不是 `special form`。
+`Equal` is a normal eager operator, not a `special form`.
 
-`Equal` 比较的是语义值的结构相等，而不是 source text、readable render 或 transport envelope 的文本相等。这里的“结构相等”沿用 `§3.2` 的全局定义：忽略 source span、render hint 与 transport-only metadata。
+`Equal` compares structural equality of semantic values, not textual equality of source text, readable render, or transport envelopes. "Structural equality" uses the global definition from `§3.2`: source spans, render hints, and transport-only metadata are ignored.
 
-具体规则如下：
+The concrete rules are:
 
-- 字符串按字面值比较
-- 数字按数值比较
-- `True[] / False[]` 按布尔值比较
-- `List` 的长度必须相同，元素按位置递归比较；列表顺序具有语义意义
-- `Dict` 的键集合必须相同，每个键对应值递归比较；键顺序不具有语义意义
-- 结构化项 / application 的 `Head` 必须相同、参数个数必须相同、参数按位置递归比较
+- Strings are compared by literal value.
+- Numbers are compared by numeric value.
+- `True[] / False[]` are compared by boolean value.
+- `List` values MUST have the same length, and elements are compared recursively by position; list order is semantically significant.
+- `Dict` values MUST have the same key set, and each corresponding value is compared recursively; key order is not semantically significant.
+- Structured terms / applications MUST have the same `Head`, the same arity, and recursively equal arguments by position.
 
-`Equal` 不消费自动传播错误值；若调用方需要对错误表达式做结构化匹配，应使用 `Unify` 或等价的显式检视机制。
+`Equal` does not consume auto-propagating error values. If a caller needs structured matching over error expressions, it should use `Unify` or an equivalent explicit inspection mechanism.
 
-若某个字符串恰好是节点 ID，`Equal` 也只把它当字符串值；不得隐式解引用图节点。
+If a string happens to be a node ID, `Equal` still treats it only as a string value. It MUST NOT implicitly dereference graph nodes.
 
-`Equal` 用于布尔判断和控制流，不承担差异解释职责；差异解释属于 `Compare`。
+`Equal` is for boolean judgment and control flow. It does not provide difference explanation; difference explanation belongs to `Compare`.
 
-**Baseline Availability**：正常执行
-**效果类别**：继承 `a` 与 `b` 的求值效果并集
-**确定性类别**：继承 `a` 与 `b`；在两侧值固定后，相等判断本身必须是 `deterministic`
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: Inherits the union of the evaluation effects of `a` and `b`
+**Determinism Category**: Inherits from `a` and `b`; once both values are fixed, equality judgment itself MUST be `deterministic`
+**Observability Requirements**:
 
-- 必须记录 `comparison_kind = equal`
-- 必须记录 `result = True[] | False[]`
+- MUST record `comparison_kind = equal`.
+- MUST record `result = True[] | False[]`.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `Equal[a, b]` 的二参数签名在 `v1.1.x` 内冻结
-- “结构相等返回 `True[]`，否则 `False[]`” 在 `v1.1.x` 内冻结
-- `List` 的顺序敏感、`Dict` 的键顺序不敏感，这两条在 `v1.1.x` 内冻结
-- `Equal` 不自动穿透 transport / UI 包装、不自动解引用节点字符串，这两条在 `v1.1.x` 内冻结
+- The two-argument signature `Equal[a, b]` is frozen within `v1.1.x`.
+- "Structurally equal returns `True[]`; otherwise returns `False[]`" is frozen within `v1.1.x`.
+- `List` order sensitivity and `Dict` key-order insensitivity are frozen within `v1.1.x`.
+- `Equal` not automatically piercing transport / UI wrappers and not automatically dereferencing node strings are frozen within `v1.1.x`.
 
 #### `Compare`
 
-**状态**：`Core`
-**所属层**：`language`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `language`
+**Syntax and Signature**:
 
 ```text
 Compare[a, b]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- 必须且仅接受 2 个参数
-- `a` 与 `b` 都必须是合法 CogLang 表达式
-- `Compare` 不引入绑定变量位，也不承担名称解析扩展语义
-- 动态类型差异不属于 validator 失败；它们属于运行时差异构造语义的一部分
+- MUST accept exactly 2 arguments.
+- `a` and `b` MUST both be valid CogLang expressions.
+- `Compare` does not introduce a binding-variable position and does not provide name-resolution extension semantics.
+- Dynamic type differences are not validator failures; they are part of runtime delta-construction semantics.
 
-**返回契约**：
+**Return Contract**:
 
-- `a` 或 `b` 的求值结果为自动传播错误值时：原样传播该错误值
-- 两侧值结构相等时：返回空字典 `{}`
-- 两侧值不相等时：返回描述结构差异的 `Dict`
-- `Compare` 不因“值类型不同”而返回 `TypeError[...]`；异类正常值之间的差异仍以差异字典表达
+- If evaluation of `a` or `b` yields an auto-propagating error value: propagate that error value unchanged.
+- If the two values are structurally equal: return the empty dictionary `{}`.
+- If the two values are not equal: return a `Dict` describing the structural difference.
+- `Compare` MUST NOT return `TypeError[...]` merely because value types differ; differences between heterogeneous normal values are still expressed as a delta dictionary.
 
-**语义**：
+**Semantics**:
 
-`Compare` 是普通 eager operator，不是 `special form`。
+`Compare` is a normal eager operator, not a `special form`.
 
-`Compare` 比较的是语义值结构，而不是 source text、readable render 或 transport envelope。其输出是诊断性 delta，不是布尔值；控制流应使用 `Equal`，不是 `Compare`。
+`Compare` compares semantic value structure, not source text, readable render, or transport envelopes. Its output is a diagnostic delta, not a boolean value; control flow should use `Equal`, not `Compare`.
 
-`v1.1.x` 中冻结的最小 delta 规则如下：
+The minimal delta rules frozen in `v1.1.x` are:
 
-- 完全相等：返回 `{}`
-- 原子值不相等，或结构类型/形状不同：返回 `{"expected": a, "actual": b}`
-- 两侧都是同一 `Head` 且参数个数相同的 application：只为不相等的参数位置生成子差异，键名使用 `arg0`、`arg1`、`arg2` ...
-- 两侧都是等长 `List`：只为不相等的位置生成子差异，键名使用 `index0`、`index1`、`index2` ...
-- 两侧都是 `Dict`：只为不相等或缺失的键生成子差异；缺失一侧可用 `NotFound[]` 作为 `expected` 或 `actual`
+- Fully equal values: return `{}`.
+- Unequal atomic values, or different structural types/shapes: return `{"expected": a, "actual": b}`.
+- If both sides are applications with the same `Head` and arity: generate child deltas only for unequal argument positions, using keys `arg0`, `arg1`, `arg2`, ...
+- If both sides are equal-length `List` values: generate child deltas only for unequal positions, using keys `index0`, `index1`, `index2`, ...
+- If both sides are `Dict` values: generate child deltas only for unequal or missing keys; the missing side may use `NotFound[]` as `expected` or `actual`.
 
-`Compare` 不消费自动传播错误值；若调用方需要对错误表达式做结构化匹配，应使用 `Unify` 或等价的显式检视机制。
+`Compare` does not consume auto-propagating error values. If a caller needs structured matching over error expressions, it should use `Unify` or an equivalent explicit inspection mechanism.
 
-因此，`Compare[f[a, b], f[a, c]]` 的稳定结果应为：
+Therefore, the stable result of `Compare[f[a, b], f[a, c]]` should be:
 
 ```text
 {"arg1": {"expected": "b", "actual": "c"}}
 ```
 
-若某个字符串恰好是节点 ID，`Compare` 也只把它当字符串值；不得隐式解引用图节点，不得扩展成图谱级 diff。
+If a string happens to be a node ID, `Compare` still treats it only as a string value. It MUST NOT implicitly dereference graph nodes and MUST NOT expand into a graph-level diff.
 
-delta 的键顺序不具有语义意义，但 canonical 序列化必须稳定。
+Delta key order is not semantically significant, but canonical serialization MUST be stable.
 
-`Compare` 的递归展开深度继承执行环境的通用递归限制；若实现对过深嵌套结构设置保护上限，则超限时必须返回 `RecursionError["Compare", ...]`，而不是爆栈、静默截断或返回部分 delta。
+The recursive expansion depth of `Compare` inherits the execution environment's general recursion limit. If an implementation sets a protection limit for overly deep nested structures, exceeding that limit MUST return `RecursionError["Compare", ...]`, not stack overflow, silent truncation, or a partial delta.
 
-**Baseline Availability**：正常执行
-**效果类别**：继承 `a` 与 `b` 的求值效果并集
-**确定性类别**：继承 `a` 与 `b`；在两侧值固定后，delta 构造本身必须是 `deterministic`
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: Inherits the union of the evaluation effects of `a` and `b`
+**Determinism Category**: Inherits from `a` and `b`; once both values are fixed, delta construction itself MUST be `deterministic`
+**Observability Requirements**:
 
-- 必须记录 `comparison_kind = compare`
-- 必须记录 `delta_is_empty = True[] | False[]`
+- MUST record `comparison_kind = compare`.
+- MUST record `delta_is_empty = True[] | False[]`.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `Compare[a, b]` 的二参数签名在 `v1.1.x` 内冻结
-- “相等返回 `{}`，不等返回差异字典” 在 `v1.1.x` 内冻结
-- 叶子差异使用 `{"expected": ..., "actual": ...}` 的最小结构在 `v1.1.x` 内冻结
-- application 参数位使用 `argN` 命名、列表位置使用 `indexN` 命名的规则在 `v1.1.x` 内冻结
-- `Compare` 不自动穿透 transport / UI 包装、不自动解引用节点字符串，这两条在 `v1.1.x` 内冻结
+- The two-argument signature `Compare[a, b]` is frozen within `v1.1.x`.
+- "Equal returns `{}`; unequal returns a delta dictionary" is frozen within `v1.1.x`.
+- The minimal leaf-delta structure `{"expected": ..., "actual": ...}` is frozen within `v1.1.x`.
+- The rules that application argument positions use `argN` and list positions use `indexN` are frozen within `v1.1.x`.
+- `Compare` not automatically piercing transport / UI wrappers and not automatically dereferencing node strings are frozen within `v1.1.x`.
 
 #### `Unify`
 
-**状态**：`Core`
-**所属层**：`language`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `language`
+**Syntax and Signature**:
 
 ```text
 Unify[pattern, target]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- 必须且仅接受 2 个参数
-- `pattern` 与 `target` 都必须是合法 CogLang 表达式
-- `pattern` 与 `target` 内允许出现 `term head` application、`atom`、命名变量、匿名通配符 `_`、字典字面量，以及 canonical value form，如 `List[...]`、`True[]`、`False[]`、`NotFound[]`、`TypeError[...]`
-- `term head` 在 `Unify` 的两个参数中必须被解释为结构化项，而不是可执行 operator
-- 若宿主启用了自由变量检查，则 `Unify` 必须是显式例外：两个参数中未被外层绑定上下文解析的命名变量，必须被视为本次合一调用的局部合一变量，而不是验证失败
+- MUST accept exactly 2 arguments.
+- `pattern` and `target` MUST both be valid CogLang expressions.
+- `pattern` and `target` may contain `term head` applications, `atom` values, named variables, the anonymous wildcard `_`, dictionary literals, and canonical value forms such as `List[...]`, `True[]`, `False[]`, `NotFound[]`, and `TypeError[...]`.
+- A `term head` in either argument of `Unify` MUST be interpreted as a structured term, not as an executable operator.
+- If a host enables free-variable checking, `Unify` MUST be an explicit exception: named variables in the two arguments that are not resolved by an outer binding context MUST be treated as local unification variables for this unification call, not as validation failures.
 
-**返回契约**：
+**Return Contract**:
 
-- 可合一时：返回变量绑定字典 `{"X": value, ...}`
-- 可合一但没有任何命名变量需要输出时：返回 `{}`
-- 不可合一时：返回 `NotFound[]`
-- `_` 只匹配，不绑定，不得出现在返回字典中
-- `TypeError[...]`、`PermissionError[...]`、`NotFound[]` 等自动传播错误值在 `Unify` 中是可被匹配的正常目标项，不得因为它们是错误值就再次自动向外传播
+- If unification succeeds: return a variable-binding dictionary `{"X": value, ...}`.
+- If unification succeeds but there are no named variables to output: return `{}`.
+- If unification fails: return `NotFound[]`.
+- `_` matches only; it does not bind and MUST NOT appear in the returned dictionary.
+- Auto-propagating error values such as `TypeError[...]`, `PermissionError[...]`, and `NotFound[]` are normal target terms that can be matched inside `Unify`; they MUST NOT be auto-propagated outward again merely because they are error values.
 
-返回字典的键名必须是命名变量去掉尾部 `_` 后的标识符核心。
+Returned dictionary keys MUST be the identifier core of named variables after removing the trailing `_`.
 
-**语义**：
+**Semantics**:
 
-`Unify` 的语义是对两棵 canonical value / term tree 计算最一般合一子 `MGU`。
+`Unify` computes the most general unifier, `MGU`, for two canonical value / term trees.
 
-同名命名变量在两侧和同一侧都代表同一个逻辑变量；若其约束不能同时满足，则结果为 `NotFound[]`。
+Named variables with the same name represent the same logical variable both across the two sides and within the same side. If their constraints cannot be satisfied simultaneously, the result is `NotFound[]`.
 
-`_` 匹配任意子树，但永不进入绑定结果。
+`_` matches any subtree but never enters the binding result.
 
-`Unify[f[X_, b], f[a, Y_]]` 这类写法在 `v1.1.0` 中继续合法，其合法性依赖于小写 `f` 被明确归类为 `term head`，属于结构化项，不走默认 operator 解析。
+Forms such as `Unify[f[X_, b], f[a, Y_]]` remain valid in `v1.1.0`. Their validity depends on lowercase `f` being explicitly classified as a `term head`: it is a structured term and does not go through default operator resolution.
 
-`Unify` 是项级 / 值级结构匹配，不是图级搜索；需要在图中找满足条件的节点时，应使用 `Query` 而不是 `Unify`。
+`Unify` is term-level / value-level structural matching, not graph-level search. To find nodes in a graph that satisfy a condition, use `Query` rather than `Unify`.
 
-在默认 eager 语义下，参数中的普通可执行子表达式可先规约为其 canonical value；但进入合一步骤后，匹配只看结果树的结构，不再触发内部 `Head` 的再次解析或执行。
+Under default eager semantics, ordinary executable subexpressions in the arguments may first reduce to their canonical values. Once the unification step begins, matching only observes the structure of the resulting trees and does not re-trigger parsing or execution of inner `Head` values.
 
-**Baseline Availability**：正常执行
-**效果类别**：继承 `pattern` 与 `target` 规约阶段的效果；合一步骤本身为 `pure`
-**确定性类别**：继承 `pattern` 与 `target` 的规约确定性；在给定两棵规范值树后，合一结果必须是 `deterministic`
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: Inherits the effects of the reduction phase for `pattern` and `target`; the unification step itself is `pure`
+**Determinism Category**: Inherits the reduction determinism of `pattern` and `target`; given two canonical value trees, the unification result MUST be `deterministic`
+**Observability Requirements**:
 
-- 必须记录 `unify_outcome = success | not_found`
-- 必须记录绑定结果大小
+- MUST record `unify_outcome = success | not_found`.
+- MUST record the binding-result size.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `Unify[pattern, target]` 的二参数签名在 `v1.1.x` 内冻结
-- 成功返回绑定字典、失败返回 `NotFound[]` 的二分返回形态在 `v1.1.x` 内冻结
-- 返回字典的键名去尾部 `_` 的规则在 `v1.1.x` 内冻结
-- `term head` 在 `Unify` 中作为结构化项参与匹配、而不参与默认 operator 解析，这一点在 `v1.1.x` 内冻结
-- 自动传播错误值可被 `Unify` 结构化匹配、而不是再次自动传播，这一点在 `v1.1.x` 内冻结
+- The two-argument signature `Unify[pattern, target]` is frozen within `v1.1.x`.
+- The binary return shape of "success returns a binding dictionary; failure returns `NotFound[]`" is frozen within `v1.1.x`.
+- The rule that returned dictionary keys remove the trailing `_` from variable names is frozen within `v1.1.x`.
+- The fact that `term head` participates in matching as a structured term inside `Unify`, rather than participating in default operator resolution, is frozen within `v1.1.x`.
+- The fact that auto-propagating error values can be structurally matched by `Unify`, rather than being auto-propagated again, is frozen within `v1.1.x`.
 
 #### `Match`
 
-**状态**：`Core`
-**所属层**：`language`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `language`
+**Syntax and Signature**:
 
 ```text
 Match[pattern, target]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- 与 `Unify` 完全相同
-- `Match` 不引入独立的 pattern grammar；它直接继承 `Unify` 对 `term head`、命名变量、`_`、canonical value form 的解释规则
+- Exactly the same as `Unify`.
+- `Match` does not introduce an independent pattern grammar. It directly inherits `Unify`'s interpretation rules for `term head`, named variables, `_`, and canonical value forms.
 
-**返回契约**：
+**Return Contract**:
 
-- 与 `Unify` 完全相同
-- 可合一时返回绑定字典；不可合一时返回 `NotFound[]`；`_` 不进入返回结果
+- Exactly the same as `Unify`.
+- If unification succeeds, returns a binding dictionary; if unification fails, returns `NotFound[]`; `_` does not enter the returned result.
 
-**语义**：
+**Semantics**:
 
-`Match` 是 `Unify` 的精确别名，语义、返回形态、错误匹配能力、以及 `operator head / term head` 的解释规则都必须与 `Unify` 保持完全一致。
+`Match` is an exact alias of `Unify`. Its semantics, return shape, error-matching capability, and interpretation rules for `operator head / term head` MUST remain fully consistent with `Unify`.
 
-保留 `Match` 的原因是它更接近用户直觉；保留 `Unify` 的原因是它与逻辑 / 形式方法术语一致。
+`Match` is retained because it is closer to user intuition. `Unify` is retained because it aligns with logic / formal-methods terminology.
 
-`Match / Unify` 做的是项级匹配，不是图级 pattern search；图级命中检索仍属于 `Query`。
+`Match / Unify` performs term-level matching, not graph-level pattern search. Graph-level hit retrieval remains the responsibility of `Query`.
 
-**Baseline Availability**：正常执行
-**效果类别**：与 `Unify` 完全相同
-**确定性类别**：与 `Unify` 完全相同
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: Exactly the same as `Unify`
+**Determinism Category**: Exactly the same as `Unify`
+**Observability Requirements**:
 
-- 与 `Unify` 完全相同
-- trace 中可额外记录 `alias_of = "Unify"`
+- Exactly the same as `Unify`.
+- A trace may additionally record `alias_of = "Unify"`.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `Match[pattern, target]` 在 `v1.1.x` 内必须保持为 `Unify[pattern, target]` 的精确别名
-- 不允许在 `v1.1.x` 内把 `Match` 演化成更宽的图模式查询、正则匹配、或近似匹配接口
-- `Match` 与 `Unify` 的返回形态、键名规则、以及错误匹配行为不得漂移
+- `Match[pattern, target]` MUST remain an exact alias of `Unify[pattern, target]` within `v1.1.x`.
+- `Match` MUST NOT evolve within `v1.1.x` into a broader graph-pattern query, regular-expression matching, or approximate-matching interface.
+- The return shape, key-name rule, and error-matching behavior of `Match` and `Unify` MUST NOT drift apart.
 
 #### `Get`
 
-**状态**：`Core`
-**所属层**：`language`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `language`
+**Syntax and Signature**:
 
 ```text
 Get[source, key]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- 必须且仅接受 2 个参数
-- `source` 与 `key` 都必须是合法 CogLang 表达式
-- `Get` 的分派属于运行时语义，不把 `source` 或 `key` 的动态类型约束写成 validator 失败
+- MUST accept exactly 2 arguments.
+- `source` and `key` MUST both be valid CogLang expressions.
+- `Get` dispatch belongs to runtime semantics; dynamic type constraints on `source` or `key` are not validator failures.
 
-**返回契约**：
+**Return Contract**:
 
-- `source` 或 `key` 的求值结果为自动传播错误值时：原样传播该错误值
-- `source` 求值为 `Dict` 且 `key` 求值为字符串时：返回对应键值；键不存在时返回 `NotFound[]`
-- `source` 求值为 `List[...]` 且 `key` 求值为整数时：按 `0-based` 索引返回元素；索引越界时返回 `NotFound[]`
-- `source` 求值为字符串节点 ID 且 `key` 求值为字符串时：返回该节点的对应属性值；节点不存在、节点不可见、或属性不存在时返回 `NotFound[]`
-- `source` 求值为其他正常值时：`TypeError["Get", "source", ...]`
-- 分派已确定但 `key` 类型与该分派不匹配时：`TypeError["Get", "key", ...]`
+- If evaluation of `source` or `key` yields an auto-propagating error value: propagate that error value unchanged.
+- If `source` evaluates to a `Dict` and `key` evaluates to a string: return the corresponding keyed value; if the key does not exist, return `NotFound[]`.
+- If `source` evaluates to `List[...]` and `key` evaluates to an integer: return the element at the `0-based` index; if the index is out of range, return `NotFound[]`.
+- If `source` evaluates to a string node ID and `key` evaluates to a string: return that node's corresponding property value; if the node does not exist, the node is not visible, or the property does not exist, return `NotFound[]`.
+- If `source` evaluates to any other normal value: return `TypeError["Get", "source", ...]`.
+- If dispatch has been determined but the `key` type does not match that dispatch: return `TypeError["Get", "key", ...]`.
 
-**语义**：
+**Semantics**:
 
-`Get` 是普通 eager operator，不是 `special form`。
+`Get` is a normal eager operator, not a `special form`.
 
-`Get` 的运行时分派顺序冻结为：
+The runtime dispatch order of `Get` is frozen as:
 
 1. `Dict`
 2. `List`
-3. 字符串节点 ID
+3. string node ID
 
-`Get` 统一承载“字典取键 / 列表取索引 / 节点属性读取”这三类常用访问，不拆分为多个核心 operator。
+`Get` unifies three common access operations, "dictionary key lookup / list indexing / node property read", rather than splitting them into multiple core operators.
 
-`Get` 的规范输入对象是 canonical CogLang 值。`transport envelope`、`readable render`、宿主诊断对象等外层包装不得被 `Get` 规范性穿透读取；宿主若有包装，必须先解包再进入 CogLang 求值。
+The normative input object of `Get` is a canonical CogLang value. Outer wrappers such as `transport envelope`, `readable render`, and host diagnostic objects MUST NOT be normatively pierced and read by `Get`; if a host has wrappers, it MUST unwrap them before entering CogLang evaluation.
 
-**Baseline Availability**：正常执行
-**效果类别**：`graph-read`
-**确定性类别**：`graph-state-dependent`
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: `graph-read`
+**Determinism Category**: `graph-state-dependent`
+**Observability Requirements**:
 
-- 必须记录 `dispatch_branch = dict | list | node_attr`
-- 必须记录 `result_kind = hit | not_found | type_error`
+- MUST record `dispatch_branch = dict | list | node_attr`.
+- MUST record `result_kind = hit | not_found | type_error`.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `Get[source, key]` 的二参数签名在 `v1.1.x` 内冻结
-- 三路分派模型在 `v1.1.x` 内冻结
-- “键不存在 / 索引越界 / 属性不存在 / 节点不存在或不可见返回 `NotFound[]`” 在 `v1.1.x` 内冻结
-- 列表索引的 `0-based` 规则在 `v1.1.x` 内冻结
+- The two-argument signature `Get[source, key]` is frozen within `v1.1.x`.
+- The three-branch dispatch model is frozen within `v1.1.x`.
+- "Missing key / out-of-range index / missing property / missing or invisible node returns `NotFound[]`" is frozen within `v1.1.x`.
+- The `0-based` list-index rule is frozen within `v1.1.x`.
 
 #### `Query`
 
-**状态**：`Core`
-**所属层**：`language`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `language`
+**Syntax and Signature**:
 
 ```text
 Query[bindVar_, condition]
 Query[bindVar_, condition, options]
 ```
 
-其中二参数形式等价于：
+The two-argument form is equivalent to:
 
 ```text
 Query[bindVar_, condition, {"k": 1, "mode": "default"}]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- 只允许 2 个或 3 个参数
-- `bindVar_` 必须是变量
-- `condition` 必须是合法 CogLang 表达式
-- 若提供第三个参数，其位置必须是合法 CogLang 表达式
-- 名称未解析、变量位置非法等问题属于验证失败，不进入执行阶段
+- Only 2 or 3 arguments are allowed.
+- `bindVar_` MUST be a variable.
+- `condition` MUST be a valid CogLang expression.
+- If the third argument is provided, that position MUST be a valid CogLang expression.
+- Unresolved names, illegal variable positions, and similar issues are validation failures and do not enter the execution stage.
 
-**返回契约**：
+**Return Contract**:
 
-- 成功命中：`List[node_id, ...]`
-- 无命中：`List[]`
-- 第三个参数求值后若不是字典：`TypeError["Query", "options", ...]`
-- `options["k"]` 求值后若不是非负整数或字符串 `"inf"`：`TypeError["Query", "k", ...]`
-- `options["mode"]` 求值后若不是字符串：`TypeError["Query", "mode", ...]`
-- 条件求值失败：传播底层错误值
+- Successful hits: `List[node_id, ...]`
+- No hits: `List[]`
+- If the third argument evaluates to a non-dictionary value: `TypeError["Query", "options", ...]`
+- If `options["k"]` evaluates to neither a non-negative integer nor the string `"inf"`: `TypeError["Query", "k", ...]`
+- If `options["mode"]` evaluates to a non-string value: `TypeError["Query", "mode", ...]`
+- If condition evaluation fails: propagate the underlying error value.
 
-返回的节点列表必须采用稳定顺序；除非条目另有说明，默认使用节点 ID 的 canonical 升序。
+The returned node list MUST use a stable order. Unless an entry says otherwise, the default is canonical ascending order of node IDs.
 
-**语义**：
+**Semantics**:
 
-`Query` 在所有可见节点中搜索满足 `condition` 的节点。其核心语义继承 `v1.0.2` 的“绑定变量 + 条件表达式”模型，但 `v1.1.0` 为查询接口增加了独立的 `k` 与 `mode` 字段。
+`Query` searches all visible nodes for nodes that satisfy `condition`. Its core semantics inherit the `v1.0.2` "bound variable + condition expression" model, while `v1.1.0` adds independent `k` and `mode` fields to the query interface.
 
-- `k` 表示 `condition` 求值时允许使用的图扩展深度上界，默认 `1`
-- `mode` 表示执行策略，默认 `"default"`
-- `k` 与 `mode` 是两个独立维度，不得被实现耦合成单一隐式参数
+- `k` is the upper bound on graph expansion depth allowed during `condition` evaluation; the default is `1`.
+- `mode` is the execution strategy; the default is `"default"`.
+- `k` and `mode` are two independent dimensions and MUST NOT be coupled by an implementation into a single implicit parameter.
 
-`k` 的最小语义约束如下：
+The minimal semantic constraints for `k` are:
 
-- `k = 0`：只允许节点局部属性判断，不允许图邻接扩展
-- `k = 1`：允许直接邻居级访问
-- `k = N`：允许最多 `N` 跳的图扩展
-- `k = "inf"`：取消固定跳数上界，但仍受 profile 预算与权限约束
+- `k = 0`: only node-local property checks are allowed; graph adjacency expansion is not allowed.
+- `k = 1`: direct-neighbor access is allowed.
+- `k = N`: graph expansion up to `N` hops is allowed.
+- `k = "inf"`: removes the fixed hop-count bound, but profile budgets and permissions still apply.
 
-如果 `condition` 只引用节点局部属性，则不同 `k` 不得改变其结果集。
+If `condition` references only node-local properties, different `k` values MUST NOT change the result set.
 
-在 `Core` 语义中，`mode = "default"` 是唯一要求实现的默认模式。无论当前实现声明 `Baseline` 还是 `Enhanced`，当调用者省略第三参数，或显式给出 `{"mode": "default"}` 时，都必须落到该默认模式。非默认模式属于保留扩展点，可由 profile 或运行时注册表补充。
+In `Core` semantics, `mode = "default"` is the only default mode required to be implemented. Regardless of whether the current implementation declares `Baseline` or `Enhanced`, omitting the third argument or explicitly providing `{"mode": "default"}` MUST land on that default mode. Non-default modes are reserved extension points that may be supplied by profiles or runtime registries.
 
-空结果 `List[]` 表示“执行成功但没有命中”，不得与执行错误混同。
+An empty result `List[]` means "execution succeeded but produced no hits" and MUST NOT be conflated with an execution error.
 
-`Query` 的结果是 canonical 内部表示的一部分；任何面向 `delta+` 默认路径的人类可读渲染，都是其外层接口契约，而不是 `Query` 核心语法的一部分。
+The result of `Query` is part of the canonical internal representation. Any human-readable render for a `delta+` default path is an outer interface contract, not part of `Query` core syntax.
 
-**Baseline Availability**：正常执行
-**效果类别**：`graph-read`
-**确定性类别**：`graph-state-dependent`
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: `graph-read`
+**Determinism Category**: `graph-state-dependent`
+**Observability Requirements**:
 
-- 必须记录 `condition` 的 canonical 形式
-- 必须记录 `k`
-- 必须记录 `mode`
-- 必须记录结果计数与耗时
+- MUST record the canonical form of `condition`.
+- MUST record `k`.
+- MUST record `mode`.
+- MUST record result count and elapsed time.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- 二参数形式在 `v1.1.x` 内保持有效
-- `options` 中 `k` / `mode` 这两个键在 `v1.1.x` 内冻结
-- 非默认 `mode` 的具体集合不在本条目冻结
+- The two-argument form remains valid within `v1.1.x`.
+- The `k` / `mode` keys in `options` are frozen within `v1.1.x`.
+- The concrete set of non-default `mode` values is not frozen by this entry.
 
 #### `AllNodes`
 
-**状态**：`Core`
-**所属层**：`language`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `language`
+**Syntax and Signature**:
 
 ```text
 AllNodes[]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- 不接受任何参数
+- Accepts no arguments.
 
-**返回契约**：
+**Return Contract**:
 
-- 成功：`List[node_id, ...]`
-- 空图：`List[]`
+- Success: `List[node_id, ...]`
+- Empty graph: `List[]`
 
-返回顺序必须稳定；除非条目另有说明，默认使用节点 ID 的 canonical 升序。
+The return order MUST be stable. Unless an entry says otherwise, the default is canonical ascending order of node IDs.
 
-**语义**：
+**Semantics**:
 
-`AllNodes` 返回所有可见节点的 ID 列表。这里的“可见”指：
+`AllNodes` returns the ID list of all visible nodes. "Visible" here means:
 
-- 节点 `confidence > 0`
-- 节点未被当前 profile 隐藏
+- the node has `confidence > 0`,
+- the node is not hidden by the current profile.
 
-`AllNodes` 是查询族的基础构件，不承担额外的筛选、排序策略选择或执行模式切换。
+`AllNodes` is a basic building block of the query family. It does not provide additional filtering, sorting-strategy selection, or execution-mode switching.
 
-**Baseline Availability**：正常执行
-**效果类别**：`graph-read`
-**确定性类别**：`graph-state-dependent`
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: `graph-read`
+**Determinism Category**: `graph-state-dependent`
+**Observability Requirements**:
 
-- 必须记录结果计数与耗时
+- MUST record result count and elapsed time.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `AllNodes[]` 的无参数签名在 `v1.1.x` 内冻结
+- The zero-argument signature `AllNodes[]` is frozen within `v1.1.x`.
 
 #### `Traverse`
 
-**状态**：`Core`
-**所属层**：`language`
-**语法与签名**：
+**Status**: `Core`
+**Layer**: `language`
+**Syntax and Signature**:
 
 ```text
 Traverse[node, relation]
 ```
 
-**Validator Constraints**：
+**Validator Constraints**:
 
-- 必须且仅接受 2 个参数
-- `node` 与 `relation` 必须是合法 CogLang 表达式
+- MUST accept exactly 2 arguments.
+- `node` and `relation` MUST both be valid CogLang expressions.
 
-**返回契约**：
+**Return Contract**:
 
-- 成功命中：`List[node_id, ...]`
-- 无命中、起点不存在、或起点不可见：`List[]`
-- `node` 求值后不是字符串：`TypeError["Traverse", "node", ...]`
-- `relation` 求值后不是字符串：`TypeError["Traverse", "relation", ...]`
-- 底层参数求值若得到自动传播错误值：原样传播该错误值
+- Successful hits: `List[node_id, ...]`
+- No hits, missing start node, or invisible start node: `List[]`
+- If `node` evaluates to a non-string value: `TypeError["Traverse", "node", ...]`
+- If `relation` evaluates to a non-string value: `TypeError["Traverse", "relation", ...]`
+- If evaluation of an underlying argument yields an auto-propagating error value: propagate that error value unchanged.
 
-返回的节点列表必须采用稳定顺序；除非条目另有说明，默认使用目标节点 ID 的 canonical 升序。
+The returned node list MUST use a stable order. Unless an entry says otherwise, the default is canonical ascending order of target node IDs.
 
-**语义**：
+**Semantics**:
 
-`Traverse` 从起点节点出发，沿所有关系类型等于 `relation` 的**可见出边**进行一步遍历，返回所有可见目标节点的 ID 列表。
+`Traverse` starts from the start node, traverses one step along all **visible outgoing edges** whose relation type equals `relation`, and returns the ID list of all visible target nodes.
 
-“可见”至少要求：
+"Visible" requires at least:
 
-- 边 `confidence > 0`
-- 目标节点 `confidence > 0`
-- 边与目标节点未被当前 profile 隐藏
+- the edge has `confidence > 0`,
+- the target node has `confidence > 0`,
+- the edge and target node are not hidden by the current profile.
 
-`Traverse` 不负责反向遍历。若要表达“哪些节点通过某关系指向当前节点”，应使用 `Query` 或等价图搜索在外层表达。
+`Traverse` does not provide reverse traversal. To express "which nodes point to the current node through some relation", use `Query` or equivalent graph search at the outer layer.
 
-`Traverse` 将“起点不存在”视为“没有可见邻居”，而不是权限错误或解析错误。
+`Traverse` treats "missing start node" as "no visible neighbors", not as a permission error or resolution error.
 
-**Baseline Availability**：正常执行
-**效果类别**：`graph-read`
-**确定性类别**：`graph-state-dependent`
-**可观测性要求**：
+**Baseline Availability**: Normal execution
+**Effect Category**: `graph-read`
+**Determinism Category**: `graph-state-dependent`
+**Observability Requirements**:
 
-- 必须记录起点节点 ID 或其摘要
-- 必须记录 `relation`
-- 必须记录结果计数与耗时
+- MUST record the start node ID or its summary.
+- MUST record `relation`.
+- MUST record result count and elapsed time.
 
-**兼容性承诺**：
+**Compatibility Commitment**:
 
-- `Traverse[node, relation]` 的二参数签名在 `v1.1.x` 内冻结
-- “起点不存在返回 `List[]`” 在 `v1.1.x` 内冻结
-- “仅遍历可见出边，不含反向遍历” 在 `v1.1.x` 内冻结
+- The two-argument signature `Traverse[node, relation]` is frozen within `v1.1.x`.
+- "Missing start node returns `List[]`" is frozen within `v1.1.x`.
+- "Only visible outgoing edges are traversed; reverse traversal is not included" is frozen within `v1.1.x`.
 
 #### `ForEach`
 

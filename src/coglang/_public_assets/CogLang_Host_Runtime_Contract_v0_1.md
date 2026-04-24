@@ -1,135 +1,135 @@
 # CogLang Host Runtime Contract v0.1
 
-**状态**：`informative companion note`  
-**适用对象**：实现者、宿主运行时设计者、架构编撰者、未来第三方宿主  
-**不属于**：`CogLang v1.1.0` 语言核心规范正文
+**Status**: `informative companion note`
+**Audience**: implementers, host runtime designers, architecture authors, and future third-party hosts
+**Not part of**: the normative `CogLang v1.1.0` language-core specification
 
-## 1. 目的
+## 1. Purpose
 
-这份文档回答一个稳定存在的问题：
+This document answers one stable implementation question:
 
-- `CogLang` 语言层已经冻结了查询、更新、追踪、扩展边界
-- 一旦进入任意具体宿主，就必须回答“宿主到底要提供什么”
+- the `CogLang` language layer freezes query, update, trace, and extension boundaries
+- any concrete host still has to define what the host must provide
 
-本说明的目标不是把任何应用专属架构协议搬进语言规范，而是给出一层更小的宿主契约：
+The goal is not to move application-specific architecture protocols into the language specification. The goal is to define a smaller host contract boundary:
 
-- 语言负责什么
-- 宿主负责什么
-- 宿主桥接对象应承担什么角色
-- 哪些事项仍不属于本说明冻结范围
+- what the language owns
+- what the host owns
+- what role host bridge objects play
+- what remains outside this companion contract
 
-当前参考实现还提供了一个最小宿主门面：
+The current reference implementation also exposes a minimal host facade:
 
 - `LocalCogLangHost`
 
-它的作用不是替代完整宿主协议，而是给外部使用者一个不必先理解应用专属架构即可试用下面这些动作的入口：
+That facade is not a replacement for a full host protocol. It gives external users an entry point for trying these actions without first understanding an application-specific architecture:
 
-- 执行表达式
-- 在一个最小源宿主中执行表达式，并向目标宿主提交写候选
-- 直接执行并提交后返回关联的 typed trace / typed query result
-- 捕获最新写候选
-- 形成提交消息
-- 本地提交
-- 查询本地写结果
-- 导出本地写提交历史与查询结果历史
-- 导出最小宿主状态
-- 直接导出最小宿主摘要的 JSON 载荷
-- 直接导出 request / response / submission-record / typed trace / query-result history 的 JSON 载荷，并支持所有这几层按 `status` 过滤的最小 JSON 导出
-- 从最小宿主状态重建本地宿主
-- 在当前宿主实例上就地恢复一个 legacy state 导出
-- 直接导出与恢复 legacy state 的 JSON 载荷
-- 显式重置本地宿主图状态与写状态
-- 克隆一个独立的最小本地宿主副本
-- 在当前宿主实例上就地恢复一个最小宿主快照
-- 直接导出与恢复最小宿主快照的 JSON 载荷
+- execute expressions
+- execute an expression in a minimal source host and submit write candidates to a target host
+- execute and submit directly, then return the associated typed trace or typed query result
+- capture the latest write candidate
+- prepare submission messages
+- submit locally
+- query local write results
+- export local write submission history and query-result history
+- export minimal host state
+- export a minimal host summary as JSON
+- export request, response, submission-record, typed trace, and query-result histories as JSON, including minimal JSON exports filtered by `status`
+- rebuild a local host from minimal host state
+- restore a legacy state export in place on the current host instance
+- export and restore legacy state JSON directly
+- reset local graph state and write state explicitly
+- clone an independent minimal local host copy
+- restore a minimal host snapshot in place on the current host instance
+- export and restore minimal host snapshot JSON directly
 
-这层门面应被视为 `Host Runtime Contract v0.x` 的参考接入面，而不是最终协议形态。
+This facade should be treated as the reference access surface for `Host Runtime Contract v0.x`, not as the final protocol shape.
 
-## 2. 最小分层
+## 2. Minimal Layering
 
-实现 `CogLang` 的宿主至少应分清 4 层：
+A host implementing `CogLang` should at least keep four layers distinct:
 
 1. **Language Layer**
-   - parser / validator
-   - 表达式求值
-   - `Core` / `Reserved` operator 语义
-   - 表达式级 trace / error propagation
+   - parser and validator
+   - expression evaluation
+   - `Core` and `Reserved` operator semantics
+   - expression-level trace and error propagation
 2. **Host Runtime Layer**
-   - 图读取接口
-   - 图写意图接收与提交流程
-   - diagnostics / observer / capability 注入
+   - graph-read interface
+   - graph-write intent intake and submission flow
+   - diagnostics, observer, and capability injection
 3. **Host Protocol Layer**
-   - 宿主消息对象
-   - 提交回执
-   - correlation / provenance / retry 策略
+   - host message objects
+   - submission acknowledgements
+   - correlation, provenance, and retry policies
 4. **Application / Architecture Layer**
-   - 应用侧对象存储与索引
-   - 应用侧消息或任务分发协议
-   - 生命周期对象
-   - 领域服务与模块边界
+   - application-side object storage and indexing
+   - application-side message or task dispatch protocols
+   - lifecycle objects
+   - domain services and module boundaries
 
-`CogLang v1.1.0` 只冻结第 1 层，并对第 2 层给出最小边界说明；它不冻结第 3、4 层的具体产品化协议。
+`CogLang v1.1.0` freezes only the first layer and gives a minimal boundary note for the second layer. It does not freeze productized protocols for the third or fourth layer.
 
-## 3. 宿主必须提供什么
+## 3. What a Host Must Provide
 
-### 3.1 图读取能力
+### 3.1 Graph-read capability
 
-宿主必须允许执行器完成：
+The host must allow the executor to perform:
 
-- 节点存在性检查
-- 节点属性读取
-- 邻接遍历
-- 软删除可见性判断
+- node existence checks
+- node attribute reads
+- adjacency traversal
+- soft-delete visibility checks
 
-语言层不要求宿主暴露某一种具体图数据库或某一种具体对象模型，但这些能力不可缺。
+The language layer does not require the host to expose any specific graph database or object model, but these capabilities are required.
 
-### 3.2 图写意图接收能力
+### 3.2 Graph-write intent intake
 
-对于 `Create / Update / Delete`，语言层冻结的是写意图与返回契约，不是最终持久化路径。
+For `Create / Update / Delete`, the language layer freezes write intent and return contracts, not the final persistence path.
 
-宿主至少应支持两阶段模型：
+A host should support at least a two-phase model:
 
-1. **求值阶段**
-   - 执行器正常求值
-   - 收集 `WriteBundleCandidate`
-2. **提交阶段**
-   - 宿主决定是否验证、转发、提交、拒绝或回滚
+1. **Evaluation phase**
+   - the executor evaluates normally
+   - the executor collects a `WriteBundleCandidate`
+2. **Submission phase**
+   - the host decides whether to validate, forward, commit, reject, or roll back
 
-这意味着：
+This means:
 
-- 执行器可以帮助形成写入候选
-- 但“是否真正提交”不是语言层决定的
+- the executor can help form write candidates
+- the language layer does not decide whether a write is actually committed
 
-对于 `Create`，宿主还必须满足一条更具体的语言-宿主接口约束：
+For `Create`, the host must also satisfy one more specific language-host interface constraint:
 
-- 若节点模式下 `attrs.id` 缺失，则唯一 ID 必须在形成内部写入请求、`WriteBundleCandidate`、bundle 校验输入或等价宿主提交对象之前被分配
-- 同一个创建动作中，语言层返回值、后续同次表达式内部引用、以及宿主桥接对象中使用的该节点 ID 必须保持一致
-- 持久化后端可以继续决定最终写入是否接受，但不得把“生成语言层采用 ID”推迟到提交成功之后
+- if `attrs.id` is absent in node mode, a unique ID must be assigned before forming the host write request, `WriteBundleCandidate`, bundle-validation input, or equivalent host submission object
+- within the same create action, the language-level return value, later references inside the same expression, and the node ID used in host bridge objects must stay consistent
+- the persistence backend may still decide whether the final write is accepted, but generation of the ID adopted by the language layer must not be delayed until after a successful commit
 
-### 3.3 diagnostics / observer / capability 注入
+### 3.3 Diagnostics, observer, and capability injection
 
-宿主应负责：
+The host should own:
 
-- 注册 observer
-- 决定 capability manifest
-- 决定阶段 profile 与 capability 的映射方式
-- 决定 extension-backed operator 的实际可用性
-- 决定 diagnostics 与 trace 如何汇入宿主观测体系
+- observer registration
+- the capability manifest
+- the mapping from stage profiles to capability sets
+- actual availability of extension-backed operators
+- how diagnostics and traces enter the host observability system
 
-责任分工至少应满足：
+The responsibility split should at least satisfy:
 
-- 执行器负责语言层已经冻结的参数验证、语义检查与错误值返回
-- 执行器可以基于宿主注入的 capability / profile manifest 提前返回 `PermissionError[...]`
-- 宿主是 capability 可用性的最终真相源；即使执行器侧未提前拒绝，宿主仍可在调度、提交或外部调用阶段拒绝该能力
-- 若宿主存在阶段化权限包，`stage profile -> capability set` 的映射应由宿主或 adapter 层决定，而不是回写为 `CogLang Core` 语义
-- 若 trace / replay 需要解释“为什么当前允许或拒绝某动作”，宿主宜把当前 `stage profile` 与最终 capability 集一起记录进治理层 trace
-- 若宿主拒绝能力，请求失败必须能映射回结构化 `PermissionError[...]`、`ErrorReport` 或等价 typed failure envelope，而不是静默降级
+- the executor owns language-layer argument validation, semantic checks, and error-value returns that are already frozen
+- the executor may return `PermissionError[...]` early based on capability or profile manifests injected by the host
+- the host is the final source of truth for capability availability; even when the executor does not reject early, the host may still reject a capability during scheduling, submission, or external invocation
+- if the host has staged permission packages, the `stage profile -> capability set` mapping should be decided by the host or adapter layer, not written back as `CogLang Core` semantics
+- if trace or replay needs to explain why an action was allowed or rejected, the host should record the current `stage profile` and final capability set in governance-layer trace
+- if the host rejects a capability, the failed request must map back to a structured `PermissionError[...]`, `ErrorReport`, or equivalent typed failure envelope instead of silently degrading
 
-## 4. 参考桥接对象族
+## 4. Reference Bridge Object Family
 
-一个宿主运行时通常需要一组桥接对象来承接语言级写意图与宿主级提交流程。
+A host runtime usually needs bridge objects to carry language-level write intent into host-level submission flow.
 
-本说明使用如下对象族作为 reference bridge：
+This note uses the following object family as the reference bridge:
 
 - `WriteBundleCandidate`
 - `WriteBundleSubmissionMessage`
@@ -140,39 +140,39 @@
 - `LocalWriteSubmissionRecord`
 - `LocalWriteQueryResult`
 
-这些对象在本说明中的角色是：
+Within this note, these objects:
 
-- 从语言层写意图过渡到宿主提交
-- 为本地验证 / 原子回放 / typed round-trip 提供最小结构
+- move language-layer write intent into host submission
+- provide minimal structure for local validation, atomic replay, and typed round trips
 
-它们**不是**以下对象的正式替代品：
+They are **not** formal replacements for:
 
-- 应用侧知识或消息对象
-- 完整宿主提交协议
-- 完整 provenance 查询协议
+- application-side knowledge or message objects
+- a complete host submission protocol
+- a complete provenance query protocol
 
-在本说明边界内，这些对象应被视为：
+Inside this companion boundary, these objects should be treated as:
 
-> 宿主桥接层的 reference bridge，而不是已经完全独立冻结的跨系统标准协议。
+> a reference bridge for the host bridge layer, not as a fully frozen cross-system standard protocol.
 
-### 4.1 `WriteBundleCandidate` 的最小字段
+### 4.1 Minimal `WriteBundleCandidate` fields
 
-`WriteBundleCandidate` 至少应稳定包含以下字段：
+`WriteBundleCandidate` should at least contain these stable fields:
 
-| 字段 | 类型 | 含义 |
+| Field | Type | Meaning |
 |------|------|------|
-| `owner` | `string` | 当前宿主或桥接层所有者标识 |
-| `base_node_ids` | `string[]` | 形成候选前已存在且可见的基线节点 ID 集 |
-| `operations` | `WriteOperation[]` | 按顶层执行顺序捕获的写意图序列 |
+| `owner` | `string` | Identifier for the current host or bridge-layer owner |
+| `base_node_ids` | `string[]` | Existing and visible baseline node IDs before the candidate was formed |
+| `operations` | `WriteOperation[]` | Write-intent sequence captured in top-level execution order |
 
-其中 `WriteOperation` 至少包含：
+Each `WriteOperation` should at least contain:
 
-| 字段 | 类型 | 含义 |
+| Field | Type | Meaning |
 |------|------|------|
-| `op` | `string` | 写操作种类，例如 `create_node / create_edge / update_node / delete_node / delete_edge` |
-| `payload` | `object` | 与该操作对应的最小结构化数据 |
+| `op` | `string` | Write operation kind, such as `create_node / create_edge / update_node / delete_node / delete_edge` |
+| `payload` | `object` | Minimal structured data for that operation |
 
-最小 JSON 例子：
+Minimal JSON example:
 
 ```json
 {
@@ -201,212 +201,212 @@
 }
 ```
 
-若宿主采用 `source_id / target_id / relation` 等内部字段名，则 `from / to / relation_type` 的 call-surface alias 映射必须在形成该候选或等价内部写入请求时完成；不得把映射推迟到内部引用一致性检查之后。
+If a host implementation uses field names such as `source_id / target_id / relation`, the call-surface aliases `from / to / relation_type` must be mapped before forming this candidate or an equivalent host write request. The mapping must not be delayed until after reference-consistency checks.
 
-## 5. 最小请求/响应对
+## 5. Minimal Request / Response Pair
 
-一个宿主运行时至少应有一对结构化请求/响应 envelope。本说明采用如下最小对作为桥接基线：
+A host runtime should have at least one structured request/response envelope pair. This note uses the following minimal pair as the bridge baseline.
 
-### 5.1 请求侧
+### 5.1 Request side
 
 - `WriteBundleSubmissionMessage`
-  - 包含 `correlation_id`
-  - 包含 `submission_id`
-  - 包含 `candidate`
-  - 可导出 transport-safe dict envelope
+  - contains `correlation_id`
+  - contains `submission_id`
+  - contains `candidate`
+  - can export a transport-safe dict envelope
 
-### 5.2 响应侧
+### 5.2 Response side
 
 - `WriteBundleResponseMessage`
-  - 包含 `correlation_id`
-  - 包含 `submission_id`
-  - 包含 `owner`
-  - payload 为 `WriteResult` 或 `ErrorReport`
+  - contains `correlation_id`
+  - contains `submission_id`
+  - contains `owner`
+  - has a payload that is either `WriteResult` or `ErrorReport`
 
-### 5.3 这层契约的定位
+### 5.3 Positioning of this contract layer
 
-这对请求/响应对象的价值在于：
+This request/response pair is useful because it:
 
-- 让宿主不必直接读执行器内部属性
-- 让桥接层有结构化消息对，而不只是一堆裸 dict
-- 为未来桥接更正式的宿主总线协议保留清晰落点
+- lets the host avoid reading executor internals directly
+- gives the bridge layer structured message pairs instead of loose dicts
+- leaves a clear landing point for a more formal host-bus protocol later
 
-但它仍不等于：
+It is still not:
 
-- 完整跨进程消息协议
-- 多宿主标准
-- 独立开源运行时标准
+- a complete cross-process message protocol
+- a multi-host standard
+- an independent open runtime standard
 
-### 5.4 本地查询层
+### 5.4 Local query layer
 
-若宿主实现了本地桥接层，至少可以额外保留一层最小的 provenance-style 查询能力：
+If a host implements a local bridge layer, it may also keep a minimal provenance-style query capability:
 
-- 按 `correlation_id` 返回 `committed / failed / not_found`
-- 按 `submission_id` 返回 `committed / failed / not_found`
-- 按 `correlation_id` 返回本地 typed response envelope
-- 按 `correlation_id` 或 `submission_id` 返回一条 `LocalWriteSubmissionRecord`
-- 按 `correlation_id` 返回一条类型化的 `LocalWriteQueryResult`
-- 按 `submission_id` 返回一条类型化的 `LocalWriteQueryResult`
-- 按 `correlation_id` 或 `submission_id` 返回 transport-safe dict 形式的 `LocalWriteQueryResult`
-- 按 `correlation_id` 或 `submission_id` 直接返回最小 `payload_kind`，让轻量宿主不必下钻 response header；这层最小字段也宜先由 runtime bridge 提供
-- 按 `correlation_id` 或 `submission_id` 直接返回最小 `write_header`（`correlation_id / submission_id / status / payload_kind`），让轻量宿主不必分别查询多个字段
-- 按 `correlation_id` 或 `submission_id` 直接返回类型化 `LocalWriteHeader`，让 typed 宿主不必从 dict 形态反推最小头信息；这层 typed header 宜先由 runtime bridge 提供，再由宿主门面薄封装
-- companion CLI / demo 若同时展示 dict `write_header` 与 typed `LocalWriteHeader` 视图，typed header 宜来自宿主 typed query，而不应仅作为 dict header 的别名复用
-- companion CLI / demo 若同时展示 `submission-message / response / submission-record / query-result` 与 `write_header`，这些公开视图里的 `correlation_id / submission_id / status / payload_kind` 对齐关系宜纳入成功判定，而不是只在测试中隐含成立
-- companion CLI / demo 若额外公开顶层 `node_id` 或等价主对象 ID，该字段宜与 response payload 中的 touched object IDs 以及 snapshot graph 中的对象 ID 视图保持一致，并纳入成功判定
-- companion CLI / demo 若同时公开 submission-message 中的 candidate / commit-plan 与顶层 `node_id`，则 candidate / commit-plan 中的 create-node 目标 ID 也宜与该顶层 ID 保持一致，并纳入成功判定
-- companion CLI / demo 不宜只演示 `WriteResult` happy path；若同时承担契约示例职责，宜补一条最小 `ErrorReport` companion step，显式展示 `payload_kind=ErrorReport`、`status=failed` 与 typed response / query-result / trace 的对齐关系
-- 通过宿主门面直接导出 `write_header` history，并支持按 `status` 过滤与最小 JSON 导出；对应的 dict/JSON/history 组装也宜先由 runtime bridge 提供
-- 通过宿主门面直接导出 typed `LocalWriteHeader[]`，并支持最小 JSON 导出与按 `status` 过滤；对应 JSON wrapper 也宜先由 runtime bridge 提供
-- 按 `correlation_id` 或 `submission_id` 返回最小 JSON 形式的 `LocalWriteQueryResult`；其 JSON wrapper 也宜先由 runtime bridge 提供
-- 通过宿主门面直接执行 `execute_and_prepare_submission_message(...)`，把执行与 typed message 准备收成一步
-- 通过宿主门面直接执行 `execute_and_prepare_submission_message_dict(...)`，把执行与 transport-safe message 准备收成一步
-- 通过宿主门面直接读取/消费现有 `WriteBundleCandidate` 的 dict 形态，或把现有 candidate 直接转成 dict 形态的 submission message
-- 通过宿主门面直接执行 `submit_message_dict(...)` 与 `submit_message_dict_and_query(...)`，让轻量脚本宿主可全程使用 dict 形态
-- 通过宿主门面直接执行 `submit_*_and_query(...)`，把本地提交与 typed 查询收成一步
-- 通过双宿主门面直接执行 `execute_and_submit_to_query(...)`，把源宿主执行、目标宿主提交与目标宿主 typed 查询收成一步
-- 通过双宿主门面直接执行 `execute_and_submit_to_query_dict(...)`，把源宿主执行、目标宿主提交与目标宿主 dict 查询收成一步
-- 通过宿主门面直接读取 typed response envelope 与单条 request / response record
-- 通过宿主门面按 `submission_id` 直接读取 typed response envelope
-- 通过宿主门面直接读取 transport-safe dict 形式的单条 response envelope 与单条 submission record
-- 通过宿主门面直接读取最小 JSON 形式的单条 response envelope 与单条 submission record；对应 JSON wrapper 也宜先由 runtime bridge 提供
-- 通过宿主门面按 `submission_id` 直接读取 transport-safe dict 形式的单条 response envelope
-- 通过宿主门面按 `submission_id` 直接读取 transport-safe dict 形式的单条 submission record
-- 通过宿主门面按 `correlation_id / submission_id` 直接读取 typed submission message
-- 通过宿主门面按 `correlation_id / submission_id` 直接读取 transport-safe dict 形式的 submission message
-- 通过宿主门面按 `correlation_id / submission_id` 直接读取最小 JSON 形式的 submission message；对应 JSON wrapper 也宜先由 runtime bridge 提供
-- 通过宿主门面按 `correlation_id / submission_id` 直接读取一条相关联的 typed `LocalHostTrace`
-- 通过宿主门面按 `correlation_id / submission_id` 直接读取 transport-safe dict 形式的 `LocalHostTrace`
-- 通过宿主门面按 `correlation_id / submission_id` 直接读取最小 JSON 形式的 `LocalHostTrace`
-- 这类 trace 视图可以由宿主门面直接暴露，但其底层相关联逻辑宜先在 runtime bridge 层提供，避免宿主重复手工拼接 request / response / record / query-result
-- 对于 `query-result / response / submission-message / submission-record / trace` 这些对象，单条 JSON 查询与 history JSON 导出的组装都宜先由 runtime bridge 提供，再由宿主门面薄封装
-- companion CLI / demo 若要展示这组对象，宜优先消费宿主门面公开的 query/view 接口，而不是直接下钻 typed trace 的内部字段
-- 通过宿主门面直接导出 typed response history、dict response history 与 typed submission-record history
-- 通过宿主门面直接导出 typed submission-message history 与 dict submission-message history
-- 通过宿主门面按 `status` 直接返回 typed submission-message history，或导出按 `status` 过滤后的 dict submission-message history
-- 通过宿主门面按 `status` 直接返回 typed response history / typed submission-record history，或导出按 `status` 过滤后的 dict history
-- `submission_id` 查询在 `not_found` 时也应保留被查询的 `submission_id`，避免轻量宿主丢失定位键
-- 通过宿主门面直接导出 typed trace history 与 dict trace history，并支持 typed `LocalHostTrace[]` 的最小 JSON 导出与按 `status` 过滤
-- 通过宿主门面按 `status` 直接返回 typed `LocalHostTrace[]`，或导出按 `status` 过滤后的 trace history
-- 通过宿主门面导出包含图状态、typed request/response/record histories、typed query results 与 typed traces 的完整快照对象
-- 若快照中 typed trace 已存在，而 request/response/record histories 不完整，宿主可用 trace 作为恢复这些历史的后备来源
-- 若快照只有匹配的 request/response 而没有 record，宿主应在恢复时合成最小 submission record，且不得重复追加 response history
-- 通过宿主门面导出 typed summary 与 dict summary，供轻量宿主或 CLI 直接消费；summary 至少应包含 request / response / record / query-result / trace 的计数
-- companion CLI / demo 若同时展示 `snapshot` 与 `summary`，其 `snapshot_summary` 宜由导出的 `snapshot` 显式重建，而不是仅复用另一份 summary 载荷
-- companion CLI / demo 若同时展示 `trace`、`snapshot` 与其它公开视图，这些视图之间的 request / response / record / query-result 对齐关系宜纳入成功判定，而不是只在测试中隐含成立
-- 通过宿主门面显式清空本地写状态，回到干净的 request / response / query 基线
-- 导出按插入顺序排列的本地 `LocalWriteQueryResult` 历史
-- 按 `status` 过滤并导出本地 `LocalWriteQueryResult`
-- 通过宿主门面直接按 `status` 返回类型化 `LocalWriteQueryResult[]`
+- return `committed / failed / not_found` by `correlation_id`
+- return `committed / failed / not_found` by `submission_id`
+- return the local typed response envelope by `correlation_id`
+- return one `LocalWriteSubmissionRecord` by `correlation_id` or `submission_id`
+- return a typed `LocalWriteQueryResult` by `correlation_id`
+- return a typed `LocalWriteQueryResult` by `submission_id`
+- return a transport-safe dict form of `LocalWriteQueryResult` by `correlation_id` or `submission_id`
+- return the minimal `payload_kind` directly by `correlation_id` or `submission_id`, so lightweight hosts do not need to drill into response headers; this minimal field should preferably come from the runtime bridge first
+- return the minimal `write_header` directly by `correlation_id` or `submission_id`, covering `correlation_id / submission_id / status / payload_kind`, so lightweight hosts do not need to query several fields separately
+- return a typed `LocalWriteHeader` directly by `correlation_id` or `submission_id`, so typed hosts do not need to reconstruct the minimal header from dict form; this typed header should preferably come from the runtime bridge first and be thinly wrapped by the host facade
+- when a companion CLI or demo shows both dict `write_header` and typed `LocalWriteHeader` views, the typed header should come from the host typed query, not only reuse the dict header as an alias
+- when a companion CLI or demo shows `submission-message / response / submission-record / query-result` together with `write_header`, the alignment of `correlation_id / submission_id / status / payload_kind` across public views should be part of success criteria rather than only an implicit test invariant
+- when a companion CLI or demo also exposes a top-level `node_id` or equivalent primary object ID, that field should align with touched object IDs in the response payload and with object-ID views in the snapshot graph, and that alignment should be part of success criteria
+- when a companion CLI or demo shows the submission-message candidate or commit plan together with a top-level `node_id`, the create-node target ID in the candidate or commit plan should also align with that top-level ID and be part of success criteria
+- a companion CLI or demo should not only demonstrate the `WriteResult` happy path; if it also serves as a contract example, it should include a minimal `ErrorReport` companion step showing alignment of `payload_kind=ErrorReport`, `status=failed`, typed response, query result, and trace
+- export `write_header` history directly through the host facade, including `status` filtering and minimal JSON export; corresponding dict, JSON, and history assembly should preferably come from the runtime bridge first
+- export typed `LocalWriteHeader[]` directly through the host facade, including minimal JSON export and `status` filtering; the corresponding JSON wrapper should preferably come from the runtime bridge first
+- return minimal JSON form of `LocalWriteQueryResult` by `correlation_id` or `submission_id`; its JSON wrapper should preferably come from the runtime bridge first
+- execute `execute_and_prepare_submission_message(...)` directly through the host facade, collapsing execution and typed message preparation into one step
+- execute `execute_and_prepare_submission_message_dict(...)` directly through the host facade, collapsing execution and transport-safe message preparation into one step
+- read or consume the dict form of an existing `WriteBundleCandidate` directly through the host facade, or convert an existing candidate directly into a dict submission message
+- execute `submit_message_dict(...)` and `submit_message_dict_and_query(...)` directly through the host facade, allowing lightweight script hosts to stay in dict form end to end
+- execute `submit_*_and_query(...)` directly through the host facade, collapsing local submission and typed query into one step
+- execute `execute_and_submit_to_query(...)` through a dual-host facade, collapsing source-host execution, target-host submission, and target-host typed query into one step
+- execute `execute_and_submit_to_query_dict(...)` through a dual-host facade, collapsing source-host execution, target-host submission, and target-host dict query into one step
+- read typed response envelopes and single request/response records directly through the host facade
+- read typed response envelopes directly by `submission_id` through the host facade
+- read transport-safe dict forms of single response envelopes and single submission records directly through the host facade
+- read minimal JSON forms of single response envelopes and single submission records directly through the host facade; corresponding JSON wrappers should preferably come from the runtime bridge first
+- read a transport-safe dict response envelope directly by `submission_id` through the host facade
+- read a transport-safe dict submission record directly by `submission_id` through the host facade
+- read typed submission messages directly by `correlation_id / submission_id` through the host facade
+- read transport-safe dict submission messages directly by `correlation_id / submission_id` through the host facade
+- read minimal JSON submission messages directly by `correlation_id / submission_id` through the host facade; the corresponding JSON wrapper should preferably come from the runtime bridge first
+- read one associated typed `LocalHostTrace` directly by `correlation_id / submission_id` through the host facade
+- read transport-safe dict form of `LocalHostTrace` directly by `correlation_id / submission_id` through the host facade
+- read minimal JSON form of `LocalHostTrace` directly by `correlation_id / submission_id` through the host facade
+- expose these trace views directly from the host facade, while keeping the underlying association logic in the runtime bridge first so hosts do not repeatedly hand-assemble request, response, record, and query-result data
+- assemble single JSON queries and history JSON exports for `query-result / response / submission-message / submission-record / trace` in the runtime bridge first, then thinly wrap them in the host facade
+- when a companion CLI or demo shows this object group, prefer consuming the host facade query/view interfaces over drilling into typed trace internals
+- export typed response history, dict response history, and typed submission-record history directly through the host facade
+- export typed submission-message history and dict submission-message history directly through the host facade
+- return typed submission-message history by `status`, or export dict submission-message history filtered by `status`, directly through the host facade
+- return typed response history or typed submission-record history by `status`, or export dict histories filtered by `status`, directly through the host facade
+- preserve the queried `submission_id` when a `submission_id` query returns `not_found`, so lightweight hosts do not lose the lookup key
+- export typed trace history and dict trace history directly through the host facade, including minimal JSON export of typed `LocalHostTrace[]` and filtering by `status`
+- return typed `LocalHostTrace[]` by `status`, or export trace history filtered by `status`, directly through the host facade
+- export a complete snapshot object through the host facade, including graph state, typed request/response/record histories, typed query results, and typed traces
+- when typed trace exists in a snapshot but request/response/record histories are incomplete, the host may use trace as a fallback source to restore those histories
+- when a snapshot has only matching request/response data and no record, the host should synthesize the minimal submission record during restore and must not append response history twice
+- export typed summary and dict summary through the host facade for lightweight hosts or CLI consumers; the summary should at least include counts for request, response, record, query-result, and trace
+- when a companion CLI or demo shows both `snapshot` and `summary`, its `snapshot_summary` should be rebuilt explicitly from the exported `snapshot`, not just reuse another summary payload
+- when a companion CLI or demo shows `trace`, `snapshot`, and other public views together, alignment among request, response, record, and query-result views should be part of success criteria rather than only an implicit test invariant
+- clear local write state explicitly through the host facade, returning to a clean request, response, and query baseline
+- export local `LocalWriteQueryResult` history in insertion order
+- filter and export local `LocalWriteQueryResult` by `status`
+- return typed `LocalWriteQueryResult[]` directly by `status` through the host facade
 
-`LocalWriteSubmissionRecord` 的定位是：
+`LocalWriteSubmissionRecord` is positioned as:
 
-- 保存一次本地提交尝试的 request / response 对
-- 为宿主调试、测试和后续接入正式 provenance 层提供稳定落点
+- a record of one local submission attempt's request/response pair
+- a stable landing point for host debugging, tests, and later integration with a formal provenance layer
 
-`LocalWriteQueryResult` 的定位是：
+`LocalWriteQueryResult` is positioned as:
 
-- 把 `status / response / record` 三块本地查询结果收成一个类型化返回对象
-- 为后续接入正式 `ProvenanceStore.query_by_correlation_id` 保留一致的查询心智模型
+- a typed return object that combines the local query result's `status / response / record`
+- a way to preserve the same mental model for later integration with formal `ProvenanceStore.query_by_correlation_id`
 
-它仍不等于正式的 `ProvenanceStore.query_by_correlation_id`，但它让本地桥不再只有“一次提交的即时返回值”。
+It is still not the formal `ProvenanceStore.query_by_correlation_id`, but it means the local bridge is no longer limited to an immediate return value from one submission.
 
-### 5.5 面向治理层宿主的预留协作面
+### 5.5 Reserved collaboration surface for governance-layer hosts
 
-若宿主进一步把 `CogLang` 用作治理层 / 调度层 / 审计层，则宿主通常还会需要一层**请求型治理动作**，例如：
+If a host further uses `CogLang` as a governance, scheduling, or audit layer, it will usually need request-shaped governance actions such as:
 
 - `request_harness_run`
 - `request_snapshot_rollback`
 - `pause_for_review`
 - `hold`
 
-这类对象当前更适合被视为：
+These objects are currently better treated as:
 
-- host runtime / adapter 层动作 schema
-- governance / approval / replay / audit 的编排对象
+- host runtime or adapter-layer action schemas
+- orchestration objects for governance, approval, replay, or audit
 
-而不是：
+They are not:
 
-- `CogLang Core` operator
-- 语言层直接执行的副作用协议
+- `CogLang Core` operators
+- side-effect protocols executed directly by the language layer
 
-对于这类治理动作，本说明当前只建议宿主满足下面这些最小约束：
+For these governance actions, this note currently recommends only these minimal constraints:
 
-- 动作请求与实际执行结果必须可区分
-- 若动作需要审批，宿主应显式记录 `requires_approval` 或等价字段
-- 若动作被拒绝，失败必须能映射回结构化 typed error，而不是 silent fallback
-- `shadow` 与 `live` 的差异应落在宿主治理层 trace / diff 中，而不是通过改写动作语义边界来表达
-- 外部 harness、rollback executor、tool invocation 的真实执行协议仍属于宿主层，不在本说明冻结
+- action requests and actual execution results must be distinguishable
+- if an action requires approval, the host should record `requires_approval` or an equivalent field explicitly
+- if an action is rejected, the failure must map back to a structured typed error instead of silently falling back
+- the difference between `shadow` and `live` should be represented in host governance-layer trace or diff, not by rewriting action semantic boundaries
+- the real execution protocols for external harnesses, rollback executors, and tool invocation remain host-layer concerns and are not frozen by this note
 
-### 5.6 Schema companion pack 的当前定位
+### 5.6 Current position of the schema companion pack
 
-当前 `Host Runtime Contract` 已有一组内部 schema companion pack，覆盖：
+The current `Host Runtime Contract` has a schema companion pack covering:
 
 - `header / result / error / response`
 - `query-result / submission-record / trace`
 - `summary`
 
-并已配套：
+It is paired with:
 
 - `schema-pack.json`
-- sample payload pack
-- 最小 versioning / reference 规则
-- `candidate / seed_only` promotion boundary
-- candidate 对象的最小字段面与最易误升格 detail 字段边界
+- a sample payload pack
+- minimal versioning and reference rules
+- a `candidate / seed_only` promotion boundary
+- the candidate object's minimal field surface and the boundary around detail fields that are easiest to over-promote
 
-当前对这组材料更合适的定位是：
+The better current position for this material is:
 
-- 它已经足以成为 `HRC v0.2` 的 **recommended companion**
-- 它不等于 `HRC v0.2` 的默认冻结阻塞项
-- 它也不等于正式的跨宿主 JSON Schema export surface
+- it is already sufficient as a **recommended companion** for `HRC v0.2`
+- it is not a default freeze blocker for `HRC v0.2`
+- it is not a formal cross-host JSON Schema export surface
 
-这意味着：
+This means:
 
-- 若宿主实现者想快速理解当前 reference bridge 的最小对象形状，这组 schema pack 已值得优先参考
-- 但宿主实现是否通过 `v0.2` 冻结讨论，不应默认取决于“是否已经对外发布 full-pack schema”
-- `Freeze Checklist` 里一部分对象视图条目虽然可被归为 `schema-assisted`，但这层分类当前主要用于冻结材料的阅读与分流，不应自动回写成 `HRC` 正文里的逐对象 shape 承诺
-- `LocalHostSnapshot`、第三方宿主 stub 互通、以及更正式的 formal export 策略，仍应留给后续版本判断
+- host implementers who want to understand the minimal object shapes of the current reference bridge should prioritize reading this schema pack
+- whether a host implementation passes a `v0.2` freeze discussion should not default to depending on whether a full-pack schema has already been published externally
+- some object-view items in the `Freeze Checklist` may be classified as `schema-assisted`, but that classification is currently for reading and triaging freeze materials; it should not automatically become a per-object shape commitment in the `HRC` body
+- `LocalHostSnapshot`, third-party host stub interoperability, and a more formal export strategy remain decisions for later versions
 
-换句话说，当前 schema companion pack 的角色是：
+In short, the current schema companion pack is:
 
-> 推荐随 `HRC v0.2` 一起阅读和对照的 companion 材料，而不是 `v0.2` 本身的冻结阻塞条件。
+> companion material recommended for reading and comparison alongside `HRC v0.2`, not a freeze blocker for `v0.2` itself.
 
-## 6. 对宿主实现者的最低要求
+## 6. Minimum Requirements for Host Implementers
 
-如果你正在实现一个第三方宿主，至少应满足：
+If you are implementing a third-party host, you should at least:
 
-- 能接收 `WriteBundleCandidate` 或等价写意图对象
-- 能决定提交 / 拒绝 / 延迟提交
-- 能返回结构化成功或失败结果
-- 能保留 `correlation_id`
-- 能保留稳定的 `submission_id`
-- 能将语言级 `ErrorExpr` 与宿主提交失败区分开
+- accept `WriteBundleCandidate` or an equivalent write-intent object
+- decide whether to commit, reject, or defer submission
+- return a structured success or failure result
+- preserve `correlation_id`
+- preserve a stable `submission_id`
+- distinguish language-level `ErrorExpr` from host submission failure
 
-如果连这些都不能满足，那么你只是“能执行部分表达式”，还不能算实现了一个可集成的 `CogLang` 宿主。
+If a host cannot satisfy these requirements, it may be able to execute some expressions, but it is not yet an integrable `CogLang` host.
 
-## 7. 仍未冻结的事项
+## 7. Still Unfrozen
 
-本说明刻意不冻结以下内容：
+This note intentionally does not freeze:
 
-- 最终 `KnowledgeMessage` schema
-- `WriteBundle` 的跨服务提交协议
-- `ProvenanceStore.query_by_correlation_id` 的标准查询接口
-- 外部 harness / rollback / tool invocation 的正式动作 schema
-- `stage profile` 的标准枚举与跨宿主统一命名
-- owning-module 的枚举表
-- 多宿主互通格式
-- 独立 reference runtime 的发布边界
+- the final `KnowledgeMessage` schema
+- the cross-service submission protocol for `WriteBundle`
+- the standard query interface for `ProvenanceStore.query_by_correlation_id`
+- formal action schemas for external harnesses, rollback, or tool invocation
+- standard enumeration and cross-host naming for `stage profile`
+- the owning-module enumeration table
+- multi-host interoperability format
+- the release boundary for an independent reference runtime
 
-这些应由架构文档、实现文档或未来更高版本的宿主契约承接。
+These topics should be handled by architecture documents, implementation documents, or future versions of the host contract.
 
-## 8. 与其他文档的关系
+## 8. Relationship to Other Documents
 
-- 看语言语义：`CogLang_Specification_v1_1_0_Draft.md`
-- 看 profile / capability：`CogLang_Profiles_and_Capabilities_v1_1_0.md`
-- 看迁移门：`CogLang_Migration_v1_0_2_to_v1_1_0.md`
-- 看独立安装与试用路径：`CogLang_Standalone_Install_and_Release_Guide_v0_1.md`
-- 看公开发布边界：`CogLang_Release_Notes_v1_1_0_pre.md`
-- 看 schema companion pack 的当前范围与定位：`CogLang_HRC_JSON_Schema_Seed_v0_1.md`
-- 看 schema companion pack 的 promotion boundary：`CogLang_HRC_JSON_Schema_Promotion_Boundary_v0_1.md`
-- 看 candidate 对象的最小字段面：`CogLang_HRC_JSON_Schema_Candidate_Field_Boundary_v0_1.md`
-- 看 `§5.4` 当前 freeze 判断与 gate：`CogLang_HRC_v0_2_Freeze_Decision_Note_v0_1.md`、`CogLang_HRC_v0_2_Freeze_Gate_v0_1.md`、`CogLang_HRC_v0_2_Freeze_Decision_Record_Template_v0_1.md`
+- Language semantics: `CogLang_Specification_v1_1_0_Draft.md`
+- Profiles and capabilities: `CogLang_Profiles_and_Capabilities_v1_1_0.md`
+- Migration gate: `CogLang_Migration_v1_0_2_to_v1_1_0.md`
+- Standalone install and trial path: `CogLang_Standalone_Install_and_Release_Guide_v0_1.md`
+- Public release boundary: `CogLang_Release_Notes_v1_1_0_pre.md`
+- Current schema companion pack scope and position: `CogLang_HRC_JSON_Schema_Seed_v0_1.md`
+- Schema companion pack promotion boundary: `CogLang_HRC_JSON_Schema_Promotion_Boundary_v0_1.md`
+- Candidate object minimal field surface: `CogLang_HRC_JSON_Schema_Candidate_Field_Boundary_v0_1.md`
+- Current freeze judgment and gate for `Section 5.4`: `CogLang_HRC_v0_2_Freeze_Decision_Note_v0_1.md`, `CogLang_HRC_v0_2_Freeze_Gate_v0_1.md`, `CogLang_HRC_v0_2_Freeze_Decision_Record_Template_v0_1.md`

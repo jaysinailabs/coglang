@@ -4,8 +4,37 @@ The standard fixture graph is reused across parser, executor, backend, and
 conformance-aligned runtime tests so behavioral expectations stay consistent.
 """
 
+import importlib
+import sys
+import types
+
 import pytest
 import networkx as nx
+
+
+def _install_public_package_aliases() -> None:
+    try:
+        importlib.import_module("logos.coglang")
+        return
+    except ModuleNotFoundError:
+        pass
+
+    try:
+        coglang_pkg = importlib.import_module("coglang")
+    except ModuleNotFoundError:
+        return
+
+    logos_pkg = sys.modules.get("logos")
+    if logos_pkg is None:
+        logos_pkg = types.ModuleType("logos")
+        logos_pkg.__path__ = []
+        sys.modules["logos"] = logos_pkg
+
+    setattr(logos_pkg, "coglang", coglang_pkg)
+    sys.modules.setdefault("logos.coglang", coglang_pkg)
+
+
+_install_public_package_aliases()
 
 
 def _build_fixture_graph() -> nx.DiGraph:

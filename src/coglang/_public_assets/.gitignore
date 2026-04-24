@@ -7,3 +7,5 @@ htmlcov/
 __pycache__/
 *.egg-info/
 .tmp_pytest/
+.tmp_ci_wheel/
+.tmp_ci_sdist/

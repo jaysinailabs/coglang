@@ -5,7 +5,10 @@ import sys
 import tomllib
 from pathlib import Path
 
-from logos.coglang.open_source_extract import materialize_public_repo_extract
+try:
+    from logos.coglang.open_source_extract import materialize_public_repo_extract
+except ModuleNotFoundError:
+    from coglang.open_source_extract import materialize_public_repo_extract
 
 
 def test_materialize_public_repo_extract_creates_importable_public_root(monkeypatch, tmp_path):
@@ -27,6 +30,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "CogLang_Operator_Catalog_v1_1_0.md").exists()
     assert (destination / ".github" / "workflows" / "ci.yml").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "README.md").exists()
+    assert (destination / "src" / "coglang" / "_public_assets" / ".gitignore").exists()
     assert (
         destination
         / "src"
@@ -112,6 +116,8 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     gitignore_lines = (destination / ".gitignore").read_text(encoding="utf-8").splitlines()
     assert ".venv/" in gitignore_lines
     assert "dist/" in gitignore_lines
+    assert ".tmp_ci_wheel/" in gitignore_lines
+    assert ".tmp_ci_sdist/" in gitignore_lines
     pytest_ini_text = (destination / "pytest.ini").read_text(encoding="utf-8")
     assert "L1: level 1 smoke and conformance marker" in pytest_ini_text
     assert "L2: level 2 smoke and conformance marker" in pytest_ini_text

@@ -284,13 +284,19 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
     required_packaging_check_names = [
         "build_distributions",
         "wheel_install_release_check",
+        "wheel_install_smoke",
         "sdist_install_release_check",
+        "sdist_install_smoke",
     ]
     workflow_required_step_names = [
         "Install build frontend",
         "Build sdist and wheel",
         "Validate installed wheel",
         "Validate installed sdist",
+    ]
+    workflow_required_smoke_snippets = [
+        ".tmp_ci_wheel/bin/python -m coglang smoke",
+        ".tmp_ci_sdist/bin/python -m coglang smoke",
     ]
     if not descriptor_path.exists():
         return {
@@ -307,6 +313,8 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
             "required_packaging_check_names_present": False,
             "workflow_required_step_names": workflow_required_step_names,
             "workflow_required_step_names_present": False,
+            "workflow_required_smoke_snippets": workflow_required_smoke_snippets,
+            "workflow_required_smoke_snippets_present": False,
             "public_entrypoint_only": False,
         }
     payload = json.loads(descriptor_path.read_text(encoding="utf-8"))
@@ -339,6 +347,10 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
     payload["workflow_required_step_names"] = workflow_required_step_names
     payload["workflow_required_step_names_present"] = all(
         name in workflow_text for name in workflow_required_step_names
+    )
+    payload["workflow_required_smoke_snippets"] = workflow_required_smoke_snippets
+    payload["workflow_required_smoke_snippets_present"] = all(
+        snippet in workflow_text for snippet in workflow_required_smoke_snippets
     )
     payload["public_entrypoint_only"] = public_entrypoint_only
     return payload
@@ -459,6 +471,7 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
                 and "smoke" in info["commands"]
                 and ci_baseline["required_command_names_present"] is True
                 and ci_baseline["required_packaging_check_names_present"] is True
+                and ci_baseline["workflow_required_smoke_snippets_present"] is True
             ),
             "detail": "install guide + bundle/release-check/smoke path",
         },
@@ -486,6 +499,7 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
                 and ci_baseline["public_entrypoint_only"] is True
                 and ci_baseline["workflow_template_present"] is True
                 and ci_baseline["workflow_required_step_names_present"] is True
+                and ci_baseline["workflow_required_smoke_snippets_present"] is True
             ),
             "detail": ci_baseline["path"],
         },
@@ -771,6 +785,7 @@ def _release_check_payload() -> dict[str, Any]:
                 and minimal_ci_baseline["public_entrypoint_only"] is True
                 and minimal_ci_baseline["workflow_template_present"] is True
                 and minimal_ci_baseline["workflow_required_step_names_present"] is True
+                and minimal_ci_baseline["workflow_required_smoke_snippets_present"] is True
             ),
             "detail": minimal_ci_baseline["path"],
         },

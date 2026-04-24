@@ -7,12 +7,20 @@ from typing import Any
 
 
 def _project_root() -> Path:
-    return Path(__file__).resolve().parents[3]
+    current = Path(__file__).resolve()
+    for parent in current.parents:
+        if (parent / "pyproject.toml").exists():
+            return parent
+    return current.parents[3]
 
 
 def load_public_repo_extract_manifest(project_root: Path | None = None) -> dict[str, Any]:
     root = project_root or _project_root()
-    descriptor_path = root / "plans" / "coglang" / "CogLang_Public_Repo_Extract_Manifest_v0_1.json"
+    descriptor_candidates = [
+        root / "plans" / "coglang" / "CogLang_Public_Repo_Extract_Manifest_v0_1.json",
+        root / "CogLang_Public_Repo_Extract_Manifest_v0_1.json",
+    ]
+    descriptor_path = next((path for path in descriptor_candidates if path.exists()), descriptor_candidates[0])
     payload = json.loads(descriptor_path.read_text(encoding="utf-8"))
     payload["path"] = str(descriptor_path.relative_to(root)).replace("\\", "/")
     return payload
@@ -83,6 +91,8 @@ def materialize_public_repo_extract(
     for entry in entries:
         kind = entry["kind"]
         source = root / Path(entry["source"])
+        if not source.exists():
+            source = root / Path(entry["destination"])
         destination = destination_root / Path(entry["destination"])
 
         if destination.exists():

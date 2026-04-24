@@ -40,15 +40,27 @@
       "purpose": "verify installed wheel exposes release-facing CLI and public assets"
     },
     {
+      "name": "wheel_install_smoke",
+      "command": "install built wheel with minimal dev checks in a fresh venv and run coglang smoke",
+      "purpose": "verify installed wheel can complete the minimal runtime validation path"
+    },
+    {
       "name": "sdist_install_release_check",
       "command": "install built sdist in a fresh venv and run coglang manifest/release-check",
       "purpose": "verify source distribution install path exposes release-facing CLI and public assets"
+    },
+    {
+      "name": "sdist_install_smoke",
+      "command": "install built sdist with minimal dev checks in a fresh venv and run coglang smoke",
+      "purpose": "verify source distribution install path can complete the minimal runtime validation path"
     }
   ],
   "evidence_outputs": [
     "build_artifacts",
     "installed_wheel_release_check",
+    "installed_wheel_smoke",
     "installed_sdist_release_check",
+    "installed_sdist_smoke",
     "bundle",
     "release_check",
     "doctor",

@@ -5,7 +5,9 @@ import os
 import sys
 import tempfile
 import types
+import tomllib
 from contextlib import redirect_stdout
+from pathlib import Path
 
 try:
     from logos.coglang.cli import (
@@ -76,9 +78,17 @@ except ModuleNotFoundError:
     MODULE_ENTRY = "coglang"
     DISTRIBUTION_NAME = "coglang"
 
+_TEST_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+_PROJECT_PYPROJECT = _TEST_PROJECT_ROOT / "pyproject.toml"
+if _PROJECT_PYPROJECT.exists():
+    DISTRIBUTION_NAME = tomllib.loads(_PROJECT_PYPROJECT.read_text(encoding="utf-8"))["project"]["name"]
+_EXTRACTED_LAYOUT = DISTRIBUTION_NAME == "coglang"
+if _EXTRACTED_LAYOUT:
+    MODULE_ENTRY = "coglang"
+
 
 def _path_in_layout(monorepo_path: str, extracted_path: str) -> str:
-    return monorepo_path if CLI_MODULE_PATH == "logos.coglang.cli" else extracted_path
+    return extracted_path if _EXTRACTED_LAYOUT else monorepo_path
 
 
 def _cli_attr(name: str) -> str:
@@ -1064,6 +1074,7 @@ def test_cli_minimal_ci_baseline_payload_shape():
     assert payload["required_command_names_present"] is True
     assert payload["required_packaging_check_names_present"] is True
     assert payload["workflow_required_step_names_present"] is True
+    assert payload["workflow_required_smoke_snippets_present"] is True
     assert payload["public_entrypoint_only"] is True
     assert payload["required_command_names"] == [
         "bundle",
@@ -1074,13 +1085,19 @@ def test_cli_minimal_ci_baseline_payload_shape():
     assert payload["required_packaging_check_names"] == [
         "build_distributions",
         "wheel_install_release_check",
+        "wheel_install_smoke",
         "sdist_install_release_check",
+        "sdist_install_smoke",
     ]
     assert payload["workflow_required_step_names"] == [
         "Install build frontend",
         "Build sdist and wheel",
         "Validate installed wheel",
         "Validate installed sdist",
+    ]
+    assert payload["workflow_required_smoke_snippets"] == [
+        ".tmp_ci_wheel/bin/python -m coglang smoke",
+        ".tmp_ci_sdist/bin/python -m coglang smoke",
     ]
 
 

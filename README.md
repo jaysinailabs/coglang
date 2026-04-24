@@ -63,14 +63,12 @@ Machine-readable project summaries:
 1. `CogLang_Quickstart_v1_1_0.md`
 2. `CogLang_Specification_v1_1_0_Draft.md`
 3. `CogLang_Conformance_Suite_v1_1_0.md`
-4. `CogLang_Migration_v1_0_2_to_v1_1_0.md`
-5. `CogLang_Host_Runtime_Contract_v0_1.md`
-6. `CogLang_Abstract_Triggering_Note_v1_1_0.md`（仅在你需要实现或调参 `Abstract` 时）
-7. `CogLang_Standalone_Install_and_Release_Guide_v0_1.md`（仅在你需要独立试用或发布路径时）
-8. `CogLang_Release_Notes_v1_1_0_pre.md`（仅在你需要核对预发布承诺边界时）
-9. `CogLang_Contribution_Guide_v0_1.md`（仅在你准备补文档、补样例、补 CLI 或补宿主桥时）
-10. `ROADMAP.md`（仅在你需要看当前公开方向层时）
-11. `MAINTENANCE.md`（仅在你需要看维护模式与冻结边界时）
+4. `CogLang_Host_Runtime_Contract_v0_1.md`
+5. `CogLang_Standalone_Install_and_Release_Guide_v0_1.md`（仅在你需要独立试用或发布路径时）
+6. `CogLang_Release_Notes_v1_1_0_pre.md`（仅在你需要核对预发布承诺边界时）
+7. `CogLang_Contribution_Guide_v0_1.md`（仅在你准备补文档、补样例、补 CLI 或补宿主桥时）
+8. `ROADMAP.md`（仅在你需要看当前公开方向层时）
+9. `MAINTENANCE.md`（仅在你需要看维护模式与冻结边界时）
 
 ### 1.3 宿主与集成
 
@@ -78,16 +76,14 @@ Machine-readable project summaries:
 
 1. `CogLang_Quickstart_v1_1_0.md`
 2. `CogLang_Specification_v1_1_0_Draft.md`
-3. `CogLang_Migration_v1_0_2_to_v1_1_0.md`
-4. `CogLang_Profiles_and_Capabilities_v1_1_0.md`
-5. `CogLang_Operator_Catalog_v1_1_0.md`
-6. `CogLang_Host_Runtime_Contract_v0_1.md`
-7. `CogLang_Rendering_and_UI_Contract_v1_1_0.md`
-8. `CogLang_Standalone_Install_and_Release_Guide_v0_1.md`
-9. `CogLang_Release_Notes_v1_1_0_pre.md`
-10. `CogLang_Contribution_Guide_v0_1.md`
-11. `ROADMAP.md`
-12. `MAINTENANCE.md`
+3. `CogLang_Profiles_and_Capabilities_v1_1_0.md`
+4. `CogLang_Operator_Catalog_v1_1_0.md`
+5. `CogLang_Host_Runtime_Contract_v0_1.md`
+6. `CogLang_Standalone_Install_and_Release_Guide_v0_1.md`
+7. `CogLang_Release_Notes_v1_1_0_pre.md`
+8. `CogLang_Contribution_Guide_v0_1.md`
+9. `ROADMAP.md`
+10. `MAINTENANCE.md`
 
 ## 2. 快速入口摘要
 

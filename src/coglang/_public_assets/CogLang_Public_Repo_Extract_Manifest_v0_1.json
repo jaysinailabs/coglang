@@ -39,7 +39,6 @@
         "test_integration.py",
         "test_local_host.py",
         "test_open_source_extract.py",
-        "test_package_entry.py",
         "test_package_layout.py",
         "test_parser.py",
         "test_unify.py",

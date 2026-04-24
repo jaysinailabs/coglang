@@ -117,6 +117,11 @@
     },
     {
       "kind": "file",
+      "source": "CogLang_Quickstart_v1_1_0.zh-CN.md",
+      "destination": "CogLang_Quickstart_v1_1_0.zh-CN.md"
+    },
+    {
+      "kind": "file",
       "source": "CogLang_Specification_v1_1_0_Draft.md",
       "destination": "CogLang_Specification_v1_1_0_Draft.md"
     },
@@ -147,8 +152,18 @@
     },
     {
       "kind": "file",
+      "source": "CogLang_Release_Notes_v1_1_0_pre.zh-CN.md",
+      "destination": "CogLang_Release_Notes_v1_1_0_pre.zh-CN.md"
+    },
+    {
+      "kind": "file",
       "source": "CogLang_Contribution_Guide_v0_1.md",
       "destination": "CogLang_Contribution_Guide_v0_1.md"
+    },
+    {
+      "kind": "file",
+      "source": "CogLang_Contribution_Guide_v0_1.zh-CN.md",
+      "destination": "CogLang_Contribution_Guide_v0_1.zh-CN.md"
     },
     {
       "kind": "file",

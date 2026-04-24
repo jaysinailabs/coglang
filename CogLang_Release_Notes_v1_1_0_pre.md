@@ -1,39 +1,39 @@
 # CogLang Release Notes v1.1.0-pre
 
-**状态**：预发布说明  
-**版本标签**：`v1.1.0-pre`  
-**适用对象**：第一次试用 `CogLang` 的外部读者、实现者、集成方  
-**作用**：说明本次预发布到底公开承诺了什么、没有承诺什么，以及试用时应以哪些文档和工具入口为准
+**Status**: pre-release notes
+**Version label**: `v1.1.0-pre`
+**Audience**: external readers, implementers, and integrators trying `CogLang` for the first time
+**Purpose**: define what this pre-release publicly commits to, what it does not commit to, and which documents and tool entry points should be treated as authoritative during evaluation
 
 ---
 
-## 0. 发布定位
+## 0. Release Positioning
 
-本次 `v1.1.0-pre` 的定位是：
+`v1.1.0-pre` is positioned as:
 
 - `experimental`
 - `pre-release`
 - `reference implementation`
 - `language core + host bridge`
 
-它的目标不是宣称“独立语言平台已经成熟”，而是提供一套**可以被外部试用、实现、验证和讨论**的最小公开基线。
+The goal is not to claim that `CogLang` is already a mature standalone language platform. The goal is to provide a minimal public baseline that external users can try, implement, validate, and discuss.
 
-当前还应把两层版本语义分开理解：
+Two version layers should be read separately:
 
-- `v1.1.0-pre` 是当前语言/规范/文档的公开 release label
-- CLI 与安装分发元数据里的 `version` 仍反映当前源码分发版本
+- `v1.1.0-pre` is the public release label for the current language, specification, and documentation set.
+- The CLI and package distribution `version` still describe the current source distribution.
 
-如果 `coglang info` 或 `coglang manifest` 同时出现这两层字段，对外讨论语言版本时以后者的 `language_release` 为准；对安装构件和分发排障时再看 distribution version。
+If `coglang info` or `coglang manifest` exposes both fields, use `language_release` when discussing the language version publicly. Use the distribution version when diagnosing install artifacts or packaging behavior.
 
 ---
 
-## 1. 本次明确公开承诺的内容
+## 1. What This Pre-Release Commits To
 
-以下内容属于当前预发布明确承诺的一部分。
+The following items are part of the explicit public commitment for this pre-release.
 
-### 1.1 文档基线
+### 1.1 Documentation Baseline
 
-以下文档构成当前公开基线：
+The current public baseline consists of:
 
 - `CogLang_Specification_v1_1_0_Draft.md`
 - `CogLang_Quickstart_v1_1_0.md`
@@ -42,11 +42,11 @@
 - `CogLang_Host_Runtime_Contract_v0_1.md`
 - `CogLang_Standalone_Install_and_Release_Guide_v0_1.md`
 
-如果这些文档之间存在冲突，仍以主规范与 conformance 为更高优先级。
+If these documents conflict, the main specification and conformance suite have higher priority.
 
-### 1.2 最小工具入口
+### 1.2 Minimal Tool Entry Points
 
-当前公开承诺存在并可调用的最小 CLI 命令为：
+The minimal CLI commands publicly committed to exist and be callable are:
 
 - `parse`
 - `canonicalize`
@@ -64,198 +64,195 @@
 - `demo`
 - `release-check`
 
-若帮助输出中出现额外参考命令，它们不自动构成当前预发布的对外稳定承诺；当前仍以本节列出的最小命令子集为准。
+If help output shows additional reference commands, those commands do not automatically become stable public commitments for this pre-release. The committed minimum remains the command set listed above.
 
-当前 `manifest` / `bundle` 会把“对外建议入口”和“实现元数据”分开表达：  
-对外入口以 `coglang` 为准；实现模块目标仍可作为 machine-readable metadata 出现，但不自动构成公开主入口承诺。
+`manifest` and `bundle` separate the public recommended entry point from implementation metadata. The public entry point is `coglang`; implementation module targets may still appear as machine-readable metadata, but they are not automatically part of the public primary-entry commitment.
 
-当前 `info` / `manifest` 也会把 `language_release` 与 distribution version 分开表达；  
-公开版本叙述以 `language_release` 为准，不把当前源码分发版本误写成语言冻结版本。
+`info` and `manifest` also separate `language_release` from the distribution version. Public version wording should use `language_release` and should not describe the current source distribution version as a frozen language version.
 
-### 1.3 最小安装与试用路径
+### 1.3 Minimal Install and Trial Path
 
-当前公开承诺支持的最小试用路径是：
+The currently committed minimal trial path is:
 
 1. `pip install -e .`
 2. `coglang bundle`
 3. `coglang smoke`
 4. `coglang demo`
 
-这条路径的目标是证明：
+This path is meant to show that:
 
-- 包可安装
-- CLI 可调用
-- 最小发布工件齐全
-- 最小 conformance 路径可运行
-- 最小端到端内存工作流可运行
+- the package can be installed
+- the CLI can be invoked
+- minimal release artifacts are present
+- the minimal conformance path can run
+- the minimal in-memory end-to-end workflow can run
 
-### 1.4 当前许可证方向
+### 1.4 Current License Direction
 
-当前对外发布口径为：
+The public release direction is:
 
 - `Apache-2.0`
 
-当前仓库应包含实际 `LICENSE` 文件，并与 `pyproject.toml` 和 CLI 发布检查路径一致。
+The repository should include the actual `LICENSE` file, aligned with `pyproject.toml` and the CLI release-check path.
 
-### 1.5 一致性验证入口
+### 1.5 Conformance Entry Points
 
-当前公开承诺存在的 conformance suite 为：
+The publicly committed conformance suite entry points are:
 
 - `smoke`
 - `core`
 - `full`
 
-其中：
+Their intended roles are:
 
-- `smoke` 用于最小发布前自检
-- `core` 用于较高信心的一致性验证
-- `full` 用于完整测试目录入口
+- `smoke` for minimal pre-release self-checks
+- `core` for higher-confidence conformance validation
+- `full` for the complete test-directory entry point
 
-### 1.6 语言定位
+### 1.6 Language Positioning
 
-当前公开承诺的语言定位是：
+The publicly committed language positioning is:
 
-- 图优先工作语言
-- AI 系统中的结构化中间语言核心
-- 表达式级执行语义 + 可观测性 + 宿主桥接边界
+- a graph-first working language
+- a structured intermediate language core for AI systems
+- expression-level execution semantics plus observability and host-bridge boundaries
 
-### 1.7 当前明确面向的使用场景
+### 1.7 Primary Intended Use Cases
 
-当前版本优先面向的是：
+The current version is primarily intended for:
 
-- 由语言模型生成的图操作与图查询表达式
-- 需要把失败、回执、trace 和宿主边界显式保留下来的执行路径
-- 需要 `profile / capability` 约束的宿主接入场景
-- 需要把“语言表达式”和“宿主提交/审计边界”分层处理的实现者
+- graph operations and graph query expressions generated by language models
+- execution paths that need to preserve failures, receipts, traces, and host boundaries explicitly
+- host integration scenarios constrained by `profile / capability`
+- implementers who need to keep language expressions separate from host commit and audit boundaries
 
-这是一种 design intent，不是竞品比较声明。  
-当前公开口径描述的是“为什么这样设计”，不是“比别的系统强多少”。
+This is design intent, not a competitive comparison. The public wording explains why the design is shaped this way; it does not claim superiority over other systems.
 
 ---
 
-## 2. 本次明确不承诺的内容
+## 2. What This Pre-Release Does Not Commit To
 
-以下内容**不属于**本次 `v1.1.0-pre` 的公开承诺。
+The following items are not public commitments of `v1.1.0-pre`.
 
-### 2.1 不承诺成熟独立平台
+### 2.1 No Commitment to a Mature Standalone Platform
 
-当前不承诺：
+This pre-release does not commit to:
 
-- 独立包名分发
-- 独立仓库边界
-- 多宿主稳定运行
-- 成熟扩展生态
-- 完整发布自动化
+- publication on a package index
+- stable multi-host operation
+- a mature extension ecosystem
+- complete release automation
 
-### 2.2 不承诺所有 companion note 都是稳定协议
+### 2.2 Not Every Companion Note Is a Stable Protocol
 
-以下文档仍属于伴随说明或路线材料，不应被误读成稳定核心协议：
+The following documents remain companion notes or roadmap material. They should not be read as stable core protocols:
 
 - `CogLang_Decoupling_and_Open_Source_Roadmap_v0_1.md`
 - `CogLang_V4_Boundary_Note_v1_1_0.md`
 - `CogLang_Abstract_Triggering_Note_v1_1_0.md`
 
-### 2.3 不承诺扩展调用语法已面向普通用户冻结
+### 2.3 No Commitment to a Frozen User-Facing Extension Call Syntax
 
-当前不承诺：
+This pre-release does not commit to:
 
-- extension-backed operator 的普通用户可教学显式限定名语法
-- 完整扩展生态接口
+- a teachable explicit-qualified-name syntax for extension-backed operators aimed at ordinary users
+- a complete extension ecosystem interface
 
-### 2.4 不承诺完整宿主无关运行时
+### 2.4 No Commitment to a Complete Host-Independent Runtime
 
-当前 `Host Runtime Contract` 仍是 `v0.x`，它说明的是最小桥接基线，不等于已经完成成熟宿主无关平台化。
+The `Host Runtime Contract` remains `v0.x`. It defines a minimal bridge baseline; it does not mean that a mature host-independent platform has been completed.
 
-### 2.5 不承诺未来预留能力已可用
+### 2.5 Reserved and Experimental Capabilities Are Not Available by Default
 
-`Reserved / Experimental` 仍不等于默认可依赖能力。  
-未来方向、路线图或伴随说明里的想法，不应被当作本次公开发布的现成能力。
+`Reserved / Experimental` does not mean "safe to depend on by default." Future directions, roadmap ideas, and companion-note proposals should not be treated as available capabilities in this public release.
 
-### 2.6 当前明确不是的东西
+### 2.6 What This Version Explicitly Is Not
 
-当前版本不应被理解成：
+The current version should not be understood as:
 
-- 通用编程语言
-- schema definition language
-- 某个特定图数据库的原生查询替代层
-- 对其他图查询语言或知识表示系统的优劣结论
+- a general-purpose programming language
+- a schema definition language
+- a native query replacement layer for any specific graph database
+- a judgment about the relative merits of other graph query languages or knowledge-representation systems
 
-如果某个场景本来就应该直接使用其原生图查询语言、原生事务语义或原生 schema 工具，那么 `CogLang` 当前并不声称要替代它们。
-
----
-
-## 3. 外部使用者应如何理解本次版本
-
-如果你是第一次接触 `CogLang` 的外部使用者，本次版本最正确的理解方式是：
-
-- 它已经足够被试用、被阅读、被实现、被做最小集成
-- 它还不应被当作成熟独立语言平台采购或长期锁定
-- 它最适合被理解成“面向可审计宿主执行的图优先表达式语言核心”，而不是通用语言替代品
-
-也就是说：
-
-- **可以开始用**
-- **可以开始接**
-- **可以开始验证**
-- **但还不应过度承诺长期稳定外部平台边界**
+If a use case should directly use its native graph query language, native transaction semantics, or native schema tools, `CogLang` does not currently claim to replace those tools.
 
 ---
 
-## 4. 推荐对外表述
+## 3. How External Users Should Read This Version
 
-如果需要对外一句话说明当前版本，建议使用：
+For first-time external users, the most accurate reading of this release is:
 
-> `CogLang v1.1.0-pre` 是一个实验性、预发布的图优先语言核心与参考实现，已经具备最小安装、最小 CLI、最小 conformance、自检和发布工件检查路径，但尚未完成成熟独立平台化。
+- it is ready enough to try, read, implement, and minimally integrate
+- it should not be treated as a mature standalone language platform for procurement or long-term lock-in decisions
+- it is best understood as a graph-first expression-language core for auditable host execution, not as a general-purpose language replacement
+
+In short:
+
+- **you can start trying it**
+- **you can start integrating it**
+- **you can start validating it**
+- **you should not overstate its long-term external platform stability yet**
 
 ---
 
-## 5. 贡献与反馈边界
+## 4. Recommended Public Wording
 
-当前欢迎外部贡献，但最欢迎的是：
+If a one-sentence public description is needed, use:
 
-- 文档澄清
-- conformance / golden examples
-- CLI 与工具面
-- Host Runtime Contract 边界收口
-- 非参考宿主的最小示例与宿主 demo
-- 规范与实现对齐型 bug fix
+> `CogLang v1.1.0-pre` is an experimental, pre-release graph-first language core and reference implementation with a minimal install path, minimal CLI, minimal conformance path, self-checks, and release-artifact checks, but it has not yet become a mature standalone platform.
 
-当前不应把下列方向误读成“当前公开承诺的默认贡献主线”：
+---
 
-- 大幅扩语言表面
-- 把路线图设想直接写进主规范
-- 把宿主专属协议写回语言核心
-- 把公开定位写成竞品对比表或证据不足的宣传话术
+## 5. Contribution and Feedback Boundaries
 
-更完整的贡献边界见：
+External contributions are welcome. The most useful areas right now are:
+
+- documentation clarification
+- conformance and golden examples
+- CLI and tooling surface
+- Host Runtime Contract boundary tightening
+- minimal examples and host demos for non-reference hosts
+- bug fixes that align specification and implementation
+
+The following directions should not be mistaken for the default contribution track promised by this public release:
+
+- large expansion of the language surface
+- moving roadmap ideas directly into the main specification
+- writing host-specific protocols back into the language core
+- turning public positioning into competitive comparison tables or unsupported marketing claims
+
+For the full contribution boundary, see:
 
 - `CogLang_Contribution_Guide_v0_1.md`
 
-另外，如果你想区分“当前承诺”与“未来方向 / 维护边界”，再看：
+To distinguish current commitments from future direction and maintenance boundaries, also see:
 
 - `ROADMAP.md`
 - `MAINTENANCE.md`
 
 ---
 
-## 6. 方向层与维护层
+## 6. Direction Layer and Maintenance Layer
 
-当前公开文档集现在把三层信息分开表达：
+The public document set separates three layers:
 
-- `Release Notes`: 当前承诺与非承诺
-- `ROADMAP.md`: 当前方向层与探索层
-- `MAINTENANCE.md`: 项目若放缓、冻结、转交或归档时的公开处理方式
+- `Release Notes`: current commitments and non-commitments
+- `ROADMAP.md`: current direction and exploration layers
+- `MAINTENANCE.md`: public handling if the project slows down, freezes, is transferred, or is archived
 
-这几份文档不应被混读：
+These documents should not be conflated:
 
-- `ROADMAP.md` 不是发布承诺
-- `MAINTENANCE.md` 不是“项目准备停止”的暗示
-- `Release Notes` 也不应被当成长期愿景文档
+- `ROADMAP.md` is not a release commitment
+- `MAINTENANCE.md` is not a signal that the project is preparing to stop
+- `Release Notes` should not be treated as a long-term vision document
 
 ---
 
-## 7. 一句话结论
+## 7. One-Sentence Conclusion
 
-本次 `v1.1.0-pre` 真正承诺的是：  
-**一套可试用、可验证、可集成讨论的最小公开基线。**  
-它承诺最小可用，不承诺过度成熟。
+What `v1.1.0-pre` truly commits to is:
+
+**a minimal public baseline that can be tried, validated, and used for integration discussions.**
+
+It commits to minimal usability, not over-maturity.

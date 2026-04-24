@@ -124,6 +124,12 @@ Integration and release-facing documents:
 - [ROADMAP.md](ROADMAP.md)
 - [MAINTENANCE.md](MAINTENANCE.md)
 
+Chinese companion translations:
+
+- [CogLang_Quickstart_v1_1_0.zh-CN.md](CogLang_Quickstart_v1_1_0.zh-CN.md)
+- [CogLang_Release_Notes_v1_1_0_pre.zh-CN.md](CogLang_Release_Notes_v1_1_0_pre.zh-CN.md)
+- [CogLang_Contribution_Guide_v0_1.zh-CN.md](CogLang_Contribution_Guide_v0_1.zh-CN.md)
+
 Machine-readable and release-supporting files:
 
 - [llms.txt](llms.txt)

@@ -1,30 +1,30 @@
 # CogLang Quickstart v1.1.0
 
-**状态**：预发布伴随文档  
-**适用对象**：第一次接触 CogLang 的使用者、实现者  
-**覆盖范围**：只覆盖 `Baseline` 中最常见、最稳定的写法  
-**不覆盖**：`Reserved / Experimental` 的完整能力、扩展 operator 的显式限定名、宿主桥接 / 写意图 / 持久化后端细节
+**Status**: Pre-release companion document
+**Audience**: First-time CogLang users and implementers
+**Scope**: Covers only the most common and stable `Baseline` forms
+**Out of scope**: Full `Reserved / Experimental` capabilities, explicit qualified names for extension operators, host bridging, write-intent, and persistence-backend details
 
 ---
 
-## 0. 这份文档解决什么问题
+## 0. What This Document Is For
 
-把这份文档当作第一次上手的 first-pass guide。
+Use this document as a first-pass guide for getting started.
 
-它只回答三个实际问题：
+It answers three practical questions:
 
-1. 第一次写 CogLang 时，应该先学哪些模式
-2. 什么写法现在可以依赖，什么写法现在不要碰
-3. 写出第一个合法表达式后，下一步应去哪里看权威定义
+1. Which patterns to learn first when writing CogLang for the first time
+2. Which forms can be relied on now, and which forms should be avoided for now
+3. Where to go next for the authoritative definitions after writing a first valid expression
 
-正式语义和配套边界分别见：
+For formal semantics and related boundaries, see:
 
-- **完整语义与冻结口径**：看 `CogLang_Specification_v1_1_0_Draft.md`
-- **Profile / capability 边界**：看 `CogLang_Profiles_and_Capabilities_v1_1_0.md`
-- **可执行样例与回归约束**：看 `CogLang_Conformance_Suite_v1_1_0.md`
-- **独立安装与发布试用路径**：看 `CogLang_Standalone_Install_and_Release_Guide_v0_1.md`
+- **Complete semantics and frozen posture**: `CogLang_Specification_v1_1_0_Draft.md`
+- **Profile / capability boundaries**: `CogLang_Profiles_and_Capabilities_v1_1_0.md`
+- **Executable examples and regression constraints**: `CogLang_Conformance_Suite_v1_1_0.md`
+- **Standalone installation and release trial path**: `CogLang_Standalone_Install_and_Release_Guide_v0_1.md`
 
-如果你想先确认环境和对外公开建议使用的最小入口是否可用，可以直接运行：
+If you want to first confirm that the environment and the recommended minimal public entry points are available, run:
 
 ```powershell
 coglang parse 'Equal[1, 1]'
@@ -43,50 +43,50 @@ coglang demo
 coglang release-check
 ```
 
-在当前预发布口径下，`release-check` 应通过；如果失败，通常意味着最小发布工件或元数据仍不完整。
+Under the current pre-release posture, `release-check` should pass. If it fails, the usual cause is that the minimal release artifacts or metadata are still incomplete.
 
 ---
 
 ## 1. Why CogLang Exists
 
-先把 `CogLang` 当作一句话来理解：
+For a first mental model, read `CogLang` as this:
 
-`CogLang` 是一个 **graph-first expression language**，它被设计成更容易由语言模型生成，并在带审计边界的宿主契约下执行。
+`CogLang` is a **graph-first expression language** designed to be easier for language models to generate and to execute under an auditable host contract.
 
-它当前明确坚持的几项设计选择是：
+It currently makes several explicit design choices:
 
-1. 采用稳定的 `M-expression / canonical text` 形态，而不是依赖更自由的表面语法。
-原因是：先保证可解析性、可规范化和生成稳定性，再谈更花哨的写法。
-2. 把错误当作值，而不是把求值失败默认做成异常中断。
-原因是：在 AI 驱动的图操作里，部分失败和局部不可得是常态，不是例外。
-3. 把 `profile / capability` 放进语言边界附近，而不是留到宿主之外再猜。
-原因是：扩展与宿主都应显式声明“需要什么”，让宿主能在执行前拒绝不安全或不适用的动作。
+1. It uses a stable `M-expression / canonical text` form instead of relying on a freer surface syntax.
+The reason: parsing, normalization, and generation stability come first; more elaborate syntax can come later.
+2. It treats errors as values instead of making evaluation failure an automatic exception-style interruption.
+The reason: in AI-driven graph operations, partial failure and locally unavailable results are normal conditions, not exceptional ones.
+3. It keeps `profile / capability` close to the language boundary instead of leaving the host to infer them later.
+The reason: extensions and hosts should explicitly declare what they require so a host can reject unsafe or unsuitable actions before execution.
 
-它同样有明确的非目标：
+It also has clear non-goals:
 
-- 它不是通用编程语言
-- 它不是 schema definition language
-- 它也不试图替代其他图查询语言在各自原生场景中的用途
+- It is not a general-purpose programming language
+- It is not a schema definition language
+- It does not try to replace other graph query languages in their native scenarios
 
-如果你要的是成熟通用语言生态、完整应用框架或某个特定系统的原生查询体验，这份 Quickstart 不是那类入口。
-
----
-
-## 2. 最小心智模型
-
-第一次上手时，先记住 5 件事：
-
-1. CogLang 是**图优先工作语言**。最先该学的是查询、条件、追踪，不是扩展语法。
-2. 你平时写的是 **canonical text**。`readable render` 只是更适合人读的展示形式，不是另一门语法。
-3. `Baseline` 是普通使用者入口。`Reserved` 不是默认可依赖能力。
-4. `Create / Update / Delete` 冻结的是**语言级写意图**。它们不等于“执行器直接写某个持久化后端”。
-5. 扩展 operator 的显式限定名不属于首批可教学语法。第一次上手不要依赖它。
+If you need a mature general-purpose language ecosystem, a complete application framework, or a native query experience for a specific system, this Quickstart is not that kind of entry point.
 
 ---
 
-## 3. 例子里默认假设的最小图谱
+## 2. Minimal Mental Model
 
-下面的例子默认有一个最小示例图谱：
+For a first pass, remember five things:
+
+1. CogLang is a **graph-first working language**. Learn queries, conditionals, and tracing before extension syntax.
+2. The form you normally write is **canonical text**. `readable render` is a more human-readable display form, not a separate syntax.
+3. `Baseline` is the entry point for ordinary users. `Reserved` is not a capability to rely on by default.
+4. `Create / Update / Delete` freeze **language-level write intent**. They do not mean that an executor directly writes to a particular persistence backend.
+5. Explicit qualified names for extension operators are not part of the first teachable syntax set. Do not rely on them when starting out.
+
+---
+
+## 3. Minimal Example Graph Assumed Below
+
+The examples below assume a minimal example graph:
 
 - `einstein`
   `type = Entity`
@@ -100,109 +100,109 @@ coglang release-check
   `type = Entity`
   `category = "City"`
   `label = "Ulm"`
-- 一条边：
+- One edge:
   `einstein -[born_in]-> ulm`
 
-这个假设与 conformance suite 的基础样例一致，只是把阅读时常用的字段显式写出来。
+This matches the basic examples in the conformance suite, with the fields commonly used while reading made explicit here.
 
 ---
 
-## 4. 第一批应学会的 4 类表达式
+## 4. The First 4 Expression Types To Learn
 
-### 4.1 取字段
+### 4.1 Get a Field
 
 ```text
 Get["einstein", "label"]
 ```
 
-期望返回：
+Expected result:
 
 ```text
 "Einstein"
 ```
 
-这类写法适合先建立“节点 ID + 属性键 -> 值”的最小感觉。
+This form is the simplest way to build the intuition that a node ID plus a property key yields a value.
 
-### 4.2 查节点
+### 4.2 Query Nodes
 
 ```text
 Query[n_, Equal[Get[n_, "category"], "Person"]]
 ```
 
-期望返回：
+Expected result:
 
 ```text
 List["einstein", "tesla"]
 ```
 
-这里先只学两件事：
+For now, learn only two things here:
 
-- `n_` 是绑定变量
-- `Query` 返回的是结果列表，不是自动入图对象
+- `n_` is a binding variable
+- `Query` returns a result list, not objects automatically inserted into the graph
 
-### 4.3 条件分流
+### 4.3 Branch on Found Values
 
 ```text
 IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]
 ```
 
-期望返回：
+Expected result:
 
 ```text
 List["ulm"]
 ```
 
-不要把 `IfFound` 理解成“空列表就走 else”。
+Do not read `IfFound` as "an empty list goes to else."
 
-冻结口径如下：
+The frozen posture is:
 
-- `NotFound[]` 会走 `else`
-- 自动传播错误值也会走 `else`
-- `List[]` 不会自动改走 `else`
+- `NotFound[]` goes to `else`
+- Automatically propagated error values also go to `else`
+- `List[]` does not automatically switch to `else`
 
-如果你需要把某一步产出的值继续传给下一步，`v1.1.0` 的官方写法就是 `IfFound[expr, v_, thenExpr, elseExpr]` 这种 bind-and-continue 模式；不要指望 `Do` 自动保留中间值。
+If a value produced by one step needs to be passed to a later step, the official `v1.1.0` form is the bind-and-continue pattern `IfFound[expr, v_, thenExpr, elseExpr]`. Do not expect `Do` to automatically preserve intermediate values.
 
-### 4.4 加追踪
+### 4.4 Add Tracing
 
 ```text
 Trace[Traverse["einstein", "born_in"]]
 ```
 
-期望返回：
+Expected result:
 
 ```text
 List["ulm"]
 ```
 
-并且：
+And:
 
-- 语义返回值与不加 `Trace` 时相同
-- trace / observer 中会出现对应执行事件
+- The semantic return value is the same as without `Trace`
+- The corresponding execution event appears in trace / observer output
 
-这类写法很重要，因为它能让你在不改变求值结果的前提下看到执行痕迹。
+This form matters because it lets you inspect execution without changing the evaluation result.
 
 ---
 
-## 5. 第一批最常见的误区
+## 5. The First Common Pitfalls
 
-### 5.1 不要把业务分类写进公开 `type`
+### 5.1 Do Not Put Business Categories in Public `type`
 
-下面这种旧写法现在不应继续教：
+This older form should no longer be taught:
 
 ```text
 Create["Entity", {"id": "tesla_02", "type": "Person"}]
 ```
 
-原因不是“Person 不重要”，而是：
+The reason is not that "Person" is unimportant. The reason is:
 
-- 公开节点 `type` 只保留给 `Entity / Concept / Rule / Meta`
-- 业务分类应进入其他字段，例如 `category`
+- Public node `type` is reserved for `Entity / Concept / Rule / Meta`
+- Business categories should go into other fields, such as `category`
 
-### 5.2 不要把 `Reserved` 当成默认生产能力
+### 5.2 Do Not Treat `Reserved` as Default Production Capability
 
-`Explain`、`Inspect` 已有冻结签名和默认失败形态，但它们仍不是普通使用者的默认入口。
+`Explain` and `Inspect` have frozen signatures and default failure shapes, but they are still not the default entry point for ordinary users.
 
-第一批表达式应先依赖：
+The first expression set should rely on:
 
 - `Get`
 - `Query`
@@ -212,66 +212,66 @@ Create["Entity", {"id": "tesla_02", "type": "Person"}]
 - `Trace`
 - `Assert`
 
-### 5.3 不要把扩展限定名当成现成语法
+### 5.3 Do Not Treat Extension Qualified Names as Ready Syntax
 
-规范现在只冻结了“允许存在显式限定名称”这件事，没有冻结普通用户可写的具体分隔符。
+The specification currently freezes only that explicit qualified names may exist. It does not freeze a concrete delimiter that ordinary users can write.
 
-这意味着：
+This means:
 
-- 实现者可以为扩展预留这项能力
-- 普通使用者不应把它当作稳定语法来学
+- Implementers can reserve this capability for extensions
+- Ordinary users should not learn it as stable syntax
 
-### 5.4 不要把语言级写意图误解成直接写权
+### 5.4 Do Not Read Language-Level Write Intent as Direct Write Permission
 
-你可以学：
+You can learn:
 
 ```text
 Create["Entity", {"id": "tesla_01", "label": "Tesla"}]
 ```
 
-但你不应从这条语句反推出：
+But you should not infer from that expression that:
 
-- 执行器一定直接写某个固定后端
-- 不存在 `WriteBundle` 或 owning-module 代理链
-- 语言返回值就等于架构提交对象
+- The executor must directly write to a fixed backend
+- There is no `WriteBundle` or owning-module proxy chain
+- The language return value is the same thing as an architectural commit object
 
-语言层冻结的是表达式语义；架构层冻结的是提交路径。
+The language layer freezes expression semantics. The architecture layer freezes the commit path.
 
-这也不意味着执行器“什么都不用做”。在 `v1.1.0` 冻结边界下，宿主运行时负责预分配 ID、形成 `WriteBundleCandidate` 或等价中间写入请求，并把提交结果映射回语言级返回值。
+This also does not mean the executor "does nothing." Within the `v1.1.0` frozen boundary, the host runtime is responsible for pre-allocating IDs, forming a `WriteBundleCandidate` or equivalent intermediate write request, and mapping the commit result back to the language-level return value.
 
 ---
 
-## 6. 第一次上手时，哪些先不要碰
+## 6. What To Avoid When Starting Out
 
-如果你的目标只是“学会写第一批合法表达式”，先不要从这些地方开始：
+If your goal is only to learn the first set of valid expressions, do not start with:
 
 - `Explain`
 - `Inspect`
-- 非默认 `Query.mode`
-- 查询 `cost / gain` 元推理接口
-- extension-backed operator
-- 扩展 operator 的显式限定名
+- Non-default `Query.mode`
+- Query `cost / gain` meta-reasoning interfaces
+- extension-backed operators
+- Explicit qualified names for extension operators
 
-这些能力属于第二批主题，不属于第一批心智模型。
+These capabilities belong to the second set of topics, not the first mental model.
 
 ---
 
-## 7. 学完这份后应该去哪
+## 7. Where To Go Next
 
-如果你已经理解了上面的 4 类表达式，按角色继续阅读：
+If you understand the four expression types above, continue by role.
 
-### 7.1 普通使用者
+### 7.1 Ordinary Users
 
-接下来读：
+Read next:
 
 1. `CogLang_Specification_v1_1_0_Draft.md`
-   先读 `四层表示模型`、`Core operators`、`错误模型`
+   Start with `Four-layer representation model`, `Core operators`, and `Error model`.
 2. `CogLang_Conformance_Suite_v1_1_0.md`
-   重点看 `GE-003`、`GE-004`、`GE-006`、`GE-007`、`GE-021`、`GE-022`
+   Focus on `GE-003`, `GE-004`, `GE-006`, `GE-007`, `GE-021`, and `GE-022`.
 
-### 7.2 实现者
+### 7.2 Implementers
 
-接下来读：
+Read next:
 
 1. `CogLang_Specification_v1_1_0_Draft.md`
 2. `CogLang_Conformance_Suite_v1_1_0.md`
@@ -279,8 +279,8 @@ Create["Entity", {"id": "tesla_01", "label": "Tesla"}]
 
 ---
 
-## 8. 一句话总结
+## 8. One-Sentence Summary
 
-第一次上手时，把 CogLang 当成：
+When starting out, treat CogLang as:
 
-**一个图优先、先学 `Baseline`、先学查询与条件、把扩展与架构细节留到后面的工作语言。**
+**A graph-first working language where you learn `Baseline`, queries, and conditionals first, and leave extensions and architecture details for later.**

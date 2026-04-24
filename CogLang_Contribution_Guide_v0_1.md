@@ -1,270 +1,265 @@
 # CogLang Contribution Guide v0.1
 
-**状态**：预发布贡献说明  
-**适用对象**：第一次准备给 `CogLang` 提 issue、提 PR、补文档、补样例或补工具面的贡献者  
-**作用**：说明为什么当前会明确标注 `experimental / pre-release`，当前最欢迎什么贡献，不优先什么改动，以及贡献前应先建立哪些边界
+**Status**: pre-release contribution guide
+**Audience**: contributors preparing issues, PRs, documentation updates, examples, or tooling improvements for `CogLang`
+**Purpose**: explain why `experimental / pre-release` is stated explicitly, which contributions are most welcome now, which changes are not priorities, and which boundaries contributors should understand first
 
 ---
 
-## 0. 为什么要明确写 `experimental / pre-release`
+## 0. Why `experimental / pre-release` Is Explicit
 
-`CogLang` 当前已经具备：
+`CogLang` currently has:
 
-- 主规范
-- Quickstart
-- Conformance / golden examples
-- 参考运行时
-- 最小 CLI / REPL / 自检与发布检查路径
+- a main specification
+- a Quickstart
+- conformance and golden examples
+- a reference runtime
+- a minimal CLI, REPL, self-check path, and release-check path
 
-但它仍然没有完成：
+It still does not yet have:
 
-- 独立仓库边界
-- 多宿主稳定验证
-- 成熟扩展生态
-- 完整平台化与发布自动化
+- stable multi-host validation
+- a mature extension ecosystem
+- complete platformization and release automation
 
-因此，当前公开口径必须同时成立两件事：
+The public framing therefore needs both statements to remain true:
 
-1. **它已经值得试用、阅读、实现和最小集成**
-2. **它还不应被误读成成熟独立平台**
+1. **It is already worth trying, reading, implementing, and minimally integrating.**
+2. **It should not be mistaken for a mature standalone platform.**
 
-这里明确写 `experimental / pre-release`，不是为了劝退贡献，而是为了避免错误预期把正常演化误读成“随意破坏兼容性”或“边界不清的草稿状态”。
+The `experimental / pre-release` label is not meant to discourage contribution. It exists to prevent incorrect expectations from turning normal evolution into claims of arbitrary compatibility breakage or unclear draft status.
 
 ---
 
-## 1. 当前最欢迎的贡献
+## 1. Most Welcome Contributions Right Now
 
-当前最欢迎的贡献类型如下。
+The following contribution types are the highest-value areas at this stage.
 
-### 1.1 文档澄清
+### 1.1 Documentation Clarification
 
-优先补这类问题：
+Prioritize issues such as:
 
-- 规范边界不够清楚
-- companion docs 与主规范之间的口径不够直观
-- Quickstart 对第一次使用者不够友好
-- README 的阅读路径、命令说明、文档 discoverability 不够好
+- specification boundaries that are not clear enough
+- companion documents whose relationship to the main specification is hard to read
+- Quickstart steps that are not friendly enough for first-time users
+- README reading paths, command explanations, or document discoverability that are unclear
 
-### 1.2 Conformance 与 golden examples
+### 1.2 Conformance and Golden Examples
 
-优先补这类问题：
+Prioritize issues such as:
 
-- 新冻结语义没有对应 golden example
-- 关键边界存在实现方各自解释的风险
-- 最小回归集合没有覆盖常用路径
+- frozen semantics without corresponding golden examples
+- important boundaries that different implementers could interpret differently
+- minimal regression sets that do not cover common paths
 
-这是当前最有价值的贡献面之一，因为它直接决定：
+This is one of the most valuable contribution areas because it directly affects:
 
-- 语言边界是否真正可执行
-- 文档与实现是否会继续漂移
-- 外部宿主是否能低成本复现行为
+- whether the language boundary is executable
+- whether documentation and implementation keep drifting
+- whether external hosts can reproduce behavior at low cost
 
-### 1.3 CLI 与工具面
+### 1.3 CLI and Tooling Surface
 
-优先补这类问题：
+Prioritize issues such as:
 
 - CLI discoverability
-- `info / manifest / bundle / doctor / smoke / demo` 的可读性与稳定性
-- 安装后最小试用路径的顺滑度
-- 对脚本、CI、release-check 更友好的稳定输出
+- readability and stability of `info / manifest / bundle / doctor / smoke / demo`
+- smoothness of the minimal post-install trial path
+- stable output that is friendlier to scripts, CI, and `release-check`
 
-### 1.4 宿主桥与运行时契约
+### 1.4 Host Bridge and Runtime Contract
 
-优先补这类问题：
+Prioritize issues such as:
 
-- Host Runtime Contract 的边界说明
-- 本地 bridge / provenance / request-response 对齐
-- 写意图、提交、回执与查询面的稳定最小接口
+- clearer Host Runtime Contract boundaries
+- alignment of local bridge, provenance, and request-response behavior
+- stable minimal interfaces for write intent, commit, receipt, and query surfaces
 
-### 1.5 非参考宿主示例与最小宿主 demo
+### 1.5 Non-Reference Host Examples and Minimal Host Demos
 
-优先补这类问题：
+Prioritize issues such as:
 
-- 与参考宿主弱耦合的使用示例
-- 最小内存宿主
-- 最小图工作流宿主
-- 证明 `CogLang` 不只是项目内私有 DSL 的独立案例
+- examples that are weakly coupled to the reference host
+- a minimal in-memory host
+- a minimal graph-workflow host
+- independent examples showing that `CogLang` is not only a private in-project DSL
 
-### 1.6 规范对齐型 bug fix
+### 1.6 Specification-Alignment Bug Fixes
 
-欢迎这类修复：
+These fixes are welcome:
 
-- 当前实现与主规范不一致
-- 当前实现与 conformance 不一致
-- 当前 CLI / docs / release surface 互相漂移
-
----
-
-## 2. 当前不优先的贡献
-
-以下类型的改动目前不是优先方向。
-
-### 2.1 大幅扩语言表面
-
-例如：
-
-- 一次性引入大量新 operator
-- 把远期程序层设想直接拉进 `Core`
-- 为了“更像通用语言”而快速增加语法糖
-
-原因不是这些方向永远不做，而是当前阶段更缺：
-
-- 规范与 conformance 收稳
-- 参考实现与宿主桥收稳
-- 独立试用与最小发布面收稳
-
-### 2.2 把路线图想法直接写进主规范
-
-当前路线图、边界说明和开放方向并不自动等于语言核心承诺。  
-如果贡献会把：
-
-- 路线图想法
-- 宿主专属协议
-- 实验性做法
-
-直接写进 `CogLang` 主规范正文，那么通常不是当前优先方向。
-
-### 2.3 把参考宿主专属协议回写进语言核心
-
-例如直接把下列内容做成语言核心强承诺：
-
-- 应用侧持久化后端的物理细节
-- 应用侧消息或任务分发协议
-- `WriteBundle` 的完整宿主协议
-- 某个参考宿主专属的生命周期对象
-
-当前目标是把语言本体和宿主协议分层，而不是重新把两者绑定回去。
-
-### 2.4 面向普通用户冻结扩展调用表面语法
-
-扩展能力当前仍主要服务实现者与宿主接入者。  
-如果没有足够的跨宿主验证，过早把某种扩展调用写法宣传为普通用户稳定语法，风险很高。
-
-### 2.5 把公开定位写成竞品对比或证据不足的宣传
-
-当前不优先，也通常不会优先接受这类改动：
-
-- 把公开文档写成“比某个系统更强/更简单/更适合”的对比表
-- 在缺少公开可复现实验前写入 benchmark 式结论
-- 用内部数字、内部假设或内部术语去支撑公开价值叙事
-
-当前公开文档更适合写成：
-
-- 这是做什么的
-- 为什么选这些设计
-- 什么时候不该用它
-
-也就是 design intent，而不是 competitive claim。
+- the implementation differs from the main specification
+- the implementation differs from conformance expectations
+- the CLI, documentation, and release surface have drifted apart
 
 ---
 
-## 3. 贡献前建议先做什么
+## 2. Contributions That Are Not Current Priorities
 
-如果你准备提 PR，建议先完成这条最小路径：
+The following change types are not priorities at this stage.
 
-1. 阅读 [CogLang_Quickstart_v1_1_0.md](./CogLang_Quickstart_v1_1_0.md)
-2. 阅读 [CogLang_Specification_v1_1_0_Draft.md](./CogLang_Specification_v1_1_0_Draft.md) 中与你要改的章节
-3. 阅读 [CogLang_Conformance_Suite_v1_1_0.md](./CogLang_Conformance_Suite_v1_1_0.md)
-4. 阅读 [CogLang_Release_Notes_v1_1_0_pre.md](./CogLang_Release_Notes_v1_1_0_pre.md)
-5. 运行：
+### 2.1 Large Expansion of the Language Surface
+
+Examples include:
+
+- adding many new operators at once
+- moving long-term program-layer ideas directly into `Core`
+- adding syntax sugar quickly to make the language look more general-purpose
+
+The reason is not that these directions are permanently out of scope. The current stage needs more work on:
+
+- stabilizing specification and conformance
+- stabilizing the reference implementation and host bridge
+- stabilizing the independent trial path and minimal release surface
+
+### 2.2 Moving Roadmap Ideas Directly Into the Main Specification
+
+Roadmap items, boundary notes, and open directions are not automatically language-core commitments.
+
+If a contribution would move the following directly into the main `CogLang` specification body, it is usually not a current priority:
+
+- roadmap ideas
+- host-specific protocols
+- experimental practices
+
+### 2.3 Writing Reference-Host-Specific Protocols Back Into the Language Core
+
+Avoid turning the following into strong language-core commitments:
+
+- physical details of an application-side persistence backend
+- application-side message or task-dispatch protocols
+- the full host protocol around `WriteBundle`
+- lifecycle objects specific to a reference host
+
+The current goal is to layer the language itself and host protocols separately, not to bind them back together.
+
+### 2.4 Freezing an Extension Call Surface for Ordinary Users
+
+Extension capabilities currently serve implementers and host integrators first.
+
+Without enough cross-host validation, it is risky to present any particular extension-call spelling as stable syntax for ordinary users.
+
+### 2.5 Turning Public Positioning Into Competitive Comparison or Unsupported Marketing
+
+The following changes are not priorities and usually will not be accepted:
+
+- public documents framed as comparison tables claiming that `CogLang` is stronger, simpler, or more suitable than another system
+- benchmark-style conclusions without public reproducible evidence
+- public value narratives based on internal numbers, internal assumptions, or internal terminology
+
+Public documentation should focus on:
+
+- what this is for
+- why these design choices were made
+- when it should not be used
+
+In other words: design intent, not competitive claims.
+
+---
+
+## 3. What To Do Before Contributing
+
+Before opening a PR, follow this minimal path:
+
+1. Read [CogLang_Quickstart_v1_1_0.md](./CogLang_Quickstart_v1_1_0.md).
+2. Read the relevant section of [CogLang_Specification_v1_1_0_Draft.md](./CogLang_Specification_v1_1_0_Draft.md).
+3. Read [CogLang_Conformance_Suite_v1_1_0.md](./CogLang_Conformance_Suite_v1_1_0.md).
+4. Read [CogLang_Release_Notes_v1_1_0_pre.md](./CogLang_Release_Notes_v1_1_0_pre.md).
+5. Run:
 
 ```powershell
 coglang bundle
 coglang smoke
 ```
 
-如果你的改动涉及宿主桥或运行时契约，再加看：
+If your change touches the host bridge or runtime contract, also read:
 
 - [CogLang_Host_Runtime_Contract_v0_1.md](./CogLang_Host_Runtime_Contract_v0_1.md)
 
 ---
 
-## 4. 维护者当前会优先看什么
+## 4. What Maintainers Will Prioritize
 
-当前维护者在评估贡献时，优先看下面这些问题。
+Maintainers currently evaluate contributions with the following questions first.
 
-### 4.1 是否让边界更清楚
+### 4.1 Does It Make Boundaries Clearer?
 
-一个改动如果让：
+A change is usually more valuable when it clarifies the boundaries among:
 
-- 语言核心
-- companion docs
-- 宿主契约
-- 路线图
+- language core
+- companion documents
+- host contract
+- roadmap
 
-之间的边界更清楚，价值通常较高。
+### 4.2 Does It Strengthen Conformance?
 
-### 4.2 是否让 conformance 更强
+A change usually has high priority if it:
 
-如果一个改动：
+- adds a missing key golden example
+- turns drift-prone semantics into a regression surface
+- makes it harder for implementation and specification to diverge again
 
-- 补上关键 golden example
-- 把易漂移语义钉成回归面
-- 让实现与规范更难再次分叉
+### 4.3 Does It Reduce Hidden Host Coupling?
 
-它的优先级通常较高。
+Welcome changes:
 
-### 4.3 是否减少了隐藏宿主耦合
+- make host coupling explicit
+- stabilize the minimal bridge interface
+- help external readers and other host implementers understand the boundary
 
-当前欢迎的是：
+Unwelcome changes:
 
-- 把宿主耦合显式化
-- 把最小桥接接口收稳
-- 让外部读者和其他宿主实现者更容易理解
+- push new host-specific details back into the language core
 
-当前不欢迎的是：
+### 4.4 Does It Avoid Over-Commitment?
 
-- 把新的宿主专属细节再次塞回语言核心
+`CogLang` is ready for public trial, but it is not a mature standalone platform.
 
-### 4.4 是否避免过度承诺
+Contributions usually will not be prioritized if they:
 
-`CogLang` 现在已经进入可公开试用阶段，但还不是成熟独立平台。  
-因此，贡献如果会：
+- make the documentation sound more mature than the implementation and release surface are
+- make roadmap material sound like frozen commitments
+- make `Reserved / Experimental` capabilities look available by default
 
-- 让文档说得比现实更成熟
-- 让路线图听起来像已冻结承诺
-- 让 `Reserved / Experimental` 看起来像默认能力
+### 4.5 Does It Preserve the Public Design-Intent Narrative?
 
-通常不会被优先接受。
+Maintainers will prioritize public-narrative changes that:
 
-### 4.5 是否延续 design intent 的公开叙事
+- make the language positioning clearer
+- explain design choices and their reasons more clearly
+- clarify non-goals and unsuitable scenarios
 
-维护者会优先接受这类公开叙事改动：
+Maintainers will not prioritize public-narrative changes that:
 
-- 把语言定位写得更清楚
-- 把设计选择和背后理由写得更清楚
-- 把非目标和不适用场景写得更清楚
-
-维护者不会优先接受这类公开叙事改动：
-
-- 缺少公开证据支撑的 superiority claim
-- 邀请无谓 flamewar 的竞品对比表
-- 把内部 benchmark、内部术语或内部假说直接搬进公开价值陈述
+- make unsupported superiority claims
+- invite unnecessary comparison disputes
+- move internal benchmarks, internal terminology, or internal hypotheses into public value statements
 
 ---
 
-## 5. 当前最适合贡献者切入的题目
+## 5. Best Starting Points for Contributors
 
-如果你想快速找到高价值、低风险切入点，优先看这些方向：
+If you want a high-value, low-risk place to start, consider:
 
-- 补一个缺失的 golden example
-- 修一个实现与 conformance 的偏差
-- 改善 README / Quickstart 的第一次上手路径
-- 改善 CLI 命令的 discoverability 或稳定输出
-- 补一份非参考宿主的最小使用案例
-- 收紧 Host Runtime Contract 中模糊的边界说明
+- adding a missing golden example
+- fixing a mismatch between implementation and conformance
+- improving the first-run path in README or Quickstart
+- improving CLI command discoverability or stable output
+- adding a minimal non-reference-host usage example
+- tightening ambiguous boundaries in the Host Runtime Contract
 
 ---
 
-## 6. 一句话结论
+## 6. One-Sentence Conclusion
 
-`CogLang` 当前欢迎贡献，但欢迎的是：  
-**帮助它从“可试用”更稳地走向“可公开复用”的贡献。**
+`CogLang` welcomes contributions, especially contributions that:
 
-这意味着最有价值的改动通常不是“把语言一下子做大”，而是：
+**help it move more reliably from "usable for trial" toward "publicly reusable."**
 
-- 把边界写清
-- 把行为钉牢
-- 把工具面补齐
-- 把宿主耦合降下来
-- 把外部试用路径变顺
+The highest-value changes are usually not about making the language much larger at once. They are about:
+
+- clarifying boundaries
+- pinning behavior down
+- completing the tooling surface
+- reducing host coupling
+- smoothing the external trial path

@@ -16,9 +16,9 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     payload = materialize_public_repo_extract(destination)
 
     assert payload["schema_version"] == "coglang-public-repo-extract-run/v0.1"
-    assert payload["entry_count"] == 25
+    assert payload["entry_count"] == 28
     assert payload["copied_trees"] == 3
-    assert payload["copied_files"] == 22
+    assert payload["copied_files"] == 25
 
     assert (destination / "pyproject.toml").exists()
     assert (destination / ".gitignore").exists()
@@ -28,6 +28,9 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "CogLang_Minimal_CI_Baseline_v0_1.json").exists()
     assert (destination / "CogLang_Public_Repo_Extract_Manifest_v0_1.json").exists()
     assert (destination / "CogLang_Operator_Catalog_v1_1_0.md").exists()
+    assert (destination / "CogLang_Quickstart_v1_1_0.zh-CN.md").exists()
+    assert (destination / "CogLang_Release_Notes_v1_1_0_pre.zh-CN.md").exists()
+    assert (destination / "CogLang_Contribution_Guide_v0_1.zh-CN.md").exists()
     assert (destination / ".github" / "workflows" / "ci.yml").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "README.md").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / ".gitignore").exists()

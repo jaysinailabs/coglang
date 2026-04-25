@@ -1,14 +1,14 @@
 # CogLang Language Specification
 
-**Version: v1.1.0-pre**
-**Status: pre-release state (the filename temporarily retains `Draft` for compatibility with existing references; this `v1.1.0-pre` document is no longer a free-form draft)**
+**Version: v1.1.0**
+**Status: stable language release (the filename temporarily retains `Draft` for compatibility with existing references; this document is no longer a free-form draft)**
 **Position: authoritative main document for the current CogLang specification set; intended for implementation, conformance, external trials, and cross-host alignment**
 
 ---
 
 ## 0. Role of This Document
 
-This document is the pre-release main specification for CogLang `v1.1.0`. It carries forward:
+This document is the stable main specification for CogLang `v1.1.0`. It carries forward:
 
 - The frozen core syntax, evaluation semantics, and error semantics from `v1.0.2`
 - Requirements for extension mechanisms, meta-reasoning, observability, query interfaces, and rule bridging under the current architecture boundaries
@@ -16,7 +16,7 @@ This document is the pre-release main specification for CogLang `v1.1.0`. It car
 
 This document is no longer used as a "chapter skeleton draft". For the current stage, it should be treated as:
 
-- The pre-release authoritative source for the language surface, evaluation semantics, error model, and expression-level observability
+- The stable authoritative source for the v1.1.0 language surface, evaluation semantics, error model, and expression-level observability
 - The primary basis for companion docs, conformance, migration documents, and host integration references
 - The judgment baseline for later convergence of `Reserved / Experimental` capabilities and implementation alignment
 

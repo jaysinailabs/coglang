@@ -406,8 +406,8 @@
 - 看语言语义：`CogLang_Specification_v1_1_0_Draft.md`
 - 看 profile / capability：`CogLang_Profiles_and_Capabilities_v1_1_0.md`
 - 看独立安装与试用路径：`CogLang_Standalone_Install_and_Release_Guide_v0_1.md`
-- 看公开发布边界：`CogLang_Release_Notes_v1_1_0_pre.md`
+- 看公开发布边界：`CogLang_Release_Notes_v1_1_0.md`
 - 看公开路线图：`ROADMAP.md`
 - 看 schema companion pack：`internal_schemas/host_runtime/v0.1/schema-pack.json`
 
-迁移说明、schema promotion 说明与 HRC v0.2 freeze 决策记录不属于当前 public pre-release 的发布内容。在公开发布前，它们应被视为未来 release-gate 材料，而不是公开承诺。
+迁移说明、schema promotion 说明与 HRC v0.2 freeze 决策记录不属于当前稳定语言发布内容。在正式发布前，它们应被视为未来 release-gate 材料，而不是公开承诺。

@@ -1,14 +1,14 @@
 # CogLang Standalone Install and Release Guide v0.1
 
-**Status**: pre-release companion document
+**Status**: stable release companion document
 **Audience**: users, implementers, and release maintainers trying `CogLang` as a standalone language component for the first time
-**Purpose**: explain how to install, verify, and try `CogLang` with minimal setup, and clarify the boundary between "publicly trialable" and "fully standalone release"
+**Purpose**: explain how to install, verify, and try `CogLang` with minimal setup, and clarify the boundary between stable language release and host-ecosystem roadmap work
 
 ---
 
 ## 0. What This Document Covers
 
-The current pre-release distribution path is still source-based installation.
+The stable `v1.1.0` distribution path is PyPI publication through Trusted Publishing.
 When readers only inspect the source tree, they can usually find where the code lives, but it is less obvious how to try `CogLang` first as an independent language core.
 
 This document answers four practical questions:
@@ -16,16 +16,16 @@ This document answers four practical questions:
 1. How to install and run `CogLang` today
 2. Which commands to run first after installation
 3. What the current minimum standalone tool surface includes
-4. What is still missing before a fully standalone release
+4. What remains roadmap work beyond the stable language release
 
 ---
 
 ## 1. Current Minimum Installation Path
 
-The minimum supported path is still **installing from source**:
+The stable release artifact is installed from PyPI:
 
 ```powershell
-pip install -e .
+pip install coglang
 ```
 
 After installation, the following entry point should be available:
@@ -37,9 +37,15 @@ coglang info
 Notes:
 
 - `CogLang` already provides an independent console script named `coglang`.
-- It is not yet published through a package index such as PyPI.
+- Stable releases are published through PyPI Trusted Publishing, not long-lived API tokens.
 
-The stable `v1.1.0` target changes that release path: stable releases should be published on PyPI as `coglang`, with the Python distribution version aligned to the language release (`1.1.0` for tag `v1.1.0`).
+For source development, use:
+
+```powershell
+pip install -e .[dev]
+```
+
+The stable `v1.1.0` release aligns the Python distribution version to the language release (`1.1.0` for tag `v1.1.0`).
 
 Pre-release tags such as `v1.1.0-pre.0` remain GitHub-only unless a later release decision explicitly changes that policy.
 
@@ -62,7 +68,7 @@ This should report:
 - available commands
 - the conformance suite name
 
-In the current source-distribution shape, these two version meanings should be read separately:
+In the stable release shape, these two version meanings are aligned. In historical pre-release or source-development shapes, they should still be read separately:
 
 - `version` reflects the installed distribution metadata version.
 - `language_release` reflects the public `CogLang` language/specification label.
@@ -88,7 +94,7 @@ This should check:
 coglang release-check
 ```
 
-This should pass in the current pre-release source distribution.
+This should pass in the stable release artifact and in source-development checkouts.
 It does not claim that every language capability is complete. It checks that the minimum release artifacts are present, including:
 
 - `pyproject.toml`
@@ -169,8 +175,7 @@ If help output shows additional reference commands, those commands do not automa
 
 Current suitable terms:
 
-- `experimental`
-- `pre-release`
+- `stable language release`
 - `reference implementation`
 - `language core + host bridge`
 
@@ -187,12 +192,12 @@ Current unsuitable terms:
 
 Even though `CogLang` can already be installed and tried, it is still not:
 
-1. a language project published through a package index
-2. a reference implementation fully decoupled from the current source-distribution shape
-3. a standalone release product with formal release automation
-4. a stable platform validated across multiple hosts
+1. a general-purpose programming language
+2. a stable multi-host runtime standard
+3. a mature extension ecosystem
+4. a platform validated across multiple independent hosts
 
-Keep "trialable" strictly separate from "fully standalone and mature."
+Keep "stable language release" strictly separate from "fully standalone and mature platform."
 
 ---
 
@@ -220,21 +225,19 @@ The checked-in publish workflow is intentionally inert for ordinary pushes. It o
 
 ---
 
-## 7. Remaining Gaps Before a Fully Standalone Release
+## 7. Remaining Gaps After Stable v1.1.0
 
 The most realistic next gaps are:
 
 1. **Trusted Publishing setup**
-   Configure the PyPI project and GitHub environment before the stable tag is pushed.
-2. **Stable release metadata**
-   Update `pyproject.toml` to `1.1.0`, update `language_release` to `v1.1.0`, and confirm release notes no longer describe the release as pre-release.
-3. **Release metadata and version cadence**
+   Confirm the PyPI project and GitHub environment before the stable tag is pushed.
+2. **Release metadata and version cadence**
    Make package publication, artifact validation, and language-release labels easier to follow.
-4. **More stable Host Runtime Contract**
+3. **More stable Host Runtime Contract**
    Lower the integration cost for external hosts.
-5. **At least one non-reference host demo**
+4. **At least one non-reference host demo**
    Show that this is not a private in-project DSL.
-6. **More complete release automation**
+5. **More complete release automation**
    For example, release notes generation and post-publish verification.
 
 ---
@@ -243,7 +246,7 @@ The most realistic next gaps are:
 
 If you only want to verify that `CogLang` can run independently, use these five steps:
 
-1. `pip install -e .`
+1. `pip install coglang`
 2. `coglang bundle`
 3. `coglang smoke`
 4. `coglang demo`
@@ -254,11 +257,11 @@ If all five steps pass, continue with:
 - `CogLang_Quickstart_v1_1_0.md`
 - `CogLang_Specification_v1_1_0_Draft.md`
 - `CogLang_Host_Runtime_Contract_v0_1.md`
-- `CogLang_Release_Notes_v1_1_0_pre.md`
+- `CogLang_Release_Notes_v1_1_0.md`
 
 ---
 
 ## 9. One-Sentence Summary
 
-`CogLang` now has a minimum standalone install path, command entry point, consistency run, and release artifact check.
-That is enough for experimental public trial use, but not enough to claim that standalone release maturity is complete.
+`CogLang` now has a stable language release path, command entry point, consistency run, and release artifact check.
+That is enough for stable language use, while multi-host maturity and ecosystem tooling remain explicit roadmap work.

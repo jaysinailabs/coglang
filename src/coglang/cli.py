@@ -27,7 +27,7 @@ EXAMPLES: dict[str, str] = {
 
 CLI_SCHEMA_VERSION = "coglang-cli-manifest/v0.1"
 HOST_DEMO_SCHEMA_VERSION = "coglang-host-demo/v0.1"
-COGLANG_LANGUAGE_RELEASE = "v1.1.0-pre"
+COGLANG_LANGUAGE_RELEASE = "v1.1.0"
 HOST_DEMO_TOP_LEVEL_KEYS = (
     "schema_version",
     "tool",
@@ -104,7 +104,7 @@ def _cli_version() -> str:
             return package_version(candidate)
         except PackageNotFoundError:
             continue
-    return "0.1.0"
+    return "1.1.0"
 
 
 def _resolve_project_artifact(*relative_candidates: str) -> tuple[Path, str]:
@@ -187,9 +187,9 @@ def _info_payload() -> dict[str, Any]:
             "vocab",
             "examples",
             "smoke",
-        "demo",
-        "host-demo",
-        "release-check",
+            "demo",
+            "host-demo",
+            "release-check",
         ],
         "conformance_suites": ["smoke", "core", "full"],
     }
@@ -451,8 +451,8 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
         "CogLang_Contribution_Guide_v0_1.md",
     )
     release_notes_path, _ = _resolve_project_artifact(
-        "CogLang_Release_Notes_v1_1_0_pre.md",
-        "CogLang_Release_Notes_v1_1_0_pre.md",
+        "CogLang_Release_Notes_v1_1_0.md",
+        "CogLang_Release_Notes_v1_1_0.md",
     )
     roadmap_path, _ = _resolve_project_artifact("ROADMAP.md", "ROADMAP.md")
     maintenance_path, _ = _resolve_project_artifact("MAINTENANCE.md", "MAINTENANCE.md")
@@ -573,8 +573,8 @@ def _manifest_payload() -> dict[str, Any]:
         "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
     )[1]
     release_notes_relpath = _resolve_project_artifact(
-        "CogLang_Release_Notes_v1_1_0_pre.md",
-        "CogLang_Release_Notes_v1_1_0_pre.md",
+        "CogLang_Release_Notes_v1_1_0.md",
+        "CogLang_Release_Notes_v1_1_0.md",
     )[1]
     contribution_guide_relpath = _resolve_project_artifact(
         "CogLang_Contribution_Guide_v0_1.md",
@@ -604,7 +604,7 @@ def _manifest_payload() -> dict[str, Any]:
         "package": info["package"],
         "version": info["version"],
         "language_release": info["language_release"],
-        "status": "experimental-pre-release",
+        "status": "stable-language-release",
         "license": "Apache-2.0",
         "entrypoints": {
             "recommended": "coglang",

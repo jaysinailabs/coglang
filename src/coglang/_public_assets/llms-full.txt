@@ -6,12 +6,11 @@ It is best understood as a language layer that can sit between a language model 
 
 Current status:
 
-- experimental
-- pre-release
+- stable language release
 - reference implementation
 - language core plus host bridge
 
-This file is for LLM-oriented retrieval and summarization. It is not the release contract. For committed surfaces, use `CogLang_Release_Notes_v1_1_0_pre.md`.
+This file is for LLM-oriented retrieval and summarization. It is not the release contract. For committed surfaces, use `CogLang_Release_Notes_v1_1_0.md`.
 
 ## What CogLang Is For
 
@@ -104,7 +103,7 @@ coglang demo
   Install, build, and local release verification.
 - `CogLang_Host_Runtime_Contract_v0_1.md`
   Minimal host contract.
-- `CogLang_Release_Notes_v1_1_0_pre.md`
+- `CogLang_Release_Notes_v1_1_0.md`
   Current promises and non-promises.
 - `CogLang_Contribution_Guide_v0_1.md`
   Contribution boundaries and review expectations.
@@ -119,4 +118,4 @@ Public-facing canonical documentation is English-first. Chinese companion transl
 
 ## One-Sentence Summary
 
-CogLang aims to become a stable, auditable intermediate language for LLM-produced graph operations: the kind of language you can place between a language model and a graph-backed system without losing the ability to inspect, replay, or deny any given step. The current release remains experimental and pre-release.
+CogLang is a stable language and reference implementation for auditable LLM-produced graph operations: the kind of language you can place between a language model and a graph-backed system without losing the ability to inspect, replay, or deny any given step. Host Runtime Contract and ecosystem work remain versioned separately.

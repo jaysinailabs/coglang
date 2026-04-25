@@ -68,10 +68,11 @@ If you only have 10 minutes:
 From a checkout:
 
 ```powershell
-pip install -e .[dev]
-coglang doctor
+pip install -e .
+coglang bundle
 coglang smoke
-coglang release-check
+coglang demo
+coglang conformance --level smoke
 ```
 
 The public CLI entry point is `coglang`.
@@ -153,6 +154,13 @@ The highest-value contributions are currently:
 - documentation fixes that improve the first-run experience
 - host integration examples that keep language semantics separate from host policy
 - small CLI or packaging improvements that improve repeatable validation
+
+For local test development, install the development extras:
+
+```powershell
+pip install -e .[dev]
+python -m pytest
+```
 
 Lower-priority contributions:
 

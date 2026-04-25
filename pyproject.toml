@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "coglang"
 version = "0.1.0"
-description = "Graph-first intermediate language for auditable LLM-produced graph operations"
+description = "Graph-first intermediate language for auditable LLM-generated graph queries and updates"
 readme = "README.md"
 authors = [{ name = "Jason Xin" }]
 license = "Apache-2.0"
@@ -14,9 +14,16 @@ keywords = [
     "llm",
     "graph",
     "knowledge graph",
+    "knowledge-graph",
+    "graph database",
+    "graph-database",
     "dsl",
+    "query language",
     "intermediate language",
     "auditable execution",
+    "ai agent",
+    "ai-agent",
+    "agent",
     "traceable ai",
     "m-expression",
     "unification",
@@ -26,6 +33,7 @@ requires-python = ">=3.11"
 dependencies = ["networkx"]
 classifiers = [
     "Development Status :: 3 - Alpha",
+    "Environment :: Console",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
@@ -33,6 +41,12 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Database",
 ]
+
+[project.urls]
+Homepage = "https://github.com/jaysinailabs/coglang"
+Repository = "https://github.com/jaysinailabs/coglang"
+Issues = "https://github.com/jaysinailabs/coglang/issues"
+Documentation = "https://github.com/jaysinailabs/coglang#readme"
 
 [project.scripts]
 coglang = "coglang.cli:main"

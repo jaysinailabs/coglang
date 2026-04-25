@@ -151,6 +151,7 @@ The current recommended standalone tool entry points are:
 - `examples`
 - `smoke`
 - `demo`
+- `host-demo`
 - `release-check`
 
 This means `CogLang` is no longer only a specification plus a reference runtime. It also has a minimum tool surface that can be tried independently.

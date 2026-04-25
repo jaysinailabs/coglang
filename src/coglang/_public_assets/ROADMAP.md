@@ -26,6 +26,24 @@ It separates three levels:
 
 ---
 
+## Next Release Target: Stable v1.1.0
+
+The next major project target after `v1.1.0-pre` is a stable `v1.1.0` release.
+
+That target is not a date promise. It means the project should focus next on converting the current pre-release surface into a stable release candidate by closing the remaining release-readiness gaps.
+
+Before `v1.1.0` can be called stable, the project should have:
+
+- a clear package/version/tag convention that users can understand without reading internal notes
+- a release path decision for source-only GitHub releases versus package-index publication
+- stronger Host Runtime Contract closure, especially around multi-host expectations
+- enough public examples that users can try the core language and host boundary without relying on private context
+- no unresolved public documentation contradictions between README, release notes, roadmap, install guide, and machine-readable summaries
+
+Until those items are closed, `v1.1.0-pre` should be presented as an experimental pre-release, not as the stable `v1.1.0` line.
+
+---
+
 ## In Progress
 
 ### 1. Host Runtime Contract v0.2 tightening

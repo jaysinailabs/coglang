@@ -144,7 +144,7 @@ def _sample_submission_message() -> WriteBundleSubmissionMessage:
             WriteOperation(
                 op="create_node",
                 payload={
-                    "node_id": "node-1",
+                    "id": "node-1",
                     "node_type": "Entity",
                     "attrs": {"name": "Tesla"},
                 },
@@ -426,6 +426,20 @@ def test_write_bundle_submission_message_schema_seed_matches_sample_payload():
         payload["header"]["operation"]
         == schema["properties"]["header"]["properties"]["operation"]["const"]
     )
+
+
+def test_write_bundle_submission_example_uses_runtime_valid_candidate_shape():
+    candidate_payload = _load_example("write-bundle-submission-message.sample.json")["payload"]["candidate"]
+    candidate = WriteBundleCandidate.from_dict(candidate_payload)
+
+    is_valid, errors = candidate.validate_against_existing_ids(set())
+
+    assert is_valid is True
+    assert errors == []
+    create_payload = candidate.operations[0].payload
+    assert create_payload["id"] == "node-1"
+    assert create_payload["node_type"] == "Entity"
+    assert "node_id" not in create_payload
 
 
 def test_record_query_result_and_trace_schema_seeds_match_sample_payloads():

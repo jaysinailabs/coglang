@@ -10,6 +10,7 @@ from contextlib import redirect_stdout
 from pathlib import Path
 
 from coglang.cli import (
+    COGLANG_LANGUAGE_RELEASE,
     HOST_DEMO_TOP_LEVEL_KEYS,
     _bundle_payload,
     _conformance_targets,
@@ -70,6 +71,21 @@ def _run(argv: list[str]) -> tuple[int, str]:
     with redirect_stdout(buffer):
         code = main(argv)
     return code, buffer.getvalue().strip()
+
+
+def test_cli_version_output_includes_distribution_and_language_release():
+    buffer = io.StringIO()
+    with redirect_stdout(buffer):
+        try:
+            main(["--version"])
+        except SystemExit as exc:
+            assert exc.code == 0
+        else:
+            raise AssertionError("--version should terminate argument parsing")
+
+    output = buffer.getvalue().strip()
+    assert output.startswith("coglang ")
+    assert f"(language_release {COGLANG_LANGUAGE_RELEASE})" in output
 
 
 def test_cli_parse_canonical_output():

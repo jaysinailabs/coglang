@@ -22,7 +22,7 @@
                 "attrs": {
                   "name": "Tesla"
                 },
-                "node_id": "node-1",
+                "id": "node-1",
                 "node_type": "Entity"
               }
             }
@@ -37,7 +37,7 @@
                 "attrs": {
                   "name": "Tesla"
                 },
-                "node_id": "node-1",
+                "id": "node-1",
                 "node_type": "Entity"
               }
             }

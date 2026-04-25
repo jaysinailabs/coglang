@@ -183,7 +183,7 @@ Minimal JSON example:
       "op": "create_node",
       "payload": {
         "id": "dog_1",
-        "type": "Entity",
+        "node_type": "Entity",
         "attrs": {
           "label": "Dog"
         }
@@ -401,12 +401,13 @@ These topics should be handled by architecture documents, implementation documen
 
 ## 8. Relationship to Other Documents
 
+The public repository currently ships these directly reviewable companion documents and schema assets:
+
 - Language semantics: `CogLang_Specification_v1_1_0_Draft.md`
 - Profiles and capabilities: `CogLang_Profiles_and_Capabilities_v1_1_0.md`
-- Migration gate: `CogLang_Migration_v1_0_2_to_v1_1_0.md`
 - Standalone install and trial path: `CogLang_Standalone_Install_and_Release_Guide_v0_1.md`
 - Public release boundary: `CogLang_Release_Notes_v1_1_0_pre.md`
-- Current schema companion pack scope and position: `CogLang_HRC_JSON_Schema_Seed_v0_1.md`
-- Schema companion pack promotion boundary: `CogLang_HRC_JSON_Schema_Promotion_Boundary_v0_1.md`
-- Candidate object minimal field surface: `CogLang_HRC_JSON_Schema_Candidate_Field_Boundary_v0_1.md`
-- Current freeze judgment and gate for `Section 5.4`: `CogLang_HRC_v0_2_Freeze_Decision_Note_v0_1.md`, `CogLang_HRC_v0_2_Freeze_Gate_v0_1.md`, `CogLang_HRC_v0_2_Freeze_Decision_Record_Template_v0_1.md`
+- Public roadmap: `ROADMAP.md`
+- Schema companion pack: `internal_schemas/host_runtime/v0.1/schema-pack.json`
+
+Migration notes, schema-promotion notes, and HRC v0.2 freeze decision records are not part of the current public pre-release. Until they are published, they should be treated as future release-gate material rather than public commitments.

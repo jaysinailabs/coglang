@@ -1423,7 +1423,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--version",
         action="version",
-        version=f"%(prog)s {_cli_version()}",
+        version=f"%(prog)s {_cli_version()} (language_release {COGLANG_LANGUAGE_RELEASE})",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 

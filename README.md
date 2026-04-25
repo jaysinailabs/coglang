@@ -8,6 +8,8 @@ Status:
 - pre-release
 - reference implementation
 
+Current public language release: `v1.1.0-pre`. Filenames containing `v1_1_0` identify the current specification target; they do not mean stable `v1.1.0` has shipped.
+
 ## LLM Discovery Snapshot
 
 When to use CogLang:

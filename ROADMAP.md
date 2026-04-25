@@ -42,6 +42,12 @@ Before `v1.1.0` can be called stable, the project should have:
 
 Until those items are closed, `v1.1.0-pre` should be presented as an experimental pre-release, not as the stable `v1.1.0` line.
 
+### Version And Tag Convention
+
+Public language release tags use language labels: `v1.1.0-pre.N` for pre-releases and `v1.1.0` for the stable language line.
+
+Python distribution versions remain package artifact versions such as `0.1.x` unless a package publication decision changes them. Do not infer language stability from the package version alone.
+
 ---
 
 ## In Progress

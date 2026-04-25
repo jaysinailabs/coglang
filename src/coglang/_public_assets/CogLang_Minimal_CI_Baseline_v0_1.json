@@ -6,6 +6,22 @@
     "source": ".github/workflows/ci.yml",
     "destination": ".github/workflows/ci.yml"
   },
+  "publish_workflow_template": {
+    "source": ".github/workflows/publish.yml",
+    "destination": ".github/workflows/publish.yml",
+    "credential_strategy": "pypi-trusted-publishing",
+    "long_lived_api_token_required": false,
+    "trigger": "stable git tags only"
+  },
+  "stable_release_policy": {
+    "stable_language_tag": "v1.1.0",
+    "stable_python_distribution_version": "1.1.0",
+    "package_index": "PyPI",
+    "pypi_project": "coglang",
+    "trusted_publishing": true,
+    "long_lived_api_token": false,
+    "pre_releases_are_github_only": true
+  },
   "commands": [
     {
       "name": "bundle",

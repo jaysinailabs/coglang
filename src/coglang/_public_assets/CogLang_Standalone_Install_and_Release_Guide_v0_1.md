@@ -39,6 +39,10 @@ Notes:
 - `CogLang` already provides an independent console script named `coglang`.
 - It is not yet published through a package index such as PyPI.
 
+The stable `v1.1.0` target changes that release path: stable releases should be published on PyPI as `coglang`, with the Python distribution version aligned to the language release (`1.1.0` for tag `v1.1.0`).
+
+Pre-release tags such as `v1.1.0-pre.0` remain GitHub-only unless a later release decision explicitly changes that policy.
+
 ---
 
 ## 2. Minimum Post-Install Acceptance Path
@@ -62,6 +66,8 @@ In the current source-distribution shape, these two version meanings should be r
 
 - `version` reflects the installed distribution metadata version.
 - `language_release` reflects the public `CogLang` language/specification label.
+
+For stable `v1.1.0`, these two layers should intentionally converge: the GitHub tag is `v1.1.0`, the Python package version is `1.1.0`, and `language_release` reports `v1.1.0`.
 
 ### 2.2 Environment Self-Check
 
@@ -190,24 +196,50 @@ Keep "trialable" strictly separate from "fully standalone and mature."
 
 ---
 
-## 6. Remaining Gaps Before a Fully Standalone Release
+## 6. Stable v1.1.0 Release Policy
 
-The most realistic next gaps are:
+Stable `v1.1.0` is the first target where package-index publication should be part of the normal release path.
 
-1. **Package-index publication**
-   Let users install it without cloning the repository first.
-2. **Release metadata and version cadence**
-   Make package publication, artifact validation, and language-release labels easier to follow.
-3. **More stable Host Runtime Contract**
-   Lower the integration cost for external hosts.
-4. **At least one non-reference host demo**
-   Show that this is not a private in-project DSL.
-5. **More complete release automation**
-   For example, wheel/sdist verification, release smoke path, and version cadence guidance.
+The release policy is:
+
+- GitHub pre-releases such as `v1.1.0-pre.0` are source-only and should not be backfilled to PyPI.
+- The stable GitHub tag is `v1.1.0`.
+- The stable Python distribution version is `1.1.0`.
+- PyPI publishing should use Trusted Publishing from GitHub Actions.
+- Normal releases should not use long-lived PyPI API tokens.
+- The publishing workflow must verify that the tag and `pyproject.toml` package version match before uploading artifacts.
+
+Before the first PyPI upload, the project owner must configure PyPI Trusted Publishing for:
+
+- PyPI project: `coglang`
+- GitHub repository: `jaysinailabs/coglang`
+- Workflow: `.github/workflows/publish.yml`
+- Environment: `pypi`
+
+The checked-in publish workflow is intentionally inert for ordinary pushes. It only runs on matching Git tags and refuses to publish non-stable tags or mismatched package versions.
 
 ---
 
-## 7. Recommended Trial Sequence
+## 7. Remaining Gaps Before a Fully Standalone Release
+
+The most realistic next gaps are:
+
+1. **Trusted Publishing setup**
+   Configure the PyPI project and GitHub environment before the stable tag is pushed.
+2. **Stable release metadata**
+   Update `pyproject.toml` to `1.1.0`, update `language_release` to `v1.1.0`, and confirm release notes no longer describe the release as pre-release.
+3. **Release metadata and version cadence**
+   Make package publication, artifact validation, and language-release labels easier to follow.
+4. **More stable Host Runtime Contract**
+   Lower the integration cost for external hosts.
+5. **At least one non-reference host demo**
+   Show that this is not a private in-project DSL.
+6. **More complete release automation**
+   For example, release notes generation and post-publish verification.
+
+---
+
+## 8. Recommended Trial Sequence
 
 If you only want to verify that `CogLang` can run independently, use these five steps:
 
@@ -226,7 +258,7 @@ If all five steps pass, continue with:
 
 ---
 
-## 8. One-Sentence Summary
+## 9. One-Sentence Summary
 
 `CogLang` now has a minimum standalone install path, command entry point, consistency run, and release artifact check.
 That is enough for experimental public trial use, but not enough to claim that standalone release maturity is complete.

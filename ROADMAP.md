@@ -44,9 +44,11 @@ Until those items are closed, `v1.1.0-pre` should be presented as an experimenta
 
 ### Version And Tag Convention
 
-Public language release tags use language labels: `v1.1.0-pre.N` for pre-releases and `v1.1.0` for the stable language line.
+Public language release tags use language labels: `v1.1.0-pre.N` for GitHub-only pre-releases and `v1.1.0` for the stable language line.
 
-Python distribution versions remain package artifact versions such as `0.1.x` unless a package publication decision changes them. Do not infer language stability from the package version alone.
+The stable `v1.1.0` release should align the Python distribution version to `1.1.0`. Earlier pre-release packages may keep artifact versions such as `0.1.x`; do not infer stable language status from those pre-release package versions alone.
+
+The stable `v1.1.0` release path is PyPI publication through Trusted Publishing. The project should not use long-lived PyPI API tokens for normal releases.
 
 ---
 

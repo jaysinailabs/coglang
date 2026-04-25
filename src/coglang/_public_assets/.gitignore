@@ -9,3 +9,4 @@ __pycache__/
 .tmp_pytest/
 .tmp_ci_wheel/
 .tmp_ci_sdist/
+.tmp_publish_wheel/

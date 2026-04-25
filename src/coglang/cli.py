@@ -280,6 +280,10 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
         "CogLang_Public_CI_Workflow_v0_1.yml",
         ".github/workflows/ci.yml",
     )
+    publish_workflow_template_path, publish_workflow_template_relpath = _resolve_project_artifact(
+        "CogLang_Public_PyPI_Publish_Workflow_v0_1.yml",
+        ".github/workflows/publish.yml",
+    )
     required_command_names = ["bundle", "release_check", "smoke", "conformance_smoke"]
     required_packaging_check_names = [
         "build_distributions",
@@ -298,6 +302,11 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
         ".tmp_ci_wheel/bin/python -m coglang smoke",
         ".tmp_ci_sdist/bin/python -m coglang smoke",
     ]
+    publish_workflow_required_snippets = [
+        "pypa/gh-action-pypi-publish@release/v1",
+        "id-token: write",
+        "Verify stable tag matches package version",
+    ]
     if not descriptor_path.exists():
         return {
             "path": descriptor_relpath,
@@ -306,6 +315,10 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
             "commands": [],
             "workflow_template_path": workflow_template_relpath,
             "workflow_template_present": False,
+            "publish_workflow_template_path": publish_workflow_template_relpath,
+            "publish_workflow_template_present": False,
+            "publish_workflow_required_snippets": publish_workflow_required_snippets,
+            "publish_workflow_required_snippets_present": False,
             "required_command_names": required_command_names,
             "required_command_names_present": False,
             "packaging_verification": [],
@@ -333,9 +346,20 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
         if workflow_template_path.exists()
         else ""
     )
+    publish_workflow_text = (
+        publish_workflow_template_path.read_text(encoding="utf-8")
+        if publish_workflow_template_path.exists()
+        else ""
+    )
     payload["path"] = descriptor_relpath
     payload["workflow_template_path"] = workflow_template_relpath
     payload["workflow_template_present"] = workflow_template_path.exists()
+    payload["publish_workflow_template_path"] = publish_workflow_template_relpath
+    payload["publish_workflow_template_present"] = publish_workflow_template_path.exists()
+    payload["publish_workflow_required_snippets"] = publish_workflow_required_snippets
+    payload["publish_workflow_required_snippets_present"] = all(
+        snippet in publish_workflow_text for snippet in publish_workflow_required_snippets
+    )
     payload["required_command_names"] = required_command_names
     payload["required_command_names_present"] = all(
         name in command_names for name in required_command_names

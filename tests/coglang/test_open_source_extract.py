@@ -16,9 +16,9 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     payload = materialize_public_repo_extract(destination)
 
     assert payload["schema_version"] == "coglang-public-repo-extract-run/v0.1"
-    assert payload["entry_count"] == 34
+    assert payload["entry_count"] == 35
     assert payload["copied_trees"] == 3
-    assert payload["copied_files"] == 31
+    assert payload["copied_files"] == 32
 
     assert (destination / "pyproject.toml").exists()
     assert (destination / ".gitignore").exists()
@@ -38,6 +38,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "CogLang_Profiles_and_Capabilities_v1_1_0.zh-CN.md").exists()
     assert (destination / "CogLang_Operator_Catalog_v1_1_0.zh-CN.md").exists()
     assert (destination / ".github" / "workflows" / "ci.yml").exists()
+    assert (destination / ".github" / "workflows" / "publish.yml").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "README.md").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / ".gitignore").exists()
     assert (
@@ -62,6 +63,15 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         / ".github"
         / "workflows"
         / "ci.yml"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / ".github"
+        / "workflows"
+        / "publish.yml"
     ).exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_cli.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "conftest.py").exists()
@@ -112,6 +122,8 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert public_extract_manifest["path"] == "CogLang_Public_Repo_Extract_Manifest_v0_1.json"
     assert public_extract_manifest["required_destinations_present"] is True
     assert manifest["minimal_ci_baseline"]["workflow_template_present"] is True
+    assert manifest["minimal_ci_baseline"]["publish_workflow_template_present"] is True
+    assert manifest["minimal_ci_baseline"]["publish_workflow_required_snippets_present"] is True
     assert release_check["ok"] is True
     assert callable(extracted_cli.main)
 
@@ -122,6 +134,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert installed_like_manifest["docs"]["readme"] == "README.md"
     assert installed_like_manifest["open_source_boundary"]["status"] != "missing"
     assert installed_like_manifest["minimal_ci_baseline"]["workflow_template_present"] is True
+    assert installed_like_manifest["minimal_ci_baseline"]["publish_workflow_template_present"] is True
     assert installed_like_release_check["ok"] is True
     installed_like_targets = [item.replace("\\", "/") for item in extracted_cli._conformance_targets("smoke")]
     assert any(item.endswith("coglang/_public_assets/tests/coglang/test_cli.py") for item in installed_like_targets)
@@ -133,6 +146,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert "dist/" in gitignore_lines
     assert ".tmp_ci_wheel/" in gitignore_lines
     assert ".tmp_ci_sdist/" in gitignore_lines
+    assert ".tmp_publish_wheel/" in gitignore_lines
     pytest_ini_text = (destination / "pytest.ini").read_text(encoding="utf-8")
     assert "L1: level 1 smoke and conformance marker" in pytest_ini_text
     assert "L2: level 2 smoke and conformance marker" in pytest_ini_text

@@ -37,7 +37,11 @@ coglang info
 说明：
 
 - `CogLang` 已经有独立 console script `coglang`
-- 但它还不是一个完全独立发布的单独仓库或单独包名
+- 但当前预发布还没有通过 PyPI 这类包索引发布
+
+stable `v1.1.0` 目标会改变这条发布路径：稳定版应以 `coglang` 包名发布到 PyPI，并让 Python distribution version 与语言 release 对齐（tag `v1.1.0` 对应包版本 `1.1.0`）。
+
+`v1.1.0-pre.0` 这类预发布 tag 仍保持 GitHub-only，除非后续另有明确发布决策。
 
 ---
 
@@ -62,6 +66,8 @@ coglang info
 
 - `version` 反映当前安装分发元数据版本
 - `language_release` 反映当前 `CogLang` 语言/规范公开标签
+
+到 stable `v1.1.0` 时，这两层应有意收敛：GitHub tag 是 `v1.1.0`，Python 包版本是 `1.1.0`，`language_release` 报告 `v1.1.0`。
 
 ### 2.2 环境自检
 
@@ -189,24 +195,50 @@ coglang demo
 
 ---
 
-## 6. 距离完全独立发布还差什么
+## 6. stable v1.1.0 发布策略
 
-从当前状态走到更成熟的独立发布，下一层最现实的差距主要在：
+stable `v1.1.0` 是第一个应把包索引发布纳入正常路径的目标版本。
 
-1. **包索引发布**
-   让用户无需先 clone 仓库即可安装。
-2. **发布元数据与版本节奏**
-   让包发布、工件校验和语言 release label 更容易理解。
-3. **更稳的 Host Runtime Contract**
-   让外部宿主可以更低成本接入。
-4. **至少一个非参考宿主 demo**
-   证明这不是项目内私有 DSL。
-5. **更完整的 release automation**
-   例如 wheel/sdist 校验、发布 smoke path、版本节奏说明。
+发布策略如下：
+
+- `v1.1.0-pre.0` 这类 GitHub 预发布保持 source-only，不回补发布到 PyPI。
+- stable GitHub tag 是 `v1.1.0`。
+- stable Python distribution version 是 `1.1.0`。
+- PyPI 发布使用 GitHub Actions Trusted Publishing。
+- 常规发布不使用长期 PyPI API token。
+- 发布 workflow 必须先校验 tag 与 `pyproject.toml` 包版本一致，才能上传工件。
+
+首次 PyPI 上传前，项目所有者需要在 PyPI 配置 Trusted Publishing：
+
+- PyPI project：`coglang`
+- GitHub repository：`jaysinailabs/coglang`
+- Workflow：`.github/workflows/publish.yml`
+- Environment：`pypi`
+
+仓库中的 publish workflow 对普通 push 是惰性的；它只在匹配 tag 时运行，并拒绝非 stable tag 或版本不匹配的工件。
 
 ---
 
-## 7. 当前建议的实际使用顺序
+## 7. 距离完全独立发布还差什么
+
+从当前状态走到更成熟的独立发布，下一层最现实的差距主要在：
+
+1. **Trusted Publishing 配置**
+   在推送 stable tag 前完成 PyPI project 与 GitHub environment 配置。
+2. **stable 发布元数据**
+   把 `pyproject.toml` 更新到 `1.1.0`，把 `language_release` 更新到 `v1.1.0`，并确认 release notes 不再把该版本描述为 pre-release。
+3. **发布元数据与版本节奏**
+   让包发布、工件校验和语言 release label 更容易理解。
+4. **更稳的 Host Runtime Contract**
+   让外部宿主可以更低成本接入。
+5. **至少一个非参考宿主 demo**
+   证明这不是项目内私有 DSL。
+6. **更完整的 release automation**
+   例如 release notes 生成和发布后校验。
+
+---
+
+## 8. 当前建议的实际使用顺序
 
 如果你只是想先验证“这东西能不能独立跑起来”，建议只做下面 5 步：
 
@@ -225,7 +257,7 @@ coglang demo
 
 ---
 
-## 8. 一句话结论
+## 9. 一句话结论
 
 当前 `CogLang` 已经具备**最小独立安装、最小命令入口、最小一致性运行、最小发布工件检查**。  
 这足以支撑“实验性公开试用”，但还不足以宣称“已经完成独立发布成熟化”。

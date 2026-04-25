@@ -72,6 +72,11 @@
     },
     {
       "kind": "file",
+      "source": ".github/workflows/publish.yml",
+      "destination": ".github/workflows/publish.yml"
+    },
+    {
+      "kind": "file",
       "source": ".gitignore",
       "destination": ".gitignore"
     },

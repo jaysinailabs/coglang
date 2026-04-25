@@ -1053,6 +1053,21 @@ def test_cli_minimal_ci_baseline_payload_shape():
         ".github/workflows/ci.yml",
     }
     assert payload["workflow_template_present"] is True
+    assert payload["publish_workflow_template_path"] in {
+        "CogLang_Public_PyPI_Publish_Workflow_v0_1.yml",
+        ".github/workflows/publish.yml",
+    }
+    assert payload["publish_workflow_template_present"] is True
+    assert payload["publish_workflow_required_snippets_present"] is True
+    assert payload["stable_release_policy"] == {
+        "stable_language_tag": "v1.1.0",
+        "stable_python_distribution_version": "1.1.0",
+        "package_index": "PyPI",
+        "pypi_project": "coglang",
+        "trusted_publishing": True,
+        "long_lived_api_token": False,
+        "pre_releases_are_github_only": True,
+    }
     assert payload["required_command_names_present"] is True
     assert payload["required_packaging_check_names_present"] is True
     assert payload["workflow_required_step_names_present"] is True
@@ -1081,6 +1096,11 @@ def test_cli_minimal_ci_baseline_payload_shape():
         ".tmp_ci_wheel/bin/python -m coglang smoke",
         ".tmp_ci_sdist/bin/python -m coglang smoke",
     ]
+    assert payload["publish_workflow_required_snippets"] == [
+        "pypa/gh-action-pypi-publish@release/v1",
+        "id-token: write",
+        "Verify stable tag matches package version",
+    ]
 
 
 def test_cli_public_repo_extract_manifest_payload_shape():
@@ -1088,7 +1108,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 34
+    assert payload["entry_count"] == 35
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -1135,6 +1155,9 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert ".github/workflows/ci.yml" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert ".github/workflows/publish.yml" in [
         item["source"] for item in payload["entries"]
     ]
     assert ".gitignore" in [

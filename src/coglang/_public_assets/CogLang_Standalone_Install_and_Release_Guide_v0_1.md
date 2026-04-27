@@ -218,8 +218,8 @@ Before the first PyPI upload, the project owner must configure PyPI Trusted Publ
 
 - PyPI project: `coglang`
 - GitHub repository: `jaysinailabs/coglang`
-- Workflow: `.github/workflows/publish.yml`
-- Environment: `pypi`
+- Workflow filename: `publish.yml` (the workflow file lives at `.github/workflows/publish.yml` in this repository)
+- Environment name: `pypi`
 
 The checked-in publish workflow is intentionally inert for ordinary pushes. It only runs on matching Git tags and refuses to publish non-stable tags or mismatched package versions.
 

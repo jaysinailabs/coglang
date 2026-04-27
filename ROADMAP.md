@@ -46,7 +46,7 @@ The stable release line is intentionally scoped to the language, public CLI, con
 
 Public language release tags use language labels: `v1.1.0-pre.N` for historical GitHub-only pre-releases and `v1.1.0` for the stable language line.
 
-The stable `v1.1.0` release aligns the Python distribution version to `1.1.0`. Earlier pre-release packages may keep artifact versions such as `0.1.x`; do not infer stable language status from those pre-release package versions alone.
+The stable `v1.1.0` language release initially aligned the Python distribution version to `1.1.0`. Later `1.1.x` Python package patch releases may update packaging or documentation while keeping `language_release = v1.1.0`. Earlier pre-release packages may keep artifact versions such as `0.1.x`; do not infer stable language status from those pre-release package versions alone.
 
 The stable `v1.1.0` release path is PyPI publication through Trusted Publishing. The project should not use long-lived PyPI API tokens for normal releases.
 

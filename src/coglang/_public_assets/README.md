@@ -8,7 +8,7 @@ Status:
 - reference implementation
 - host bridge v0.x
 
-Current public language release: `v1.1.0`. The Python distribution version is `1.1.0`.
+Current public language release: `v1.1.0`. The current Python distribution version is `1.1.1`.
 
 ## LLM Discovery Snapshot
 
@@ -87,7 +87,7 @@ coglang conformance smoke
 From a checkout for development:
 
 ```powershell
-pip install -e .[dev]
+pip install -e ".[dev]"
 coglang bundle
 coglang smoke
 coglang demo
@@ -140,6 +140,7 @@ Integration and release-facing documents:
 
 - [CogLang_Host_Runtime_Contract_v0_1.md](CogLang_Host_Runtime_Contract_v0_1.md)
 - [CogLang_Standalone_Install_and_Release_Guide_v0_1.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.md)
+- [CogLang_Release_Notes_v1_1_1.md](CogLang_Release_Notes_v1_1_1.md)
 - [CogLang_Release_Notes_v1_1_0.md](CogLang_Release_Notes_v1_1_0.md)
 - [CogLang_Contribution_Guide_v0_1.md](CogLang_Contribution_Guide_v0_1.md)
 - [ROADMAP.md](ROADMAP.md)
@@ -151,6 +152,7 @@ Chinese companion translations:
 - [CogLang_Specification_v1_1_0_Draft.zh-CN.md](CogLang_Specification_v1_1_0_Draft.zh-CN.md)
 - [CogLang_Conformance_Suite_v1_1_0.zh-CN.md](CogLang_Conformance_Suite_v1_1_0.zh-CN.md)
 - [CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md)
+- [CogLang_Release_Notes_v1_1_1.zh-CN.md](CogLang_Release_Notes_v1_1_1.zh-CN.md)
 - [CogLang_Release_Notes_v1_1_0.zh-CN.md](CogLang_Release_Notes_v1_1_0.zh-CN.md)
 - [CogLang_Contribution_Guide_v0_1.zh-CN.md](CogLang_Contribution_Guide_v0_1.zh-CN.md)
 - [CogLang_Host_Runtime_Contract_v0_1.zh-CN.md](CogLang_Host_Runtime_Contract_v0_1.zh-CN.md)
@@ -177,7 +179,7 @@ The highest-value contributions are currently:
 For local test development, install the development extras:
 
 ```powershell
-pip install -e .[dev]
+pip install -e ".[dev]"
 python -m pytest
 ```
 
@@ -191,7 +193,8 @@ Lower-priority contributions:
 
 Use the project documents this way:
 
-- [CogLang_Release_Notes_v1_1_0.md](CogLang_Release_Notes_v1_1_0.md): what is currently promised.
+- [CogLang_Release_Notes_v1_1_1.md](CogLang_Release_Notes_v1_1_1.md): latest Python package patch notes.
+- [CogLang_Release_Notes_v1_1_0.md](CogLang_Release_Notes_v1_1_0.md): stable language release commitments.
 - [ROADMAP.md](ROADMAP.md): what is prioritized or being explored.
 - [MAINTENANCE.md](MAINTENANCE.md): how the project may slow down, freeze, transfer, or archive.
 

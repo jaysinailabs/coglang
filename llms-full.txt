@@ -10,7 +10,7 @@ Current status:
 - reference implementation
 - language core plus host bridge
 
-This file is for LLM-oriented retrieval and summarization. It is not the release contract. For committed surfaces, use `CogLang_Release_Notes_v1_1_0.md`.
+This file is for LLM-oriented retrieval and summarization. It is not the release contract. For package patch notes, use `CogLang_Release_Notes_v1_1_1.md`; for stable language commitments, use `CogLang_Release_Notes_v1_1_0.md`.
 
 ## What CogLang Is For
 
@@ -103,6 +103,7 @@ coglang demo
   Install, build, and local release verification.
 - `CogLang_Host_Runtime_Contract_v0_1.md`
   Minimal host contract.
+- `CogLang_Release_Notes_v1_1_1.md`
 - `CogLang_Release_Notes_v1_1_0.md`
   Current promises and non-promises.
 - `CogLang_Contribution_Guide_v0_1.md`

@@ -37,7 +37,8 @@ Core documents:
 - CogLang_Operator_Catalog_v1_1_0.md: operator status and call-surface summary
 - CogLang_Standalone_Install_and_Release_Guide_v0_1.md: install, build, and local release verification
 - CogLang_Host_Runtime_Contract_v0_1.md: minimal host contract
-- CogLang_Release_Notes_v1_1_0.md: what is promised and what is not
+- CogLang_Release_Notes_v1_1_1.md: latest Python package patch notes
+- CogLang_Release_Notes_v1_1_0.md: stable language release commitments
 - CogLang_Contribution_Guide_v0_1.md: contribution boundaries and review expectations
 - ROADMAP.md: current direction, not a release contract
 - MAINTENANCE.md: maintenance, freeze, transfer, and archive policy

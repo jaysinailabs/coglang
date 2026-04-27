@@ -42,10 +42,10 @@ Notes:
 For source development, use:
 
 ```powershell
-pip install -e .[dev]
+pip install -e ".[dev]"
 ```
 
-The stable `v1.1.0` release aligns the Python distribution version to the language release (`1.1.0` for tag `v1.1.0`).
+The stable `v1.1.0` language release initially aligned the Python distribution version to the language release (`1.1.0` for tag `v1.1.0`). Later `1.1.x` Python distribution patches may update packaging or documentation while keeping `language_release = v1.1.0`.
 
 Pre-release tags such as `v1.1.0-pre.0` remain GitHub-only unless a later release decision explicitly changes that policy.
 
@@ -73,7 +73,7 @@ In the stable release shape, these two version meanings are aligned. In historic
 - `version` reflects the installed distribution metadata version.
 - `language_release` reflects the public `CogLang` language/specification label.
 
-For stable `v1.1.0`, these two layers should intentionally converge: the GitHub tag is `v1.1.0`, the Python package version is `1.1.0`, and `language_release` reports `v1.1.0`.
+For stable `v1.1.0`, the initial stable release intentionally converged these two layers: the GitHub tag was `v1.1.0`, the Python package version was `1.1.0`, and `language_release` reported `v1.1.0`. Later package-only patch releases may report a Python package version such as `1.1.1` while continuing to report `language_release = v1.1.0`.
 
 ### 2.2 Environment Self-Check
 
@@ -209,7 +209,7 @@ The release policy is:
 
 - GitHub pre-releases such as `v1.1.0-pre.0` are source-only and should not be backfilled to PyPI.
 - The stable GitHub tag is `v1.1.0`.
-- The stable Python distribution version is `1.1.0`.
+- The initial stable Python distribution version is `1.1.0`; package-only patch releases may use later `1.1.x` Python distribution versions.
 - PyPI publishing should use Trusted Publishing from GitHub Actions.
 - Normal releases should not use long-lived PyPI API tokens.
 - The publishing workflow must verify that the tag and `pyproject.toml` package version match before uploading artifacts.

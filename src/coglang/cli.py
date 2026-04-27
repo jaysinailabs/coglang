@@ -104,7 +104,7 @@ def _cli_version() -> str:
             return package_version(candidate)
         except PackageNotFoundError:
             continue
-    return "1.1.0"
+    return "1.1.1"
 
 
 def _resolve_project_artifact(*relative_candidates: str) -> tuple[Path, str]:
@@ -451,8 +451,8 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
         "CogLang_Contribution_Guide_v0_1.md",
     )
     release_notes_path, _ = _resolve_project_artifact(
-        "CogLang_Release_Notes_v1_1_0.md",
-        "CogLang_Release_Notes_v1_1_0.md",
+        "CogLang_Release_Notes_v1_1_1.md",
+        "CogLang_Release_Notes_v1_1_1.md",
     )
     roadmap_path, _ = _resolve_project_artifact("ROADMAP.md", "ROADMAP.md")
     maintenance_path, _ = _resolve_project_artifact("MAINTENANCE.md", "MAINTENANCE.md")
@@ -573,8 +573,8 @@ def _manifest_payload() -> dict[str, Any]:
         "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
     )[1]
     release_notes_relpath = _resolve_project_artifact(
-        "CogLang_Release_Notes_v1_1_0.md",
-        "CogLang_Release_Notes_v1_1_0.md",
+        "CogLang_Release_Notes_v1_1_1.md",
+        "CogLang_Release_Notes_v1_1_1.md",
     )[1]
     contribution_guide_relpath = _resolve_project_artifact(
         "CogLang_Contribution_Guide_v0_1.md",

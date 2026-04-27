@@ -133,7 +133,7 @@ If the project is in compatibility freeze:
 
 Use these documents together:
 
-- `CogLang_Release_Notes_v1_1_0_pre.md`: what is currently promised
+- `CogLang_Release_Notes_v1_1_0.md`: what is currently promised
 - `ROADMAP.md`: what the project is trying to move toward
 - `MAINTENANCE.md`: how project status may change if velocity or maintainer capacity changes
 

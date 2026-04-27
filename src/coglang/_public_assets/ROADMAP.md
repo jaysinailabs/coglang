@@ -12,7 +12,7 @@ This file is intentionally not a release contract.
 
 Use the docs this way:
 
-- `CogLang_Release_Notes_v1_1_0_pre.md`: what is currently promised
+- `CogLang_Release_Notes_v1_1_0.md`: what is currently promised
 - `ROADMAP.md`: what is currently prioritized or being explored
 - `MAINTENANCE.md`: how the project may slow down, freeze, transfer, or archive
 
@@ -26,13 +26,13 @@ It separates three levels:
 
 ---
 
-## Next Release Target: Stable v1.1.0
+## Stable v1.1.0 Release Status
 
-The next major project target after `v1.1.0-pre` is a stable `v1.1.0` release.
+The current major project target is the stable `v1.1.0` release line.
 
-That target is not a date promise. It means the project should focus next on converting the current pre-release surface into a stable release candidate by closing the remaining release-readiness gaps.
+That target is not a date promise. It means the project is now focused on keeping the public language surface, package metadata, release artifacts, and documentation aligned for the stable `v1.1.0` release.
 
-Before `v1.1.0` can be called stable, the project should have:
+For `v1.1.0`, the project should keep the following surfaces aligned:
 
 - a clear package/version/tag convention that users can understand without reading internal notes
 - a release path decision for source-only GitHub releases versus package-index publication
@@ -40,13 +40,13 @@ Before `v1.1.0` can be called stable, the project should have:
 - enough public examples that users can try the core language and host boundary without relying on private context
 - no unresolved public documentation contradictions between README, release notes, roadmap, install guide, and machine-readable summaries
 
-Until those items are closed, `v1.1.0-pre` should be presented as an experimental pre-release, not as the stable `v1.1.0` line.
+The stable release line is intentionally scoped to the language, public CLI, conformance, package metadata, and public documentation. Host Runtime Contract v0.2 and multi-host ecosystem work remain roadmap items, not completed stable-platform commitments.
 
 ### Version And Tag Convention
 
-Public language release tags use language labels: `v1.1.0-pre.N` for GitHub-only pre-releases and `v1.1.0` for the stable language line.
+Public language release tags use language labels: `v1.1.0-pre.N` for historical GitHub-only pre-releases and `v1.1.0` for the stable language line.
 
-The stable `v1.1.0` release should align the Python distribution version to `1.1.0`. Earlier pre-release packages may keep artifact versions such as `0.1.x`; do not infer stable language status from those pre-release package versions alone.
+The stable `v1.1.0` release aligns the Python distribution version to `1.1.0`. Earlier pre-release packages may keep artifact versions such as `0.1.x`; do not infer stable language status from those pre-release package versions alone.
 
 The stable `v1.1.0` release path is PyPI publication through Trusted Publishing. The project should not use long-lived PyPI API tokens for normal releases.
 

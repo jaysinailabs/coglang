@@ -239,7 +239,7 @@ def test_cli_info_payload_shape():
     payload = _info_payload()
     assert payload["tool"] == "coglang"
     assert payload["package"] == DISTRIBUTION_NAME
-    assert payload["language_release"] == "v1.1.0-pre"
+    assert payload["language_release"] == "v1.1.0"
     assert "parse" in payload["commands"]
     assert "smoke" in payload["conformance_suites"]
     assert "host-demo" in payload["commands"]
@@ -250,14 +250,14 @@ def test_cli_info_json_output():
     assert code == 0
     assert '"tool": "coglang"' in output
     assert f'"package": "{DISTRIBUTION_NAME}"' in output
-    assert '"language_release": "v1.1.0-pre"' in output
+    assert '"language_release": "v1.1.0"' in output
 
 
 def test_cli_info_text_output():
     code, output = _run(["info", "--format", "text"])
     assert code == 0
     assert "tool: coglang" in output
-    assert "language_release: v1.1.0-pre" in output
+    assert "language_release: v1.1.0" in output
     assert "conformance_suites: smoke, core, full" in output
 
 
@@ -265,7 +265,7 @@ def test_cli_manifest_payload_shape():
     payload = _manifest_payload()
     assert payload["schema_version"] == "coglang-cli-manifest/v0.1"
     assert payload["license"] == "Apache-2.0"
-    assert payload["language_release"] == "v1.1.0-pre"
+    assert payload["language_release"] == "v1.1.0"
     assert payload["entrypoints"]["console_script"] == "coglang"
     assert payload["entrypoints"]["recommended"] == "coglang"
     assert payload["implementation_metadata"]["distribution_name"] == DISTRIBUTION_NAME
@@ -294,7 +294,7 @@ def test_cli_manifest_json_output():
     assert code == 0
     assert '"schema_version": "coglang-cli-manifest/v0.1"' in output
     assert '"license": "Apache-2.0"' in output
-    assert '"language_release": "v1.1.0-pre"' in output
+    assert '"language_release": "v1.1.0"' in output
     assert '"public_release_surface"' in output
     assert '"machine_readable_summaries"' in output
     assert '"open_source_boundary"' in output
@@ -307,7 +307,7 @@ def test_cli_manifest_text_output():
     code, output = _run(["manifest", "--format", "text"])
     assert code == 0
     assert "schema_version: coglang-cli-manifest/v0.1" in output
-    assert "language_release: v1.1.0-pre" in output
+    assert "language_release: v1.1.0" in output
     assert "recommended_entrypoint: coglang" in output
     assert "console_script: coglang" in output
     assert f"roadmap: {_path_in_layout('ROADMAP.md', 'ROADMAP.md')}" in output
@@ -332,7 +332,7 @@ def test_cli_manifest_text_output():
 def test_cli_bundle_payload_shape():
     payload = _bundle_payload()
     assert payload["schema_version"] == "coglang-release-bundle/v0.1"
-    assert payload["language_release"] == "v1.1.0-pre"
+    assert payload["language_release"] == "v1.1.0"
     assert payload["public_release_surface"]["entrypoint"] == "coglang"
     assert payload["public_release_surface"]["project_docs"]["readme"].endswith(
         _path_in_layout("README.md", "README.md")
@@ -349,7 +349,7 @@ def test_cli_bundle_json_output():
     code, output = _run(["bundle"])
     assert code == 0
     assert '"schema_version": "coglang-release-bundle/v0.1"' in output
-    assert '"language_release": "v1.1.0-pre"' in output
+    assert '"language_release": "v1.1.0"' in output
     assert '"release_check"' in output
     assert '"doctor"' in output
     assert '"public_release_surface"' in output
@@ -363,7 +363,7 @@ def test_cli_bundle_text_output():
     code, output = _run(["bundle", "--format", "text"])
     assert code == 0
     assert "schema_version: coglang-release-bundle/v0.1" in output
-    assert "language_release: v1.1.0-pre" in output
+    assert "language_release: v1.1.0" in output
     assert "public_release.entrypoint: coglang" in output
     assert f"public_release.readme: {_path_in_layout('README.md', 'README.md')}" in output
     assert "open_source_boundary.strategy: standalone_repository" in output
@@ -385,7 +385,7 @@ def test_cli_bundle_text_output():
 def test_cli_doctor_payload_shape():
     payload = _doctor_payload()
     assert payload["tool"] == "coglang"
-    assert payload["language_release"] == "v1.1.0-pre"
+    assert payload["language_release"] == "v1.1.0"
     assert isinstance(payload["checks"], list)
     assert any(item["name"] == "parse" for item in payload["checks"])
 
@@ -394,7 +394,7 @@ def test_cli_doctor_json_output():
     code, output = _run(["doctor"])
     assert code == 0
     assert '"tool": "coglang"' in output
-    assert '"language_release": "v1.1.0-pre"' in output
+    assert '"language_release": "v1.1.0"' in output
     assert '"checks"' in output
 
 
@@ -402,7 +402,7 @@ def test_cli_doctor_text_output():
     code, output = _run(["doctor", "--format", "text"])
     assert code == 0
     assert "tool: coglang" in output
-    assert "language_release: v1.1.0-pre" in output
+    assert "language_release: v1.1.0" in output
     assert "parse: ok" in output
 
 
@@ -981,7 +981,7 @@ def test_cli_host_demo_failure_text_output(monkeypatch):
 def test_cli_release_check_payload_shape():
     payload = _release_check_payload()
     assert payload["tool"] == "coglang"
-    assert payload["language_release"] == "v1.1.0-pre"
+    assert payload["language_release"] == "v1.1.0"
     assert isinstance(payload["checks"], list)
     assert any(item["name"] == "console_script" for item in payload["checks"])
     assert any(item["name"] == "distribution_metadata" for item in payload["checks"])
@@ -997,7 +997,7 @@ def test_cli_release_check_payload_shape():
 def test_cli_release_check_json_output():
     code, output = _run(["release-check"])
     assert code == 0
-    assert '"language_release": "v1.1.0-pre"' in output
+    assert '"language_release": "v1.1.0"' in output
     assert '"checks"' in output
     assert '"license_file"' in output
     assert '"distribution_metadata"' in output
@@ -1012,7 +1012,7 @@ def test_cli_release_check_text_output():
     code, output = _run(["release-check", "--format", "text"])
     assert code == 0
     assert "tool: coglang" in output
-    assert "language_release: v1.1.0-pre" in output
+    assert "language_release: v1.1.0" in output
     assert "license_file: ok (LICENSE)" in output
     assert "public_release_docs: ok (README + roadmap + maintenance + llms summaries)" in output
     assert (
@@ -1108,7 +1108,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 35
+    assert payload["entry_count"] == 37
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -1133,7 +1133,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "CogLang_Conformance_Suite_v1_1_0.zh-CN.md" in [
         item["source"] for item in payload["entries"]
     ]
-    assert "CogLang_Release_Notes_v1_1_0_pre.zh-CN.md" in [
+    assert "CogLang_Release_Notes_v1_1_0.zh-CN.md" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Contribution_Guide_v0_1.zh-CN.md" in [

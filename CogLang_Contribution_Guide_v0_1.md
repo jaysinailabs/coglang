@@ -164,7 +164,7 @@ Before opening a PR, follow this minimal path:
 1. Read [CogLang_Quickstart_v1_1_0.md](./CogLang_Quickstart_v1_1_0.md).
 2. Read the relevant section of [CogLang_Specification_v1_1_0_Draft.md](./CogLang_Specification_v1_1_0_Draft.md).
 3. Read [CogLang_Conformance_Suite_v1_1_0.md](./CogLang_Conformance_Suite_v1_1_0.md).
-4. Read [CogLang_Release_Notes_v1_1_0_pre.md](./CogLang_Release_Notes_v1_1_0_pre.md).
+4. Read [CogLang_Release_Notes_v1_1_0.md](./CogLang_Release_Notes_v1_1_0.md).
 5. Run:
 
 ```powershell

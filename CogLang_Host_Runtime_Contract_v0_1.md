@@ -406,8 +406,8 @@ The public repository currently ships these directly reviewable companion docume
 - Language semantics: `CogLang_Specification_v1_1_0_Draft.md`
 - Profiles and capabilities: `CogLang_Profiles_and_Capabilities_v1_1_0.md`
 - Standalone install and trial path: `CogLang_Standalone_Install_and_Release_Guide_v0_1.md`
-- Public release boundary: `CogLang_Release_Notes_v1_1_0_pre.md`
+- Public release boundary: `CogLang_Release_Notes_v1_1_0.md`
 - Public roadmap: `ROADMAP.md`
 - Schema companion pack: `internal_schemas/host_runtime/v0.1/schema-pack.json`
 
-Migration notes, schema-promotion notes, and HRC v0.2 freeze decision records are not part of the current public pre-release. Until they are published, they should be treated as future release-gate material rather than public commitments.
+Migration notes, schema-promotion notes, and HRC v0.2 freeze decision records are not part of the current stable language release. Until they are published, they should be treated as future release-gate material rather than public commitments.

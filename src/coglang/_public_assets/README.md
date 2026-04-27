@@ -4,11 +4,11 @@ CogLang is a graph-first intermediate language for LLM-generated graph queries a
 
 Status:
 
-- experimental
-- pre-release
+- stable language release
 - reference implementation
+- host bridge v0.x
 
-Current public language release: `v1.1.0-pre`. Filenames containing `v1_1_0` identify the current specification target; they do not mean stable `v1.1.0` has shipped.
+Current public language release: `v1.1.0`. The Python distribution version is `1.1.0`.
 
 ## LLM Discovery Snapshot
 
@@ -67,10 +67,19 @@ If you only have 10 minutes:
 
 ## Install And Verify
 
-From a checkout:
+From the stable release artifact:
 
 ```powershell
-pip install -e .
+pip install coglang
+coglang manifest
+coglang release-check
+coglang smoke
+```
+
+From a checkout for development:
+
+```powershell
+pip install -e .[dev]
 coglang bundle
 coglang smoke
 coglang demo
@@ -123,7 +132,7 @@ Integration and release-facing documents:
 
 - [CogLang_Host_Runtime_Contract_v0_1.md](CogLang_Host_Runtime_Contract_v0_1.md)
 - [CogLang_Standalone_Install_and_Release_Guide_v0_1.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.md)
-- [CogLang_Release_Notes_v1_1_0_pre.md](CogLang_Release_Notes_v1_1_0_pre.md)
+- [CogLang_Release_Notes_v1_1_0.md](CogLang_Release_Notes_v1_1_0.md)
 - [CogLang_Contribution_Guide_v0_1.md](CogLang_Contribution_Guide_v0_1.md)
 - [ROADMAP.md](ROADMAP.md)
 - [MAINTENANCE.md](MAINTENANCE.md)
@@ -134,7 +143,7 @@ Chinese companion translations:
 - [CogLang_Specification_v1_1_0_Draft.zh-CN.md](CogLang_Specification_v1_1_0_Draft.zh-CN.md)
 - [CogLang_Conformance_Suite_v1_1_0.zh-CN.md](CogLang_Conformance_Suite_v1_1_0.zh-CN.md)
 - [CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md)
-- [CogLang_Release_Notes_v1_1_0_pre.zh-CN.md](CogLang_Release_Notes_v1_1_0_pre.zh-CN.md)
+- [CogLang_Release_Notes_v1_1_0.zh-CN.md](CogLang_Release_Notes_v1_1_0.zh-CN.md)
 - [CogLang_Contribution_Guide_v0_1.zh-CN.md](CogLang_Contribution_Guide_v0_1.zh-CN.md)
 - [CogLang_Host_Runtime_Contract_v0_1.zh-CN.md](CogLang_Host_Runtime_Contract_v0_1.zh-CN.md)
 - [CogLang_Profiles_and_Capabilities_v1_1_0.zh-CN.md](CogLang_Profiles_and_Capabilities_v1_1_0.zh-CN.md)
@@ -174,7 +183,7 @@ Lower-priority contributions:
 
 Use the project documents this way:
 
-- [CogLang_Release_Notes_v1_1_0_pre.md](CogLang_Release_Notes_v1_1_0_pre.md): what is currently promised.
+- [CogLang_Release_Notes_v1_1_0.md](CogLang_Release_Notes_v1_1_0.md): what is currently promised.
 - [ROADMAP.md](ROADMAP.md): what is prioritized or being explored.
 - [MAINTENANCE.md](MAINTENANCE.md): how the project may slow down, freeze, transfer, or archive.
 

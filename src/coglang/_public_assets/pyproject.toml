@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "coglang"
-version = "0.1.0"
+version = "1.1.0"
 description = "Graph-first intermediate language for auditable LLM-generated graph queries and updates"
 readme = "README.md"
 authors = [{ name = "Jason Xin" }]
@@ -32,7 +32,7 @@ keywords = [
 requires-python = ">=3.11"
 dependencies = ["networkx"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Environment :: Console",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
@@ -78,6 +78,8 @@ coglang = [
     "_public_assets/CogLang_Profiles_and_Capabilities_v1_1_0.zh-CN.md",
     "_public_assets/CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
     "_public_assets/CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md",
+    "_public_assets/CogLang_Release_Notes_v1_1_0.md",
+    "_public_assets/CogLang_Release_Notes_v1_1_0.zh-CN.md",
     "_public_assets/CogLang_Release_Notes_v1_1_0_pre.md",
     "_public_assets/CogLang_Release_Notes_v1_1_0_pre.zh-CN.md",
     "_public_assets/CogLang_Contribution_Guide_v0_1.md",

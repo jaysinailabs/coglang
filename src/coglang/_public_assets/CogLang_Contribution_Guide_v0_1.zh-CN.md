@@ -164,7 +164,7 @@
 1. 阅读 [CogLang_Quickstart_v1_1_0.md](./CogLang_Quickstart_v1_1_0.md)
 2. 阅读 [CogLang_Specification_v1_1_0_Draft.md](./CogLang_Specification_v1_1_0_Draft.md) 中与你要改的章节
 3. 阅读 [CogLang_Conformance_Suite_v1_1_0.md](./CogLang_Conformance_Suite_v1_1_0.md)
-4. 阅读 [CogLang_Release_Notes_v1_1_0_pre.md](./CogLang_Release_Notes_v1_1_0_pre.md)
+4. 阅读 [CogLang_Release_Notes_v1_1_0.md](./CogLang_Release_Notes_v1_1_0.md)
 5. 运行：
 
 ```powershell

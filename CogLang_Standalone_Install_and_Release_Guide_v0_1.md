@@ -244,15 +244,21 @@ The most realistic next gaps are:
 
 ## 8. Recommended Trial Sequence
 
-If you only want to verify that `CogLang` can run independently, use these five steps:
+If you only want to verify that `CogLang` can run independently from PyPI, use this minimum path:
 
 1. `pip install coglang`
-2. `coglang bundle`
-3. `coglang smoke`
-4. `coglang demo`
-5. `coglang conformance smoke`
+2. `coglang info`
+3. `coglang release-check`
+4. `coglang execute 'Equal[1, 1]'`
 
-If all five steps pass, continue with:
+For packaged smoke and conformance checks, install the development extra first:
+
+1. `pip install "coglang[dev]"`
+2. `coglang smoke`
+3. `coglang demo`
+4. `coglang conformance smoke`
+
+If these checks pass, continue with:
 
 - `CogLang_Quickstart_v1_1_0.md`
 - `CogLang_Specification_v1_1_0_Draft.md`

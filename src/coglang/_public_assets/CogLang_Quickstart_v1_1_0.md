@@ -1,6 +1,6 @@
 # CogLang Quickstart v1.1.0
 
-**Status**: Pre-release companion document
+**Status**: stable release companion document
 **Audience**: First-time CogLang users and implementers
 **Scope**: Covers only the most common and stable `Baseline` forms
 **Out of scope**: Full `Reserved / Experimental` capabilities, explicit qualified names for extension operators, host bridging, write-intent, and persistence-backend details
@@ -24,26 +24,30 @@ For formal semantics and related boundaries, see:
 - **Executable examples and regression constraints**: `CogLang_Conformance_Suite_v1_1_0.md`
 - **Standalone installation and release trial path**: `CogLang_Standalone_Install_and_Release_Guide_v0_1.md`
 
-If you want to first confirm that the environment and the recommended minimal public entry points are available, run:
+If you want to first confirm that the installed package and the recommended minimal public entry points are available, run:
 
 ```powershell
+coglang info
+coglang release-check
 coglang parse 'Equal[1, 1]'
 coglang validate 'Equal[1, 1]'
 coglang execute 'Equal[1, 1]'
-coglang conformance smoke
-coglang repl
-coglang info
 coglang manifest
-coglang bundle
-coglang doctor
 coglang vocab
 coglang examples
-coglang smoke
 coglang demo
-coglang release-check
 ```
 
-Under the current pre-release posture, `release-check` should pass. If it fails, the usual cause is that the minimal release artifacts or metadata are still incomplete.
+For `doctor`, `smoke`, and packaged conformance checks, install the development extra first so `pytest` is available:
+
+```powershell
+pip install "coglang[dev]"
+coglang doctor
+coglang smoke
+coglang conformance smoke
+```
+
+Under the current stable release posture, `release-check` should pass. If it fails, the usual cause is that the installed package or release metadata is incomplete.
 
 ---
 

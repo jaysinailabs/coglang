@@ -1,6 +1,6 @@
 # CogLang Quickstart v1.1.0
 
-**状态**：预发布伴随文档  
+**状态**：稳定发布伴随文档
 **适用对象**：第一次接触 CogLang 的使用者、实现者  
 **覆盖范围**：只覆盖 `Baseline` 中最常见、最稳定的写法  
 **不覆盖**：`Reserved / Experimental` 的完整能力、扩展 operator 的显式限定名、宿主桥接 / 写意图 / 持久化后端细节
@@ -24,26 +24,30 @@
 - **可执行样例与回归约束**：看 `CogLang_Conformance_Suite_v1_1_0.md`
 - **独立安装与发布试用路径**：看 `CogLang_Standalone_Install_and_Release_Guide_v0_1.md`
 
-如果你想先确认环境和对外公开建议使用的最小入口是否可用，可以直接运行：
+如果你想先确认已安装包和对外公开建议使用的最小入口是否可用，可以直接运行：
 
 ```powershell
+coglang info
+coglang release-check
 coglang parse 'Equal[1, 1]'
 coglang validate 'Equal[1, 1]'
 coglang execute 'Equal[1, 1]'
-coglang conformance smoke
-coglang repl
-coglang info
 coglang manifest
-coglang bundle
-coglang doctor
 coglang vocab
 coglang examples
-coglang smoke
 coglang demo
-coglang release-check
 ```
 
-在当前预发布口径下，`release-check` 应通过；如果失败，通常意味着最小发布工件或元数据仍不完整。
+如果要运行 `doctor`、`smoke` 和随包 conformance checks，需要先安装 development extra，让 `pytest` 可用：
+
+```powershell
+pip install "coglang[dev]"
+coglang doctor
+coglang smoke
+coglang conformance smoke
+```
+
+在当前稳定发布口径下，`release-check` 应通过；如果失败，通常意味着已安装包或发布元数据不完整。
 
 ---
 

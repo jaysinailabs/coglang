@@ -71,9 +71,17 @@ From the stable release artifact:
 
 ```powershell
 pip install coglang
-coglang manifest
+coglang info
 coglang release-check
+coglang execute 'Equal[1, 1]'
+```
+
+For packaged smoke and conformance checks, install the development extra so `pytest` is available:
+
+```powershell
+pip install "coglang[dev]"
 coglang smoke
+coglang conformance smoke
 ```
 
 From a checkout for development:

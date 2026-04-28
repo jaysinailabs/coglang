@@ -273,6 +273,9 @@ def test_cli_manifest_payload_shape():
     assert payload["entrypoints"]["recommended"] == "coglang"
     assert payload["implementation_metadata"]["distribution_name"] == DISTRIBUTION_NAME
     assert payload["docs"]["install_guide"].endswith("CogLang_Standalone_Install_and_Release_Guide_v0_1.md")
+    assert payload["docs"]["hrc_v0_2_final_freeze"].endswith(
+        "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md"
+    )
     assert payload["docs"]["roadmap"].endswith("ROADMAP.md")
     assert payload["docs"]["maintenance"].endswith("MAINTENANCE.md")
     assert payload["machine_readable_summaries"]["llms"].endswith("llms.txt")
@@ -1232,7 +1235,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 42
+    assert payload["entry_count"] == 43
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -1284,6 +1287,9 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "CogLang_Profiles_and_Capabilities_v1_1_0.zh-CN.md" in [
         item["source"] for item in payload["entries"]
     ]
+    assert "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md" in [
+        item["source"] for item in payload["entries"]
+    ]
     assert "CogLang_Operator_Catalog_v1_1_0.zh-CN.md" in [
         item["source"] for item in payload["entries"]
     ]
@@ -1307,8 +1313,8 @@ def test_cli_public_repo_extract_manifest_payload_shape():
 def test_cli_formal_open_source_readiness_payload_shape():
     payload = _formal_open_source_readiness_payload()
     assert payload["schema_version"] == "coglang-formal-open-source-readiness/v0.1"
-    assert payload["gate_count"] == 6
-    assert payload["passed_gate_count"] == 6
+    assert payload["gate_count"] == 7
+    assert payload["passed_gate_count"] == 7
     assert payload["ready_for_candidate_decision"] is True
     assert payload["status"] == "ready-for-formal-open-source-candidate-decision"
     assert payload["decision_required"] is True
@@ -1319,6 +1325,7 @@ def test_cli_formal_open_source_readiness_payload_shape():
         "G4_repo_package_boundary",
         "G5_minimal_ci_release_baseline",
         "G6_maintenance_and_contribution_surface",
+        "G7_host_runtime_freeze_evidence",
     ]
 
 

@@ -4,7 +4,7 @@
 **Python distribution version**: `1.1.2`
 **Language release**: `v1.1.0`
 **Audience**: users evaluating CogLang's host-runtime boundary
-**Purpose**: add second-host evidence and record the HRC v0.2 freeze-candidate scope without changing language semantics
+**Purpose**: add second-host evidence and record the HRC v0.2 frozen typed write-envelope scope without changing language semantics
 
 ---
 
@@ -30,10 +30,10 @@ This release adds public, executable evidence for host-runtime review:
   `WriteBundleResponseMessage` without depending on `LocalCogLangHost`.
 - `ReferenceTransportHost` is exported as a small reference host implementation
   for typed write-envelope submission and local query/header lookup.
-- `CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md` records the HRC v0.2
-  freeze-candidate scope, evidence, non-scope, and promotion criteria.
+- `CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md` records the HRC v0.2 frozen
+  typed write-envelope scope, evidence, non-scope, and compatibility policy.
 - Public docs and LLM retrieval summaries now list the new host demo and HRC
-  freeze-candidate record.
+  final freeze record.
 
 ## 2. What Did Not Change
 
@@ -46,8 +46,9 @@ This release does not freeze:
 - final `KnowledgeMessage` cross-service standardization
 - capability-manifest negotiation
 
-The HRC v0.2 record is a `freeze-candidate`, not a final frozen multi-host
-standard. Promotion to `frozen` still requires public CI and maintainer review.
+The HRC v0.2 record is frozen only for the narrow typed write-envelope surface
+covered by `host-demo`, `reference-host-demo`, and the package tests. It is not
+a final frozen multi-host standard.
 
 ## 3. Recommended Checks
 
@@ -78,5 +79,6 @@ coglang conformance smoke
 
 ## 4. One-Sentence Summary
 
-CogLang `1.1.2` adds a minimal second-host demo and an HRC v0.2 freeze-candidate
-decision record while keeping the stable `v1.1.0` language semantics unchanged.
+CogLang `1.1.2` adds a minimal second-host demo and freezes the narrow HRC v0.2
+typed write-envelope surface while keeping the stable `v1.1.0` language
+semantics unchanged.

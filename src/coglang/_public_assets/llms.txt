@@ -37,7 +37,8 @@ Core documents:
 - CogLang_Operator_Catalog_v1_1_0.md: operator status and call-surface summary
 - CogLang_Standalone_Install_and_Release_Guide_v0_1.md: install, build, and local release verification
 - CogLang_Host_Runtime_Contract_v0_1.md: minimal host contract
-- CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md: host-runtime contract v0.2 freeze-candidate scope and evidence
+- CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md: host-runtime contract v0.2 frozen scope and evidence
+- CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md: prior freeze-candidate review record
 - CogLang_Release_Notes_v1_1_2.md: latest Python package patch notes
 - CogLang_Release_Notes_v1_1_1.md: previous Python package patch notes
 - CogLang_Release_Notes_v1_1_0.md: stable language release commitments

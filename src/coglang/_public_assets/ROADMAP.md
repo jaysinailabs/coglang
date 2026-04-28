@@ -107,14 +107,14 @@ The next step is to make their promotion path easier to understand:
 
 Contributions in this area are especially welcome.
 
-### 5. Second host evidence hardening
+### 5. Host evidence hardening
 
-`CogLang` now has both the richer `LocalCogLangHost` demo and a minimal `reference-host-demo` path. A next priority is to make the host story easier to trust outside those in-repository examples.
+`CogLang` now has both the richer `LocalCogLangHost` demo and a minimal `reference-host-demo` path. HRC v0.2 is frozen for the narrow typed write-envelope surface covered by those in-repository examples.
 
 The likely next step is:
 
-- promotion of the HRC v0.2 freeze candidate after public CI and maintainer review
 - a public decision on which host-runtime schema assets are companion material versus formal contract
+- regular public CI validation for the frozen HRC surface before each package release
 - eventually, a host example maintained outside the core runtime repository
 
 Contributions in this area are especially welcome.

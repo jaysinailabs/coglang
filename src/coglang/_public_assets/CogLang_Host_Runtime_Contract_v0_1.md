@@ -389,9 +389,9 @@ Current executable evidence:
 - `coglang host-demo` exercises the richer `LocalCogLangHost` path, including typed local query views and an `ErrorReport` failure path.
 - `coglang reference-host-demo` exercises a smaller host path that consumes `WriteBundleSubmissionMessage` JSON and returns `WriteBundleResponseMessage` without depending on `LocalCogLangHost`.
 
-## 7. Still Unfrozen
+## 7. Not Frozen by HRC v0.2
 
-This note intentionally does not freeze:
+The HRC v0.2 final freeze intentionally does not freeze:
 
 - the final `KnowledgeMessage` schema
 - the cross-service submission protocol for `WriteBundle`
@@ -413,7 +413,8 @@ The public repository currently ships these directly reviewable companion docume
 - Standalone install and trial path: `CogLang_Standalone_Install_and_Release_Guide_v0_1.md`
 - Public release boundary: `CogLang_Release_Notes_v1_1_0.md`
 - Public roadmap: `ROADMAP.md`
+- HRC v0.2 final freeze: `CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md`
 - HRC v0.2 freeze candidate: `CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md`
 - Schema companion pack: `internal_schemas/host_runtime/v0.1/schema-pack.json`
 
-Migration notes, schema-promotion notes, and HRC v0.2 final freeze records are not part of the current stable language release. The current `HRC v0.2` record is a freeze candidate, not a final frozen multi-host standard.
+Migration notes and schema-promotion notes are not part of the current stable language release. The current `HRC v0.2` final freeze is a narrow typed write-envelope freeze, not a final frozen multi-host standard.

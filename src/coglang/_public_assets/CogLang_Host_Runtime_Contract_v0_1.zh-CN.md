@@ -384,9 +384,9 @@
 
 如果连这些都不能满足，那么你只是“能执行部分表达式”，还不能算实现了一个可集成的 `CogLang` 宿主。
 
-## 7. 仍未冻结的事项
+## 7. HRC v0.2 不冻结的事项
 
-本说明刻意不冻结以下内容：
+HRC v0.2 final freeze 刻意不冻结以下内容：
 
 - 最终 `KnowledgeMessage` schema
 - `WriteBundle` 的跨服务提交协议
@@ -410,4 +410,4 @@
 - 看公开路线图：`ROADMAP.md`
 - 看 schema companion pack：`internal_schemas/host_runtime/v0.1/schema-pack.json`
 
-迁移说明、schema promotion 说明与 HRC v0.2 freeze 决策记录不属于当前稳定语言发布内容。在正式发布前，它们应被视为未来 release-gate 材料，而不是公开承诺。
+迁移说明与 schema promotion 说明不属于当前稳定语言发布内容。当前 `HRC v0.2` final freeze 是狭义 typed write-envelope freeze，不是最终冻结的多宿主标准。

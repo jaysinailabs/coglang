@@ -90,6 +90,7 @@ coglang = [
     "_public_assets/CogLang_Contribution_Guide_v0_1.zh-CN.md",
     "_public_assets/CogLang_Host_Runtime_Contract_v0_1.md",
     "_public_assets/CogLang_Host_Runtime_Contract_v0_1.zh-CN.md",
+    "_public_assets/CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md",
     "_public_assets/CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md",
     "_public_assets/CogLang_Open_Source_Boundary_v0_1.json",
     "_public_assets/CogLang_Minimal_CI_Baseline_v0_1.json",

@@ -477,6 +477,10 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
         "CogLang_Release_Notes_v1_1_2.md",
         "CogLang_Release_Notes_v1_1_2.md",
     )
+    hrc_v0_2_final_freeze_path, _ = _resolve_project_artifact(
+        "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md",
+        "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md",
+    )
     roadmap_path, _ = _resolve_project_artifact("ROADMAP.md", "ROADMAP.md")
     maintenance_path, _ = _resolve_project_artifact("MAINTENANCE.md", "MAINTENANCE.md")
     public_docs_checklist_path, _ = _resolve_project_artifact(
@@ -557,6 +561,15 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
             ),
             "detail": "contribution + release notes + roadmap + maintenance",
         },
+        {
+            "name": "G7_host_runtime_freeze_evidence",
+            "ok": (
+                hrc_v0_2_final_freeze_path.exists()
+                and "host-demo" in info["commands"]
+                and "reference-host-demo" in info["commands"]
+            ),
+            "detail": "HRC v0.2 final freeze record + executable host demos",
+        },
     ]
     passed_gate_count = sum(1 for item in gates if item["ok"])
     ready_for_candidate_decision = passed_gate_count == len(gates)
@@ -599,6 +612,10 @@ def _manifest_payload() -> dict[str, Any]:
         "CogLang_Release_Notes_v1_1_2.md",
         "CogLang_Release_Notes_v1_1_2.md",
     )[1]
+    hrc_v0_2_final_freeze_relpath = _resolve_project_artifact(
+        "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md",
+        "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md",
+    )[1]
     contribution_guide_relpath = _resolve_project_artifact(
         "CogLang_Contribution_Guide_v0_1.md",
         "CogLang_Contribution_Guide_v0_1.md",
@@ -613,6 +630,7 @@ def _manifest_payload() -> dict[str, Any]:
         "spec": spec_relpath,
         "install_guide": install_guide_relpath,
         "release_notes": release_notes_relpath,
+        "hrc_v0_2_final_freeze": hrc_v0_2_final_freeze_relpath,
         "contribution_guide": contribution_guide_relpath,
         "roadmap": roadmap_relpath,
         "maintenance": maintenance_relpath,

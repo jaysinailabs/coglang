@@ -228,6 +228,11 @@
     },
     {
       "kind": "file",
+      "source": "CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md",
+      "destination": "CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md"
+    },
+    {
+      "kind": "file",
       "source": "LICENSE",
       "destination": "LICENSE"
     }

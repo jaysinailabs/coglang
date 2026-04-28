@@ -113,7 +113,7 @@ Contributions in this area are especially welcome.
 
 The likely next step is:
 
-- clearer HRC v0.2 freeze criteria for local and reference host evidence
+- promotion of the HRC v0.2 freeze candidate after public CI and maintainer review
 - a public decision on which host-runtime schema assets are companion material versus formal contract
 - eventually, a host example maintained outside the core runtime repository
 

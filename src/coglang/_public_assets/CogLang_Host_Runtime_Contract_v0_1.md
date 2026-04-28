@@ -413,6 +413,7 @@ The public repository currently ships these directly reviewable companion docume
 - Standalone install and trial path: `CogLang_Standalone_Install_and_Release_Guide_v0_1.md`
 - Public release boundary: `CogLang_Release_Notes_v1_1_0.md`
 - Public roadmap: `ROADMAP.md`
+- HRC v0.2 freeze candidate: `CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md`
 - Schema companion pack: `internal_schemas/host_runtime/v0.1/schema-pack.json`
 
-Migration notes, schema-promotion notes, and HRC v0.2 freeze decision records are not part of the current stable language release. Until they are published, they should be treated as future release-gate material rather than public commitments.
+Migration notes, schema-promotion notes, and HRC v0.2 final freeze records are not part of the current stable language release. The current `HRC v0.2` record is a freeze candidate, not a final frozen multi-host standard.

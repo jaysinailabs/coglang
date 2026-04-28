@@ -16,11 +16,12 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     payload = materialize_public_repo_extract(destination)
 
     assert payload["schema_version"] == "coglang-public-repo-extract-run/v0.1"
-    assert payload["entry_count"] == 39
+    assert payload["entry_count"] == 40
     assert payload["copied_trees"] == 3
-    assert payload["copied_files"] == 36
+    assert payload["copied_files"] == 37
 
     assert (destination / "pyproject.toml").exists()
+    assert (destination / "CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md").exists()
     assert (destination / "src" / "coglang" / "reference_host.py").exists()
     assert (destination / ".gitignore").exists()
     assert (destination / "pytest.ini").exists()

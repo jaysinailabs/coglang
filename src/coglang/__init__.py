@@ -15,6 +15,7 @@ from .local_host import (
     LocalHostSummary,
     LocalHostTrace,
 )
+from .reference_host import ReferenceTransportHost
 from .write_bundle import LocalWriteHeader
 
 __all__ = [
@@ -31,6 +32,7 @@ __all__ = [
     "LocalHostSnapshot",
     "LocalHostSummary",
     "LocalHostTrace",
+    "ReferenceTransportHost",
     "LocalWriteHeader",
     "CogLangExecutor",
     "Observer",

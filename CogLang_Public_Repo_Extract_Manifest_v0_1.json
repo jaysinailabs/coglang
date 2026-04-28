@@ -17,6 +17,7 @@
         "local_host.py",
         "open_source_extract.py",
         "parser.py",
+        "reference_host.py",
         "stubs.py",
         "unify_backend.py",
         "validator.py",
@@ -187,6 +188,16 @@
     },
     {
       "kind": "file",
+      "source": "CogLang_Release_Notes_v1_1_2.md",
+      "destination": "CogLang_Release_Notes_v1_1_2.md"
+    },
+    {
+      "kind": "file",
+      "source": "CogLang_Release_Notes_v1_1_2.zh-CN.md",
+      "destination": "CogLang_Release_Notes_v1_1_2.zh-CN.md"
+    },
+    {
+      "kind": "file",
       "source": "CogLang_Release_Notes_v1_1_1.md",
       "destination": "CogLang_Release_Notes_v1_1_1.md"
     },
@@ -224,6 +235,16 @@
       "kind": "file",
       "source": "CogLang_Host_Runtime_Contract_v0_1.zh-CN.md",
       "destination": "CogLang_Host_Runtime_Contract_v0_1.zh-CN.md"
+    },
+    {
+      "kind": "file",
+      "source": "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md",
+      "destination": "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md"
+    },
+    {
+      "kind": "file",
+      "source": "CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md",
+      "destination": "CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md"
     },
     {
       "kind": "file",

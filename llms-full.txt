@@ -10,7 +10,7 @@ Current status:
 - reference implementation
 - language core plus host bridge
 
-This file is for LLM-oriented retrieval and summarization. It is not the release contract. For package patch notes, use `CogLang_Release_Notes_v1_1_1.md`; for stable language commitments, use `CogLang_Release_Notes_v1_1_0.md`.
+This file is for LLM-oriented retrieval and summarization. It is not the release contract. For package patch notes, use `CogLang_Release_Notes_v1_1_2.md`; for stable language commitments, use `CogLang_Release_Notes_v1_1_0.md`.
 
 ## What CogLang Is For
 
@@ -83,6 +83,8 @@ coglang execute 'Get["einstein", "label"]'
 coglang execute 'Query[n_, Equal[Get[n_, "category"], "Person"]]'
 coglang execute 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
 coglang demo
+coglang host-demo
+coglang reference-host-demo
 ```
 
 ## Document Entry Points
@@ -103,6 +105,11 @@ coglang demo
   Install, build, and local release verification.
 - `CogLang_Host_Runtime_Contract_v0_1.md`
   Minimal host contract.
+- `CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md`
+  Host-runtime contract v0.2 frozen scope and evidence.
+- `CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md`
+  Prior freeze-candidate review record.
+- `CogLang_Release_Notes_v1_1_2.md`
 - `CogLang_Release_Notes_v1_1_1.md`
 - `CogLang_Release_Notes_v1_1_0.md`
   Current promises and non-promises.

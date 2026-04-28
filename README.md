@@ -8,7 +8,7 @@ Status:
 - reference implementation
 - host bridge v0.x
 
-Current public language release: `v1.1.0`. The current Python distribution version is `1.1.1`.
+Current public language release: `v1.1.0`. The current Python distribution version is `1.1.2`.
 
 ## LLM Discovery Snapshot
 
@@ -113,6 +113,7 @@ The current minimal public command surface includes:
 - `smoke`
 - `demo`
 - `host-demo`
+- `reference-host-demo`
 - `release-check`
 
 If help output includes additional reference commands, they do not automatically become part of the stable public surface.
@@ -140,6 +141,7 @@ Integration and release-facing documents:
 
 - [CogLang_Host_Runtime_Contract_v0_1.md](CogLang_Host_Runtime_Contract_v0_1.md)
 - [CogLang_Standalone_Install_and_Release_Guide_v0_1.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.md)
+- [CogLang_Release_Notes_v1_1_2.md](CogLang_Release_Notes_v1_1_2.md)
 - [CogLang_Release_Notes_v1_1_1.md](CogLang_Release_Notes_v1_1_1.md)
 - [CogLang_Release_Notes_v1_1_0.md](CogLang_Release_Notes_v1_1_0.md)
 - [CogLang_Contribution_Guide_v0_1.md](CogLang_Contribution_Guide_v0_1.md)
@@ -152,6 +154,7 @@ Chinese companion translations:
 - [CogLang_Specification_v1_1_0_Draft.zh-CN.md](CogLang_Specification_v1_1_0_Draft.zh-CN.md)
 - [CogLang_Conformance_Suite_v1_1_0.zh-CN.md](CogLang_Conformance_Suite_v1_1_0.zh-CN.md)
 - [CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md)
+- [CogLang_Release_Notes_v1_1_2.zh-CN.md](CogLang_Release_Notes_v1_1_2.zh-CN.md)
 - [CogLang_Release_Notes_v1_1_1.zh-CN.md](CogLang_Release_Notes_v1_1_1.zh-CN.md)
 - [CogLang_Release_Notes_v1_1_0.zh-CN.md](CogLang_Release_Notes_v1_1_0.zh-CN.md)
 - [CogLang_Contribution_Guide_v0_1.zh-CN.md](CogLang_Contribution_Guide_v0_1.zh-CN.md)
@@ -193,8 +196,10 @@ Lower-priority contributions:
 
 Use the project documents this way:
 
-- [CogLang_Release_Notes_v1_1_1.md](CogLang_Release_Notes_v1_1_1.md): latest Python package patch notes.
+- [CogLang_Release_Notes_v1_1_2.md](CogLang_Release_Notes_v1_1_2.md): latest Python package patch notes.
 - [CogLang_Release_Notes_v1_1_0.md](CogLang_Release_Notes_v1_1_0.md): stable language release commitments.
+- [CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md](CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md): host-runtime contract v0.2 frozen scope and evidence.
+- [CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md](CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md): prior freeze-candidate review record.
 - [ROADMAP.md](ROADMAP.md): what is prioritized or being explored.
 - [MAINTENANCE.md](MAINTENANCE.md): how the project may slow down, freeze, transfer, or archive.
 

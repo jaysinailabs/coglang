@@ -62,6 +62,7 @@ This includes:
 
 - clearer acceptance boundaries for `Host Runtime Contract` `§5.4`
 - stronger alignment between `host-demo`, public views, and typed local query objects
+- a minimal `reference-host-demo` path that consumes the typed write-envelope JSON without inheriting `LocalCogLangHost`
 - more explicit handling of failed writes, `ErrorReport`, and correlated local traces
 
 Contributions in this area are especially welcome.
@@ -106,14 +107,15 @@ The next step is to make their promotion path easier to understand:
 
 Contributions in this area are especially welcome.
 
-### 5. Second independent host example
+### 5. Host evidence hardening
 
-`CogLang` already has a local reference host path. A next priority is to make its host story easier to trust outside that single path.
+`CogLang` now has both the richer `LocalCogLangHost` demo and a minimal `reference-host-demo` path. HRC v0.2 is frozen for the narrow typed write-envelope surface covered by those in-repository examples.
 
 The likely next step is:
 
-- a second minimal host example with weaker assumptions
-- a clearer demonstration that `CogLang` can be integrated without inheriting the entire reference runtime shape
+- a public decision on which host-runtime schema assets are companion material versus formal contract
+- regular public CI validation for the frozen HRC surface before each package release
+- eventually, a host example maintained outside the core runtime repository
 
 Contributions in this area are especially welcome.
 

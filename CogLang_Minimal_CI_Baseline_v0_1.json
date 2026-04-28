@@ -15,7 +15,7 @@
   },
   "stable_release_policy": {
     "stable_language_tag": "v1.1.0",
-    "stable_python_distribution_version": "1.1.1",
+    "stable_python_distribution_version": "1.1.2",
     "package_index": "PyPI",
     "pypi_project": "coglang",
     "trusted_publishing": true,

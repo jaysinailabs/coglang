@@ -12,6 +12,7 @@ from pathlib import Path
 from coglang.cli import (
     COGLANG_LANGUAGE_RELEASE,
     HOST_DEMO_TOP_LEVEL_KEYS,
+    REFERENCE_HOST_DEMO_TOP_LEVEL_KEYS,
     _bundle_payload,
     _conformance_targets,
     _distribution_metadata,
@@ -27,6 +28,7 @@ from coglang.cli import (
     _run_conformance_suite,
     _run_demo,
     _run_host_demo,
+    _run_reference_host_demo,
     _run_repl,
     _run_smoke,
     _vocab_payload,
@@ -243,6 +245,7 @@ def test_cli_info_payload_shape():
     assert "parse" in payload["commands"]
     assert "smoke" in payload["conformance_suites"]
     assert "host-demo" in payload["commands"]
+    assert "reference-host-demo" in payload["commands"]
 
 
 def test_cli_info_json_output():
@@ -270,6 +273,9 @@ def test_cli_manifest_payload_shape():
     assert payload["entrypoints"]["recommended"] == "coglang"
     assert payload["implementation_metadata"]["distribution_name"] == DISTRIBUTION_NAME
     assert payload["docs"]["install_guide"].endswith("CogLang_Standalone_Install_and_Release_Guide_v0_1.md")
+    assert payload["docs"]["hrc_v0_2_final_freeze"].endswith(
+        "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md"
+    )
     assert payload["docs"]["roadmap"].endswith("ROADMAP.md")
     assert payload["docs"]["maintenance"].endswith("MAINTENANCE.md")
     assert payload["machine_readable_summaries"]["llms"].endswith("llms.txt")
@@ -761,6 +767,127 @@ def test_cli_host_demo_text_output():
     assert "snapshot_summary:" in output
 
 
+def test_cli_reference_host_demo_payload():
+    payload = _run_reference_host_demo()
+    assert list(payload) == list(REFERENCE_HOST_DEMO_TOP_LEVEL_KEYS)
+    assert payload["schema_version"] == "coglang-reference-host-demo/v0.1"
+    assert payload["tool"] == "coglang"
+    assert payload["ok"] is True
+    assert payload["host_kind"] == "reference_transport_host"
+    assert payload["status"] == "committed"
+    assert payload["payload_kind"] == "WriteResult"
+    assert payload["correlation_id"] == "reference-host-demo-success"
+    assert payload["typed_submission_message"]["header"]["correlation_id"] == payload["correlation_id"]
+    assert payload["typed_submission_message"]["header"]["submission_id"] == payload["submission_id"]
+    assert payload["typed_response"]["header"]["correlation_id"] == payload["correlation_id"]
+    assert payload["typed_response"]["header"]["submission_id"] == payload["submission_id"]
+    assert payload["typed_response"]["header"]["payload_kind"] == "WriteResult"
+    assert payload["typed_submission_record"]["correlation_id"] == payload["correlation_id"]
+    assert payload["typed_submission_record"]["submission_id"] == payload["submission_id"]
+    assert payload["typed_submission_record"]["status"] == "committed"
+    assert payload["typed_query_result"]["correlation_id"] == payload["correlation_id"]
+    assert payload["typed_query_result"]["submission_id"] == payload["submission_id"]
+    assert payload["typed_query_result"]["status"] == "committed"
+    assert payload["typed_write_header"] == {
+        "correlation_id": payload["correlation_id"],
+        "submission_id": payload["submission_id"],
+        "status": "committed",
+        "payload_kind": "WriteResult",
+    }
+    assert (
+        WriteBundleSubmissionMessage.from_json(
+            WriteBundleSubmissionMessage.from_dict(
+                payload["typed_submission_message"]
+            ).to_json()
+        ).to_dict()
+        == payload["typed_submission_message"]
+    )
+    assert (
+        WriteBundleResponseMessage.from_json(
+            WriteBundleResponseMessage.from_dict(payload["typed_response"]).to_json()
+        ).to_dict()
+        == payload["typed_response"]
+    )
+    assert (
+        LocalWriteSubmissionRecord.from_json(
+            LocalWriteSubmissionRecord.from_dict(
+                payload["typed_submission_record"]
+            ).to_json()
+        ).to_dict()
+        == payload["typed_submission_record"]
+    )
+    assert (
+        LocalWriteQueryResult.from_json(
+            LocalWriteQueryResult.from_dict(payload["typed_query_result"]).to_json()
+        ).to_dict()
+        == payload["typed_query_result"]
+    )
+    assert (
+        LocalWriteHeader.from_json(
+            LocalWriteHeader.from_dict(payload["typed_write_header"]).to_json()
+        ).to_dict()
+        == payload["typed_write_header"]
+    )
+    node_ids = {node["id"] for node in payload["graph"]["nodes"]}
+    assert {"ada", "analytical_engine"} <= node_ids
+    edges = payload["graph"].get("links", payload["graph"].get("edges", []))
+    edge_refs = {
+        (edge["source"], edge["target"], edge["relation_type"]) for edge in edges
+    }
+    assert ("ada", "analytical_engine", "designed") in edge_refs
+    assert [step["name"] for step in payload["steps"]] == [
+        "submit_json",
+        "query_result",
+        "write_header",
+        "error_report",
+    ]
+    assert all(step["ok"] for step in payload["steps"])
+    assert payload["steps"][-1]["status"] == "failed"
+    assert payload["steps"][-1]["payload_kind"] == "ErrorReport"
+    assert payload["steps"][-1]["error_kind"] == "ValidationError"
+    assert payload["steps"][-1]["error_count"] >= 1
+    assert payload["error_write_header"]["correlation_id"] == "reference-host-demo-error"
+    assert payload["error_write_header"]["status"] == "failed"
+    assert payload["error_write_header"]["payload_kind"] == "ErrorReport"
+    assert payload["error_response"]["header"]["payload_kind"] == "ErrorReport"
+    assert payload["error_response"]["payload"]["error_kind"] == "ValidationError"
+
+
+def test_cli_reference_host_demo_json_output():
+    code, output = _run(["reference-host-demo"])
+    assert code == 0
+    assert '"schema_version": "coglang-reference-host-demo/v0.1"' in output
+    assert '"host_kind": "reference_transport_host"' in output
+    assert '"name": "submit_json"' in output
+    assert '"name": "query_result"' in output
+    assert '"name": "write_header"' in output
+    assert '"name": "error_report"' in output
+    assert '"payload_kind": "WriteResult"' in output
+    assert '"payload_kind": "ErrorReport"' in output
+    assert '"error_kind": "ValidationError"' in output
+
+
+def test_cli_reference_host_demo_text_output():
+    code, output = _run(["reference-host-demo", "--format", "text"])
+    assert code == 0
+    assert "schema_version: coglang-reference-host-demo/v0.1" in output
+    assert "host_kind: reference_transport_host" in output
+    assert "status: committed" in output
+    assert "payload_kind: WriteResult" in output
+    assert "step1: ok" in output
+    assert "name: submit_json" in output
+    assert "name: query_result" in output
+    assert "name: write_header" in output
+    assert "name: error_report" in output
+    assert "typed_submission_message:" in output
+    assert "typed_response:" in output
+    assert "typed_submission_record:" in output
+    assert "typed_query_result:" in output
+    assert "typed_write_header:" in output
+    assert "error_response:" in output
+    assert "error_write_header:" in output
+
+
 def test_cli_host_demo_failure_payload_shape(monkeypatch):
     monkeypatch.setattr(
         _cli_host_attr("execute_and_submit_to_trace"),
@@ -1061,7 +1188,7 @@ def test_cli_minimal_ci_baseline_payload_shape():
     assert payload["publish_workflow_required_snippets_present"] is True
     assert payload["stable_release_policy"] == {
         "stable_language_tag": "v1.1.0",
-        "stable_python_distribution_version": "1.1.1",
+        "stable_python_distribution_version": "1.1.2",
         "package_index": "PyPI",
         "pypi_project": "coglang",
         "trusted_publishing": True,
@@ -1108,7 +1235,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 39
+    assert payload["entry_count"] == 43
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -1136,6 +1263,12 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "CogLang_Release_Notes_v1_1_0.zh-CN.md" in [
         item["source"] for item in payload["entries"]
     ]
+    assert "CogLang_Release_Notes_v1_1_2.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Release_Notes_v1_1_2.zh-CN.md" in [
+        item["source"] for item in payload["entries"]
+    ]
     assert "CogLang_Release_Notes_v1_1_1.md" in [
         item["source"] for item in payload["entries"]
     ]
@@ -1152,6 +1285,9 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Profiles_and_Capabilities_v1_1_0.zh-CN.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Operator_Catalog_v1_1_0.zh-CN.md" in [
@@ -1177,8 +1313,8 @@ def test_cli_public_repo_extract_manifest_payload_shape():
 def test_cli_formal_open_source_readiness_payload_shape():
     payload = _formal_open_source_readiness_payload()
     assert payload["schema_version"] == "coglang-formal-open-source-readiness/v0.1"
-    assert payload["gate_count"] == 6
-    assert payload["passed_gate_count"] == 6
+    assert payload["gate_count"] == 7
+    assert payload["passed_gate_count"] == 7
     assert payload["ready_for_candidate_decision"] is True
     assert payload["status"] == "ready-for-formal-open-source-candidate-decision"
     assert payload["decision_required"] is True
@@ -1189,6 +1325,7 @@ def test_cli_formal_open_source_readiness_payload_shape():
         "G4_repo_package_boundary",
         "G5_minimal_ci_release_baseline",
         "G6_maintenance_and_contribution_surface",
+        "G7_host_runtime_freeze_evidence",
     ]
 
 

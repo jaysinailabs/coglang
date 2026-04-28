@@ -16,11 +16,14 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     payload = materialize_public_repo_extract(destination)
 
     assert payload["schema_version"] == "coglang-public-repo-extract-run/v0.1"
-    assert payload["entry_count"] == 39
+    assert payload["entry_count"] == 43
     assert payload["copied_trees"] == 3
-    assert payload["copied_files"] == 36
+    assert payload["copied_files"] == 40
 
     assert (destination / "pyproject.toml").exists()
+    assert (destination / "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md").exists()
+    assert (destination / "CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md").exists()
+    assert (destination / "src" / "coglang" / "reference_host.py").exists()
     assert (destination / ".gitignore").exists()
     assert (destination / "pytest.ini").exists()
     assert (destination / "README.md").exists()
@@ -33,6 +36,8 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "CogLang_Conformance_Suite_v1_1_0.zh-CN.md").exists()
     assert (destination / "CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md").exists()
     assert (destination / "CogLang_Release_Notes_v1_1_0.zh-CN.md").exists()
+    assert (destination / "CogLang_Release_Notes_v1_1_2.md").exists()
+    assert (destination / "CogLang_Release_Notes_v1_1_2.zh-CN.md").exists()
     assert (destination / "CogLang_Release_Notes_v1_1_1.md").exists()
     assert (destination / "CogLang_Release_Notes_v1_1_1.zh-CN.md").exists()
     assert (destination / "CogLang_Contribution_Guide_v0_1.zh-CN.md").exists()

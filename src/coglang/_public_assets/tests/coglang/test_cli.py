@@ -1061,7 +1061,7 @@ def test_cli_minimal_ci_baseline_payload_shape():
     assert payload["publish_workflow_required_snippets_present"] is True
     assert payload["stable_release_policy"] == {
         "stable_language_tag": "v1.1.0",
-        "stable_python_distribution_version": "1.1.0",
+        "stable_python_distribution_version": "1.1.1",
         "package_index": "PyPI",
         "pypi_project": "coglang",
         "trusted_publishing": True,
@@ -1108,7 +1108,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 37
+    assert payload["entry_count"] == 39
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -1134,6 +1134,12 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Release_Notes_v1_1_0.zh-CN.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Release_Notes_v1_1_1.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Release_Notes_v1_1_1.zh-CN.md" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Contribution_Guide_v0_1.zh-CN.md" in [

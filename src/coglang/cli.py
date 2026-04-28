@@ -13,6 +13,7 @@ import tomllib
 from .executor import PythonCogLangExecutor
 from .local_host import LocalCogLangHost, LocalHostSnapshot, LocalHostSummary
 from .parser import CogLangExpr, CogLangVar, canonicalize, parse
+from .reference_host import ReferenceTransportHost
 from .validator import valid_coglang
 from .vocab import COGLANG_VOCAB, ERROR_HEADS
 from .write_bundle import WriteBundleCandidate, WriteOperation
@@ -27,6 +28,7 @@ EXAMPLES: dict[str, str] = {
 
 CLI_SCHEMA_VERSION = "coglang-cli-manifest/v0.1"
 HOST_DEMO_SCHEMA_VERSION = "coglang-host-demo/v0.1"
+REFERENCE_HOST_DEMO_SCHEMA_VERSION = "coglang-reference-host-demo/v0.1"
 COGLANG_LANGUAGE_RELEASE = "v1.1.0"
 HOST_DEMO_TOP_LEVEL_KEYS = (
     "schema_version",
@@ -48,6 +50,26 @@ HOST_DEMO_TOP_LEVEL_KEYS = (
     "typed_snapshot",
     "typed_summary",
     "snapshot_summary",
+    "steps",
+)
+REFERENCE_HOST_DEMO_TOP_LEVEL_KEYS = (
+    "schema_version",
+    "tool",
+    "version",
+    "ok",
+    "host_kind",
+    "status",
+    "payload_kind",
+    "correlation_id",
+    "submission_id",
+    "typed_submission_message",
+    "typed_response",
+    "typed_submission_record",
+    "typed_query_result",
+    "typed_write_header",
+    "graph",
+    "error_response",
+    "error_write_header",
     "steps",
 )
 
@@ -189,6 +211,7 @@ def _info_payload() -> dict[str, Any]:
             "smoke",
             "demo",
             "host-demo",
+            "reference-host-demo",
             "release-check",
         ],
         "conformance_suites": ["smoke", "core", "full"],
@@ -1259,6 +1282,128 @@ def _run_host_demo() -> dict[str, Any]:
     )
 
 
+def _run_reference_host_demo() -> dict[str, Any]:
+    host = ReferenceTransportHost()
+    candidate = WriteBundleCandidate(
+        owner="reference_transport_demo",
+        operations=[
+            WriteOperation(
+                "create_node",
+                {
+                    "id": "ada",
+                    "node_type": "Person",
+                    "attrs": {"id": "ada", "label": "Ada Lovelace"},
+                },
+            ),
+            WriteOperation(
+                "create_node",
+                {
+                    "id": "analytical_engine",
+                    "node_type": "Artifact",
+                    "attrs": {"id": "analytical_engine", "label": "Analytical Engine"},
+                },
+            ),
+            WriteOperation(
+                "create_edge",
+                {
+                    "source_id": "ada",
+                    "target_id": "analytical_engine",
+                    "relation": "designed",
+                },
+            ),
+        ],
+    )
+    submission_message = candidate.submission_message(
+        correlation_id="reference-host-demo-success",
+        metadata={"source": "reference-host-demo", "host_kind": "reference_transport_host"},
+    )
+    typed_response = json.loads(host.submit_json(submission_message.to_json()))
+    typed_submission_record = host.record(submission_message.correlation_id).to_dict()
+    typed_query_result = host.query_result(submission_message.correlation_id).to_dict()
+    typed_write_header = host.query_header(submission_message.correlation_id).to_dict()
+    graph = host.export_state()["graph"]
+
+    error_candidate = WriteBundleCandidate(
+        owner="reference_transport_demo",
+        operations=[
+            WriteOperation(
+                "create_edge",
+                {
+                    "source_id": "missing_source",
+                    "target_id": "missing_target",
+                    "relation": "knows",
+                },
+            )
+        ],
+    )
+    error_submission_message = error_candidate.submission_message(
+        correlation_id="reference-host-demo-error",
+        metadata={"source": "reference-host-demo", "host_kind": "reference_transport_host"},
+    )
+    error_response = host.submit_message(error_submission_message).to_dict()
+    error_write_header = host.query_header(error_submission_message.correlation_id).to_dict()
+
+    status = typed_write_header["status"]
+    payload_kind = typed_write_header["payload_kind"]
+    steps = [
+        {
+            "name": "submit_json",
+            "ok": status == "committed" and payload_kind == "WriteResult",
+            "status": status,
+            "payload_kind": payload_kind,
+            "correlation_id": submission_message.correlation_id,
+            "submission_id": submission_message.submission_id,
+        },
+        {
+            "name": "query_result",
+            "ok": typed_query_result["status"] == "committed",
+            "status": typed_query_result["status"],
+            "submission_id": typed_query_result["submission_id"],
+        },
+        {
+            "name": "write_header",
+            "ok": typed_write_header["status"] == "committed",
+            "status": typed_write_header["status"],
+            "payload_kind": typed_write_header["payload_kind"],
+        },
+        {
+            "name": "error_report",
+            "ok": (
+                error_write_header["status"] == "failed"
+                and error_write_header["payload_kind"] == "ErrorReport"
+            ),
+            "status": error_write_header["status"],
+            "payload_kind": error_write_header["payload_kind"],
+            "error_kind": error_response["payload"]["error_kind"],
+            "retryable": error_response["payload"]["retryable"],
+            "error_count": len(error_response["payload"]["errors"]),
+            "correlation_id": error_write_header["correlation_id"],
+            "submission_id": error_write_header["submission_id"],
+        },
+    ]
+    payload = {
+        "schema_version": REFERENCE_HOST_DEMO_SCHEMA_VERSION,
+        "tool": "coglang",
+        "version": _cli_version(),
+        "ok": all(step["ok"] for step in steps),
+        "host_kind": "reference_transport_host",
+        "status": status,
+        "payload_kind": payload_kind,
+        "correlation_id": submission_message.correlation_id,
+        "submission_id": submission_message.submission_id,
+        "typed_submission_message": submission_message.to_dict(),
+        "typed_response": typed_response,
+        "typed_submission_record": typed_submission_record,
+        "typed_query_result": typed_query_result,
+        "typed_write_header": typed_write_header,
+        "graph": graph,
+        "error_response": error_response,
+        "error_write_header": error_write_header,
+        "steps": steps,
+    }
+    return payload
+
+
 def _doctor_payload() -> dict[str, Any]:
     checks: list[dict[str, Any]] = []
 
@@ -1605,6 +1750,17 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Output format for the host-demo run.",
     )
 
+    reference_host_demo_cmd = subparsers.add_parser(
+        "reference-host-demo",
+        help="Run a minimal second-host write-envelope workflow.",
+    )
+    reference_host_demo_cmd.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="Output format for the reference-host-demo run.",
+    )
+
     release_check_cmd = subparsers.add_parser(
         "release-check", help="Check whether the minimal release-facing artifact set exists."
     )
@@ -1824,6 +1980,33 @@ def main(argv: list[str] | None = None) -> int:
             ):
                 if label in payload:
                     _print_text_mapping_block(label, payload[label])
+        else:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0 if payload["ok"] else 1
+
+    if args.command == "reference-host-demo":
+        payload = _run_reference_host_demo()
+        if args.format == "text":
+            print(f"schema_version: {payload['schema_version']}")
+            print(f"tool: {payload['tool']}")
+            print(f"version: {payload['version']}")
+            print(f"ok: {str(payload['ok']).lower()}")
+            print(f"host_kind: {payload['host_kind']}")
+            print(f"status: {payload['status']}")
+            print(f"payload_kind: {payload['payload_kind']}")
+            print(f"correlation_id: {payload['correlation_id']}")
+            print(f"submission_id: {payload['submission_id']}")
+            _print_text_step_blocks(payload["steps"])
+            for label in (
+                "typed_submission_message",
+                "typed_response",
+                "typed_submission_record",
+                "typed_query_result",
+                "typed_write_header",
+                "error_response",
+                "error_write_header",
+            ):
+                _print_text_mapping_block(label, payload[label])
         else:
             print(json.dumps(payload, ensure_ascii=False, indent=2))
         return 0 if payload["ok"] else 1

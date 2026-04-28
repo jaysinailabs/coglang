@@ -384,6 +384,11 @@ If you are implementing a third-party host, you should at least:
 
 If a host cannot satisfy these requirements, it may be able to execute some expressions, but it is not yet an integrable `CogLang` host.
 
+Current executable evidence:
+
+- `coglang host-demo` exercises the richer `LocalCogLangHost` path, including typed local query views and an `ErrorReport` failure path.
+- `coglang reference-host-demo` exercises a smaller host path that consumes `WriteBundleSubmissionMessage` JSON and returns `WriteBundleResponseMessage` without depending on `LocalCogLangHost`.
+
 ## 7. Still Unfrozen
 
 This note intentionally does not freeze:

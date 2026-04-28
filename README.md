@@ -113,6 +113,7 @@ The current minimal public command surface includes:
 - `smoke`
 - `demo`
 - `host-demo`
+- `reference-host-demo`
 - `release-check`
 
 If help output includes additional reference commands, they do not automatically become part of the stable public surface.

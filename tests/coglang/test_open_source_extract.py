@@ -21,6 +21,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert payload["copied_files"] == 36
 
     assert (destination / "pyproject.toml").exists()
+    assert (destination / "src" / "coglang" / "reference_host.py").exists()
     assert (destination / ".gitignore").exists()
     assert (destination / "pytest.ini").exists()
     assert (destination / "README.md").exists()

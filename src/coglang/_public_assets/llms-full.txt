@@ -8,7 +8,10 @@ Current status:
 
 - stable language release
 - reference implementation
-- language core plus host bridge
+- language core plus HRC v0.2 typed write-envelope host bridge
+
+Current public language release: `v1.1.0`. Current Python distribution version: `1.1.2`.
+HRC v0.2 is frozen for the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`.
 
 This file is for LLM-oriented retrieval and summarization. It is not the release contract. For package patch notes, use `CogLang_Release_Notes_v1_1_2.md`; for stable language commitments, use `CogLang_Release_Notes_v1_1_0.md`.
 
@@ -20,6 +23,7 @@ Use CogLang when:
 - you want a structured language where errors remain explicit values instead of hidden exception-driven control flow
 - you want replayable traces showing what an agent intended, what was submitted, and what actually executed
 - you want host-side profile and capability checks to reject unsafe or unsupported operations before execution
+- you need a versioned host-runtime boundary for typed write-envelope submission and response evidence
 
 ## What CogLang Is Not For
 

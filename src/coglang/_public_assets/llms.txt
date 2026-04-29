@@ -6,7 +6,10 @@ Status:
 
 - stable language release
 - reference implementation
-- host bridge v0.x
+- host bridge v0.2 frozen for the typed write-envelope surface
+
+Current public language release: `v1.1.0`. Current Python distribution version: `1.1.2`.
+HRC v0.2 is frozen for the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`.
 
 When to use CogLang:
 
@@ -14,6 +17,7 @@ When to use CogLang:
 - when you need errors to remain explicit values instead of hidden exceptions
 - when you need replayable traces for what an agent intended, submitted, and actually executed
 - when you want host-side profile and capability checks before execution
+- when you need a versioned host-runtime boundary for typed write-envelope submission and response evidence
 
 When not to use CogLang:
 
@@ -26,6 +30,7 @@ Key design choices:
 - canonical M-expression text for parse determinism and inspectable generated structure
 - errors as values because partial failure is common in AI-driven graph operations
 - profile and capability boundaries so hosts can reject unsafe or unsupported execution paths early
+- HRC v0.2 typed write-envelope evidence through `host-demo` and `reference-host-demo`
 
 Core documents:
 

@@ -6,9 +6,10 @@ Status:
 
 - stable language release
 - reference implementation
-- host bridge v0.x
+- host bridge v0.2 frozen for the typed write-envelope surface
 
 Current public language release: `v1.1.0`. The current Python distribution version is `1.1.2`.
+The Host Runtime Contract v0.2 frozen scope is the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`.
 
 ## LLM Discovery Snapshot
 
@@ -18,6 +19,7 @@ When to use CogLang:
 - You need errors to stay explicit values instead of becoming hidden control-flow failures.
 - You need replayable traces for what an agent intended, submitted, and actually executed.
 - You want host-side profile and capability checks before execution.
+- You need a versioned host-runtime boundary for typed write-envelope submission and response evidence.
 
 When not to use CogLang:
 
@@ -58,6 +60,8 @@ If this is your first time reading CogLang, start here:
    Check executable examples and regression boundaries.
 5. [CogLang_Standalone_Install_and_Release_Guide_v0_1.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.md)
    Use this when you need standalone install, local validation, or release-facing checks.
+6. [CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md](CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md)
+   Check the frozen typed write-envelope host-runtime scope and executable evidence.
 
 If you only have 10 minutes:
 
@@ -139,6 +143,8 @@ Core documents:
 
 Integration and release-facing documents:
 
+- [CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md](CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md)
+- [CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md](CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md)
 - [CogLang_Host_Runtime_Contract_v0_1.md](CogLang_Host_Runtime_Contract_v0_1.md)
 - [CogLang_Standalone_Install_and_Release_Guide_v0_1.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.md)
 - [CogLang_Release_Notes_v1_1_2.md](CogLang_Release_Notes_v1_1_2.md)

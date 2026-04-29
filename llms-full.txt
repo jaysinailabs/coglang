@@ -145,6 +145,8 @@ coglang reference-host-demo
 - `CogLang_Release_Notes_v1_1_1.md`
 - `CogLang_Release_Notes_v1_1_0.md`
   Current promises and non-promises.
+- `CogLang_Vision_Proposal_v0_1.md`
+  Long-term capability proposal, including v1.2 candidate themes, graph-compute governance, and AI learning maturity.
 - `CogLang_Contribution_Guide_v0_1.md`
   Contribution boundaries and review expectations.
 - `ROADMAP.md`

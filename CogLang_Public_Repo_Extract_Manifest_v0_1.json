@@ -228,6 +228,11 @@
     },
     {
       "kind": "file",
+      "source": "CogLang_Vision_Proposal_v0_1.md",
+      "destination": "CogLang_Vision_Proposal_v0_1.md"
+    },
+    {
+      "kind": "file",
       "source": "CogLang_Host_Runtime_Contract_v0_1.md",
       "destination": "CogLang_Host_Runtime_Contract_v0_1.md"
     },

@@ -157,7 +157,67 @@ In other words: design intent, not competitive claims.
 
 ---
 
-## 3. What To Do Before Contributing
+## 3. Design Invariants Contributors Should Preserve
+
+The following invariants are useful review shortcuts. They do not replace the
+specification, but they describe what maintainers will protect when reviewing
+language, documentation, host-boundary, and extension proposals.
+
+### 3.1 Canonical Text Is the Stability Anchor
+
+Canonical M-expression text is the stable language form used for storage,
+diffing, replay, conformance, and generated examples.
+
+Contributions should not change canonical serialization, frozen head names, or
+Core operator spelling unless the change is explicitly treated as a breaking
+language-version change.
+
+Readable rendering can improve, but it must not weaken canonical text as the
+authoritative representation.
+
+### 3.2 Errors Remain Values
+
+CogLang errors are expression-level values, not hidden host exceptions.
+
+Contributions should preserve explicit `ErrorExpr` behavior, documented failure
+modes, and ordinary propagation rules. Host integrations may wrap or transport
+errors, but they should not erase the structured error value that the language
+and conformance surface depend on.
+
+### 3.3 Feature Tiers Must Stay Meaningful
+
+`Core`, `Reserved`, and `Experimental` are compatibility tiers, not labels for
+marketing convenience.
+
+Contributions should not present an experimental capability as generally
+available, move roadmap material straight into `Core`, or bypass the promotion
+discipline that connects specification text, implementation behavior,
+conformance examples, operator catalog entries, and migration notes.
+
+### 3.4 Core Stays Graph-First
+
+The Core language should remain centered on graph queries, graph updates, rule
+objects, observable execution, and auditable host boundaries.
+
+Contributions that mainly serve host-specific workflow, application policy, or
+general-purpose programming convenience should usually live in profiles,
+examples, adapters, or roadmap notes before they are considered for the Core
+specification.
+
+### 3.5 Expression Values Should Stay Inspectable and Serializable
+
+Every ordinary expression value should remain suitable for canonical text,
+readable rendering, hashing, diffing, and replay.
+
+Large opaque payloads such as raw binary blobs, tensors, model artifacts, or
+media bytes should normally be represented by host-owned references plus
+metadata, not embedded directly as expression payloads. This is an extension
+design boundary, not a new frozen Core type rule; proposals in this area should
+come with clear host-contract, conformance, and security implications.
+
+---
+
+## 4. What To Do Before Contributing
 
 Before opening a PR, follow this minimal path:
 
@@ -178,11 +238,11 @@ If your change touches the host bridge or runtime contract, also read:
 
 ---
 
-## 4. What Maintainers Will Prioritize
+## 5. What Maintainers Will Prioritize
 
 Maintainers currently evaluate contributions with the following questions first.
 
-### 4.1 Does It Make Boundaries Clearer?
+### 5.1 Does It Make Boundaries Clearer?
 
 A change is usually more valuable when it clarifies the boundaries among:
 
@@ -191,7 +251,7 @@ A change is usually more valuable when it clarifies the boundaries among:
 - host contract
 - roadmap
 
-### 4.2 Does It Strengthen Conformance?
+### 5.2 Does It Strengthen Conformance?
 
 A change usually has high priority if it:
 
@@ -199,7 +259,7 @@ A change usually has high priority if it:
 - turns drift-prone semantics into a regression surface
 - makes it harder for implementation and specification to diverge again
 
-### 4.3 Does It Reduce Hidden Host Coupling?
+### 5.3 Does It Reduce Hidden Host Coupling?
 
 Welcome changes:
 
@@ -211,7 +271,7 @@ Unwelcome changes:
 
 - push new host-specific details back into the language core
 
-### 4.4 Does It Avoid Over-Commitment?
+### 5.4 Does It Avoid Over-Commitment?
 
 `CogLang` is ready for public trial, but it is not a mature standalone platform.
 
@@ -221,7 +281,7 @@ Contributions usually will not be prioritized if they:
 - make roadmap material sound like frozen commitments
 - make `Reserved / Experimental` capabilities look available by default
 
-### 4.5 Does It Preserve the Public Design-Intent Narrative?
+### 5.5 Does It Preserve the Public Design-Intent Narrative?
 
 Maintainers will prioritize public-narrative changes that:
 
@@ -237,7 +297,7 @@ Maintainers will not prioritize public-narrative changes that:
 
 ---
 
-## 5. Best Starting Points for Contributors
+## 6. Best Starting Points for Contributors
 
 If you want a high-value, low-risk place to start, consider:
 
@@ -250,7 +310,7 @@ If you want a high-value, low-risk place to start, consider:
 
 ---
 
-## 6. One-Sentence Conclusion
+## 7. One-Sentence Conclusion
 
 `CogLang` welcomes contributions, especially contributions that:
 

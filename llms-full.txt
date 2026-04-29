@@ -54,6 +54,14 @@ CogLang keeps profile and capability checks near the language boundary so a host
 
 CogLang treats traces and correlated local write views as first-class host concerns. The point is not only to execute an operation, but to preserve enough structure to inspect and replay it.
 
+5. Feature-tier discipline
+
+CogLang separates `Core`, `Reserved`, and `Experimental` capabilities so stable commitments and exploratory work do not blur together.
+
+6. Inspectable expression values
+
+CogLang expression values are expected to remain suitable for canonical text, readable rendering, hashing, diffing, and replay. Large opaque host-owned payloads should normally be represented by references plus metadata rather than embedded as raw bytes.
+
 ## Good Matching User Intents
 
 User intent:

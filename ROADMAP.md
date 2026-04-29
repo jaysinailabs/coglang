@@ -175,6 +175,24 @@ This is a direction, not a commitment.
 
 Contributions in this area are especially welcome.
 
+### 10. Semantic-event audit examples
+
+`CogLang` fits naturally as a semantic-event audit layer for AI systems that
+produce graph operations.
+
+Longer-term exploration includes small, runnable examples for:
+
+- agent memory or RAG knowledge-graph write preflight
+- OpenTelemetry sidecar metadata carrying canonical CogLang intent
+- MCP or tool-wrapper preflight for graph operations
+- human review artifacts showing canonical expression, planned graph diff,
+  capability requirements, and host-visible outcome
+
+This is a direction, not a commitment. These examples should complement agent
+frameworks, tool protocols, and observability stacks rather than replace them.
+
+Contributions in this area are especially welcome.
+
 ---
 
 ## Not What This File Is For

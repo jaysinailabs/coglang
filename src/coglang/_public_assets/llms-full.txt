@@ -33,8 +33,28 @@ Do not use CogLang when:
 - you need a schema definition language
 - you only need the native query language of a specific graph database in its native setting
 - you want a universal superiority claim that one graph language is better than another
+- you need tensor-level mechanistic interpretability, routing attribution, metrics dashboards, or a full observability backend
 
 CogLang intentionally avoids framing itself as a competitive replacement for every graph query language. Its public position is design intent, not superiority claims.
+
+## Interpretability And Audit Fit
+
+CogLang fits the role of a semantic-event audit layer: it can represent what an
+AI system intended to query or update in a graph, what was submitted to a host,
+what the host accepted or rejected, and what traceable result came back.
+
+CogLang is not a complete interpretability stack. It should usually be paired
+with other tools for lower-level or broader signals:
+
+- structured logs or tracing systems for process lineage and service-level telemetry
+- metrics systems for aggregate behavior and dashboards
+- model analysis, probes, or intervention experiments for tensor-level or causal interpretation
+- routing logs for why an agent or workflow selected a particular path
+
+The useful boundary is: use CogLang when the event can be expressed as an
+inspectable symbolic graph intent or host-visible graph outcome. Use other
+systems for raw activations, infrastructure telemetry, routing scores, and
+causal intervention results.
 
 ## Key Design Choices
 

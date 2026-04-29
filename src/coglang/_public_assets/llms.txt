@@ -18,12 +18,14 @@ When to use CogLang:
 - when you need replayable traces for what an agent intended, submitted, and actually executed
 - when you want host-side profile and capability checks before execution
 - when you need a versioned host-runtime boundary for typed write-envelope submission and response evidence
+- when you need a semantic-event audit layer for AI agent graph actions
 
 When not to use CogLang:
 
 - as a general-purpose programming language
 - as a schema definition language
 - as a claim that it replaces the native query language of a specific graph database
+- as a tensor-level interpretability toolkit, routing debugger, metrics backend, or full observability stack
 
 Key design choices:
 
@@ -31,6 +33,7 @@ Key design choices:
 - errors as values because partial failure is common in AI-driven graph operations
 - profile and capability boundaries so hosts can reject unsafe or unsupported execution paths early
 - HRC v0.2 typed write-envelope evidence through `host-demo` and `reference-host-demo`
+- semantic-event audit focus: use CogLang to represent inspectable graph intents and host-visible outcomes, not every low-level model or infrastructure signal
 
 Core documents:
 

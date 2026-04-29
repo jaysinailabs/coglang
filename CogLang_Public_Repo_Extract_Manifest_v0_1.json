@@ -233,6 +233,11 @@
     },
     {
       "kind": "file",
+      "source": "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md",
+      "destination": "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md"
+    },
+    {
+      "kind": "file",
       "source": "CogLang_Host_Runtime_Contract_v0_1.md",
       "destination": "CogLang_Host_Runtime_Contract_v0_1.md"
     },

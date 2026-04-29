@@ -64,6 +64,8 @@ If this is your first time reading CogLang, start here:
    Check the frozen typed write-envelope host-runtime scope and executable evidence.
 7. [CogLang_Vision_Proposal_v0_1.md](CogLang_Vision_Proposal_v0_1.md)
    Read the long-term capability proposal, including v1.2 candidate themes, graph-compute governance, and AI learning maturity.
+8. [CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md](CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md)
+   Read the v1.2 planning boundary for keeping Core stable while widening future semantic-action surfaces.
 
 If you only have 10 minutes:
 
@@ -154,6 +156,7 @@ Integration and release-facing documents:
 - [CogLang_Release_Notes_v1_1_0.md](CogLang_Release_Notes_v1_1_0.md)
 - [CogLang_Contribution_Guide_v0_1.md](CogLang_Contribution_Guide_v0_1.md)
 - [CogLang_Vision_Proposal_v0_1.md](CogLang_Vision_Proposal_v0_1.md)
+- [CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md](CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md)
 - [ROADMAP.md](ROADMAP.md)
 - [MAINTENANCE.md](MAINTENANCE.md)
 
@@ -208,6 +211,7 @@ Use the project documents this way:
 - [CogLang_Release_Notes_v1_1_2.md](CogLang_Release_Notes_v1_1_2.md): latest Python package patch notes.
 - [CogLang_Release_Notes_v1_1_0.md](CogLang_Release_Notes_v1_1_0.md): stable language release commitments.
 - [CogLang_Vision_Proposal_v0_1.md](CogLang_Vision_Proposal_v0_1.md): long-term capability proposal, not a release contract.
+- [CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md](CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md): v1.2 planning boundary for semantic-action evolution, not a stable specification.
 - [CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md](CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md): host-runtime contract v0.2 frozen scope and evidence.
 - [CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md](CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md): prior freeze-candidate review record.
 - [ROADMAP.md](ROADMAP.md): what is prioritized or being explored.

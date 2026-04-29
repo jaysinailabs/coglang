@@ -624,6 +624,10 @@ def _manifest_payload() -> dict[str, Any]:
         "CogLang_Vision_Proposal_v0_1.md",
         "CogLang_Vision_Proposal_v0_1.md",
     )[1]
+    evolution_boundary_proposal_relpath = _resolve_project_artifact(
+        "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md",
+        "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md",
+    )[1]
     roadmap_relpath = _resolve_project_artifact("ROADMAP.md", "ROADMAP.md")[1]
     maintenance_relpath = _resolve_project_artifact("MAINTENANCE.md", "MAINTENANCE.md")[1]
     llms_relpath = _resolve_project_artifact("llms.txt", "llms.txt")[1]
@@ -637,6 +641,7 @@ def _manifest_payload() -> dict[str, Any]:
         "hrc_v0_2_final_freeze": hrc_v0_2_final_freeze_relpath,
         "contribution_guide": contribution_guide_relpath,
         "vision_proposal": vision_proposal_relpath,
+        "evolution_boundary_proposal": evolution_boundary_proposal_relpath,
         "roadmap": roadmap_relpath,
         "maintenance": maintenance_relpath,
     }
@@ -670,6 +675,7 @@ def _manifest_payload() -> dict[str, Any]:
             "project_docs": {
                 "readme": docs["readme"],
                 "vision_proposal": docs["vision_proposal"],
+                "evolution_boundary_proposal": docs["evolution_boundary_proposal"],
                 "roadmap": docs["roadmap"],
                 "maintenance": docs["maintenance"],
             },
@@ -1845,6 +1851,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"readme: {payload['docs']['readme']}")
             print(f"install_guide: {payload['docs']['install_guide']}")
             print(f"vision_proposal: {payload['docs']['vision_proposal']}")
+            print(f"evolution_boundary_proposal: {payload['docs']['evolution_boundary_proposal']}")
             print(f"roadmap: {payload['docs']['roadmap']}")
             print(f"maintenance: {payload['docs']['maintenance']}")
             print(f"llms: {payload['machine_readable_summaries']['llms']}")

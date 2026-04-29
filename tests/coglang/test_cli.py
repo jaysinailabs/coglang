@@ -277,6 +277,9 @@ def test_cli_manifest_payload_shape():
         "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md"
     )
     assert payload["docs"]["vision_proposal"].endswith("CogLang_Vision_Proposal_v0_1.md")
+    assert payload["docs"]["evolution_boundary_proposal"].endswith(
+        "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md"
+    )
     assert payload["docs"]["roadmap"].endswith("ROADMAP.md")
     assert payload["docs"]["maintenance"].endswith("MAINTENANCE.md")
     assert payload["machine_readable_summaries"]["llms"].endswith("llms.txt")
@@ -286,6 +289,10 @@ def test_cli_manifest_payload_shape():
     assert (
         payload["public_release_surface"]["project_docs"]["vision_proposal"]
         == payload["docs"]["vision_proposal"]
+    )
+    assert (
+        payload["public_release_surface"]["project_docs"]["evolution_boundary_proposal"]
+        == payload["docs"]["evolution_boundary_proposal"]
     )
     assert payload["open_source_boundary"]["schema_version"] == "coglang-open-source-boundary/v0.1"
     assert payload["open_source_boundary"]["public_distribution_name"] == "coglang"
@@ -325,6 +332,11 @@ def test_cli_manifest_text_output():
     assert (
         f"vision_proposal: "
         f"{_path_in_layout('CogLang_Vision_Proposal_v0_1.md', 'CogLang_Vision_Proposal_v0_1.md')}"
+        in output
+    )
+    assert (
+        f"evolution_boundary_proposal: "
+        f"{_path_in_layout('CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md', 'CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md')}"
         in output
     )
     assert f"maintenance: {_path_in_layout('MAINTENANCE.md', 'MAINTENANCE.md')}" in output
@@ -1245,7 +1257,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 44
+    assert payload["entry_count"] == 45
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -1289,6 +1301,9 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Vision_Proposal_v0_1.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md" in [

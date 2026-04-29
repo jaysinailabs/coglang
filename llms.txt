@@ -51,6 +51,7 @@ Core documents:
 - CogLang_Release_Notes_v1_1_1.md: previous Python package patch notes
 - CogLang_Release_Notes_v1_1_0.md: stable language release commitments
 - CogLang_Vision_Proposal_v0_1.md: long-term capability proposal, including v1.2 candidate themes, graph-compute governance, and AI learning maturity
+- CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md: v1.2 planning boundary for semantic-action evolution, Core stability, profiles, effect preflight, graph budgets, and review bundles
 - CogLang_Contribution_Guide_v0_1.md: contribution boundaries and review expectations
 - ROADMAP.md: current direction, not a release contract
 - MAINTENANCE.md: maintenance, freeze, transfer, and archive policy

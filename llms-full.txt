@@ -147,6 +147,8 @@ coglang reference-host-demo
   Current promises and non-promises.
 - `CogLang_Vision_Proposal_v0_1.md`
   Long-term capability proposal, including v1.2 candidate themes, graph-compute governance, and AI learning maturity.
+- `CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md`
+  v1.2 planning boundary for semantic-action evolution, Core stability, profile contract packs, effect preflight, graph budgets, and review bundles.
 - `CogLang_Contribution_Guide_v0_1.md`
   Contribution boundaries and review expectations.
 - `ROADMAP.md`

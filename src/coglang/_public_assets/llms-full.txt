@@ -149,6 +149,8 @@ coglang reference-host-demo
   Long-term capability proposal, including v1.2 candidate themes, graph-compute governance, and AI learning maturity.
 - `CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md`
   v1.2 planning boundary for semantic-action evolution, Core stability, profile contract packs, effect preflight, graph budgets, and review bundles.
+- `CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md`
+  Minimal v1.2 vocabulary candidate for EffectSummary, GraphBudget, GraphBudgetEstimate, PreflightDecision, and budget-related errors.
 - `CogLang_Contribution_Guide_v0_1.md`
   Contribution boundaries and review expectations.
 - `ROADMAP.md`

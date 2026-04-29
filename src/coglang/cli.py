@@ -628,6 +628,10 @@ def _manifest_payload() -> dict[str, Any]:
         "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md",
         "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md",
     )[1]
+    effect_budget_preflight_vocabulary_relpath = _resolve_project_artifact(
+        "CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md",
+        "CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md",
+    )[1]
     roadmap_relpath = _resolve_project_artifact("ROADMAP.md", "ROADMAP.md")[1]
     maintenance_relpath = _resolve_project_artifact("MAINTENANCE.md", "MAINTENANCE.md")[1]
     llms_relpath = _resolve_project_artifact("llms.txt", "llms.txt")[1]
@@ -642,6 +646,7 @@ def _manifest_payload() -> dict[str, Any]:
         "contribution_guide": contribution_guide_relpath,
         "vision_proposal": vision_proposal_relpath,
         "evolution_boundary_proposal": evolution_boundary_proposal_relpath,
+        "effect_budget_preflight_vocabulary": effect_budget_preflight_vocabulary_relpath,
         "roadmap": roadmap_relpath,
         "maintenance": maintenance_relpath,
     }
@@ -676,6 +681,7 @@ def _manifest_payload() -> dict[str, Any]:
                 "readme": docs["readme"],
                 "vision_proposal": docs["vision_proposal"],
                 "evolution_boundary_proposal": docs["evolution_boundary_proposal"],
+                "effect_budget_preflight_vocabulary": docs["effect_budget_preflight_vocabulary"],
                 "roadmap": docs["roadmap"],
                 "maintenance": docs["maintenance"],
             },
@@ -1852,6 +1858,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"install_guide: {payload['docs']['install_guide']}")
             print(f"vision_proposal: {payload['docs']['vision_proposal']}")
             print(f"evolution_boundary_proposal: {payload['docs']['evolution_boundary_proposal']}")
+            print(f"effect_budget_preflight_vocabulary: {payload['docs']['effect_budget_preflight_vocabulary']}")
             print(f"roadmap: {payload['docs']['roadmap']}")
             print(f"maintenance: {payload['docs']['maintenance']}")
             print(f"llms: {payload['machine_readable_summaries']['llms']}")

@@ -16,9 +16,9 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     payload = materialize_public_repo_extract(destination)
 
     assert payload["schema_version"] == "coglang-public-repo-extract-run/v0.1"
-    assert payload["entry_count"] == 45
+    assert payload["entry_count"] == 46
     assert payload["copied_trees"] == 3
-    assert payload["copied_files"] == 42
+    assert payload["copied_files"] == 43
 
     assert (destination / "pyproject.toml").exists()
     assert (destination / "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md").exists()
@@ -43,6 +43,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "CogLang_Contribution_Guide_v0_1.zh-CN.md").exists()
     assert (destination / "CogLang_Vision_Proposal_v0_1.md").exists()
     assert (destination / "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md").exists()
+    assert (destination / "CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md").exists()
     assert (destination / "CogLang_Host_Runtime_Contract_v0_1.zh-CN.md").exists()
     assert (destination / "CogLang_Profiles_and_Capabilities_v1_1_0.zh-CN.md").exists()
     assert (destination / "CogLang_Operator_Catalog_v1_1_0.zh-CN.md").exists()
@@ -128,6 +129,10 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (
         manifest["docs"]["evolution_boundary_proposal"]
         == "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md"
+    )
+    assert (
+        manifest["docs"]["effect_budget_preflight_vocabulary"]
+        == "CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md"
     )
     assert manifest["docs"]["roadmap"] == "ROADMAP.md"
     assert manifest["machine_readable_summaries"]["llms"] == "llms.txt"

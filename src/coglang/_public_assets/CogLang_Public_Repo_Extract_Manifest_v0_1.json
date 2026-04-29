@@ -17,6 +17,7 @@
         "local_host.py",
         "open_source_extract.py",
         "parser.py",
+        "preflight.py",
         "reference_host.py",
         "stubs.py",
         "unify_backend.py",
@@ -42,6 +43,7 @@
         "test_open_source_extract.py",
         "test_package_layout.py",
         "test_parser.py",
+        "test_preflight.py",
         "test_unify.py",
         "test_validator.py"
       ]

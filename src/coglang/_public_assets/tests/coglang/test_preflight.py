@@ -237,6 +237,7 @@ def test_preflight_public_exports():
 
 def test_preflight_uses_shared_opaque_argument_metadata():
     assert preflight_module.OPAQUE_ARG_HEADS is OPAQUE_ARG_HEADS
+    assert preflight_module._UNIFY_HEADS is OPAQUE_ARG_HEADS
 
 
 def test_preflight_fixture_loads_minimal_cases():

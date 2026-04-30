@@ -1677,6 +1677,31 @@ def _print_generation_eval_text(payload: dict[str, Any]) -> None:
         )
 
 
+def _generation_eval_output_payload(
+    payload: dict[str, Any],
+    *,
+    summary_only: bool = False,
+    failures_only: bool = False,
+) -> dict[str, Any]:
+    if summary_only:
+        output = dict(payload)
+        output.pop("cases", None)
+        return output
+    if failures_only:
+        failed_case_ids = {
+            str(failure["case_id"])
+            for failure in payload.get("failure_cases", [])
+        }
+        output = dict(payload)
+        output["cases"] = [
+            case
+            for case in payload.get("cases", [])
+            if str(case.get("case_id")) in failed_case_ids
+        ]
+        return output
+    return payload
+
+
 def _conformance_targets(suite: str) -> list[str]:
     base = _conformance_base()
     suites = {
@@ -1965,6 +1990,17 @@ def _build_parser() -> argparse.ArgumentParser:
         "--answers-file",
         help="Optional answers JSON path. Defaults to fixture reference expressions.",
     )
+    generation_eval_output = generation_eval_cmd.add_mutually_exclusive_group()
+    generation_eval_output.add_argument(
+        "--summary-only",
+        action="store_true",
+        help="Omit per-case results from JSON output.",
+    )
+    generation_eval_output.add_argument(
+        "--failures-only",
+        action="store_true",
+        help="Limit JSON per-case results to failed cases.",
+    )
 
     smoke_cmd = subparsers.add_parser(
         "smoke", help="Run the minimal release-facing health check path."
@@ -2183,6 +2219,11 @@ def main(argv: list[str] | None = None) -> int:
         payload = generation_eval_payload(
             fixture_path=args.fixture,
             answers_path=args.answers_file,
+        )
+        payload = _generation_eval_output_payload(
+            payload,
+            summary_only=args.summary_only,
+            failures_only=args.failures_only,
         )
         if args.format == "text":
             _print_generation_eval_text(payload)

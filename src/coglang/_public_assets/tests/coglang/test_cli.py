@@ -604,6 +604,23 @@ def test_cli_examples_named_output():
     assert output == 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
 
 
+def _write_generation_eval_answers(path: Path, overrides: dict[str, str]) -> None:
+    cases = load_generation_eval_cases()
+    answers = reference_generation_eval_answers(cases)
+    answers.update(overrides)
+    path.write_text(
+        json.dumps(
+            {
+                "answers": [
+                    {"case_id": case_id, "output": output}
+                    for case_id, output in answers.items()
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+
 def test_cli_generation_eval_json_output():
     code, output = _run(["generation-eval"])
     payload = json.loads(output)
@@ -621,6 +638,42 @@ def test_cli_generation_eval_json_output():
     assert payload["level_summary"]["L1"]["case_count"] == 18
     assert payload["level_summary"]["L2"]["case_count"] == 16
     assert payload["level_summary"]["L3"]["case_count"] == 16
+
+
+def test_cli_generation_eval_summary_only_json_output():
+    code, output = _run(["generation-eval", "--summary-only"])
+    payload = json.loads(output)
+
+    assert code == 0
+    assert payload["case_count"] == 50
+    assert "summary" in payload
+    assert "level_summary" in payload
+    assert "maturity" in payload
+    assert payload["failure_cases"] == []
+    assert "cases" not in payload
+
+
+def test_cli_generation_eval_failures_only_json_output(tmp_path):
+    answers_path = tmp_path / "answers.json"
+    _write_generation_eval_answers(answers_path, {"L2-001": "BetterQuery[n_]"})
+
+    code, output = _run(
+        [
+            "generation-eval",
+            "--answers-file",
+            str(answers_path),
+            "--failures-only",
+        ]
+    )
+    payload = json.loads(output)
+
+    assert code == 1
+    assert payload["case_count"] == 50
+    assert payload["failure_case_count"] == 1
+    assert [case["case_id"] for case in payload["cases"]] == ["L2-001"]
+    assert [case["case_id"] for case in payload["failure_cases"]] == ["L2-001"]
+    assert payload["maturity"]["highest_contiguous_level"] == "L1"
+    assert payload["maturity"]["blocked_level"] == "L2"
 
 
 def test_cli_generation_eval_text_output():
@@ -641,21 +694,8 @@ def test_cli_generation_eval_text_output():
 
 
 def test_cli_generation_eval_text_reports_failure_cases(tmp_path):
-    cases = load_generation_eval_cases()
-    answers = reference_generation_eval_answers(cases)
-    answers["L2-001"] = "BetterQuery[n_]"
     answers_path = tmp_path / "answers.json"
-    answers_path.write_text(
-        json.dumps(
-            {
-                "answers": [
-                    {"case_id": case_id, "output": output}
-                    for case_id, output in answers.items()
-                ]
-            }
-        ),
-        encoding="utf-8",
-    )
+    _write_generation_eval_answers(answers_path, {"L2-001": "BetterQuery[n_]"})
 
     code, output = _run(
         [

@@ -10,13 +10,9 @@ def test_coglang_executor_abc_surface_is_minimal():
         {
             "execute",
             "validate",
-            "execute_with_write_bundle_candidate",
-            "peek_write_bundle_candidate",
-            "consume_write_bundle_candidate",
-            "validate_write_bundle_candidate",
         }
     )
-    assert len(CogLangExecutor.__abstractmethods__) <= 10
+    assert len(CogLangExecutor.__abstractmethods__) <= 2
 
 
 def test_minimal_coglang_executor_subclass_can_instantiate():
@@ -29,22 +25,18 @@ def test_minimal_coglang_executor_subclass_can_instantiate():
         def validate(self, expr):
             return True
 
-        def execute_with_write_bundle_candidate(self, expr, env=None):
-            return expr, None
-
-        def peek_write_bundle_candidate(self):
-            return None
-
-        def consume_write_bundle_candidate(self):
-            return None
-
-        def validate_write_bundle_candidate(self, candidate=None):
-            return True, []
-
     executor = MinimalExecutor()
 
     assert executor.execute("ok") == "ok"
     assert executor.validate("ok") is True
+    assert executor.execute_with_write_bundle_candidate("ok") == ("ok", None)
+    assert executor.peek_write_bundle_candidate() is None
+    assert executor.consume_write_bundle_candidate() is None
+    assert executor.validate_write_bundle_candidate() == (True, [])
+    assert executor.validate_write_bundle_candidate(object()) == (
+        False,
+        ["write bundle candidates are not supported by this executor"],
+    )
     executor.set_observer(NullObserver())
 
 

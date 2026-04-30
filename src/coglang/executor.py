@@ -89,25 +89,32 @@ class CogLangExecutor(ABC):
     def validate(self, expr: Any) -> bool:
         """Return True if expr is a structurally valid CogLang expression."""
 
-    @abstractmethod
     def execute_with_write_bundle_candidate(
         self, expr: Any, env: Optional[dict] = None
     ) -> tuple[Any, Optional[WriteBundleCandidate]]:
-        """Evaluate expr and return (result, write_bundle_candidate)."""
+        """Evaluate expr and return (result, write_bundle_candidate).
 
-    @abstractmethod
+        Minimal executor implementations are not required to support local
+        write-bundle candidates. Runtimes that need env-aware execution or
+        write-candidate capture should override this method.
+        """
+        return self.execute(expr), self.peek_write_bundle_candidate()
+
     def peek_write_bundle_candidate(self) -> Optional[WriteBundleCandidate]:
         """Return the most recent write bundle candidate without consuming it."""
+        return None
 
-    @abstractmethod
     def consume_write_bundle_candidate(self) -> Optional[WriteBundleCandidate]:
         """Return and clear the most recent write bundle candidate."""
+        return None
 
-    @abstractmethod
     def validate_write_bundle_candidate(
         self, candidate: Optional[WriteBundleCandidate] = None
     ) -> tuple[bool, list[str]]:
         """Validate a write bundle candidate against the current graph snapshot."""
+        if candidate is None:
+            return True, []
+        return False, ["write bundle candidates are not supported by this executor"]
 
     def set_observer(self, observer: Observer) -> None:
         """Inject an execution observer when a concrete runtime exposes one."""

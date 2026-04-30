@@ -42,9 +42,18 @@ PREFLIGHT_DECISIONS = frozenset(
 )
 BUDGET_ERROR_CATEGORIES = frozenset(
     {
+        # Proposal spelling from the v1.2 vocabulary note.
+        "BudgetExceeded",
         "HostCostUnsupported",
+        "PathExplosion",
+        "PreflightRejected",
+        "ReviewRequired",
+        "CapabilityRequired",
+        "Timeout",
         "TraversalLimitExceeded",
         "ResultLimitExceeded",
+        "UnificationLimitExceeded",
+        # Finer-grained implementation spelling; canonical names are not frozen.
         "PathLimitExceeded",
         "RecursionLimitExceeded",
         "UnificationBranchLimitExceeded",
@@ -583,7 +592,11 @@ def preflight_expression(
         and applied_budget.max_traversal_depth is not None
         and estimate.estimated_traversal_depth > applied_budget.max_traversal_depth
     ):
-        possible_errors = _append_unique(possible_errors, "TraversalLimitExceeded")
+        possible_errors = _append_unique(
+            possible_errors,
+            "BudgetExceeded",
+            "TraversalLimitExceeded",
+        )
         return PreflightDecision(
             decision="rejected",
             reasons=["budget.traversal_depth_exceeded"],

@@ -107,8 +107,12 @@ def test_graph_budget_omits_unset_optional_fields():
 
 def test_graph_budget_estimate_roundtrip_dict_json():
     estimate = GraphBudgetEstimate(
+        estimated_traversal_depth=2,
         estimated_visited_nodes=1000,
+        estimated_visited_edges=2500,
         estimated_result_count=100,
+        estimated_path_count=50,
+        estimated_unification_branches=10,
         estimate_confidence="estimated",
         estimator="local-host-v0.1",
         notes=["index statistics are approximate"],
@@ -116,6 +120,9 @@ def test_graph_budget_estimate_roundtrip_dict_json():
 
     payload = estimate.to_dict()
     assert payload["schema_version"] == GRAPH_BUDGET_ESTIMATE_SCHEMA_VERSION
+    assert payload["estimated_visited_edges"] == 2500
+    assert payload["estimated_path_count"] == 50
+    assert payload["estimated_unification_branches"] == 10
     assert payload["estimate_confidence"] == "estimated"
     assert GraphBudgetEstimate.from_dict(payload) == estimate
     assert GraphBudgetEstimate.from_json(estimate.to_json()) == estimate
@@ -129,6 +136,26 @@ def test_preflight_decision_roundtrip_nested_objects():
     assert payload["effect_summary"]["effects"] == ["graph.read"]
     assert payload["budget"]["host_cost_class"] == "bounded"
     assert payload["budget_estimate"]["estimator"] == "local-host-v0.1"
+    assert PreflightDecision.from_dict(payload) == decision
+    assert PreflightDecision.from_json(decision.to_json()) == decision
+
+
+def test_preflight_decision_roundtrip_preserves_null_nested_objects():
+    decision = PreflightDecision(
+        decision="cannot_estimate",
+        reasons=["budget.host_unsupported"],
+        required_review=True,
+        effect_summary=None,
+        budget=None,
+        budget_estimate=None,
+        possible_errors=["HostCostUnsupported"],
+        correlation_id="preflight-null-001",
+    )
+
+    payload = decision.to_dict()
+    assert payload["effect_summary"] is None
+    assert payload["budget"] is None
+    assert payload["budget_estimate"] is None
     assert PreflightDecision.from_dict(payload) == decision
     assert PreflightDecision.from_json(decision.to_json()) == decision
 
@@ -177,7 +204,18 @@ def test_preflight_candidate_vocabularies_are_exposed():
     assert "meta.trace" in EFFECT_CATEGORIES
     assert "external.tool" in EFFECT_CATEGORIES
     assert "cannot_estimate" in PREFLIGHT_DECISIONS
-    assert "TraversalLimitExceeded" in BUDGET_ERROR_CATEGORIES
+    assert {
+        "BudgetExceeded",
+        "TraversalLimitExceeded",
+        "ResultLimitExceeded",
+        "UnificationLimitExceeded",
+        "PathExplosion",
+        "Timeout",
+        "HostCostUnsupported",
+        "PreflightRejected",
+        "ReviewRequired",
+        "CapabilityRequired",
+    } <= BUDGET_ERROR_CATEGORIES
 
 
 def test_preflight_public_exports():
@@ -262,6 +300,26 @@ def test_preflight_cannot_estimate_traversal_without_graph_statistics():
     ]
     assert decision.budget_estimate.estimate_confidence == "unknown"
     assert decision.possible_errors == ["TraversalLimitExceeded", "HostCostUnsupported"]
+
+
+def test_preflight_rejects_traversal_when_static_depth_exceeds_budget():
+    decision = preflight_expression(
+        'Traverse["einstein", "related"]',
+        budget=GraphBudget(max_traversal_depth=0, host_cost_class="closed"),
+        correlation_id="preflight-budget-exceeded-001",
+    )
+
+    assert decision.decision == "rejected"
+    assert decision.required_review is False
+    assert decision.reasons == ["budget.traversal_depth_exceeded"]
+    assert decision.effect_summary.effects == ["graph.read", "graph.traverse"]
+    assert decision.budget.max_traversal_depth == 0
+    assert decision.budget_estimate.estimated_traversal_depth == 1
+    assert decision.possible_errors == [
+        "TraversalLimitExceeded",
+        "BudgetExceeded",
+    ]
+    assert decision.correlation_id == "preflight-budget-exceeded-001"
 
 
 def test_preflight_rejects_invalid_expression_before_runtime():

@@ -1766,6 +1766,15 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Do not force graph writes into requires_review during static preflight.",
     )
     preflight_cmd.add_argument(
+        "--enabled-capability",
+        action="append",
+        default=None,
+        help=(
+            "Declare one host-enabled capability. Repeat to provide a minimal "
+            "capability manifest for preflight rejection checks."
+        ),
+    )
+    preflight_cmd.add_argument(
         "--max-traversal-depth",
         type=int,
         help="Optional traversal-depth budget override.",
@@ -2281,6 +2290,7 @@ def main(argv: list[str] | None = None) -> int:
             expr,
             budget=_preflight_budget_from_args(args),
             correlation_id=args.correlation_id,
+            enabled_capabilities=args.enabled_capability,
             require_review_for_writes=not args.allow_writes_without_review,
         )
         payload = decision.to_dict()

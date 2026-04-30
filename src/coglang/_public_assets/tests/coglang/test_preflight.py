@@ -246,6 +246,7 @@ def test_preflight_fixture_loads_minimal_cases():
         "PF-004",
         "PF-005",
         "PF-006",
+        "PF-007",
     ]
 
 
@@ -254,7 +255,7 @@ def test_preflight_fixture_payload_scores_all_cases_cleanly():
 
     assert payload["schema_version"] == PREFLIGHT_FIXTURE_RESULT_SCHEMA_VERSION
     assert payload["fixture_schema_version"] == PREFLIGHT_FIXTURE_SCHEMA_VERSION
-    assert payload["case_count"] == 6
+    assert payload["case_count"] == 7
     assert payload["ok"] is True
     assert [case["case_id"] for case in payload["cases"]] == [
         "PF-001",
@@ -263,6 +264,7 @@ def test_preflight_fixture_payload_scores_all_cases_cleanly():
         "PF-004",
         "PF-005",
         "PF-006",
+        "PF-007",
     ]
     assert all(case["ok"] is True for case in payload["cases"])
     assert all(case["mismatches"] == [] for case in payload["cases"])
@@ -275,6 +277,7 @@ def test_preflight_fixture_payload_scores_all_cases_cleanly():
         "PF-004": "rejected",
         "PF-005": "rejected",
         "PF-006": "rejected",
+        "PF-007": "rejected",
     }
 
 
@@ -333,6 +336,33 @@ def test_preflight_requires_review_for_graph_write():
     assert decision.effect_summary.effects == ["graph.write", "host.policy", "human.review"]
     assert decision.effect_summary.required_capabilities == ["graph.write"]
     assert decision.possible_errors == ["CapabilityRequired", "ReviewRequired"]
+
+
+def test_preflight_rejects_missing_enabled_capability_before_review():
+    decision = preflight_expression(
+        'Create["Entity", {"id": "x", "category": "Person"}]',
+        enabled_capabilities={"graph.read"},
+        correlation_id="preflight-missing-capability-001",
+    )
+
+    assert decision.decision == "rejected"
+    assert decision.required_review is False
+    assert decision.reasons == ["capability.missing", "capability.missing.graph_write"]
+    assert decision.effect_summary.effects == ["graph.write"]
+    assert decision.effect_summary.required_capabilities == ["graph.write"]
+    assert decision.possible_errors == ["CapabilityRequired"]
+    assert decision.correlation_id == "preflight-missing-capability-001"
+
+
+def test_preflight_with_enabled_write_capability_preserves_review_policy():
+    decision = preflight_expression(
+        'Create["Entity", {"id": "x", "category": "Person"}]',
+        enabled_capabilities={"graph.write"},
+    )
+
+    assert decision.decision == "requires_review"
+    assert decision.required_review is True
+    assert decision.reasons == ["effect.graph_write", "policy.review_required"]
 
 
 def test_preflight_cannot_estimate_traversal_without_graph_statistics():

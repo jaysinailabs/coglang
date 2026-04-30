@@ -96,6 +96,22 @@
         "possible_errors": ["ParseError"],
         "estimate_confidence": "not_supported"
       }
+    },
+    {
+      "case_id": "PF-007",
+      "description": "Hosts that provide a capability manifest reject missing write capability before review.",
+      "expression": "Create[\"Entity\", {\"id\": \"ada\", \"category\": \"Person\"}]",
+      "correlation_id": "preflight-fixture-007",
+      "enabled_capabilities": ["graph.read"],
+      "expected": {
+        "decision": "rejected",
+        "required_review": false,
+        "reasons": ["capability.missing", "capability.missing.graph_write"],
+        "effects": ["graph.write"],
+        "required_capabilities": ["graph.write"],
+        "possible_errors": ["CapabilityRequired"],
+        "estimate_confidence": "known"
+      }
     }
   ]
 }

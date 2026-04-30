@@ -164,6 +164,27 @@ def test_cli_preflight_rejects_invalid_expression():
     assert payload["reasons"] == ["validation.invalid"]
 
 
+def test_cli_preflight_rejects_missing_enabled_capability():
+    code, output = _run(
+        [
+            "preflight",
+            "--enabled-capability",
+            "graph.read",
+            EXAMPLES["write"],
+        ]
+    )
+    payload = json.loads(output)
+
+    assert code == 1
+    assert payload["decision"] == "rejected"
+    assert payload["reasons"] == [
+        "capability.missing",
+        "capability.missing.graph_write",
+    ]
+    assert payload["effect_summary"]["required_capabilities"] == ["graph.write"]
+    assert payload["possible_errors"] == ["CapabilityRequired"]
+
+
 def test_cli_preflight_fixture_json_output():
     code, output = _run(["preflight-fixture"])
     payload = json.loads(output)
@@ -171,7 +192,7 @@ def test_cli_preflight_fixture_json_output():
     assert code == 0
     assert payload["schema_version"] == "coglang-preflight-fixture-result/v0.1"
     assert payload["fixture_schema_version"] == "coglang-preflight-fixture/v0.1"
-    assert payload["case_count"] == 6
+    assert payload["case_count"] == 7
     assert payload["ok"] is True
     assert [case["case_id"] for case in payload["cases"]] == [
         "PF-001",
@@ -180,6 +201,7 @@ def test_cli_preflight_fixture_json_output():
         "PF-004",
         "PF-005",
         "PF-006",
+        "PF-007",
     ]
 
 
@@ -189,9 +211,10 @@ def test_cli_preflight_fixture_text_output():
     assert code == 0
     assert "schema_version: coglang-preflight-fixture-result/v0.1" in output
     assert "fixture_schema_version: coglang-preflight-fixture/v0.1" in output
-    assert "case_count: 6" in output
+    assert "case_count: 7" in output
     assert "PF-001: ok decision=accepted_with_warnings" in output
     assert "PF-004: ok decision=rejected" in output
+    assert "PF-007: ok decision=rejected" in output
 
 
 def test_cli_conformance_targets_smoke():

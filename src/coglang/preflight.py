@@ -151,6 +151,20 @@ def _append_unique(items: list[str], *values: str) -> list[str]:
     return result
 
 
+def _missing_capabilities(
+    required_capabilities: list[str],
+    enabled_capabilities: set[str] | list[str] | tuple[str, ...] | None,
+) -> list[str]:
+    if enabled_capabilities is None:
+        return []
+    enabled = {str(item) for item in enabled_capabilities}
+    return [
+        capability
+        for capability in required_capabilities
+        if capability not in enabled
+    ]
+
+
 def _with_policy_review(summary: "EffectSummary") -> "EffectSummary":
     return EffectSummary(
         expression_hash=summary.expression_hash,
@@ -481,6 +495,7 @@ def preflight_fixture_payload(path: str | Path | None = None) -> dict[str, Any]:
             str(case["expression"]),
             budget=budget,
             correlation_id=case.get("correlation_id"),
+            enabled_capabilities=case.get("enabled_capabilities"),
             require_review_for_writes=bool(case.get("require_review_for_writes", True)),
         )
         decision_payload = decision.to_dict()
@@ -646,6 +661,7 @@ def preflight_expression(
     budget: GraphBudget | None = None,
     correlation_id: str | None = None,
     graph: Any = None,
+    enabled_capabilities: set[str] | list[str] | tuple[str, ...] | None = None,
     require_review_for_writes: bool = True,
 ) -> PreflightDecision:
     """Return a minimal static preflight decision for a CogLang expression."""
@@ -671,6 +687,27 @@ def preflight_expression(
         return PreflightDecision(
             decision="rejected",
             reasons=["validation.invalid"],
+            required_review=False,
+            effect_summary=summary,
+            budget=applied_budget,
+            budget_estimate=estimate,
+            possible_errors=possible_errors,
+            correlation_id=correlation_id,
+        )
+
+    missing_capabilities = _missing_capabilities(
+        summary.required_capabilities,
+        enabled_capabilities,
+    )
+    if missing_capabilities:
+        possible_errors = _append_unique(possible_errors, "CapabilityRequired")
+        missing_reasons = [
+            f"capability.missing.{capability.replace('.', '_')}"
+            for capability in missing_capabilities
+        ]
+        return PreflightDecision(
+            decision="rejected",
+            reasons=["capability.missing", *missing_reasons],
             required_review=False,
             effect_summary=summary,
             budget=applied_budget,

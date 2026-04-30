@@ -1356,6 +1356,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "generation_eval.py" in tree_entries["src/coglang"]["include"]
     assert "preflight.py" in tree_entries["src/coglang"]["include"]
     assert "test_catalog_alignment.py" in tree_entries["tests/coglang"]["include"]
+    assert "test_executor_interface.py" in tree_entries["tests/coglang"]["include"]
     assert "test_generation_eval.py" in tree_entries["tests/coglang"]["include"]
     assert "test_node_host_consumer.py" in tree_entries["tests/coglang"]["include"]
     assert "test_preflight.py" in tree_entries["tests/coglang"]["include"]

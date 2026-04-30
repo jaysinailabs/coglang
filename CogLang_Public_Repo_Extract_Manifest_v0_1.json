@@ -39,6 +39,7 @@
         "test_cli.py",
         "test_completeness.py",
         "test_composition.py",
+        "test_executor_interface.py",
         "test_graph_ops.py",
         "test_generation_eval.py",
         "test_host_runtime_schema_seeds.py",

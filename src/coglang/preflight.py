@@ -1,13 +1,19 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass, field
 from typing import Any
+
+from .parser import CogLangExpr, canonicalize, parse
+from .validator import valid_coglang
 
 EFFECT_SUMMARY_SCHEMA_VERSION = "coglang-effect-summary/v0.1"
 GRAPH_BUDGET_SCHEMA_VERSION = "coglang-graph-budget/v0.1"
 GRAPH_BUDGET_ESTIMATE_SCHEMA_VERSION = "coglang-graph-budget-estimate/v0.1"
 PREFLIGHT_DECISION_SCHEMA_VERSION = "coglang-preflight-decision/v0.1"
+
+STATIC_PREFLIGHT_ESTIMATOR = "coglang-static-preflight/v0.1"
 
 EFFECT_CATEGORIES = frozenset(
     {
@@ -15,8 +21,13 @@ EFFECT_CATEGORIES = frozenset(
         "graph.read",
         "graph.traverse",
         "graph.write",
+        "graph.delete",
+        "graph.unify",
+        "meta.trace",
+        "host.submit",
         "host.policy",
         "human.review",
+        "external.tool",
         "external.io",
     }
 )
@@ -43,6 +54,32 @@ BUDGET_ERROR_CATEGORIES = frozenset(
     }
 )
 
+_EFFECT_ORDER = (
+    "pure",
+    "graph.read",
+    "graph.traverse",
+    "graph.write",
+    "graph.delete",
+    "graph.unify",
+    "meta.trace",
+    "host.submit",
+    "host.policy",
+    "human.review",
+    "external.tool",
+    "external.io",
+)
+_READ_HEADS = frozenset({"AllNodes", "Get", "Query"})
+_TRAVERSE_HEADS = frozenset({"Traverse"})
+_WRITE_HEADS = frozenset({"Create", "Update"})
+_DELETE_HEADS = frozenset({"Delete"})
+_UNIFY_HEADS = frozenset({"Unify", "Match"})
+_TRACE_HEADS = frozenset({"Assert", "Compare", "Explain", "Trace"})
+_HOST_SUBMIT_HEADS = frozenset({"Send"})
+_EXTERNAL_TOOL_HEADS = frozenset(
+    {"Decompose", "Defer", "Estimate", "Explore", "Inspect", "Instantiate", "Merge", "Probe", "Resume"}
+)
+_OPAQUE_ARG_HEADS = frozenset({"Unify", "Match"})
+
 
 def _string_list(data: dict[str, Any], key: str) -> list[str]:
     return [str(item) for item in data.get(key, [])]
@@ -60,6 +97,61 @@ def _loads_object(payload: str) -> dict[str, Any]:
     if not isinstance(data, dict):
         raise TypeError("expected a JSON object")
     return data
+
+
+def _coerce_expr(expr_or_source: CogLangExpr | str) -> CogLangExpr:
+    if isinstance(expr_or_source, CogLangExpr):
+        return expr_or_source
+    if isinstance(expr_or_source, str):
+        return parse(expr_or_source)
+    raise TypeError("preflight expects a CogLangExpr or source string")
+
+
+def _iter_exprs(value: Any) -> list[CogLangExpr]:
+    found: list[CogLangExpr] = []
+    if isinstance(value, CogLangExpr):
+        found.append(value)
+        if value.head in _OPAQUE_ARG_HEADS:
+            return found
+        for arg in value.args:
+            found.extend(_iter_exprs(arg))
+        return found
+    if isinstance(value, dict):
+        for item in value.values():
+            found.extend(_iter_exprs(item))
+        return found
+    if isinstance(value, (list, tuple)):
+        for item in value:
+            found.extend(_iter_exprs(item))
+    return found
+
+
+def _ordered_effects(effects: set[str]) -> list[str]:
+    return [effect for effect in _EFFECT_ORDER if effect in effects]
+
+
+def _append_unique(items: list[str], *values: str) -> list[str]:
+    result = list(items)
+    for value in values:
+        if value not in result:
+            result.append(value)
+    return result
+
+
+def _with_policy_review(summary: "EffectSummary") -> "EffectSummary":
+    return EffectSummary(
+        expression_hash=summary.expression_hash,
+        effects=_append_unique(summary.effects, "host.policy", "human.review"),
+        required_capabilities=list(summary.required_capabilities),
+        possible_errors=_append_unique(
+            summary.possible_errors,
+            "CapabilityRequired",
+            "ReviewRequired",
+        ),
+        confidence=summary.confidence,
+        notes=list(summary.notes),
+        schema_version=summary.schema_version,
+    )
 
 
 @dataclass(frozen=True)
@@ -301,3 +393,253 @@ class PreflightDecision:
     @classmethod
     def from_json(cls, payload: str) -> "PreflightDecision":
         return cls.from_dict(_loads_object(payload))
+
+
+def canonical_expression_hash(expr_or_source: CogLangExpr | str) -> str | None:
+    """Return a stable SHA-256 hash over canonical expression text.
+
+    Parse errors have no stable source expression, so the helper returns None
+    instead of hashing the error envelope.
+    """
+    expr = _coerce_expr(expr_or_source)
+    if expr.head == "ParseError":
+        return None
+    canonical = canonicalize(expr)
+    digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    return f"sha256:{digest}"
+
+
+def default_graph_budget() -> GraphBudget:
+    """Return the small bounded budget used by the v1.2 preflight examples."""
+    return GraphBudget(
+        max_traversal_depth=1,
+        max_visited_nodes=1000,
+        max_result_count=100,
+        max_execution_ms=1000,
+        host_cost_class="bounded",
+    )
+
+
+def summarize_effects(
+    expr_or_source: CogLangExpr | str,
+    *,
+    graph: Any = None,
+) -> EffectSummary:
+    """Conservatively summarize effects without executing the expression."""
+    expr = _coerce_expr(expr_or_source)
+    if expr.head == "ParseError":
+        return EffectSummary(
+            expression_hash=None,
+            effects=["pure"],
+            possible_errors=["ParseError"],
+            confidence="known",
+            notes=["input could not be parsed"],
+        )
+
+    effects: set[str] = set()
+    possible_errors: list[str] = []
+    notes: list[str] = []
+    valid = valid_coglang(expr, graph=graph)
+
+    if not valid:
+        possible_errors.append("TypeError")
+        notes.append("expression does not validate against the static vocabulary")
+
+    for node in _iter_exprs(expr):
+        head = node.head
+        if head in _READ_HEADS:
+            effects.add("graph.read")
+        if head in _TRAVERSE_HEADS:
+            effects.update({"graph.read", "graph.traverse"})
+            possible_errors = _append_unique(possible_errors, "TraversalLimitExceeded")
+        if head in _WRITE_HEADS:
+            effects.add("graph.write")
+        if head in _DELETE_HEADS:
+            effects.update({"graph.write", "graph.delete"})
+        if head in _UNIFY_HEADS:
+            effects.add("graph.unify")
+            possible_errors = _append_unique(possible_errors, "UnificationBranchLimitExceeded")
+        if head in _TRACE_HEADS:
+            effects.add("meta.trace")
+        if head in _HOST_SUBMIT_HEADS:
+            effects.add("host.submit")
+            possible_errors = _append_unique(possible_errors, "StubError")
+        if head in _EXTERNAL_TOOL_HEADS:
+            effects.add("external.tool")
+            possible_errors = _append_unique(possible_errors, "StubError")
+
+    if not effects:
+        effects.add("pure")
+
+    required_capabilities: list[str] = []
+    if "graph.read" in effects or "graph.traverse" in effects:
+        required_capabilities.append("graph.read")
+    if "graph.write" in effects or "graph.delete" in effects:
+        required_capabilities.append("graph.write")
+    if "graph.unify" in effects:
+        required_capabilities.append("graph.unify")
+    if "host.submit" in effects:
+        required_capabilities.append("host.submit")
+    if "external.tool" in effects:
+        required_capabilities.append("external.tool")
+
+    return EffectSummary(
+        expression_hash=canonical_expression_hash(expr),
+        effects=_ordered_effects(effects),
+        required_capabilities=required_capabilities,
+        possible_errors=possible_errors,
+        confidence="known" if valid else "unknown",
+        notes=notes,
+    )
+
+
+def estimate_graph_budget(
+    expr_or_source: CogLangExpr | str,
+    *,
+    estimator: str = STATIC_PREFLIGHT_ESTIMATOR,
+) -> GraphBudgetEstimate:
+    """Return a structural cost estimate without inspecting a live graph."""
+    expr = _coerce_expr(expr_or_source)
+    if expr.head == "ParseError":
+        return GraphBudgetEstimate(
+            estimate_confidence="not_supported",
+            estimator=estimator,
+            notes=["cannot estimate a parse error"],
+        )
+
+    nodes = _iter_exprs(expr)
+    traverse_count = sum(1 for node in nodes if node.head in _TRAVERSE_HEADS)
+    unification_count = sum(1 for node in nodes if node.head in _UNIFY_HEADS)
+    query_like_count = sum(1 for node in nodes if node.head in {"AllNodes", "Query"})
+
+    notes: list[str] = []
+    confidence = "known"
+    estimated_result_count: int | None = 1
+    estimated_visited_nodes: int | None = 0
+
+    if query_like_count:
+        confidence = "estimated"
+        estimated_result_count = None
+        estimated_visited_nodes = None
+        notes.append("query result cardinality depends on host graph state")
+    if traverse_count:
+        confidence = "unknown"
+        estimated_result_count = None
+        estimated_visited_nodes = None
+        notes.append("static helper does not inspect graph degree statistics")
+
+    return GraphBudgetEstimate(
+        estimated_traversal_depth=traverse_count if traverse_count else None,
+        estimated_visited_nodes=estimated_visited_nodes,
+        estimated_result_count=estimated_result_count,
+        estimated_unification_branches=unification_count if unification_count else None,
+        estimate_confidence=confidence,
+        estimator=estimator,
+        notes=notes,
+    )
+
+
+def preflight_expression(
+    expr_or_source: CogLangExpr | str,
+    *,
+    budget: GraphBudget | None = None,
+    correlation_id: str | None = None,
+    graph: Any = None,
+    require_review_for_writes: bool = True,
+) -> PreflightDecision:
+    """Return a minimal static preflight decision for a CogLang expression."""
+    expr = _coerce_expr(expr_or_source)
+    applied_budget = budget or default_graph_budget()
+    summary = summarize_effects(expr, graph=graph)
+    estimate = estimate_graph_budget(expr)
+    possible_errors = list(summary.possible_errors)
+
+    if expr.head == "ParseError":
+        return PreflightDecision(
+            decision="rejected",
+            reasons=["parse.error"],
+            required_review=False,
+            effect_summary=summary,
+            budget=applied_budget,
+            budget_estimate=estimate,
+            possible_errors=possible_errors,
+            correlation_id=correlation_id,
+        )
+
+    if not valid_coglang(expr, graph=graph):
+        return PreflightDecision(
+            decision="rejected",
+            reasons=["validation.invalid"],
+            required_review=False,
+            effect_summary=summary,
+            budget=applied_budget,
+            budget_estimate=estimate,
+            possible_errors=possible_errors,
+            correlation_id=correlation_id,
+        )
+
+    if (
+        estimate.estimated_traversal_depth is not None
+        and applied_budget.max_traversal_depth is not None
+        and estimate.estimated_traversal_depth > applied_budget.max_traversal_depth
+    ):
+        possible_errors = _append_unique(possible_errors, "TraversalLimitExceeded")
+        return PreflightDecision(
+            decision="rejected",
+            reasons=["budget.traversal_depth_exceeded"],
+            required_review=False,
+            effect_summary=summary,
+            budget=applied_budget,
+            budget_estimate=estimate,
+            possible_errors=possible_errors,
+            correlation_id=correlation_id,
+        )
+
+    if "graph.traverse" in summary.effects and estimate.estimate_confidence == "unknown":
+        possible_errors = _append_unique(possible_errors, "HostCostUnsupported")
+        return PreflightDecision(
+            decision="cannot_estimate",
+            reasons=["budget.traversal_unbounded", "host.index_unknown"],
+            required_review=True,
+            effect_summary=_with_policy_review(summary),
+            budget=applied_budget,
+            budget_estimate=estimate,
+            possible_errors=possible_errors,
+            correlation_id=correlation_id,
+        )
+
+    if require_review_for_writes and (
+        "graph.write" in summary.effects or "graph.delete" in summary.effects
+    ):
+        summary = _with_policy_review(summary)
+        possible_errors = _append_unique(possible_errors, "CapabilityRequired", "ReviewRequired")
+        return PreflightDecision(
+            decision="requires_review",
+            reasons=["effect.graph_write", "policy.review_required"],
+            required_review=True,
+            effect_summary=summary,
+            budget=applied_budget,
+            budget_estimate=estimate,
+            possible_errors=possible_errors,
+            correlation_id=correlation_id,
+        )
+
+    reasons = [
+        f"effect.{effect.replace('.', '_')}"
+        for effect in summary.effects
+        if effect != "pure"
+    ]
+    if not reasons:
+        reasons.append("effect.pure")
+    reasons.append("budget.within_default")
+    decision = "accepted_with_warnings" if summary.notes or estimate.notes else "accepted"
+    return PreflightDecision(
+        decision=decision,
+        reasons=reasons,
+        required_review=False,
+        effect_summary=summary,
+        budget=applied_budget,
+        budget_estimate=estimate,
+        possible_errors=possible_errors,
+        correlation_id=correlation_id,
+    )

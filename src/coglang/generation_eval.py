@@ -259,6 +259,38 @@ def _level_summary(
     }
 
 
+def _level_sort_key(level: str) -> tuple[int, str]:
+    if len(level) >= 2 and level[0] == "L" and level[1:].isdigit():
+        return int(level[1:]), level
+    return 10_000, level
+
+
+def _maturity_summary(
+    level_summary: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    evaluated_levels = sorted(level_summary, key=_level_sort_key)
+    passed_levels = [
+        level for level in evaluated_levels if level_summary[level]["ok"] is True
+    ]
+    contiguous_passed_levels: list[str] = []
+    blocked_level: str | None = None
+    for level in evaluated_levels:
+        if level_summary[level]["ok"] is True:
+            contiguous_passed_levels.append(level)
+            continue
+        blocked_level = level
+        break
+    return {
+        "evaluated_levels": evaluated_levels,
+        "passed_levels": passed_levels,
+        "contiguous_passed_levels": contiguous_passed_levels,
+        "highest_contiguous_level": (
+            contiguous_passed_levels[-1] if contiguous_passed_levels else "L0"
+        ),
+        "blocked_level": blocked_level,
+    }
+
+
 def score_generation_eval(
     cases: list[GenerationEvalCase],
     answers: dict[str, str],
@@ -269,6 +301,7 @@ def score_generation_eval(
     summary = _summarize_results(results)
     failure_category_counts = _failure_category_counts(results)
     summary["failure_category_counts"] = failure_category_counts
+    level_summary = _level_summary(results)
 
     return {
         "schema_version": GENERATION_EVAL_RESULT_SCHEMA_VERSION,
@@ -278,7 +311,8 @@ def score_generation_eval(
         "ok": summary["ok"],
         "case_count": summary["case_count"],
         "summary": summary,
-        "level_summary": _level_summary(results),
+        "level_summary": level_summary,
+        "maturity": _maturity_summary(level_summary),
         "cases": [item.to_dict() for item in results],
     }
 

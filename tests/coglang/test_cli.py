@@ -644,6 +644,8 @@ def test_cli_generation_eval_json_output():
     assert payload["case_count"] == 50
     assert payload["summary"]["validate_ok_count"] == 50
     assert payload["summary"]["failure_category_counts"] == {}
+    assert payload["maturity"]["highest_contiguous_level"] == "L3"
+    assert payload["maturity"]["blocked_level"] is None
     assert payload["level_summary"]["L1"]["case_count"] == 18
     assert payload["level_summary"]["L2"]["case_count"] == 16
     assert payload["level_summary"]["L3"]["case_count"] == 16
@@ -656,6 +658,8 @@ def test_cli_generation_eval_text_output():
     assert "schema_version: coglang-generation-eval-result/v0.1" in output
     assert "answer_source: fixture_reference" in output
     assert "case_count: 50" in output
+    assert "maturity.highest_contiguous_level: L3" in output
+    assert "maturity.blocked_level: none" in output
     assert "validate_ok: 50/50" in output
     assert "failure_category_counts: none" in output
     assert "L1: validate_ok 18/18, head_ok 18/18, hallucinated 0" in output

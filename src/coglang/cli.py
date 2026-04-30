@@ -1634,6 +1634,15 @@ def _print_generation_eval_text(payload: dict[str, Any]) -> None:
     print(f"ok: {str(payload['ok']).lower()}")
     print(f"answer_source: {payload['answer_source']}")
     print(f"case_count: {payload['case_count']}")
+    maturity = payload.get("maturity", {})
+    print(
+        "maturity.highest_contiguous_level: "
+        + str(maturity.get("highest_contiguous_level", "unknown"))
+    )
+    print(
+        "maturity.blocked_level: "
+        + str(maturity.get("blocked_level") or "none")
+    )
     print(f"missing_output_count: {summary['missing_output_count']}")
     print(f"parse_ok: {summary['parse_ok_count']}/{payload['case_count']}")
     print(f"canonicalize_ok: {summary['canonicalize_ok_count']}/{payload['case_count']}")

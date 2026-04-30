@@ -35,6 +35,13 @@ def test_generation_eval_reference_outputs_score_cleanly():
     assert payload["summary"]["validate_ok_count"] == 50
     assert payload["summary"]["hallucinated_operator_count"] == 0
     assert payload["summary"]["failure_category_counts"] == {}
+    assert payload["maturity"] == {
+        "evaluated_levels": ["L1", "L2", "L3"],
+        "passed_levels": ["L1", "L2", "L3"],
+        "contiguous_passed_levels": ["L1", "L2", "L3"],
+        "highest_contiguous_level": "L3",
+        "blocked_level": None,
+    }
     assert set(level_summary) == {"L1", "L2", "L3"}
     assert sum(item["case_count"] for item in level_summary.values()) == 50
     assert level_summary["L1"]["case_count"] == 18
@@ -76,6 +83,10 @@ def test_generation_eval_detects_hallucinated_operator(tmp_path):
     assert payload["level_summary"]["L1"]["validate_ok_count"] == 17
     assert payload["level_summary"]["L2"]["ok"] is True
     assert payload["level_summary"]["L3"]["ok"] is True
+    assert payload["maturity"]["passed_levels"] == ["L2", "L3"]
+    assert payload["maturity"]["contiguous_passed_levels"] == []
+    assert payload["maturity"]["highest_contiguous_level"] == "L0"
+    assert payload["maturity"]["blocked_level"] == "L1"
     assert failed_case["hallucinated_heads"] == ["BetterEqual"]
     assert failed_case["failure_categories"] == [
         "validation_error",
@@ -116,5 +127,35 @@ def test_generation_eval_categorizes_missing_and_parse_errors(tmp_path):
     }
     assert payload["level_summary"]["L1"]["missing_output_count"] == 1
     assert payload["level_summary"]["L1"]["parse_ok_count"] == 16
+    assert payload["maturity"]["highest_contiguous_level"] == "L0"
+    assert payload["maturity"]["blocked_level"] == "L1"
     assert missing_case["failure_categories"] == ["missing_output"]
     assert parse_case["failure_categories"] == ["parse_error"]
+
+
+def test_generation_eval_maturity_requires_contiguous_level_success(tmp_path):
+    cases = load_generation_eval_cases()
+    answers = reference_generation_eval_answers(cases)
+    answers["L2-001"] = "BetterQuery[n_]"
+    answers_path = tmp_path / "answers.json"
+    answers_path.write_text(
+        json.dumps(
+            {
+                "answers": [
+                    {"case_id": case_id, "output": output}
+                    for case_id, output in answers.items()
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    payload = generation_eval_payload(answers_path=answers_path)
+
+    assert payload["level_summary"]["L1"]["ok"] is True
+    assert payload["level_summary"]["L2"]["ok"] is False
+    assert payload["level_summary"]["L3"]["ok"] is True
+    assert payload["maturity"]["passed_levels"] == ["L1", "L3"]
+    assert payload["maturity"]["contiguous_passed_levels"] == ["L1"]
+    assert payload["maturity"]["highest_contiguous_level"] == "L1"
+    assert payload["maturity"]["blocked_level"] == "L2"

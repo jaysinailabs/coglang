@@ -45,6 +45,21 @@ def _var_key(var: CogLangVar) -> str:
     return name[0].upper() + name[1:]
 
 
+def _typed_to_dict(value: Any | None) -> Optional[dict[str, Any]]:
+    """Return a typed object's dict envelope while preserving missing lookups."""
+    return None if value is None else value.to_dict()
+
+
+def _typed_to_json(value: Any | None) -> Optional[str]:
+    """Return a typed object's JSON envelope while preserving missing lookups."""
+    return None if value is None else value.to_json()
+
+
+def _typed_list_to_dicts(values: list[Any]) -> list[dict[str, Any]]:
+    """Return dict envelopes for a homogeneous typed-object list."""
+    return [value.to_dict() for value in values]
+
+
 # ---------------------------------------------------------------------------
 # Observer protocol (S2c-1)
 # ---------------------------------------------------------------------------
@@ -545,12 +560,12 @@ class PythonCogLangExecutor(CogLangExecutor):
         )
 
     def export_local_write_header_history(self) -> list[dict[str, Any]]:
-        return [item.to_dict() for item in self.export_local_write_headers()]
+        return _typed_list_to_dicts(self.export_local_write_headers())
 
     def export_local_write_header_history_by_status(
         self, status: str
     ) -> list[dict[str, Any]]:
-        return [item.to_dict() for item in self.query_local_write_headers(status=status)]
+        return _typed_list_to_dicts(self.query_local_write_headers(status=status))
 
     def export_local_write_header_history_json(self) -> str:
         return self.export_local_write_headers_json()
@@ -587,30 +602,22 @@ class PythonCogLangExecutor(CogLangExecutor):
     def query_local_write_trace_dict(
         self, correlation_id: str
     ) -> Optional[dict[str, Any]]:
-        trace = self.query_local_write_trace(correlation_id)
-        return None if trace is None else trace.to_dict()
+        return _typed_to_dict(self.query_local_write_trace(correlation_id))
 
     def query_local_write_trace_dict_by_submission_id(
         self, submission_id: str
     ) -> Optional[dict[str, Any]]:
-        trace = self.query_local_write_trace_by_submission_id(submission_id)
-        return None if trace is None else trace.to_dict()
+        return _typed_to_dict(self.query_local_write_trace_by_submission_id(submission_id))
 
     def query_local_write_trace_json(
         self, correlation_id: str
     ) -> Optional[str]:
-        trace = self.query_local_write_trace(correlation_id)
-        if trace is None:
-            return None
-        return trace.to_json()
+        return _typed_to_json(self.query_local_write_trace(correlation_id))
 
     def query_local_write_trace_json_by_submission_id(
         self, submission_id: str
     ) -> Optional[str]:
-        trace = self.query_local_write_trace_by_submission_id(submission_id)
-        if trace is None:
-            return None
-        return trace.to_json()
+        return _typed_to_json(self.query_local_write_trace_by_submission_id(submission_id))
 
     def peek_local_write_response_message(
         self, correlation_id: str
@@ -626,30 +633,26 @@ class PythonCogLangExecutor(CogLangExecutor):
     def query_local_write_response_message_dict(
         self, correlation_id: str
     ) -> Optional[dict[str, Any]]:
-        response = self.peek_local_write_response_message(correlation_id)
-        return None if response is None else response.to_dict()
+        return _typed_to_dict(self.peek_local_write_response_message(correlation_id))
 
     def query_local_write_response_message_dict_by_submission_id(
         self, submission_id: str
     ) -> Optional[dict[str, Any]]:
-        record = self.peek_local_write_submission_record_by_submission_id(submission_id)
-        return None if record is None else record.response.to_dict()
+        return _typed_to_dict(
+            self.peek_local_write_response_message_by_submission_id(submission_id)
+        )
 
     def query_local_write_response_message_json(
         self, correlation_id: str
     ) -> Optional[str]:
-        response = self.peek_local_write_response_message(correlation_id)
-        if response is None:
-            return None
-        return response.to_json()
+        return _typed_to_json(self.peek_local_write_response_message(correlation_id))
 
     def query_local_write_response_message_json_by_submission_id(
         self, submission_id: str
     ) -> Optional[str]:
-        response = self.peek_local_write_response_message_by_submission_id(submission_id)
-        if response is None:
-            return None
-        return response.to_json()
+        return _typed_to_json(
+            self.peek_local_write_response_message_by_submission_id(submission_id)
+        )
 
     def peek_local_write_submission_message(
         self, correlation_id: str
@@ -666,30 +669,26 @@ class PythonCogLangExecutor(CogLangExecutor):
     def query_local_write_submission_message_dict(
         self, correlation_id: str
     ) -> Optional[dict[str, Any]]:
-        message = self.peek_local_write_submission_message(correlation_id)
-        return None if message is None else message.to_dict()
+        return _typed_to_dict(self.peek_local_write_submission_message(correlation_id))
 
     def query_local_write_submission_message_dict_by_submission_id(
         self, submission_id: str
     ) -> Optional[dict[str, Any]]:
-        message = self.peek_local_write_submission_message_by_submission_id(submission_id)
-        return None if message is None else message.to_dict()
+        return _typed_to_dict(
+            self.peek_local_write_submission_message_by_submission_id(submission_id)
+        )
 
     def query_local_write_submission_message_json(
         self, correlation_id: str
     ) -> Optional[str]:
-        message = self.peek_local_write_submission_message(correlation_id)
-        if message is None:
-            return None
-        return message.to_json()
+        return _typed_to_json(self.peek_local_write_submission_message(correlation_id))
 
     def query_local_write_submission_message_json_by_submission_id(
         self, submission_id: str
     ) -> Optional[str]:
-        message = self.peek_local_write_submission_message_by_submission_id(submission_id)
-        if message is None:
-            return None
-        return message.to_json()
+        return _typed_to_json(
+            self.peek_local_write_submission_message_by_submission_id(submission_id)
+        )
 
     def peek_local_write_submission_record(
         self, correlation_id: str
@@ -704,33 +703,29 @@ class PythonCogLangExecutor(CogLangExecutor):
     def query_local_write_submission_record_dict(
         self, correlation_id: str
     ) -> Optional[dict[str, Any]]:
-        record = self.peek_local_write_submission_record(correlation_id)
-        return None if record is None else record.to_dict()
+        return _typed_to_dict(self.peek_local_write_submission_record(correlation_id))
 
     def query_local_write_submission_record_dict_by_submission_id(
         self, submission_id: str
     ) -> Optional[dict[str, Any]]:
-        record = self.peek_local_write_submission_record_by_submission_id(submission_id)
-        return None if record is None else record.to_dict()
+        return _typed_to_dict(
+            self.peek_local_write_submission_record_by_submission_id(submission_id)
+        )
 
     def query_local_write_submission_record_json(
         self, correlation_id: str
     ) -> Optional[str]:
-        record = self.peek_local_write_submission_record(correlation_id)
-        if record is None:
-            return None
-        return record.to_json()
+        return _typed_to_json(self.peek_local_write_submission_record(correlation_id))
 
     def query_local_write_submission_record_json_by_submission_id(
         self, submission_id: str
     ) -> Optional[str]:
-        record = self.peek_local_write_submission_record_by_submission_id(submission_id)
-        if record is None:
-            return None
-        return record.to_json()
+        return _typed_to_json(
+            self.peek_local_write_submission_record_by_submission_id(submission_id)
+        )
 
     def export_local_write_submission_history(self) -> list[dict[str, Any]]:
-        return [record.to_dict() for record in self.write_submission_history]
+        return _typed_list_to_dicts(self.write_submission_history)
 
     def export_local_write_submission_history_json(self) -> str:
         return LocalWriteSubmissionRecord.to_json_many(
@@ -750,7 +745,9 @@ class PythonCogLangExecutor(CogLangExecutor):
     def export_local_write_submission_history_by_status(
         self, status: str
     ) -> list[dict[str, Any]]:
-        return [record.to_dict() for record in self.query_local_write_submission_records(status=status)]
+        return _typed_list_to_dicts(
+            self.query_local_write_submission_records(status=status)
+        )
 
     def export_local_write_submission_history_json_by_status(
         self, status: str
@@ -760,7 +757,7 @@ class PythonCogLangExecutor(CogLangExecutor):
         )
 
     def export_local_write_response_history(self) -> list[dict[str, Any]]:
-        return [response.to_dict() for response in self.write_response_history]
+        return _typed_list_to_dicts(self.write_response_history)
 
     def export_local_write_response_history_json(self) -> str:
         return WriteBundleResponseMessage.to_json_many(
@@ -784,7 +781,9 @@ class PythonCogLangExecutor(CogLangExecutor):
     def export_local_write_response_history_by_status(
         self, status: str
     ) -> list[dict[str, Any]]:
-        return [response.to_dict() for response in self.query_local_write_response_messages(status=status)]
+        return _typed_list_to_dicts(
+            self.query_local_write_response_messages(status=status)
+        )
 
     def export_local_write_response_history_json_by_status(
         self, status: str
@@ -806,7 +805,7 @@ class PythonCogLangExecutor(CogLangExecutor):
         ]
 
     def export_local_write_submission_message_history(self) -> list[dict[str, Any]]:
-        return [record.request.to_dict() for record in self.write_submission_history]
+        return _typed_list_to_dicts(self.export_local_write_submission_messages())
 
     def export_local_write_submission_message_history_json(self) -> str:
         return WriteBundleSubmissionMessage.to_json_many(
@@ -816,7 +815,9 @@ class PythonCogLangExecutor(CogLangExecutor):
     def export_local_write_submission_message_history_by_status(
         self, status: str
     ) -> list[dict[str, Any]]:
-        return [message.to_dict() for message in self.query_local_write_submission_messages(status=status)]
+        return _typed_list_to_dicts(
+            self.query_local_write_submission_messages(status=status)
+        )
 
     def export_local_write_submission_message_history_json_by_status(
         self, status: str
@@ -826,14 +827,7 @@ class PythonCogLangExecutor(CogLangExecutor):
         )
 
     def export_local_write_query_results(self) -> list[dict[str, Any]]:
-        return [
-            local_write_query_result(
-                correlation_id=record.correlation_id,
-                response=record.response,
-                record=record,
-            ).to_dict()
-            for record in self.write_submission_history
-        ]
+        return _typed_list_to_dicts(self.query_local_write_results())
 
     def export_local_write_query_results_json(self) -> str:
         return LocalWriteQueryResult.to_json_many(self.query_local_write_results())
@@ -856,7 +850,7 @@ class PythonCogLangExecutor(CogLangExecutor):
     def export_local_write_query_results_by_status(
         self, status: str
     ) -> list[dict[str, Any]]:
-        return [result.to_dict() for result in self.query_local_write_results(status=status)]
+        return _typed_list_to_dicts(self.query_local_write_results(status=status))
 
     def export_local_write_query_results_json_by_status(
         self, status: str
@@ -884,7 +878,7 @@ class PythonCogLangExecutor(CogLangExecutor):
         return [trace for trace in traces if trace.query_result.status == status]
 
     def export_local_write_trace_history(self) -> list[dict[str, Any]]:
-        return [trace.to_dict() for trace in self.export_local_write_traces()]
+        return _typed_list_to_dicts(self.export_local_write_traces())
 
     def export_local_write_trace_history_json(self) -> str:
         return LocalWriteTrace.to_json_many(self.export_local_write_traces())
@@ -892,7 +886,7 @@ class PythonCogLangExecutor(CogLangExecutor):
     def export_local_write_trace_history_by_status(
         self, status: str
     ) -> list[dict[str, Any]]:
-        return [trace.to_dict() for trace in self.query_local_write_traces(status=status)]
+        return _typed_list_to_dicts(self.query_local_write_traces(status=status))
 
     def export_local_write_trace_history_json_by_status(self, status: str) -> str:
         return LocalWriteTrace.to_json_many(

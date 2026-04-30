@@ -33,6 +33,7 @@
       "include": [
         "conftest.py",
         "test_boundary.py",
+        "test_catalog_alignment.py",
         "test_cli.py",
         "test_completeness.py",
         "test_composition.py",

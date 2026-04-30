@@ -2,7 +2,7 @@
 
 from .parser import CogLangExpr, CogLangVar, canonicalize, parse
 from .validator import valid_coglang
-from .vocab import COGLANG_VOCAB, ERROR_HEADS, NodeType
+from .vocab import COGLANG_OPERATOR_HEADS, COGLANG_VOCAB, ERROR_HEADS, NodeType
 from .executor import (
     CogLangExecutor,
     NullObserver,
@@ -38,6 +38,7 @@ __all__ = [
     "canonicalize",
     "valid_coglang",
     "COGLANG_VOCAB",
+    "COGLANG_OPERATOR_HEADS",
     "ERROR_HEADS",
     "NodeType",
     "PythonCogLangExecutor",

@@ -1284,6 +1284,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["destination_paths_unique"] is True
     tree_entries = {item["source"]: item for item in payload["entries"] if item["kind"] == "tree"}
     assert "preflight.py" in tree_entries["src/coglang"]["include"]
+    assert "test_catalog_alignment.py" in tree_entries["tests/coglang"]["include"]
     assert "test_preflight.py" in tree_entries["tests/coglang"]["include"]
     assert "CogLang_Operator_Catalog_v1_1_0.md" in [
         item["source"] for item in payload["entries"]

@@ -5,6 +5,7 @@ from coglang import GraphBudget as PublicGraphBudget
 from coglang import GraphBudgetEstimate as PublicGraphBudgetEstimate
 from coglang import PreflightDecision as PublicPreflightDecision
 from coglang import preflight_expression as public_preflight_expression
+from coglang import preflight_fixture_payload as public_preflight_fixture_payload
 from coglang.parser import parse
 from coglang.preflight import (
     BUDGET_ERROR_CATEGORIES,
@@ -14,14 +15,19 @@ from coglang.preflight import (
     GRAPH_BUDGET_SCHEMA_VERSION,
     PREFLIGHT_DECISION_SCHEMA_VERSION,
     PREFLIGHT_DECISIONS,
+    PREFLIGHT_FIXTURE_RESULT_SCHEMA_VERSION,
+    PREFLIGHT_FIXTURE_SCHEMA_VERSION,
     EffectSummary,
     GraphBudget,
     GraphBudgetEstimate,
     PreflightDecision,
     canonical_expression_hash,
     default_graph_budget,
+    default_preflight_fixture_path,
     estimate_graph_budget,
+    load_preflight_fixture,
     preflight_expression,
+    preflight_fixture_payload,
     summarize_effects,
 )
 
@@ -224,6 +230,52 @@ def test_preflight_public_exports():
     assert PublicGraphBudgetEstimate is GraphBudgetEstimate
     assert PublicPreflightDecision is PreflightDecision
     assert public_preflight_expression is preflight_expression
+    assert public_preflight_fixture_payload is preflight_fixture_payload
+
+
+def test_preflight_fixture_loads_minimal_cases():
+    fixture = load_preflight_fixture()
+
+    assert fixture["schema_version"] == PREFLIGHT_FIXTURE_SCHEMA_VERSION
+    assert fixture["name"] == "minimal-v1-2-candidate-preflight-fixture"
+    assert fixture["path"] == str(default_preflight_fixture_path())
+    assert [case["case_id"] for case in fixture["cases"]] == [
+        "PF-001",
+        "PF-002",
+        "PF-003",
+        "PF-004",
+        "PF-005",
+        "PF-006",
+    ]
+
+
+def test_preflight_fixture_payload_scores_all_cases_cleanly():
+    payload = preflight_fixture_payload()
+
+    assert payload["schema_version"] == PREFLIGHT_FIXTURE_RESULT_SCHEMA_VERSION
+    assert payload["fixture_schema_version"] == PREFLIGHT_FIXTURE_SCHEMA_VERSION
+    assert payload["case_count"] == 6
+    assert payload["ok"] is True
+    assert [case["case_id"] for case in payload["cases"]] == [
+        "PF-001",
+        "PF-002",
+        "PF-003",
+        "PF-004",
+        "PF-005",
+        "PF-006",
+    ]
+    assert all(case["ok"] is True for case in payload["cases"])
+    assert all(case["mismatches"] == [] for case in payload["cases"])
+
+    decisions = {case["case_id"]: case["actual"]["decision"] for case in payload["cases"]}
+    assert decisions == {
+        "PF-001": "accepted_with_warnings",
+        "PF-002": "requires_review",
+        "PF-003": "cannot_estimate",
+        "PF-004": "rejected",
+        "PF-005": "rejected",
+        "PF-006": "rejected",
+    }
 
 
 def test_canonical_expression_hash_uses_canonical_text():

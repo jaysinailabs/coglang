@@ -164,6 +164,36 @@ def test_cli_preflight_rejects_invalid_expression():
     assert payload["reasons"] == ["validation.invalid"]
 
 
+def test_cli_preflight_fixture_json_output():
+    code, output = _run(["preflight-fixture"])
+    payload = json.loads(output)
+
+    assert code == 0
+    assert payload["schema_version"] == "coglang-preflight-fixture-result/v0.1"
+    assert payload["fixture_schema_version"] == "coglang-preflight-fixture/v0.1"
+    assert payload["case_count"] == 6
+    assert payload["ok"] is True
+    assert [case["case_id"] for case in payload["cases"]] == [
+        "PF-001",
+        "PF-002",
+        "PF-003",
+        "PF-004",
+        "PF-005",
+        "PF-006",
+    ]
+
+
+def test_cli_preflight_fixture_text_output():
+    code, output = _run(["preflight-fixture", "--format", "text"])
+
+    assert code == 0
+    assert "schema_version: coglang-preflight-fixture-result/v0.1" in output
+    assert "fixture_schema_version: coglang-preflight-fixture/v0.1" in output
+    assert "case_count: 6" in output
+    assert "PF-001: ok decision=accepted_with_warnings" in output
+    assert "PF-004: ok decision=rejected" in output
+
+
 def test_cli_conformance_targets_smoke():
     targets = _conformance_targets("smoke")
     normalized = [t.replace("\\", "/") for t in targets]
@@ -282,6 +312,7 @@ def test_cli_info_payload_shape():
     assert payload["language_release"] == "v1.1.0"
     assert "parse" in payload["commands"]
     assert "preflight" in payload["commands"]
+    assert "preflight-fixture" in payload["commands"]
     assert "generation-eval" in payload["commands"]
     assert "smoke" in payload["conformance_suites"]
     assert "host-demo" in payload["commands"]

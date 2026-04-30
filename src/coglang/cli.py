@@ -14,7 +14,7 @@ from .executor import PythonCogLangExecutor
 from .generation_eval import generation_eval_payload
 from .local_host import LocalCogLangHost, LocalHostSnapshot, LocalHostSummary
 from .parser import CogLangExpr, CogLangVar, canonicalize, parse
-from .preflight import GraphBudget, preflight_expression
+from .preflight import GraphBudget, preflight_expression, preflight_fixture_payload
 from .reference_host import ReferenceTransportHost
 from .validator import valid_coglang
 from .vocab import COGLANG_VOCAB, ERROR_HEADS
@@ -202,6 +202,7 @@ def _info_payload() -> dict[str, Any]:
             "canonicalize",
             "validate",
             "preflight",
+            "preflight-fixture",
             "execute",
             "conformance",
             "repl",
@@ -1594,6 +1595,17 @@ def _print_preflight_text(payload: dict[str, Any]) -> None:
         print(f"correlation_id: {payload['correlation_id']}")
 
 
+def _print_preflight_fixture_text(payload: dict[str, Any]) -> None:
+    print(f"schema_version: {payload['schema_version']}")
+    print(f"ok: {str(payload['ok']).lower()}")
+    print(f"fixture_schema_version: {payload['fixture_schema_version']}")
+    print(f"fixture_path: {payload['fixture_path']}")
+    print(f"case_count: {payload['case_count']}")
+    for case in payload["cases"]:
+        status = "ok" if case["ok"] else "fail"
+        print(f"{case['case_id']}: {status} decision={case['actual'].get('decision')}")
+
+
 def _print_generation_eval_text(payload: dict[str, Any]) -> None:
     summary = payload["summary"]
     failure_counts = summary.get("failure_category_counts", {})
@@ -1772,6 +1784,21 @@ def _build_parser() -> argparse.ArgumentParser:
         "--max-execution-ms",
         type=int,
         help="Optional execution-time budget override.",
+    )
+
+    preflight_fixture_cmd = subparsers.add_parser(
+        "preflight-fixture",
+        help="Run the packaged v1.2-candidate preflight fixture without execution.",
+    )
+    preflight_fixture_cmd.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="Output format for the fixture run.",
+    )
+    preflight_fixture_cmd.add_argument(
+        "--fixture",
+        help="Optional path to a compatible preflight fixture JSON file.",
     )
 
     execute_cmd = subparsers.add_parser(
@@ -2109,6 +2136,14 @@ def main(argv: list[str] | None = None) -> int:
         )
         if args.format == "text":
             _print_generation_eval_text(payload)
+        else:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0 if payload["ok"] else 1
+
+    if args.command == "preflight-fixture":
+        payload = preflight_fixture_payload(args.fixture)
+        if args.format == "text":
+            _print_preflight_fixture_text(payload)
         else:
             print(json.dumps(payload, ensure_ascii=False, indent=2))
         return 0 if payload["ok"] else 1

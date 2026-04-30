@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 from .parser import CogLangExpr, canonicalize, parse
@@ -12,8 +13,11 @@ EFFECT_SUMMARY_SCHEMA_VERSION = "coglang-effect-summary/v0.1"
 GRAPH_BUDGET_SCHEMA_VERSION = "coglang-graph-budget/v0.1"
 GRAPH_BUDGET_ESTIMATE_SCHEMA_VERSION = "coglang-graph-budget-estimate/v0.1"
 PREFLIGHT_DECISION_SCHEMA_VERSION = "coglang-preflight-decision/v0.1"
+PREFLIGHT_FIXTURE_SCHEMA_VERSION = "coglang-preflight-fixture/v0.1"
+PREFLIGHT_FIXTURE_RESULT_SCHEMA_VERSION = "coglang-preflight-fixture-result/v0.1"
 
 STATIC_PREFLIGHT_ESTIMATOR = "coglang-static-preflight/v0.1"
+DEFAULT_PREFLIGHT_FIXTURE = "preflight_minimal_v0_1.json"
 
 EFFECT_CATEGORIES = frozenset(
     {
@@ -427,6 +431,94 @@ def default_graph_budget() -> GraphBudget:
         max_execution_ms=1000,
         host_cost_class="bounded",
     )
+
+
+def default_preflight_fixture_path() -> Path:
+    return Path(__file__).resolve().parent / "eval_fixtures" / DEFAULT_PREFLIGHT_FIXTURE
+
+
+def load_preflight_fixture(path: str | Path | None = None) -> dict[str, Any]:
+    fixture_path = Path(path) if path is not None else default_preflight_fixture_path()
+    data = json.loads(fixture_path.read_text(encoding="utf-8"))
+    if data.get("schema_version") != PREFLIGHT_FIXTURE_SCHEMA_VERSION:
+        raise ValueError("unsupported preflight fixture schema_version")
+    if not isinstance(data.get("cases"), list):
+        raise TypeError("preflight fixture must contain a cases list")
+    data["path"] = str(fixture_path)
+    return data
+
+
+def _preflight_fixture_actual_value(payload: dict[str, Any], key: str) -> Any:
+    effect_summary = payload.get("effect_summary") or {}
+    budget_estimate = payload.get("budget_estimate") or {}
+    values = {
+        "decision": payload.get("decision"),
+        "required_review": payload.get("required_review"),
+        "reasons": payload.get("reasons"),
+        "effects": effect_summary.get("effects"),
+        "required_capabilities": effect_summary.get("required_capabilities"),
+        "possible_errors": payload.get("possible_errors"),
+        "estimate_confidence": budget_estimate.get("estimate_confidence"),
+    }
+    if key not in values:
+        raise KeyError(f"unsupported preflight fixture expected key: {key}")
+    return values[key]
+
+
+def preflight_fixture_payload(path: str | Path | None = None) -> dict[str, Any]:
+    """Run the minimal v1.2-candidate preflight fixture without executing expressions."""
+    fixture = load_preflight_fixture(path)
+    results: list[dict[str, Any]] = []
+
+    for raw_case in fixture["cases"]:
+        case = dict(raw_case)
+        budget = (
+            GraphBudget.from_dict(dict(case["budget"]))
+            if isinstance(case.get("budget"), dict)
+            else None
+        )
+        decision = preflight_expression(
+            str(case["expression"]),
+            budget=budget,
+            correlation_id=case.get("correlation_id"),
+            require_review_for_writes=bool(case.get("require_review_for_writes", True)),
+        )
+        decision_payload = decision.to_dict()
+        expected = dict(case["expected"])
+        actual = {
+            key: _preflight_fixture_actual_value(decision_payload, key)
+            for key in expected
+        }
+        mismatches = [
+            {
+                "field": key,
+                "expected": expected[key],
+                "actual": actual[key],
+            }
+            for key in expected
+            if actual[key] != expected[key]
+        ]
+        results.append(
+            {
+                "case_id": str(case["case_id"]),
+                "description": str(case.get("description", "")),
+                "expression": str(case["expression"]),
+                "ok": not mismatches,
+                "expected": expected,
+                "actual": actual,
+                "mismatches": mismatches,
+                "decision": decision_payload,
+            }
+        )
+
+    return {
+        "schema_version": PREFLIGHT_FIXTURE_RESULT_SCHEMA_VERSION,
+        "fixture_schema_version": PREFLIGHT_FIXTURE_SCHEMA_VERSION,
+        "fixture_path": fixture["path"],
+        "case_count": len(results),
+        "ok": all(item["ok"] for item in results),
+        "cases": results,
+    }
 
 
 def summarize_effects(

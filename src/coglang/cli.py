@@ -1634,6 +1634,7 @@ def _print_generation_eval_text(payload: dict[str, Any]) -> None:
     print(f"ok: {str(payload['ok']).lower()}")
     print(f"answer_source: {payload['answer_source']}")
     print(f"case_count: {payload['case_count']}")
+    print(f"failure_case_count: {payload.get('failure_case_count', 0)}")
     maturity = payload.get("maturity", {})
     print(
         "maturity.highest_contiguous_level: "
@@ -1659,6 +1660,12 @@ def _print_generation_eval_text(payload: dict[str, Any]) -> None:
     else:
         failure_items = "none"
     print(f"failure_category_counts: {failure_items}")
+    for failure in payload.get("failure_cases", []):
+        categories = ", ".join(failure.get("failure_categories", []))
+        print(
+            f"failure {failure['case_id']} "
+            f"level={failure['level']} categories={categories}"
+        )
     for level, level_summary in payload.get("level_summary", {}).items():
         print(
             f"{level}: validate_ok "

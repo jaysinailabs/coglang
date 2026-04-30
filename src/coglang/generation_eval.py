@@ -291,6 +291,22 @@ def _maturity_summary(
     }
 
 
+def _failure_case_summaries(
+    results: list[GenerationEvalCaseResult],
+) -> list[dict[str, Any]]:
+    return [
+        {
+            "case_id": result.case_id,
+            "level": result.level,
+            "failure_categories": list(result.failure_categories),
+            "hallucinated_heads": list(result.hallucinated_heads),
+            "parse_error": result.parse_error,
+        }
+        for result in results
+        if result.failure_categories
+    ]
+
+
 def score_generation_eval(
     cases: list[GenerationEvalCase],
     answers: dict[str, str],
@@ -302,6 +318,7 @@ def score_generation_eval(
     failure_category_counts = _failure_category_counts(results)
     summary["failure_category_counts"] = failure_category_counts
     level_summary = _level_summary(results)
+    failure_cases = _failure_case_summaries(results)
 
     return {
         "schema_version": GENERATION_EVAL_RESULT_SCHEMA_VERSION,
@@ -313,6 +330,8 @@ def score_generation_eval(
         "summary": summary,
         "level_summary": level_summary,
         "maturity": _maturity_summary(level_summary),
+        "failure_case_count": len(failure_cases),
+        "failure_cases": failure_cases,
         "cases": [item.to_dict() for item in results],
     }
 

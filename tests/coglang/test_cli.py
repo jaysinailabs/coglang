@@ -36,6 +36,10 @@ from coglang.cli import (
     _vocab_payload,
     main,
 )
+from coglang.generation_eval import (
+    load_generation_eval_cases,
+    reference_generation_eval_answers,
+)
 from coglang.local_host import LocalHostSnapshot, LocalHostSummary, LocalHostTrace
 from coglang.write_bundle import (
     LocalWriteHeader,
@@ -642,6 +646,8 @@ def test_cli_generation_eval_json_output():
     assert payload["schema_version"] == "coglang-generation-eval-result/v0.1"
     assert payload["answer_source"] == "fixture_reference"
     assert payload["case_count"] == 50
+    assert payload["failure_case_count"] == 0
+    assert payload["failure_cases"] == []
     assert payload["summary"]["validate_ok_count"] == 50
     assert payload["summary"]["failure_category_counts"] == {}
     assert payload["maturity"]["highest_contiguous_level"] == "L3"
@@ -658,6 +664,7 @@ def test_cli_generation_eval_text_output():
     assert "schema_version: coglang-generation-eval-result/v0.1" in output
     assert "answer_source: fixture_reference" in output
     assert "case_count: 50" in output
+    assert "failure_case_count: 0" in output
     assert "maturity.highest_contiguous_level: L3" in output
     assert "maturity.blocked_level: none" in output
     assert "validate_ok: 50/50" in output
@@ -665,6 +672,43 @@ def test_cli_generation_eval_text_output():
     assert "L1: validate_ok 18/18, head_ok 18/18, hallucinated 0" in output
     assert "L2: validate_ok 16/16, head_ok 16/16, hallucinated 0" in output
     assert "L3: validate_ok 16/16, head_ok 16/16, hallucinated 0" in output
+
+
+def test_cli_generation_eval_text_reports_failure_cases(tmp_path):
+    cases = load_generation_eval_cases()
+    answers = reference_generation_eval_answers(cases)
+    answers["L2-001"] = "BetterQuery[n_]"
+    answers_path = tmp_path / "answers.json"
+    answers_path.write_text(
+        json.dumps(
+            {
+                "answers": [
+                    {"case_id": case_id, "output": output}
+                    for case_id, output in answers.items()
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    code, output = _run(
+        [
+            "generation-eval",
+            "--answers-file",
+            str(answers_path),
+            "--format",
+            "text",
+        ]
+    )
+
+    assert code == 1
+    assert "failure_case_count: 1" in output
+    assert "maturity.highest_contiguous_level: L1" in output
+    assert "maturity.blocked_level: L2" in output
+    assert (
+        "failure L2-001 level=L2 "
+        "categories=validation_error, top_level_head_mismatch, hallucinated_operator"
+    ) in output
 
 
 def test_cli_smoke_dispatch_success(monkeypatch):

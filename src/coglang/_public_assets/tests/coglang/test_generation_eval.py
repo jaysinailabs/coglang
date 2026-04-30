@@ -35,6 +35,8 @@ def test_generation_eval_reference_outputs_score_cleanly():
     assert payload["summary"]["validate_ok_count"] == 50
     assert payload["summary"]["hallucinated_operator_count"] == 0
     assert payload["summary"]["failure_category_counts"] == {}
+    assert payload["failure_case_count"] == 0
+    assert payload["failure_cases"] == []
     assert payload["maturity"] == {
         "evaluated_levels": ["L1", "L2", "L3"],
         "passed_levels": ["L1", "L2", "L3"],
@@ -79,6 +81,20 @@ def test_generation_eval_detects_hallucinated_operator(tmp_path):
         "top_level_head_mismatch": 1,
         "validation_error": 1,
     }
+    assert payload["failure_case_count"] == 1
+    assert payload["failure_cases"] == [
+        {
+            "case_id": "L1-001",
+            "level": "L1",
+            "failure_categories": [
+                "validation_error",
+                "top_level_head_mismatch",
+                "hallucinated_operator",
+            ],
+            "hallucinated_heads": ["BetterEqual"],
+            "parse_error": None,
+        }
+    ]
     assert payload["level_summary"]["L1"]["ok"] is False
     assert payload["level_summary"]["L1"]["validate_ok_count"] == 17
     assert payload["level_summary"]["L2"]["ok"] is True
@@ -125,6 +141,14 @@ def test_generation_eval_categorizes_missing_and_parse_errors(tmp_path):
         "missing_output": 1,
         "parse_error": 1,
     }
+    assert payload["failure_case_count"] == 2
+    assert [
+        (item["case_id"], item["failure_categories"])
+        for item in payload["failure_cases"]
+    ] == [
+        ("L1-001", ["missing_output"]),
+        ("L1-002", ["parse_error"]),
+    ]
     assert payload["level_summary"]["L1"]["missing_output_count"] == 1
     assert payload["level_summary"]["L1"]["parse_ok_count"] == 16
     assert payload["maturity"]["highest_contiguous_level"] == "L0"

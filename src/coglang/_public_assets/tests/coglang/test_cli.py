@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import json
 import os
 import sys
 import tempfile
@@ -11,6 +12,7 @@ from pathlib import Path
 
 from coglang.cli import (
     COGLANG_LANGUAGE_RELEASE,
+    EXAMPLES,
     HOST_DEMO_TOP_LEVEL_KEYS,
     REFERENCE_HOST_DEMO_TOP_LEVEL_KEYS,
     _bundle_payload,
@@ -124,6 +126,42 @@ def test_cli_execute_json_result():
     code, output = _run(["execute", "--format", "json", 'Equal[1, 2]'])
     assert code == 0
     assert '"head": "False"' in output
+
+
+def test_cli_preflight_json_accepts_query_with_warning():
+    code, output = _run(
+        ["preflight", "--correlation-id", "cli-preflight-001", EXAMPLES["query"]]
+    )
+    payload = json.loads(output)
+
+    assert code == 0
+    assert payload["schema_version"] == "coglang-preflight-decision/v0.1"
+    assert payload["decision"] == "accepted_with_warnings"
+    assert payload["reasons"] == ["effect.graph_read", "budget.within_default"]
+    assert payload["required_review"] is False
+    assert payload["effect_summary"]["effects"] == ["graph.read"]
+    assert payload["budget_estimate"]["estimate_confidence"] == "estimated"
+    assert payload["correlation_id"] == "cli-preflight-001"
+
+
+def test_cli_preflight_text_requires_review_for_write():
+    code, output = _run(["preflight", "--format", "text", EXAMPLES["write"]])
+
+    assert code == 0
+    assert "schema_version: coglang-preflight-decision/v0.1" in output
+    assert "decision: requires_review" in output
+    assert "required_review: true" in output
+    assert "reasons: effect.graph_write, policy.review_required" in output
+    assert "effects: graph.write, host.policy, human.review" in output
+
+
+def test_cli_preflight_rejects_invalid_expression():
+    code, output = _run(["preflight", "UnknownHead[]"])
+    payload = json.loads(output)
+
+    assert code == 1
+    assert payload["decision"] == "rejected"
+    assert payload["reasons"] == ["validation.invalid"]
 
 
 def test_cli_conformance_targets_smoke():
@@ -243,6 +281,7 @@ def test_cli_info_payload_shape():
     assert payload["package"] == DISTRIBUTION_NAME
     assert payload["language_release"] == "v1.1.0"
     assert "parse" in payload["commands"]
+    assert "preflight" in payload["commands"]
     assert "smoke" in payload["conformance_suites"]
     assert "host-demo" in payload["commands"]
     assert "reference-host-demo" in payload["commands"]

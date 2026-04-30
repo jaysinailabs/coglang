@@ -185,6 +185,48 @@ def test_cli_preflight_rejects_missing_enabled_capability():
     assert payload["possible_errors"] == ["CapabilityRequired"]
 
 
+def test_cli_preflight_rejects_known_result_count_over_budget():
+    code, output = _run(
+        [
+            "preflight",
+            "--max-result-count",
+            "0",
+            'Get["ada", "category"]',
+        ]
+    )
+    payload = json.loads(output)
+
+    assert code == 1
+    assert payload["decision"] == "rejected"
+    assert payload["reasons"] == ["budget.result_count_exceeded"]
+    assert payload["budget"]["max_result_count"] == 0
+    assert payload["budget_estimate"]["estimated_result_count"] == 1
+    assert payload["possible_errors"] == ["BudgetExceeded", "ResultLimitExceeded"]
+
+
+def test_cli_preflight_rejects_known_unification_branches_over_budget():
+    code, output = _run(
+        [
+            "preflight",
+            "--max-unification-branches",
+            "0",
+            "Unify[f[X_, b], f[a, Y_]]",
+        ]
+    )
+    payload = json.loads(output)
+
+    assert code == 1
+    assert payload["decision"] == "rejected"
+    assert payload["reasons"] == ["budget.unification_branches_exceeded"]
+    assert payload["budget"]["max_unification_branches"] == 0
+    assert payload["budget_estimate"]["estimated_unification_branches"] == 1
+    assert payload["possible_errors"] == [
+        "UnificationBranchLimitExceeded",
+        "BudgetExceeded",
+        "UnificationLimitExceeded",
+    ]
+
+
 def test_cli_preflight_fixture_json_output():
     code, output = _run(["preflight-fixture"])
     payload = json.loads(output)
@@ -192,7 +234,7 @@ def test_cli_preflight_fixture_json_output():
     assert code == 0
     assert payload["schema_version"] == "coglang-preflight-fixture-result/v0.1"
     assert payload["fixture_schema_version"] == "coglang-preflight-fixture/v0.1"
-    assert payload["case_count"] == 7
+    assert payload["case_count"] == 9
     assert payload["ok"] is True
     assert [case["case_id"] for case in payload["cases"]] == [
         "PF-001",
@@ -202,6 +244,8 @@ def test_cli_preflight_fixture_json_output():
         "PF-005",
         "PF-006",
         "PF-007",
+        "PF-008",
+        "PF-009",
     ]
 
 
@@ -211,10 +255,12 @@ def test_cli_preflight_fixture_text_output():
     assert code == 0
     assert "schema_version: coglang-preflight-fixture-result/v0.1" in output
     assert "fixture_schema_version: coglang-preflight-fixture/v0.1" in output
-    assert "case_count: 7" in output
+    assert "case_count: 9" in output
     assert "PF-001: ok decision=accepted_with_warnings" in output
     assert "PF-004: ok decision=rejected" in output
     assert "PF-007: ok decision=rejected" in output
+    assert "PF-008: ok decision=rejected" in output
+    assert "PF-009: ok decision=rejected" in output
 
 
 def test_cli_conformance_targets_smoke():

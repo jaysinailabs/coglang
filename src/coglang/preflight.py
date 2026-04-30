@@ -737,6 +737,48 @@ def preflight_expression(
             correlation_id=correlation_id,
         )
 
+    if (
+        estimate.estimated_result_count is not None
+        and applied_budget.max_result_count is not None
+        and estimate.estimated_result_count > applied_budget.max_result_count
+    ):
+        possible_errors = _append_unique(
+            possible_errors,
+            "BudgetExceeded",
+            "ResultLimitExceeded",
+        )
+        return PreflightDecision(
+            decision="rejected",
+            reasons=["budget.result_count_exceeded"],
+            required_review=False,
+            effect_summary=summary,
+            budget=applied_budget,
+            budget_estimate=estimate,
+            possible_errors=possible_errors,
+            correlation_id=correlation_id,
+        )
+
+    if (
+        estimate.estimated_unification_branches is not None
+        and applied_budget.max_unification_branches is not None
+        and estimate.estimated_unification_branches > applied_budget.max_unification_branches
+    ):
+        possible_errors = _append_unique(
+            possible_errors,
+            "BudgetExceeded",
+            "UnificationLimitExceeded",
+        )
+        return PreflightDecision(
+            decision="rejected",
+            reasons=["budget.unification_branches_exceeded"],
+            required_review=False,
+            effect_summary=summary,
+            budget=applied_budget,
+            budget_estimate=estimate,
+            possible_errors=possible_errors,
+            correlation_id=correlation_id,
+        )
+
     if "graph.traverse" in summary.effects and estimate.estimate_confidence == "unknown":
         possible_errors = _append_unique(possible_errors, "HostCostUnsupported")
         return PreflightDecision(

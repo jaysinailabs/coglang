@@ -247,6 +247,8 @@ def test_preflight_fixture_loads_minimal_cases():
         "PF-005",
         "PF-006",
         "PF-007",
+        "PF-008",
+        "PF-009",
     ]
 
 
@@ -255,7 +257,7 @@ def test_preflight_fixture_payload_scores_all_cases_cleanly():
 
     assert payload["schema_version"] == PREFLIGHT_FIXTURE_RESULT_SCHEMA_VERSION
     assert payload["fixture_schema_version"] == PREFLIGHT_FIXTURE_SCHEMA_VERSION
-    assert payload["case_count"] == 7
+    assert payload["case_count"] == 9
     assert payload["ok"] is True
     assert [case["case_id"] for case in payload["cases"]] == [
         "PF-001",
@@ -265,6 +267,8 @@ def test_preflight_fixture_payload_scores_all_cases_cleanly():
         "PF-005",
         "PF-006",
         "PF-007",
+        "PF-008",
+        "PF-009",
     ]
     assert all(case["ok"] is True for case in payload["cases"])
     assert all(case["mismatches"] == [] for case in payload["cases"])
@@ -278,6 +282,8 @@ def test_preflight_fixture_payload_scores_all_cases_cleanly():
         "PF-005": "rejected",
         "PF-006": "rejected",
         "PF-007": "rejected",
+        "PF-008": "rejected",
+        "PF-009": "rejected",
     }
 
 
@@ -402,6 +408,44 @@ def test_preflight_rejects_traversal_when_static_depth_exceeds_budget():
         "BudgetExceeded",
     ]
     assert decision.correlation_id == "preflight-budget-exceeded-001"
+
+
+def test_preflight_rejects_known_result_count_over_budget():
+    decision = preflight_expression(
+        'Get["ada", "category"]',
+        budget=GraphBudget(max_result_count=0, host_cost_class="closed"),
+        correlation_id="preflight-result-budget-exceeded-001",
+    )
+
+    assert decision.decision == "rejected"
+    assert decision.required_review is False
+    assert decision.reasons == ["budget.result_count_exceeded"]
+    assert decision.effect_summary.effects == ["graph.read"]
+    assert decision.budget.max_result_count == 0
+    assert decision.budget_estimate.estimated_result_count == 1
+    assert decision.possible_errors == ["BudgetExceeded", "ResultLimitExceeded"]
+    assert decision.correlation_id == "preflight-result-budget-exceeded-001"
+
+
+def test_preflight_rejects_known_unification_branches_over_budget():
+    decision = preflight_expression(
+        "Unify[f[X_, b], f[a, Y_]]",
+        budget=GraphBudget(max_unification_branches=0, host_cost_class="closed"),
+        correlation_id="preflight-unification-budget-exceeded-001",
+    )
+
+    assert decision.decision == "rejected"
+    assert decision.required_review is False
+    assert decision.reasons == ["budget.unification_branches_exceeded"]
+    assert decision.effect_summary.effects == ["graph.unify"]
+    assert decision.budget.max_unification_branches == 0
+    assert decision.budget_estimate.estimated_unification_branches == 1
+    assert decision.possible_errors == [
+        "UnificationBranchLimitExceeded",
+        "BudgetExceeded",
+        "UnificationLimitExceeded",
+    ]
+    assert decision.correlation_id == "preflight-unification-budget-exceeded-001"
 
 
 def test_preflight_rejects_invalid_expression_before_runtime():

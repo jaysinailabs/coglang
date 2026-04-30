@@ -1567,6 +1567,7 @@ def _preflight_budget_from_args(args: argparse.Namespace) -> GraphBudget | None:
         "max_traversal_depth": args.max_traversal_depth,
         "max_visited_nodes": args.max_visited_nodes,
         "max_result_count": args.max_result_count,
+        "max_unification_branches": args.max_unification_branches,
         "max_execution_ms": args.max_execution_ms,
     }
     if all(value is None for value in budget_fields.values()):
@@ -1788,6 +1789,11 @@ def _build_parser() -> argparse.ArgumentParser:
         "--max-result-count",
         type=int,
         help="Optional result-count budget override.",
+    )
+    preflight_cmd.add_argument(
+        "--max-unification-branches",
+        type=int,
+        help="Optional unification-branch budget override.",
     )
     preflight_cmd.add_argument(
         "--max-execution-ms",

@@ -112,6 +112,48 @@
         "possible_errors": ["CapabilityRequired"],
         "estimate_confidence": "known"
       }
+    },
+    {
+      "case_id": "PF-008",
+      "description": "Known one-result graph reads reject when a host declares a zero result budget.",
+      "expression": "Get[\"ada\", \"category\"]",
+      "correlation_id": "preflight-fixture-008",
+      "budget": {
+        "max_result_count": 0,
+        "host_cost_class": "closed"
+      },
+      "expected": {
+        "decision": "rejected",
+        "required_review": false,
+        "reasons": ["budget.result_count_exceeded"],
+        "effects": ["graph.read"],
+        "required_capabilities": ["graph.read"],
+        "possible_errors": ["BudgetExceeded", "ResultLimitExceeded"],
+        "estimate_confidence": "known"
+      }
+    },
+    {
+      "case_id": "PF-009",
+      "description": "Known one-branch unification rejects when a host declares a zero unification budget.",
+      "expression": "Unify[f[X_, b], f[a, Y_]]",
+      "correlation_id": "preflight-fixture-009",
+      "budget": {
+        "max_unification_branches": 0,
+        "host_cost_class": "closed"
+      },
+      "expected": {
+        "decision": "rejected",
+        "required_review": false,
+        "reasons": ["budget.unification_branches_exceeded"],
+        "effects": ["graph.unify"],
+        "required_capabilities": ["graph.unify"],
+        "possible_errors": [
+          "UnificationBranchLimitExceeded",
+          "BudgetExceeded",
+          "UnificationLimitExceeded"
+        ],
+        "estimate_confidence": "known"
+      }
     }
   ]
 }

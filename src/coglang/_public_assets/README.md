@@ -32,6 +32,7 @@ Short runnable examples:
 ```powershell
 coglang execute 'Query[n_, Equal[Get[n_, "category"], "Person"]]'
 coglang execute 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
+coglang preflight --format text 'Create["Entity", {"category": "Person"}]'
 coglang demo
 ```
 
@@ -111,6 +112,7 @@ The current minimal public command surface includes:
 - `parse`
 - `canonicalize`
 - `validate`
+- `preflight`
 - `execute`
 - `conformance`
 - `repl`

@@ -31,6 +31,7 @@ coglang info
 coglang release-check
 coglang parse 'Equal[1, 1]'
 coglang validate 'Equal[1, 1]'
+coglang preflight --format text 'Create["Entity", {"category": "Person"}]'
 coglang execute 'Equal[1, 1]'
 coglang manifest
 coglang vocab

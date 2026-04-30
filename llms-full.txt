@@ -114,6 +114,7 @@ CogLang fit:
 coglang execute 'Get["einstein", "label"]'
 coglang execute 'Query[n_, Equal[Get[n_, "category"], "Person"]]'
 coglang execute 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
+coglang preflight --format text 'Create["Entity", {"category": "Person"}]'
 coglang demo
 coglang host-demo
 coglang reference-host-demo

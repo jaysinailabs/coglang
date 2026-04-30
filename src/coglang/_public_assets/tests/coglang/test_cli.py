@@ -1287,6 +1287,8 @@ def test_cli_release_check_payload_shape():
     assert any(item["name"] == "minimal_ci_baseline" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "public_repo_extract_manifest" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "formal_open_source_readiness" and item["ok"] is True for item in payload["checks"])
+    assert any(item["name"] == "preflight_fixture" and item["ok"] is True for item in payload["checks"])
+    assert any(item["name"] == "generation_eval" and item["ok"] is True for item in payload["checks"])
     assert payload["ok"] is True
 
 
@@ -1302,6 +1304,8 @@ def test_cli_release_check_json_output():
     assert '"minimal_ci_baseline"' in output
     assert '"public_repo_extract_manifest"' in output
     assert '"formal_open_source_readiness"' in output
+    assert '"preflight_fixture"' in output
+    assert '"generation_eval"' in output
 
 
 def test_cli_release_check_text_output():
@@ -1327,6 +1331,8 @@ def test_cli_release_check_text_output():
         in output
     )
     assert "formal_open_source_readiness: ok (ready-for-formal-open-source-candidate-decision)" in output
+    assert "preflight_fixture: ok (9 cases)" in output
+    assert "generation_eval: ok (50 cases)" in output
 
 
 def test_cli_open_source_boundary_payload_shape():

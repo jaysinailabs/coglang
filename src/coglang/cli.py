@@ -782,6 +782,8 @@ def _release_check_payload() -> dict[str, Any]:
     minimal_ci_baseline = _minimal_ci_baseline_payload()
     public_repo_extract_manifest = _public_repo_extract_manifest_payload()
     formal_open_source_readiness = _formal_open_source_readiness_payload()
+    preflight_fixture = preflight_fixture_payload()
+    generation_eval = generation_eval_payload()
     license_declared = False
     if pyproject_path.exists():
         pyproject = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
@@ -892,6 +894,23 @@ def _release_check_payload() -> dict[str, Any]:
             "name": "formal_open_source_readiness",
             "ok": formal_open_source_readiness["ready_for_candidate_decision"] is True,
             "detail": formal_open_source_readiness["status"],
+        },
+        {
+            "name": "preflight_fixture",
+            "ok": (
+                preflight_fixture["ok"] is True
+                and preflight_fixture["case_count"] >= 1
+            ),
+            "detail": f"{preflight_fixture['case_count']} cases",
+        },
+        {
+            "name": "generation_eval",
+            "ok": (
+                generation_eval["ok"] is True
+                and generation_eval["case_count"] >= 1
+                and generation_eval["summary"]["hallucinated_operator_count"] == 0
+            ),
+            "detail": f"{generation_eval['case_count']} cases",
         },
     ]
     return {

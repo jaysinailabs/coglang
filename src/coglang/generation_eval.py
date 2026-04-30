@@ -8,13 +8,11 @@ from typing import Any
 from .parser import CogLangExpr, canonicalize, parse
 from .preflight import preflight_expression
 from .validator import valid_coglang
-from .vocab import COGLANG_VOCAB
+from .vocab import COGLANG_VOCAB, OPAQUE_ARG_HEADS
 
 GENERATION_EVAL_FIXTURE_SCHEMA_VERSION = "coglang-generation-eval-fixture/v0.1"
 GENERATION_EVAL_RESULT_SCHEMA_VERSION = "coglang-generation-eval-result/v0.1"
 DEFAULT_GENERATION_EVAL_FIXTURE = "generation_eval_minimal_v0_1.json"
-
-_OPAQUE_ARG_HEADS = frozenset({"Unify", "Match"})
 
 
 @dataclass(frozen=True)
@@ -128,7 +126,7 @@ def _iter_heads(value: Any) -> list[str]:
     heads: list[str] = []
     if isinstance(value, CogLangExpr):
         heads.append(value.head)
-        if value.head in _OPAQUE_ARG_HEADS:
+        if value.head in OPAQUE_ARG_HEADS:
             return heads
         for arg in value.args:
             heads.extend(_iter_heads(arg))

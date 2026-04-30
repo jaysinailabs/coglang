@@ -2,11 +2,17 @@ from __future__ import annotations
 
 import json
 
+import coglang.generation_eval as generation_eval_module
 from coglang.generation_eval import (
     generation_eval_payload,
     load_generation_eval_cases,
     reference_generation_eval_answers,
 )
+from coglang.vocab import OPAQUE_ARG_HEADS
+
+
+def test_generation_eval_uses_shared_opaque_argument_metadata():
+    assert generation_eval_module.OPAQUE_ARG_HEADS is OPAQUE_ARG_HEADS
 
 
 def test_default_generation_eval_fixture_has_50_cases():

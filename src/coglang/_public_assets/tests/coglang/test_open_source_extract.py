@@ -16,9 +16,9 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     payload = materialize_public_repo_extract(destination)
 
     assert payload["schema_version"] == "coglang-public-repo-extract-run/v0.1"
-    assert payload["entry_count"] == 43
-    assert payload["copied_trees"] == 3
-    assert payload["copied_files"] == 40
+    assert payload["entry_count"] == 47
+    assert payload["copied_trees"] == 4
+    assert payload["copied_files"] == 43
 
     assert (destination / "pyproject.toml").exists()
     assert (destination / "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md").exists()
@@ -44,6 +44,9 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "CogLang_Host_Runtime_Contract_v0_1.zh-CN.md").exists()
     assert (destination / "CogLang_Profiles_and_Capabilities_v1_1_0.zh-CN.md").exists()
     assert (destination / "CogLang_Operator_Catalog_v1_1_0.zh-CN.md").exists()
+    assert (destination / "tests" / "coglang" / "test_node_host_consumer.py").exists()
+    assert (destination / "examples" / "node_host_consumer" / "consume_hrc_envelopes.mjs").exists()
+    assert (destination / "examples" / "node_host_consumer" / "README.md").exists()
     assert (destination / ".github" / "workflows" / "ci.yml").exists()
     assert (destination / ".github" / "workflows" / "publish.yml").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "README.md").exists()
@@ -82,6 +85,8 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     ).exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_cli.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "conftest.py").exists()
+    assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_node_host_consumer.py").exists()
+    assert (destination / "src" / "coglang" / "_public_assets" / "examples" / "node_host_consumer" / "consume_hrc_envelopes.mjs").exists()
     assert (destination / "internal_schemas" / "host_runtime" / "v0.1" / "schema-pack.json").exists()
     assert (destination / "src" / "coglang" / "cli.py").exists()
     assert (destination / "tests" / "coglang").exists()

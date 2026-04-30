@@ -9,7 +9,7 @@ Status:
 - host bridge v0.2 frozen for the typed write-envelope surface
 
 Current public language release: `v1.1.0`. Current Python distribution version: `1.1.2`.
-HRC v0.2 is frozen for the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`.
+HRC v0.2 is frozen for the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`. A minimal Node.js standard-library consumer under `examples/node_host_consumer` reads the HRC schema pack and envelope samples without importing the Python runtime.
 
 When to use CogLang:
 
@@ -33,6 +33,7 @@ Key design choices:
 - errors as values because partial failure is common in AI-driven graph operations
 - profile and capability boundaries so hosts can reject unsafe or unsupported execution paths early
 - HRC v0.2 typed write-envelope evidence through `host-demo` and `reference-host-demo`
+- non-Python HRC envelope consumption through `examples/node_host_consumer`
 - semantic-event audit focus: use CogLang to represent inspectable graph intents and host-visible outcomes, not every low-level model or infrastructure signal
 
 Core documents:
@@ -72,4 +73,5 @@ coglang preflight --format text 'Create["Entity", {"category": "Person"}]'
 coglang demo
 coglang host-demo
 coglang reference-host-demo
+node examples/node_host_consumer/consume_hrc_envelopes.mjs
 ```

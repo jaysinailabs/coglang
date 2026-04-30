@@ -8,6 +8,7 @@ from typing import Any
 
 from .parser import CogLangExpr, canonicalize, parse
 from .validator import valid_coglang
+from .vocab import OPAQUE_ARG_HEADS
 
 EFFECT_SUMMARY_SCHEMA_VERSION = "coglang-effect-summary/v0.1"
 GRAPH_BUDGET_SCHEMA_VERSION = "coglang-graph-budget/v0.1"
@@ -91,7 +92,6 @@ _HOST_SUBMIT_HEADS = frozenset({"Send"})
 _EXTERNAL_TOOL_HEADS = frozenset(
     {"Decompose", "Defer", "Estimate", "Explore", "Inspect", "Instantiate", "Merge", "Probe", "Resume"}
 )
-_OPAQUE_ARG_HEADS = frozenset({"Unify", "Match"})
 
 
 def _string_list(data: dict[str, Any], key: str) -> list[str]:
@@ -124,7 +124,7 @@ def _iter_exprs(value: Any) -> list[CogLangExpr]:
     found: list[CogLangExpr] = []
     if isinstance(value, CogLangExpr):
         found.append(value)
-        if value.head in _OPAQUE_ARG_HEADS:
+        if value.head in OPAQUE_ARG_HEADS:
             return found
         for arg in value.args:
             found.extend(_iter_exprs(arg))

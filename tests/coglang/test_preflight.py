@@ -1,5 +1,6 @@
 import json
 
+import coglang.preflight as preflight_module
 from coglang import EffectSummary as PublicEffectSummary
 from coglang import GraphBudget as PublicGraphBudget
 from coglang import GraphBudgetEstimate as PublicGraphBudgetEstimate
@@ -30,6 +31,7 @@ from coglang.preflight import (
     preflight_fixture_payload,
     summarize_effects,
 )
+from coglang.vocab import OPAQUE_ARG_HEADS
 
 
 def _accepted_preflight_decision() -> PreflightDecision:
@@ -231,6 +233,10 @@ def test_preflight_public_exports():
     assert PublicPreflightDecision is PreflightDecision
     assert public_preflight_expression is preflight_expression
     assert public_preflight_fixture_payload is preflight_fixture_payload
+
+
+def test_preflight_uses_shared_opaque_argument_metadata():
+    assert preflight_module.OPAQUE_ARG_HEADS is OPAQUE_ARG_HEADS
 
 
 def test_preflight_fixture_loads_minimal_cases():

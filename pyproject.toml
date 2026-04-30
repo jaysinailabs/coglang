@@ -59,6 +59,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 coglang = [
+    "eval_fixtures/*.json",
     "_public_assets/pyproject.toml",
     "_public_assets/LICENSE",
     "_public_assets/README.md",

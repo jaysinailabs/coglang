@@ -11,6 +11,7 @@ from typing import Any
 import tomllib
 
 from .executor import PythonCogLangExecutor
+from .generation_eval import generation_eval_payload
 from .local_host import LocalCogLangHost, LocalHostSnapshot, LocalHostSummary
 from .parser import CogLangExpr, CogLangVar, canonicalize, parse
 from .preflight import GraphBudget, preflight_expression
@@ -210,6 +211,7 @@ def _info_payload() -> dict[str, Any]:
             "doctor",
             "vocab",
             "examples",
+            "generation-eval",
             "smoke",
             "demo",
             "host-demo",
@@ -1592,6 +1594,24 @@ def _print_preflight_text(payload: dict[str, Any]) -> None:
         print(f"correlation_id: {payload['correlation_id']}")
 
 
+def _print_generation_eval_text(payload: dict[str, Any]) -> None:
+    summary = payload["summary"]
+    print(f"schema_version: {payload['schema_version']}")
+    print(f"tool: {payload['tool']}")
+    print(f"ok: {str(payload['ok']).lower()}")
+    print(f"answer_source: {payload['answer_source']}")
+    print(f"case_count: {payload['case_count']}")
+    print(f"missing_output_count: {summary['missing_output_count']}")
+    print(f"parse_ok: {summary['parse_ok_count']}/{payload['case_count']}")
+    print(f"canonicalize_ok: {summary['canonicalize_ok_count']}/{payload['case_count']}")
+    print(f"validate_ok: {summary['validate_ok_count']}/{payload['case_count']}")
+    print(
+        "expected_top_level_head_ok: "
+        f"{summary['expected_top_level_head_ok_count']}/{payload['case_count']}"
+    )
+    print(f"hallucinated_operator_count: {summary['hallucinated_operator_count']}")
+
+
 def _conformance_targets(suite: str) -> list[str]:
     base = _conformance_base()
     suites = {
@@ -1833,6 +1853,25 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Print one named example instead of the full listing.",
     )
 
+    generation_eval_cmd = subparsers.add_parser(
+        "generation-eval",
+        help="Score offline CogLang generation outputs against a prompt fixture.",
+    )
+    generation_eval_cmd.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="Output format for the generation eval report.",
+    )
+    generation_eval_cmd.add_argument(
+        "--fixture",
+        help="Optional fixture JSON path. Defaults to the packaged minimal fixture.",
+    )
+    generation_eval_cmd.add_argument(
+        "--answers-file",
+        help="Optional answers JSON path. Defaults to fixture reference expressions.",
+    )
+
     smoke_cmd = subparsers.add_parser(
         "smoke", help="Run the minimal release-facing health check path."
     )
@@ -2045,6 +2084,17 @@ def main(argv: list[str] | None = None) -> int:
         else:
             print(json.dumps(payload, ensure_ascii=False, indent=2))
         return 0
+
+    if args.command == "generation-eval":
+        payload = generation_eval_payload(
+            fixture_path=args.fixture,
+            answers_path=args.answers_file,
+        )
+        if args.format == "text":
+            _print_generation_eval_text(payload)
+        else:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0 if payload["ok"] else 1
 
     if args.command == "smoke":
         pytest_args = list(args.pytest_args)

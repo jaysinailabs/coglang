@@ -282,6 +282,7 @@ def test_cli_info_payload_shape():
     assert payload["language_release"] == "v1.1.0"
     assert "parse" in payload["commands"]
     assert "preflight" in payload["commands"]
+    assert "generation-eval" in payload["commands"]
     assert "smoke" in payload["conformance_suites"]
     assert "host-demo" in payload["commands"]
     assert "reference-host-demo" in payload["commands"]
@@ -531,6 +532,27 @@ def test_cli_examples_named_output():
     code, output = _run(["examples", "--name", "bind"])
     assert code == 0
     assert output == 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
+
+
+def test_cli_generation_eval_json_output():
+    code, output = _run(["generation-eval"])
+    payload = json.loads(output)
+
+    assert code == 0
+    assert payload["schema_version"] == "coglang-generation-eval-result/v0.1"
+    assert payload["answer_source"] == "fixture_reference"
+    assert payload["case_count"] == 50
+    assert payload["summary"]["validate_ok_count"] == 50
+
+
+def test_cli_generation_eval_text_output():
+    code, output = _run(["generation-eval", "--format", "text"])
+
+    assert code == 0
+    assert "schema_version: coglang-generation-eval-result/v0.1" in output
+    assert "answer_source: fixture_reference" in output
+    assert "case_count: 50" in output
+    assert "validate_ok: 50/50" in output
 
 
 def test_cli_smoke_dispatch_success(monkeypatch):
@@ -1322,8 +1344,11 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["source_paths_exist"] is True
     assert payload["destination_paths_unique"] is True
     tree_entries = {item["source"]: item for item in payload["entries"] if item["kind"] == "tree"}
+    assert "eval_fixtures" in tree_entries["src/coglang"]["include"]
+    assert "generation_eval.py" in tree_entries["src/coglang"]["include"]
     assert "preflight.py" in tree_entries["src/coglang"]["include"]
     assert "test_catalog_alignment.py" in tree_entries["tests/coglang"]["include"]
+    assert "test_generation_eval.py" in tree_entries["tests/coglang"]["include"]
     assert "test_preflight.py" in tree_entries["tests/coglang"]["include"]
     assert "CogLang_Operator_Catalog_v1_1_0.md" in [
         item["source"] for item in payload["entries"]

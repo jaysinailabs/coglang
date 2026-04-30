@@ -62,6 +62,7 @@ class GenerationEvalCaseResult:
     validate_ok: bool
     expected_top_level_head_ok: bool
     hallucinated_heads: list[str]
+    failure_categories: list[str]
     preflight_decision: str | None
     canonical: str | None = None
     parse_error: str | None = None
@@ -77,6 +78,7 @@ class GenerationEvalCaseResult:
             "validate_ok": self.validate_ok,
             "expected_top_level_head_ok": self.expected_top_level_head_ok,
             "hallucinated_heads": list(self.hallucinated_heads),
+            "failure_categories": list(self.failure_categories),
             "preflight_decision": self.preflight_decision,
             "canonical": self.canonical,
             "parse_error": self.parse_error,
@@ -153,6 +155,7 @@ def _score_case(case: GenerationEvalCase, output: str | None) -> GenerationEvalC
             validate_ok=False,
             expected_top_level_head_ok=False,
             hallucinated_heads=[],
+            failure_categories=["missing_output"],
             preflight_decision=None,
             parse_error="missing output",
         )
@@ -169,6 +172,7 @@ def _score_case(case: GenerationEvalCase, output: str | None) -> GenerationEvalC
             validate_ok=False,
             expected_top_level_head_ok=False,
             hallucinated_heads=[],
+            failure_categories=["parse_error"],
             preflight_decision="rejected",
             parse_error=canonicalize(expr),
         )
@@ -177,7 +181,15 @@ def _score_case(case: GenerationEvalCase, output: str | None) -> GenerationEvalC
     heads = _iter_heads(expr)
     hallucinated_heads = sorted({head for head in heads if head not in COGLANG_VOCAB})
     valid = valid_coglang(expr)
+    expected_head_ok = expr.head in case.expected_top_level_heads
     decision = preflight_expression(expr).decision
+    failure_categories: list[str] = []
+    if not valid:
+        failure_categories.append("validation_error")
+    if not expected_head_ok:
+        failure_categories.append("top_level_head_mismatch")
+    if hallucinated_heads:
+        failure_categories.append("hallucinated_operator")
 
     return GenerationEvalCaseResult(
         case_id=case.case_id,
@@ -187,20 +199,15 @@ def _score_case(case: GenerationEvalCase, output: str | None) -> GenerationEvalC
         parse_ok=True,
         canonicalize_ok=True,
         validate_ok=valid,
-        expected_top_level_head_ok=expr.head in case.expected_top_level_heads,
+        expected_top_level_head_ok=expected_head_ok,
         hallucinated_heads=hallucinated_heads,
+        failure_categories=failure_categories,
         preflight_decision=decision,
         canonical=canonical,
     )
 
 
-def score_generation_eval(
-    cases: list[GenerationEvalCase],
-    answers: dict[str, str],
-    *,
-    answer_source: str,
-) -> dict[str, Any]:
-    results = [_score_case(case, answers.get(case.case_id)) for case in cases]
+def _summarize_results(results: list[GenerationEvalCaseResult]) -> dict[str, Any]:
     case_count = len(results)
     parse_ok_count = sum(1 for item in results if item.parse_ok)
     canonicalize_ok_count = sum(1 for item in results if item.canonicalize_ok)
@@ -212,34 +219,68 @@ def score_generation_eval(
     def rate(count: int) -> float:
         return count / case_count if case_count else 0.0
 
-    ok = (
-        missing_output_count == 0
-        and parse_ok_count == case_count
-        and canonicalize_ok_count == case_count
-        and validate_ok_count == case_count
-        and head_match_count == case_count
-        and hallucinated_operator_count == 0
-    )
+    return {
+        "case_count": case_count,
+        "missing_output_count": missing_output_count,
+        "parse_ok_count": parse_ok_count,
+        "parse_ok_rate": rate(parse_ok_count),
+        "canonicalize_ok_count": canonicalize_ok_count,
+        "canonicalize_ok_rate": rate(canonicalize_ok_count),
+        "validate_ok_count": validate_ok_count,
+        "validate_ok_rate": rate(validate_ok_count),
+        "expected_top_level_head_ok_count": head_match_count,
+        "expected_top_level_head_ok_rate": rate(head_match_count),
+        "hallucinated_operator_count": hallucinated_operator_count,
+        "ok": (
+            missing_output_count == 0
+            and parse_ok_count == case_count
+            and canonicalize_ok_count == case_count
+            and validate_ok_count == case_count
+            and head_match_count == case_count
+            and hallucinated_operator_count == 0
+        ),
+    }
+
+
+def _failure_category_counts(
+    results: list[GenerationEvalCaseResult],
+) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for result in results:
+        for category in result.failure_categories:
+            counts[category] = counts.get(category, 0) + 1
+    return dict(sorted(counts.items()))
+
+
+def _level_summary(
+    results: list[GenerationEvalCaseResult],
+) -> dict[str, dict[str, Any]]:
+    return {
+        level: _summarize_results([item for item in results if item.level == level])
+        for level in sorted({item.level for item in results})
+    }
+
+
+def score_generation_eval(
+    cases: list[GenerationEvalCase],
+    answers: dict[str, str],
+    *,
+    answer_source: str,
+) -> dict[str, Any]:
+    results = [_score_case(case, answers.get(case.case_id)) for case in cases]
+    summary = _summarize_results(results)
+    failure_category_counts = _failure_category_counts(results)
+    summary["failure_category_counts"] = failure_category_counts
 
     return {
         "schema_version": GENERATION_EVAL_RESULT_SCHEMA_VERSION,
         "tool": "coglang",
         "fixture_schema_version": GENERATION_EVAL_FIXTURE_SCHEMA_VERSION,
         "answer_source": answer_source,
-        "ok": ok,
-        "case_count": case_count,
-        "summary": {
-            "missing_output_count": missing_output_count,
-            "parse_ok_count": parse_ok_count,
-            "parse_ok_rate": rate(parse_ok_count),
-            "canonicalize_ok_count": canonicalize_ok_count,
-            "canonicalize_ok_rate": rate(canonicalize_ok_count),
-            "validate_ok_count": validate_ok_count,
-            "validate_ok_rate": rate(validate_ok_count),
-            "expected_top_level_head_ok_count": head_match_count,
-            "expected_top_level_head_ok_rate": rate(head_match_count),
-            "hallucinated_operator_count": hallucinated_operator_count,
-        },
+        "ok": summary["ok"],
+        "case_count": summary["case_count"],
+        "summary": summary,
+        "level_summary": _level_summary(results),
         "cases": [item.to_dict() for item in results],
     }
 

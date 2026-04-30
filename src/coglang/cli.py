@@ -1596,6 +1596,7 @@ def _print_preflight_text(payload: dict[str, Any]) -> None:
 
 def _print_generation_eval_text(payload: dict[str, Any]) -> None:
     summary = payload["summary"]
+    failure_counts = summary.get("failure_category_counts", {})
     print(f"schema_version: {payload['schema_version']}")
     print(f"tool: {payload['tool']}")
     print(f"ok: {str(payload['ok']).lower()}")
@@ -1610,6 +1611,22 @@ def _print_generation_eval_text(payload: dict[str, Any]) -> None:
         f"{summary['expected_top_level_head_ok_count']}/{payload['case_count']}"
     )
     print(f"hallucinated_operator_count: {summary['hallucinated_operator_count']}")
+    if failure_counts:
+        failure_items = ", ".join(
+            f"{category}={count}" for category, count in failure_counts.items()
+        )
+    else:
+        failure_items = "none"
+    print(f"failure_category_counts: {failure_items}")
+    for level, level_summary in payload.get("level_summary", {}).items():
+        print(
+            f"{level}: validate_ok "
+            f"{level_summary['validate_ok_count']}/{level_summary['case_count']}, "
+            f"head_ok "
+            f"{level_summary['expected_top_level_head_ok_count']}/"
+            f"{level_summary['case_count']}, "
+            f"hallucinated {level_summary['hallucinated_operator_count']}"
+        )
 
 
 def _conformance_targets(suite: str) -> list[str]:

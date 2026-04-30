@@ -543,6 +543,10 @@ def test_cli_generation_eval_json_output():
     assert payload["answer_source"] == "fixture_reference"
     assert payload["case_count"] == 50
     assert payload["summary"]["validate_ok_count"] == 50
+    assert payload["summary"]["failure_category_counts"] == {}
+    assert payload["level_summary"]["L1"]["case_count"] == 18
+    assert payload["level_summary"]["L2"]["case_count"] == 16
+    assert payload["level_summary"]["L3"]["case_count"] == 16
 
 
 def test_cli_generation_eval_text_output():
@@ -553,6 +557,10 @@ def test_cli_generation_eval_text_output():
     assert "answer_source: fixture_reference" in output
     assert "case_count: 50" in output
     assert "validate_ok: 50/50" in output
+    assert "failure_category_counts: none" in output
+    assert "L1: validate_ok 18/18, head_ok 18/18, hallucinated 0" in output
+    assert "L2: validate_ok 16/16, head_ok 16/16, hallucinated 0" in output
+    assert "L3: validate_ok 16/16, head_ok 16/16, hallucinated 0" in output
 
 
 def test_cli_smoke_dispatch_success(monkeypatch):

@@ -486,6 +486,12 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
         "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md",
         "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md",
     )
+    node_consumer_script_path, _ = _resolve_project_artifact(
+        "examples/node_host_consumer/consume_hrc_envelopes.mjs",
+    )
+    node_consumer_readme_path, _ = _resolve_project_artifact(
+        "examples/node_host_consumer/README.md",
+    )
     roadmap_path, _ = _resolve_project_artifact("ROADMAP.md", "ROADMAP.md")
     maintenance_path, _ = _resolve_project_artifact("MAINTENANCE.md", "MAINTENANCE.md")
     public_docs_checklist_path, _ = _resolve_project_artifact(
@@ -572,8 +578,10 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
                 hrc_v0_2_final_freeze_path.exists()
                 and "host-demo" in info["commands"]
                 and "reference-host-demo" in info["commands"]
+                and node_consumer_script_path.exists()
+                and node_consumer_readme_path.exists()
             ),
-            "detail": "HRC v0.2 final freeze record + executable host demos",
+            "detail": "HRC v0.2 final freeze record + host demos + Node consumer",
         },
     ]
     passed_gate_count = sum(1 for item in gates if item["ok"])
@@ -775,6 +783,12 @@ def _release_check_payload() -> dict[str, Any]:
         "CogLang_Host_Runtime_Contract_v0_1.md",
         "CogLang_Host_Runtime_Contract_v0_1.md",
     )
+    node_consumer_script_path, _ = _resolve_project_artifact(
+        "examples/node_host_consumer/consume_hrc_envelopes.mjs",
+    )
+    node_consumer_readme_path, _ = _resolve_project_artifact(
+        "examples/node_host_consumer/README.md",
+    )
     license_path, _ = _resolve_project_artifact("LICENSE")
 
     distribution = _distribution_metadata()
@@ -785,10 +799,18 @@ def _release_check_payload() -> dict[str, Any]:
     preflight_fixture = preflight_fixture_payload()
     generation_eval = generation_eval_payload()
     license_declared = False
+    pyproject: dict[str, Any] = {}
     if pyproject_path.exists():
         pyproject = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
         project = pyproject.get("project", {})
         license_declared = bool(project.get("license"))
+    package_data = (
+        pyproject.get("tool", {})
+        .get("setuptools", {})
+        .get("package-data", {})
+        .get("coglang", [])
+    )
+    node_consumer_packaged = "_public_assets/examples/node_host_consumer/*" in package_data
 
     runtime_entry_paths = distribution["runtime_entry_paths"]
     runtime_entry_ok = _paths_exist(root, runtime_entry_paths)
@@ -911,6 +933,15 @@ def _release_check_payload() -> dict[str, Any]:
                 and generation_eval["summary"]["hallucinated_operator_count"] == 0
             ),
             "detail": f"{generation_eval['case_count']} cases",
+        },
+        {
+            "name": "node_host_consumer",
+            "ok": (
+                node_consumer_script_path.exists()
+                and node_consumer_readme_path.exists()
+                and node_consumer_packaged
+            ),
+            "detail": "examples/node_host_consumer + package data",
         },
     ]
     return {

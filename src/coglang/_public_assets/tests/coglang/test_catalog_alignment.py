@@ -1,7 +1,12 @@
 import re
 from pathlib import Path
 
-from coglang import COGLANG_OPERATOR_HEADS, COGLANG_VOCAB, ERROR_HEADS
+from coglang import (
+    COGLANG_OPERATOR_HEADS,
+    COGLANG_VOCAB,
+    ERROR_HEADS,
+    OPAQUE_ARG_HEADS,
+)
 
 CATALOG_PATH = (
     Path(__file__).resolve().parents[2] / "CogLang_Operator_Catalog_v1_1_0.md"
@@ -45,3 +50,9 @@ def test_static_operator_heads_exclude_value_and_error_heads():
     assert "List" not in COGLANG_OPERATOR_HEADS
     assert "Entity" in COGLANG_VOCAB
     assert "Entity" not in COGLANG_OPERATOR_HEADS
+
+
+def test_opaque_argument_heads_are_explicit_operator_metadata():
+    assert OPAQUE_ARG_HEADS == frozenset({"Unify", "Match"})
+    assert OPAQUE_ARG_HEADS <= COGLANG_OPERATOR_HEADS
+    assert OPAQUE_ARG_HEADS.isdisjoint(ERROR_HEADS)

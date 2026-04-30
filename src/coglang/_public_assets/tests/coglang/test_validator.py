@@ -34,10 +34,9 @@ def test_known_head_traverse():
 
 @pytest.mark.L2
 def test_known_head_unify():
-    """Unify is in COGLANG_VOCAB → valid (using List args, which are valid heads)."""
-    # Note: Unify[f[X_, b], f[a, Y_]] uses Prolog functors ('f') that are NOT in
-    # COGLANG_VOCAB; valid_coglang correctly rejects those nested exprs.
-    # Here we use List[...] which IS in the vocab to verify Unify itself validates.
+    """Unify is in COGLANG_VOCAB → valid."""
+    # Here we use List[...] to verify the simple static-head case.
+    # Prolog functor terms in Unify/Match argument positions are covered below.
     expr = CogLangExpr("Unify", (CogLangExpr("List", ("a",)), CogLangExpr("List", ("b",))))
     assert valid_coglang(expr) is True
 

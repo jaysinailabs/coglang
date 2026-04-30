@@ -64,6 +64,15 @@ COGLANG_OPERATOR_HEADS: frozenset[str] = frozenset({
 })
 
 
+# Operator heads whose argument positions contain opaque Prolog terms rather
+# than nested CogLang program expressions. Validators must not recursively
+# enforce CogLang head vocabulary inside these argument positions.
+OPAQUE_ARG_HEADS: frozenset[str] = frozenset({
+    "Match",
+    "Unify",
+})
+
+
 # Error heads: used by executor for error propagation checks.
 ERROR_HEADS: frozenset[str] = frozenset({
     "NotFound",

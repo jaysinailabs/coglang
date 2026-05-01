@@ -12,6 +12,7 @@ Status:
 Current public language release: `v1.1.0`. The current Python distribution version is `1.1.2`.
 The Host Runtime Contract v0.2 frozen scope is the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`.
 A minimal Node.js standard-library consumer is also included at `examples/node_host_consumer` to show non-Python tooling can read the HRC schema pack and envelope samples without importing the Python runtime.
+An experimental in-repository Node.js minimal host/runtime stub is included at `examples/node_minimal_host_runtime_stub`; it is post-freeze example evidence, not an expansion of HRC v0.2.
 
 ## LLM Discovery Snapshot
 
@@ -38,6 +39,7 @@ coglang preflight --format text 'Create["Entity", {"category": "Person"}]'
 coglang generation-eval --summary-only
 coglang demo
 node examples/node_host_consumer/consume_hrc_envelopes.mjs
+node examples/node_minimal_host_runtime_stub/run_demo.mjs
 ```
 
 Machine-readable project summaries:
@@ -202,6 +204,7 @@ The highest-value contributions are currently:
 - documentation fixes that improve the first-run experience
 - host integration examples that keep language semantics separate from host policy
 - minimal executor examples that implement `execute` and `validate` without copying Python host-local helpers
+- minimal non-Python host/runtime stubs that consume existing typed write envelopes without expanding HRC scope
 - small CLI or packaging improvements that improve repeatable validation
 
 For local test development, install the development extras:

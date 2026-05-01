@@ -1413,6 +1413,11 @@ def test_cli_release_check_payload_shape():
     assert any(item["name"] == "generation_eval" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "node_host_consumer" and item["ok"] is True for item in payload["checks"])
     assert any(
+        item["name"] == "node_minimal_host_runtime_stub"
+        and item["ok"] is True
+        for item in payload["checks"]
+    )
+    assert any(
         item["name"] == "executor_interface"
         and item["ok"] is True
         and item["detail"] == "abstract_methods=execute,validate"
@@ -1436,6 +1441,7 @@ def test_cli_release_check_json_output():
     assert '"preflight_fixture"' in output
     assert '"generation_eval"' in output
     assert '"node_host_consumer"' in output
+    assert '"node_minimal_host_runtime_stub"' in output
     assert '"executor_interface"' in output
 
 
@@ -1465,6 +1471,10 @@ def test_cli_release_check_text_output():
     assert "preflight_fixture: ok (9 cases)" in output
     assert "generation_eval: ok (50 cases)" in output
     assert "node_host_consumer: ok (examples/node_host_consumer + package data)" in output
+    assert (
+        "node_minimal_host_runtime_stub: ok "
+        "(examples/node_minimal_host_runtime_stub + package data)" in output
+    )
     assert "executor_interface: ok (abstract_methods=execute,validate)" in output
 
 
@@ -1543,7 +1553,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 47
+    assert payload["entry_count"] == 48
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -1564,8 +1574,12 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "test_executor_interface.py" in tree_entries["tests/coglang"]["include"]
     assert "test_generation_eval.py" in tree_entries["tests/coglang"]["include"]
     assert "test_node_host_consumer.py" in tree_entries["tests/coglang"]["include"]
+    assert "test_node_minimal_host_runtime_stub.py" in tree_entries["tests/coglang"]["include"]
     assert "test_preflight.py" in tree_entries["tests/coglang"]["include"]
     assert "examples/node_host_consumer" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "examples/node_minimal_host_runtime_stub" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Operator_Catalog_v1_1_0.md" in [

@@ -107,4 +107,5 @@ coglang = [
     "_public_assets/internal_schemas/host_runtime/v0.1/*.json",
     "_public_assets/internal_schemas/host_runtime/v0.1/examples/*.json",
     "_public_assets/examples/node_host_consumer/*",
+    "_public_assets/examples/node_minimal_host_runtime_stub/*",
 ]

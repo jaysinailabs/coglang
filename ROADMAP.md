@@ -112,6 +112,12 @@ Contributions in this area are especially welcome.
 
 `CogLang` now has both the richer `LocalCogLangHost` demo and a minimal `reference-host-demo` path. HRC v0.2 is frozen for the narrow typed write-envelope surface covered by those in-repository examples.
 
+The repository also includes experimental Node.js examples: one standard-library
+consumer for HRC schema/envelope samples, and one minimal host/runtime stub that
+exercises tiny `execute` / `validate` and typed write-envelope success/failure
+paths. These examples are companion evidence, not an expansion of the HRC v0.2
+frozen scope.
+
 The likely next step is:
 
 - a public decision on which host-runtime schema assets are companion material versus formal contract

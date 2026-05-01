@@ -420,12 +420,31 @@ def test_cli_manifest_payload_shape():
     assert payload["docs"]["hrc_v0_2_final_freeze"].endswith(
         "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md"
     )
+    assert payload["docs"]["vision_proposal"].endswith("CogLang_Vision_Proposal_v0_1.md")
+    assert payload["docs"]["evolution_boundary_proposal"].endswith(
+        "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md"
+    )
+    assert payload["docs"]["effect_budget_preflight_vocabulary"].endswith(
+        "CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md"
+    )
     assert payload["docs"]["roadmap"].endswith("ROADMAP.md")
     assert payload["docs"]["maintenance"].endswith("MAINTENANCE.md")
     assert payload["machine_readable_summaries"]["llms"].endswith("llms.txt")
     assert payload["machine_readable_summaries"]["llms_full"].endswith("llms-full.txt")
     assert payload["public_release_surface"]["entrypoint"] == "coglang"
     assert payload["public_release_surface"]["project_docs"]["readme"] == payload["docs"]["readme"]
+    assert (
+        payload["public_release_surface"]["project_docs"]["vision_proposal"]
+        == payload["docs"]["vision_proposal"]
+    )
+    assert (
+        payload["public_release_surface"]["project_docs"]["evolution_boundary_proposal"]
+        == payload["docs"]["evolution_boundary_proposal"]
+    )
+    assert (
+        payload["public_release_surface"]["project_docs"]["effect_budget_preflight_vocabulary"]
+        == payload["docs"]["effect_budget_preflight_vocabulary"]
+    )
     assert payload["open_source_boundary"]["schema_version"] == "coglang-open-source-boundary/v0.1"
     assert payload["open_source_boundary"]["public_distribution_name"] == "coglang"
     assert payload["open_source_boundary"]["release_roots_exist"] is True
@@ -461,6 +480,21 @@ def test_cli_manifest_text_output():
     assert "recommended_entrypoint: coglang" in output
     assert "console_script: coglang" in output
     assert f"roadmap: {_path_in_layout('ROADMAP.md', 'ROADMAP.md')}" in output
+    assert (
+        f"vision_proposal: "
+        f"{_path_in_layout('CogLang_Vision_Proposal_v0_1.md', 'CogLang_Vision_Proposal_v0_1.md')}"
+        in output
+    )
+    assert (
+        f"evolution_boundary_proposal: "
+        f"{_path_in_layout('CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md', 'CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md')}"
+        in output
+    )
+    assert (
+        f"effect_budget_preflight_vocabulary: "
+        f"{_path_in_layout('CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md', 'CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md')}"
+        in output
+    )
     assert f"maintenance: {_path_in_layout('MAINTENANCE.md', 'MAINTENANCE.md')}" in output
     assert f"llms: {_path_in_layout('llms.txt', 'llms.txt')}" in output
     assert f"llms_full: {_path_in_layout('llms-full.txt', 'llms-full.txt')}" in output
@@ -1379,6 +1413,11 @@ def test_cli_release_check_payload_shape():
     assert any(item["name"] == "generation_eval" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "node_host_consumer" and item["ok"] is True for item in payload["checks"])
     assert any(
+        item["name"] == "node_minimal_host_runtime_stub"
+        and item["ok"] is True
+        for item in payload["checks"]
+    )
+    assert any(
         item["name"] == "executor_interface"
         and item["ok"] is True
         and item["detail"] == "abstract_methods=execute,validate"
@@ -1402,6 +1441,7 @@ def test_cli_release_check_json_output():
     assert '"preflight_fixture"' in output
     assert '"generation_eval"' in output
     assert '"node_host_consumer"' in output
+    assert '"node_minimal_host_runtime_stub"' in output
     assert '"executor_interface"' in output
 
 
@@ -1431,6 +1471,10 @@ def test_cli_release_check_text_output():
     assert "preflight_fixture: ok (9 cases)" in output
     assert "generation_eval: ok (50 cases)" in output
     assert "node_host_consumer: ok (examples/node_host_consumer + package data)" in output
+    assert (
+        "node_minimal_host_runtime_stub: ok "
+        "(examples/node_minimal_host_runtime_stub + package data)" in output
+    )
     assert "executor_interface: ok (abstract_methods=execute,validate)" in output
 
 
@@ -1509,7 +1553,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 47
+    assert payload["entry_count"] == 48
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -1530,8 +1574,12 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "test_executor_interface.py" in tree_entries["tests/coglang"]["include"]
     assert "test_generation_eval.py" in tree_entries["tests/coglang"]["include"]
     assert "test_node_host_consumer.py" in tree_entries["tests/coglang"]["include"]
+    assert "test_node_minimal_host_runtime_stub.py" in tree_entries["tests/coglang"]["include"]
     assert "test_preflight.py" in tree_entries["tests/coglang"]["include"]
     assert "examples/node_host_consumer" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "examples/node_minimal_host_runtime_stub" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Operator_Catalog_v1_1_0.md" in [
@@ -1562,6 +1610,15 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Contribution_Guide_v0_1.zh-CN.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Vision_Proposal_v0_1.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md" in [

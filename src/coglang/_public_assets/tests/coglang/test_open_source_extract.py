@@ -51,6 +51,19 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "CogLang_Open_Source_Boundary_v0_1.json").exists()
     assert (destination / "CogLang_Minimal_CI_Baseline_v0_1.json").exists()
     assert (destination / "CogLang_Public_Repo_Extract_Manifest_v0_1.json").exists()
+    assert (destination / "src" / "coglang" / "preflight.py").exists()
+    assert (destination / "tests" / "coglang" / "test_catalog_alignment.py").exists()
+    assert (destination / "tests" / "coglang" / "test_executor_interface.py").exists()
+    assert (destination / "tests" / "coglang" / "test_preflight.py").exists()
+    assert (destination / "tests" / "coglang" / "test_node_host_consumer.py").exists()
+    assert (destination / "tests" / "coglang" / "test_node_minimal_host_runtime_stub.py").exists()
+    assert (destination / "tests" / "coglang" / "test_public_assets_mirror.py").exists()
+    assert (destination / "examples" / "node_host_consumer" / "consume_hrc_envelopes.mjs").exists()
+    assert (destination / "examples" / "node_host_consumer" / "README.md").exists()
+    assert (destination / "examples" / "node_minimal_host_runtime_stub" / "run_demo.mjs").exists()
+    assert (destination / "examples" / "node_minimal_host_runtime_stub" / "host_stub.mjs").exists()
+    assert (destination / "examples" / "node_minimal_host_runtime_stub" / "runtime_stub.mjs").exists()
+    assert (destination / "examples" / "node_minimal_host_runtime_stub" / "README.md").exists()
     assert (destination / "CogLang_Operator_Catalog_v1_1_0.md").exists()
     assert (destination / "CogLang_Quickstart_v1_1_0.zh-CN.md").exists()
     assert (destination / "CogLang_Specification_v1_1_0_Draft.zh-CN.md").exists()
@@ -62,14 +75,12 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "CogLang_Release_Notes_v1_1_1.md").exists()
     assert (destination / "CogLang_Release_Notes_v1_1_1.zh-CN.md").exists()
     assert (destination / "CogLang_Contribution_Guide_v0_1.zh-CN.md").exists()
+    assert (destination / "CogLang_Vision_Proposal_v0_1.md").exists()
+    assert (destination / "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md").exists()
+    assert (destination / "CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md").exists()
     assert (destination / "CogLang_Host_Runtime_Contract_v0_1.zh-CN.md").exists()
     assert (destination / "CogLang_Profiles_and_Capabilities_v1_1_0.zh-CN.md").exists()
     assert (destination / "CogLang_Operator_Catalog_v1_1_0.zh-CN.md").exists()
-    assert (destination / "tests" / "coglang" / "test_executor_interface.py").exists()
-    assert (destination / "tests" / "coglang" / "test_node_host_consumer.py").exists()
-    assert (destination / "tests" / "coglang" / "test_public_assets_mirror.py").exists()
-    assert (destination / "examples" / "node_host_consumer" / "consume_hrc_envelopes.mjs").exists()
-    assert (destination / "examples" / "node_host_consumer" / "README.md").exists()
     assert (destination / ".github" / "workflows" / "ci.yml").exists()
     assert (destination / ".github" / "workflows" / "publish.yml").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "README.md").exists()
@@ -108,10 +119,14 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     ).exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_cli.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "conftest.py").exists()
+    assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_catalog_alignment.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_executor_interface.py").exists()
+    assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_preflight.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_node_host_consumer.py").exists()
+    assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_node_minimal_host_runtime_stub.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_public_assets_mirror.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "examples" / "node_host_consumer" / "consume_hrc_envelopes.mjs").exists()
+    assert (destination / "src" / "coglang" / "_public_assets" / "examples" / "node_minimal_host_runtime_stub" / "run_demo.mjs").exists()
     assert (destination / "internal_schemas" / "host_runtime" / "v0.1" / "schema-pack.json").exists()
     assert (destination / "src" / "coglang" / "cli.py").exists()
     assert (destination / "tests" / "coglang").exists()
@@ -152,6 +167,15 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
 
     assert manifest["package"] == "coglang"
     assert manifest["docs"]["readme"] == "README.md"
+    assert manifest["docs"]["vision_proposal"] == "CogLang_Vision_Proposal_v0_1.md"
+    assert (
+        manifest["docs"]["evolution_boundary_proposal"]
+        == "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md"
+    )
+    assert (
+        manifest["docs"]["effect_budget_preflight_vocabulary"]
+        == "CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md"
+    )
     assert manifest["docs"]["roadmap"] == "ROADMAP.md"
     assert manifest["machine_readable_summaries"]["llms"] == "llms.txt"
     assert distribution["console_script"] == "coglang"

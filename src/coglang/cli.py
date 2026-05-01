@@ -16,6 +16,16 @@ from .local_host import LocalCogLangHost, LocalHostSnapshot, LocalHostSummary
 from .parser import CogLangExpr, CogLangVar, canonicalize, parse
 from .preflight import GraphBudget, preflight_expression, preflight_fixture_payload
 from .reference_host import ReferenceTransportHost
+from .schema_versions import (
+    CLI_SCHEMA_VERSION,
+    FORMAL_OPEN_SOURCE_READINESS_SCHEMA_VERSION,
+    HOST_DEMO_SCHEMA_VERSION,
+    MINIMAL_CI_BASELINE_SCHEMA_VERSION,
+    OPEN_SOURCE_BOUNDARY_SCHEMA_VERSION,
+    PUBLIC_REPO_EXTRACT_MANIFEST_SCHEMA_VERSION,
+    REFERENCE_HOST_DEMO_SCHEMA_VERSION,
+    RELEASE_BUNDLE_SCHEMA_VERSION,
+)
 from .validator import valid_coglang
 from .vocab import COGLANG_VOCAB, ERROR_HEADS
 from .write_bundle import WriteBundleCandidate, WriteOperation
@@ -28,9 +38,6 @@ EXAMPLES: dict[str, str] = {
     "trace": 'Trace[Equal[1, 1]]',
 }
 
-CLI_SCHEMA_VERSION = "coglang-cli-manifest/v0.1"
-HOST_DEMO_SCHEMA_VERSION = "coglang-host-demo/v0.1"
-REFERENCE_HOST_DEMO_SCHEMA_VERSION = "coglang-reference-host-demo/v0.1"
 COGLANG_LANGUAGE_RELEASE = "v1.1.0"
 HOST_DEMO_TOP_LEVEL_KEYS = (
     "schema_version",
@@ -583,12 +590,12 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
         {
             "name": "G4_repo_package_boundary",
             "ok": (
-                boundary["schema_version"] == "coglang-open-source-boundary/v0.1"
+                boundary["schema_version"] == OPEN_SOURCE_BOUNDARY_SCHEMA_VERSION
                 and bool(boundary["repository_strategy"])
                 and boundary["public_distribution_name"] == "coglang"
                 and boundary["release_roots_exist"] is True
                 and public_repo_extract_manifest["schema_version"]
-                == "coglang-public-repo-extract-manifest/v0.1"
+                == PUBLIC_REPO_EXTRACT_MANIFEST_SCHEMA_VERSION
                 and public_repo_extract_manifest["source_paths_exist"] is True
                 and public_repo_extract_manifest["destination_paths_unique"] is True
                 and public_repo_extract_manifest["required_destinations_present"] is True
@@ -598,7 +605,7 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
         {
             "name": "G5_minimal_ci_release_baseline",
             "ok": (
-                ci_baseline["schema_version"] == "coglang-minimal-ci-baseline/v0.1"
+                ci_baseline["schema_version"] == MINIMAL_CI_BASELINE_SCHEMA_VERSION
                 and ci_baseline["required_command_names_present"] is True
                 and ci_baseline["required_packaging_check_names_present"] is True
                 and ci_baseline["public_entrypoint_only"] is True
@@ -634,7 +641,7 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
     passed_gate_count = sum(1 for item in gates if item["ok"])
     ready_for_candidate_decision = passed_gate_count == len(gates)
     return {
-        "schema_version": "coglang-formal-open-source-readiness/v0.1",
+        "schema_version": FORMAL_OPEN_SOURCE_READINESS_SCHEMA_VERSION,
         "gate_count": len(gates),
         "passed_gate_count": passed_gate_count,
         "ready_for_candidate_decision": ready_for_candidate_decision,
@@ -805,7 +812,7 @@ def _bundle_payload() -> dict[str, Any]:
     release_check = _release_check_payload()
     doctor = _doctor_payload()
     return {
-        "schema_version": "coglang-release-bundle/v0.1",
+        "schema_version": RELEASE_BUNDLE_SCHEMA_VERSION,
         "tool": manifest["tool"],
         "version": manifest["version"],
         "language_release": manifest["language_release"],
@@ -1084,7 +1091,8 @@ def _release_check_payload() -> dict[str, Any]:
         {
             "name": "open_source_boundary",
             "ok": (
-                open_source_boundary["schema_version"] == "coglang-open-source-boundary/v0.1"
+                open_source_boundary["schema_version"]
+                == OPEN_SOURCE_BOUNDARY_SCHEMA_VERSION
                 and open_source_boundary["public_console_script"] == "coglang"
                 and open_source_boundary["public_distribution_name"] == "coglang"
                 and open_source_boundary["release_roots_exist"] is True
@@ -1094,7 +1102,8 @@ def _release_check_payload() -> dict[str, Any]:
         {
             "name": "minimal_ci_baseline",
             "ok": (
-                minimal_ci_baseline["schema_version"] == "coglang-minimal-ci-baseline/v0.1"
+                minimal_ci_baseline["schema_version"]
+                == MINIMAL_CI_BASELINE_SCHEMA_VERSION
                 and minimal_ci_baseline["required_command_names_present"] is True
                 and minimal_ci_baseline["required_packaging_check_names_present"] is True
                 and minimal_ci_baseline["public_entrypoint_only"] is True
@@ -1108,7 +1117,7 @@ def _release_check_payload() -> dict[str, Any]:
             "name": "public_repo_extract_manifest",
             "ok": (
                 public_repo_extract_manifest["schema_version"]
-                == "coglang-public-repo-extract-manifest/v0.1"
+                == PUBLIC_REPO_EXTRACT_MANIFEST_SCHEMA_VERSION
                 and public_repo_extract_manifest["repository_strategy"]
                 == "standalone_repository"
                 and public_repo_extract_manifest["public_distribution_name"] == "coglang"

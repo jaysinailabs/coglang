@@ -7,17 +7,18 @@ from pathlib import Path
 from typing import Any
 
 from .parser import CogLangExpr, canonicalize, parse
+from .schema_versions import (
+    EFFECT_SUMMARY_SCHEMA_VERSION,
+    GRAPH_BUDGET_ESTIMATE_SCHEMA_VERSION,
+    GRAPH_BUDGET_SCHEMA_VERSION,
+    PREFLIGHT_DECISION_SCHEMA_VERSION,
+    PREFLIGHT_FIXTURE_RESULT_SCHEMA_VERSION,
+    PREFLIGHT_FIXTURE_SCHEMA_VERSION,
+    STATIC_PREFLIGHT_ESTIMATOR,
+)
 from .validator import valid_coglang
 from .vocab import OPAQUE_ARG_HEADS
 
-EFFECT_SUMMARY_SCHEMA_VERSION = "coglang-effect-summary/v0.1"
-GRAPH_BUDGET_SCHEMA_VERSION = "coglang-graph-budget/v0.1"
-GRAPH_BUDGET_ESTIMATE_SCHEMA_VERSION = "coglang-graph-budget-estimate/v0.1"
-PREFLIGHT_DECISION_SCHEMA_VERSION = "coglang-preflight-decision/v0.1"
-PREFLIGHT_FIXTURE_SCHEMA_VERSION = "coglang-preflight-fixture/v0.1"
-PREFLIGHT_FIXTURE_RESULT_SCHEMA_VERSION = "coglang-preflight-fixture-result/v0.1"
-
-STATIC_PREFLIGHT_ESTIMATOR = "coglang-static-preflight/v0.1"
 DEFAULT_PREFLIGHT_FIXTURE = "preflight_minimal_v0_1.json"
 
 EFFECT_CATEGORIES = frozenset(

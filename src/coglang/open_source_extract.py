@@ -5,6 +5,8 @@ import shutil
 from pathlib import Path
 from typing import Any
 
+from .schema_versions import PUBLIC_REPO_EXTRACT_RUN_SCHEMA_VERSION
+
 
 def _project_root() -> Path:
     current = Path(__file__).resolve()
@@ -115,7 +117,7 @@ def materialize_public_repo_extract(
     mirrored_files = _mirror_public_assets(destination_root, entries)
 
     return {
-        "schema_version": "coglang-public-repo-extract-run/v0.1",
+        "schema_version": PUBLIC_REPO_EXTRACT_RUN_SCHEMA_VERSION,
         "manifest_path": payload["path"],
         "destination_root": str(destination_root),
         "entry_count": len(entries),

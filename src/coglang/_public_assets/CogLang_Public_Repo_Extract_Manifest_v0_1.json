@@ -21,6 +21,7 @@
         "parser.py",
         "preflight.py",
         "reference_host.py",
+        "schema_versions.py",
         "stubs.py",
         "unify_backend.py",
         "validator.py",
@@ -52,6 +53,7 @@
         "test_parser.py",
         "test_preflight.py",
         "test_public_assets_mirror.py",
+        "test_schema_versions.py",
         "test_unify.py",
         "test_validator.py"
       ]

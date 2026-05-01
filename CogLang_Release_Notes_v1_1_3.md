@@ -55,6 +55,9 @@ This release publishes the maintenance evidence added after `1.1.2`:
 - Schema version identifiers now have a central `schema_versions.py` registry
   used by Python runtime payload producers, without changing existing payload
   values.
+- Readable-render golden example candidates now have a packaged JSON fixture
+  that pins their canonical text and candidate display strings without adding a
+  renderer API or stable readable-output claim.
 - Repository metadata now includes `.mailmap` so historical commits authored as
   `xinjingshun <xinjingshun@foxmail.com>` are attributed to
   `Jason Xin <xinjingshun@foxmail.com>` without rewriting Git history.

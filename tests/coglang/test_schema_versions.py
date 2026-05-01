@@ -24,6 +24,7 @@ from coglang.schema_versions import (
     PREFLIGHT_FIXTURE_SCHEMA_VERSION,
     PUBLIC_REPO_EXTRACT_MANIFEST_SCHEMA_VERSION,
     PUBLIC_REPO_EXTRACT_RUN_SCHEMA_VERSION,
+    READABLE_RENDER_GOLDEN_CANDIDATES_SCHEMA_VERSION,
     REFERENCE_HOST_DEMO_SCHEMA_VERSION,
     RELEASE_BUNDLE_SCHEMA_VERSION,
     SCHEMA_VERSION_REGISTRY,
@@ -50,6 +51,9 @@ EXPECTED_SCHEMA_VERSION_REGISTRY = {
     "static_preflight_estimator": "coglang-static-preflight/v0.1",
     "generation_eval_fixture": "coglang-generation-eval-fixture/v0.1",
     "generation_eval_result": "coglang-generation-eval-result/v0.1",
+    "readable_render_golden_candidates": (
+        "coglang-readable-render-golden-candidates/v0.1"
+    ),
     "node_host_consumer_demo": "coglang-node-host-consumer-demo/v0.1",
     "node_minimal_host_runtime_stub_demo": (
         "coglang-node-minimal-host-runtime-stub-demo/v0.1"
@@ -128,6 +132,10 @@ def test_schema_version_constants_match_registry_values():
     assert (
         GENERATION_EVAL_RESULT_SCHEMA_VERSION
         == SCHEMA_VERSION_REGISTRY["generation_eval_result"]
+    )
+    assert (
+        READABLE_RENDER_GOLDEN_CANDIDATES_SCHEMA_VERSION
+        == SCHEMA_VERSION_REGISTRY["readable_render_golden_candidates"]
     )
     assert (
         NODE_HOST_CONSUMER_DEMO_SCHEMA_VERSION

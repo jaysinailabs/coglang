@@ -1793,6 +1793,10 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "test_node_host_consumer.py" in tree_entries["tests/coglang"]["include"]
     assert "test_node_minimal_host_runtime_stub.py" in tree_entries["tests/coglang"]["include"]
     assert "test_preflight.py" in tree_entries["tests/coglang"]["include"]
+    assert (
+        "test_readable_render_golden_candidates.py"
+        in tree_entries["tests/coglang"]["include"]
+    )
     assert "test_schema_versions.py" in tree_entries["tests/coglang"]["include"]
     assert "examples/node_host_consumer" in [
         item["source"] for item in payload["entries"]

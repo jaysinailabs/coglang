@@ -103,6 +103,11 @@
     },
     {
       "kind": "file",
+      "source": ".mailmap",
+      "destination": ".mailmap"
+    },
+    {
+      "kind": "file",
       "source": "pytest.ini",
       "destination": "pytest.ini"
     },

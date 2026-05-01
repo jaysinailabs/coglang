@@ -108,6 +108,7 @@ coglang = [
     "_public_assets/CogLang_Minimal_CI_Baseline_v0_1.json",
     "_public_assets/CogLang_Public_Repo_Extract_Manifest_v0_1.json",
     "_public_assets/.gitignore",
+    "_public_assets/.mailmap",
     "_public_assets/pytest.ini",
     "_public_assets/.github/workflows/ci.yml",
     "_public_assets/.github/workflows/publish.yml",

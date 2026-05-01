@@ -47,6 +47,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md").exists()
     assert (destination / "src" / "coglang" / "reference_host.py").exists()
     assert (destination / ".gitignore").exists()
+    assert (destination / ".mailmap").exists()
     assert (destination / "pytest.ini").exists()
     assert (destination / "README.md").exists()
     assert (destination / "CogLang_Open_Source_Boundary_v0_1.json").exists()
@@ -96,6 +97,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / ".github" / "workflows" / "ci.yml").exists()
     assert (destination / ".github" / "workflows" / "publish.yml").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "README.md").exists()
+    assert (destination / "src" / "coglang" / "_public_assets" / ".mailmap").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / ".gitignore").exists()
     assert (
         destination

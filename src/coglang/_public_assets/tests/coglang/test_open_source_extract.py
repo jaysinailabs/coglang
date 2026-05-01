@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+import json
 import sys
 import tomllib
 from pathlib import Path
@@ -11,14 +12,34 @@ except ModuleNotFoundError:
     from coglang.open_source_extract import materialize_public_repo_extract
 
 
+def _repo_root() -> Path:
+    current = Path(__file__).resolve()
+    for parent in current.parents:
+        if (parent / "CogLang_Public_Repo_Extract_Manifest_v0_1.json").exists():
+            return parent
+    raise AssertionError("CogLang public extract manifest not found")
+
+
+def _extract_manifest_counts() -> dict[str, int]:
+    manifest_path = _repo_root() / "CogLang_Public_Repo_Extract_Manifest_v0_1.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    entries = manifest["entries"]
+    return {
+        "entry_count": len(entries),
+        "copied_trees": sum(1 for entry in entries if entry["kind"] == "tree"),
+        "copied_files": sum(1 for entry in entries if entry["kind"] == "file"),
+    }
+
+
 def test_materialize_public_repo_extract_creates_importable_public_root(monkeypatch, tmp_path):
     destination = tmp_path / "coglang-public-root"
     payload = materialize_public_repo_extract(destination)
+    manifest_counts = _extract_manifest_counts()
 
     assert payload["schema_version"] == "coglang-public-repo-extract-run/v0.1"
-    assert payload["entry_count"] == 47
-    assert payload["copied_trees"] == 4
-    assert payload["copied_files"] == 43
+    assert payload["entry_count"] == manifest_counts["entry_count"]
+    assert payload["copied_trees"] == manifest_counts["copied_trees"]
+    assert payload["copied_files"] == manifest_counts["copied_files"]
 
     assert (destination / "pyproject.toml").exists()
     assert (destination / "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md").exists()

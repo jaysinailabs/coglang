@@ -51,6 +51,9 @@ CogLang `1.1.3` 是 stable `v1.1.0` 语言线上的包级 patch release。
   fixtures。
 - schema version 标识符现在集中到 `schema_versions.py` registry，并由 Python
   runtime payload 生产模块引用；既有 payload 值不变。
+- readable-render golden example candidates 现在有随包 JSON fixture，用于固定
+  canonical text 与 candidate display strings；这不新增 renderer API，也不声明
+  readable output 已稳定。
 - 仓库元数据新增 `.mailmap`，将历史提交中的
   `xinjingshun <xinjingshun@foxmail.com>` 归并显示为
   `Jason Xin <xinjingshun@foxmail.com>`，不重写 Git 历史。

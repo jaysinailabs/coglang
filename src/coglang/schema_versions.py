@@ -28,6 +28,10 @@ STATIC_PREFLIGHT_ESTIMATOR = "coglang-static-preflight/v0.1"
 GENERATION_EVAL_FIXTURE_SCHEMA_VERSION = "coglang-generation-eval-fixture/v0.1"
 GENERATION_EVAL_RESULT_SCHEMA_VERSION = "coglang-generation-eval-result/v0.1"
 
+READABLE_RENDER_GOLDEN_CANDIDATES_SCHEMA_VERSION = (
+    "coglang-readable-render-golden-candidates/v0.1"
+)
+
 NODE_HOST_CONSUMER_DEMO_SCHEMA_VERSION = "coglang-node-host-consumer-demo/v0.1"
 NODE_MINIMAL_HOST_RUNTIME_STUB_DEMO_SCHEMA_VERSION = (
     "coglang-node-minimal-host-runtime-stub-demo/v0.1"
@@ -54,6 +58,9 @@ SCHEMA_VERSION_REGISTRY = MappingProxyType(
         "static_preflight_estimator": STATIC_PREFLIGHT_ESTIMATOR,
         "generation_eval_fixture": GENERATION_EVAL_FIXTURE_SCHEMA_VERSION,
         "generation_eval_result": GENERATION_EVAL_RESULT_SCHEMA_VERSION,
+        "readable_render_golden_candidates": (
+            READABLE_RENDER_GOLDEN_CANDIDATES_SCHEMA_VERSION
+        ),
         "node_host_consumer_demo": NODE_HOST_CONSUMER_DEMO_SCHEMA_VERSION,
         "node_minimal_host_runtime_stub_demo": (
             NODE_MINIMAL_HOST_RUNTIME_STUB_DEMO_SCHEMA_VERSION
@@ -81,6 +88,7 @@ __all__ = [
     "PREFLIGHT_FIXTURE_SCHEMA_VERSION",
     "PUBLIC_REPO_EXTRACT_MANIFEST_SCHEMA_VERSION",
     "PUBLIC_REPO_EXTRACT_RUN_SCHEMA_VERSION",
+    "READABLE_RENDER_GOLDEN_CANDIDATES_SCHEMA_VERSION",
     "REFERENCE_HOST_DEMO_SCHEMA_VERSION",
     "RELEASE_BUNDLE_SCHEMA_VERSION",
     "SCHEMA_VERSION_REGISTRY",

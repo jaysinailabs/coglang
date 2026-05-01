@@ -55,9 +55,19 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "CogLang_Public_Repo_Extract_Manifest_v0_1.json").exists()
     assert (destination / "src" / "coglang" / "preflight.py").exists()
     assert (destination / "src" / "coglang" / "schema_versions.py").exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "eval_fixtures"
+        / "readable_render_golden_candidates_v0_1.json"
+    ).exists()
     assert (destination / "tests" / "coglang" / "test_catalog_alignment.py").exists()
     assert (destination / "tests" / "coglang" / "test_executor_interface.py").exists()
     assert (destination / "tests" / "coglang" / "test_preflight.py").exists()
+    assert (
+        destination / "tests" / "coglang" / "test_readable_render_golden_candidates.py"
+    ).exists()
     assert (destination / "tests" / "coglang" / "test_schema_versions.py").exists()
     assert (destination / "tests" / "coglang" / "test_node_host_consumer.py").exists()
     assert (destination / "tests" / "coglang" / "test_node_minimal_host_runtime_stub.py").exists()
@@ -141,6 +151,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_node_host_consumer.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_node_minimal_host_runtime_stub.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_public_assets_mirror.py").exists()
+    assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_readable_render_golden_candidates.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_schema_versions.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "examples" / "node_host_consumer" / "consume_hrc_envelopes.mjs").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "examples" / "node_minimal_host_runtime_stub" / "run_demo.mjs").exists()

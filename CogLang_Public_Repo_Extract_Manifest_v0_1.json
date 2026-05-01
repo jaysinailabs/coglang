@@ -53,6 +53,7 @@
         "test_parser.py",
         "test_preflight.py",
         "test_public_assets_mirror.py",
+        "test_readable_render_golden_candidates.py",
         "test_schema_versions.py",
         "test_unify.py",
         "test_validator.py"

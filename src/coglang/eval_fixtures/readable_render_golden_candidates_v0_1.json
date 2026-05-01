@@ -1,0 +1,86 @@
+{
+  "schema_version": "coglang-readable-render-golden-candidates/v0.1",
+  "name": "readable-render-golden-candidates-v0.1",
+  "status": "candidate-fixture",
+  "source_document": "CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md",
+  "renderer_api_status": "not_implemented",
+  "stable_claim": "canonical_text_anchor_only",
+  "cases": [
+    {
+      "case_id": "RRG-001",
+      "title": "Compact Expression May Stay Compact",
+      "purpose": "Show that readable rendering does not need to expand every expression.",
+      "canonical_text": "Equal[Get[\"ada\", \"category\"], \"Person\"]",
+      "readable_render_candidate": "Equal[Get[\"ada\", \"category\"], \"Person\"]",
+      "expected_top_level_head": "Equal",
+      "readable_render_is_canonical_text": true,
+      "invariants": [
+        "The head Equal remains visible.",
+        "Argument order is unchanged.",
+        "The nested Get[...] call remains visible.",
+        "The display does not imply a different comparison rule from the canonical expression."
+      ]
+    },
+    {
+      "case_id": "RRG-002",
+      "title": "Multiline Display Is Not Canonical Text",
+      "purpose": "Make the GE-002 conformance-suite theme concrete: canonical text and readable render are different layers.",
+      "canonical_text": "ForEach[Query[n_, Equal[Get[n_, \"category\"], \"Person\"]], p_, Do[Trace[Traverse[p_, \"born_in\"]], Update[p_, {\"visited\": True[]}]]]",
+      "readable_render_candidate": "ForEach[\n  Query[\n    n_,\n    Equal[\n      Get[n_, \"category\"],\n      \"Person\"\n    ]\n  ],\n  p_,\n  Do[\n    Trace[Traverse[p_, \"born_in\"]],\n    Update[p_, {\"visited\": True[]}]\n  ]\n]",
+      "expected_top_level_head": "ForEach",
+      "readable_render_is_canonical_text": false,
+      "invariants": [
+        "The display is allowed to use newlines and indentation.",
+        "The display remains traceable to the same expression tree.",
+        "The display must not become the only stored representation.",
+        "A future renderer must not require transport consumers to parse this display text to recover machine data."
+      ]
+    },
+    {
+      "case_id": "RRG-003",
+      "title": "Dictionaries Keep Stable Field Visibility",
+      "purpose": "Show that readable rendering must not hide dictionary fields or reorder them in an unstable way.",
+      "canonical_text": "Update[\"ada\", {\"active\": True[], \"rank\": 1}]",
+      "readable_render_candidate": "Update[\n  \"ada\",\n  {\n    \"active\": True[],\n    \"rank\": 1\n  }\n]",
+      "expected_top_level_head": "Update",
+      "readable_render_is_canonical_text": false,
+      "invariants": [
+        "Both dictionary fields remain visible.",
+        "Field order is stable.",
+        "Boolean values remain explicit CogLang boolean expressions.",
+        "The display does not imply a host persistence result."
+      ]
+    },
+    {
+      "case_id": "RRG-004",
+      "title": "Error Expressions Keep The Error Head",
+      "purpose": "Show that readable rendering of error values should preserve the error category and key arguments.",
+      "canonical_text": "StubError[\"Send\", \"not implemented\"]",
+      "readable_render_candidate": "StubError[\n  \"Send\",\n  \"not implemented\"\n]",
+      "expected_top_level_head": "StubError",
+      "readable_render_is_canonical_text": false,
+      "invariants": [
+        "The error head remains visible.",
+        "Key arguments are not dropped or replaced by prose.",
+        "The display does not turn an error value into a host exception.",
+        "Additional UI annotations may be shown outside the render, but they must not overwrite the canonical error value."
+      ]
+    },
+    {
+      "case_id": "RRG-005",
+      "title": "Transport Views Keep Structured Data Separate",
+      "purpose": "Show the expected split when a future host or UI wants to show both machine data and human-readable display.",
+      "canonical_text": "Create[\"Entity\", {\"category\": \"Person\", \"label\": \"Ada\"}]",
+      "readable_render_candidate": "Create[\n  \"Entity\",\n  {\n    \"category\": \"Person\",\n    \"label\": \"Ada\"\n  }\n]",
+      "expected_top_level_head": "Create",
+      "readable_render_is_canonical_text": false,
+      "transport_expectation": "If a future host-visible envelope carries a readable render, that render should be auxiliary display data. The envelope should still preserve structured fields and canonical text or a reference to canonical text.",
+      "invariants": [
+        "The readable render is not the transport serialization.",
+        "Machine consumers should use structured envelope fields.",
+        "Human review can show readable render next to canonical text.",
+        "HRC v0.2 is not expanded by this example."
+      ]
+    }
+  ]
+}

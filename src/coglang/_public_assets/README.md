@@ -67,7 +67,8 @@ Use this table when you do not know which document to open first:
 
 ## First Reading Path
 
-If this is your first time reading CogLang, start here:
+If this is your first time reading CogLang, start with the stable user and
+implementation path:
 
 1. [CogLang_Quickstart_v1_1_0.md](CogLang_Quickstart_v1_1_0.md)
    Build the first mental model, learn the most common expression patterns, and avoid early footguns.
@@ -81,12 +82,9 @@ If this is your first time reading CogLang, start here:
    Use this when you need standalone install, local validation, or release-facing checks.
 6. [CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md](CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md)
    Check the frozen typed write-envelope host-runtime scope and executable evidence.
-7. [CogLang_Vision_Proposal_v0_1.md](CogLang_Vision_Proposal_v0_1.md)
-   Read the long-term capability proposal, including v1.2 candidate themes, graph-compute governance, and AI learning maturity.
-8. [CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md](CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md)
-   Read the v1.2 planning boundary for keeping Core stable while widening future semantic-action surfaces.
-9. [CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md](CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md)
-   Review the minimal v1.2 vocabulary candidate for effect summaries, graph budgets, budget estimates, and preflight decisions.
+
+Planning and governance notes are indexed below. They are useful for reviews,
+but they are not required first-pass reading.
 
 If you only have 10 minutes:
 
@@ -165,18 +163,24 @@ Start with four boundaries:
 
 ## Public Documentation Set
 
-Core documents:
+Stable core documents:
 
 - [CogLang_Quickstart_v1_1_0.md](CogLang_Quickstart_v1_1_0.md)
 - [CogLang_Specification_v1_1_0_Draft.md](CogLang_Specification_v1_1_0_Draft.md)
 - [CogLang_Conformance_Suite_v1_1_0.md](CogLang_Conformance_Suite_v1_1_0.md)
 - [CogLang_Profiles_and_Capabilities_v1_1_0.md](CogLang_Profiles_and_Capabilities_v1_1_0.md)
 - [CogLang_Operator_Catalog_v1_1_0.md](CogLang_Operator_Catalog_v1_1_0.md)
+
+Governance and future-work notes:
+
 - [CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md](CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md)
 - [CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md](CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md)
 - [CogLang_Readable_Render_Boundary_v0_1.md](CogLang_Readable_Render_Boundary_v0_1.md)
 - [CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md](CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md)
 - [CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md](CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md)
+- [CogLang_Vision_Proposal_v0_1.md](CogLang_Vision_Proposal_v0_1.md)
+- [CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md](CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md)
+- [CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md](CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md)
 
 Integration and release-facing documents:
 
@@ -190,9 +194,6 @@ Integration and release-facing documents:
 - [CogLang_Release_Notes_v1_1_1.md](CogLang_Release_Notes_v1_1_1.md)
 - [CogLang_Release_Notes_v1_1_0.md](CogLang_Release_Notes_v1_1_0.md)
 - [CogLang_Contribution_Guide_v0_1.md](CogLang_Contribution_Guide_v0_1.md)
-- [CogLang_Vision_Proposal_v0_1.md](CogLang_Vision_Proposal_v0_1.md)
-- [CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md](CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md)
-- [CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md](CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md)
 - [ROADMAP.md](ROADMAP.md)
 - [MAINTENANCE.md](MAINTENANCE.md)
 

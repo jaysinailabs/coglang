@@ -322,6 +322,18 @@ def test_estimate_graph_budget_for_query_records_static_uncertainty():
     assert estimate.notes == ["query result cardinality depends on host graph state"]
 
 
+def test_estimate_graph_budget_uses_nested_traversal_depth_not_occurrence_count():
+    non_nested = estimate_graph_budget(
+        'Do[Traverse["einstein", "born_in"], Traverse["tesla", "born_in"]]'
+    )
+    nested = estimate_graph_budget(
+        'Traverse[Traverse["einstein", "born_in"], "located_in"]'
+    )
+
+    assert non_nested.estimated_traversal_depth == 1
+    assert nested.estimated_traversal_depth == 2
+
+
 def test_preflight_accepts_bounded_query_with_warning_caveat():
     decision = preflight_expression(
         'Query[n_, Equal[Get[n_, "category"], "Person"]]',
@@ -397,6 +409,19 @@ def test_preflight_cannot_estimate_traversal_without_graph_statistics():
     assert decision.possible_errors == ["TraversalLimitExceeded", "HostCostUnsupported"]
 
 
+def test_preflight_does_not_reject_non_nested_traversal_count_as_depth():
+    decision = preflight_expression(
+        'Do[Traverse["einstein", "born_in"], Traverse["tesla", "born_in"]]',
+        budget=GraphBudget(max_traversal_depth=1, host_cost_class="closed"),
+        correlation_id="preflight-non-nested-traversal-001",
+    )
+
+    assert decision.decision == "cannot_estimate"
+    assert decision.reasons == ["budget.traversal_unbounded", "host.index_unknown"]
+    assert decision.budget_estimate.estimated_traversal_depth == 1
+    assert decision.correlation_id == "preflight-non-nested-traversal-001"
+
+
 def test_preflight_rejects_traversal_when_static_depth_exceeds_budget():
     decision = preflight_expression(
         'Traverse["einstein", "related"]',
@@ -415,6 +440,19 @@ def test_preflight_rejects_traversal_when_static_depth_exceeds_budget():
         "BudgetExceeded",
     ]
     assert decision.correlation_id == "preflight-budget-exceeded-001"
+
+
+def test_preflight_rejects_nested_traversal_when_static_depth_exceeds_budget():
+    decision = preflight_expression(
+        'Traverse[Traverse["einstein", "born_in"], "located_in"]',
+        budget=GraphBudget(max_traversal_depth=1, host_cost_class="closed"),
+        correlation_id="preflight-nested-budget-exceeded-001",
+    )
+
+    assert decision.decision == "rejected"
+    assert decision.reasons == ["budget.traversal_depth_exceeded"]
+    assert decision.budget_estimate.estimated_traversal_depth == 2
+    assert decision.correlation_id == "preflight-nested-budget-exceeded-001"
 
 
 def test_preflight_rejects_known_result_count_over_budget():

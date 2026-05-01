@@ -65,6 +65,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "examples" / "node_minimal_host_runtime_stub" / "runtime_stub.mjs").exists()
     assert (destination / "examples" / "node_minimal_host_runtime_stub" / "README.md").exists()
     assert (destination / "CogLang_Operator_Catalog_v1_1_0.md").exists()
+    assert (destination / "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md").exists()
     assert (destination / "CogLang_Quickstart_v1_1_0.zh-CN.md").exists()
     assert (destination / "CogLang_Specification_v1_1_0_Draft.zh-CN.md").exists()
     assert (destination / "CogLang_Conformance_Suite_v1_1_0.zh-CN.md").exists()
@@ -127,6 +128,13 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_public_assets_mirror.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "examples" / "node_host_consumer" / "consume_hrc_envelopes.mjs").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "examples" / "node_minimal_host_runtime_stub" / "run_demo.mjs").exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md"
+    ).exists()
     assert (destination / "internal_schemas" / "host_runtime" / "v0.1" / "schema-pack.json").exists()
     assert (destination / "src" / "coglang" / "cli.py").exists()
     assert (destination / "tests" / "coglang").exists()
@@ -176,6 +184,10 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         manifest["docs"]["effect_budget_preflight_vocabulary"]
         == "CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md"
     )
+    assert (
+        manifest["docs"]["reserved_operator_promotion_criteria"]
+        == "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md"
+    )
     assert manifest["docs"]["roadmap"] == "ROADMAP.md"
     assert manifest["machine_readable_summaries"]["llms"] == "llms.txt"
     assert distribution["console_script"] == "coglang"
@@ -193,6 +205,10 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     installed_like_release_check = extracted_cli._release_check_payload()
 
     assert installed_like_manifest["docs"]["readme"] == "README.md"
+    assert (
+        installed_like_manifest["docs"]["reserved_operator_promotion_criteria"]
+        == "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md"
+    )
     assert installed_like_manifest["open_source_boundary"]["status"] != "missing"
     assert installed_like_manifest["minimal_ci_baseline"]["workflow_template_present"] is True
     assert installed_like_manifest["minimal_ci_baseline"]["publish_workflow_template_present"] is True

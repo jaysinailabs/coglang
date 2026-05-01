@@ -100,7 +100,11 @@ Contributions in this area are especially welcome.
 
 Some `Reserved / Experimental` capabilities already have stable signatures or placeholder behavior, but they are not yet part of the default everyday surface.
 
-The next step is to make their promotion path easier to understand:
+`CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md` now records the public
+evidence bar for moving a `Carry-forward`, `Reserved`, or `Experimental` entry
+toward a more stable surface.
+
+The next step is to apply that criteria note to specific candidates:
 
 - what evidence is required before promotion
 - which operators are blocked on host-side capability work

@@ -502,6 +502,10 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
         "CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md",
         "CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md",
     )
+    readable_render_api_promotion_checklist_path, _ = _resolve_project_artifact(
+        "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
+        "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
+    )
     install_guide_path, _ = _resolve_project_artifact(
         "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
         "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
@@ -546,10 +550,11 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
                 and send_carry_forward_exit_matrix_path.exists()
                 and readable_render_boundary_path.exists()
                 and readable_render_golden_examples_path.exists()
+                and readable_render_api_promotion_checklist_path.exists()
                 and llms_path.exists()
                 and llms_full_path.exists()
             ),
-            "detail": "public docs set + operator/render boundaries and examples",
+            "detail": "public docs set + operator/render governance",
         },
         {
             "name": "G2_public_release_surface",
@@ -694,6 +699,10 @@ def _manifest_payload() -> dict[str, Any]:
         "CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md",
         "CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md",
     )[1]
+    readable_render_api_promotion_checklist_relpath = _resolve_project_artifact(
+        "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
+        "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
+    )[1]
     vision_proposal_relpath = _resolve_project_artifact(
         "CogLang_Vision_Proposal_v0_1.md",
         "CogLang_Vision_Proposal_v0_1.md",
@@ -723,6 +732,7 @@ def _manifest_payload() -> dict[str, Any]:
         "send_carry_forward_exit_matrix": send_carry_forward_exit_matrix_relpath,
         "readable_render_boundary": readable_render_boundary_relpath,
         "readable_render_golden_examples": readable_render_golden_examples_relpath,
+        "readable_render_api_promotion_checklist": readable_render_api_promotion_checklist_relpath,
         "vision_proposal": vision_proposal_relpath,
         "evolution_boundary_proposal": evolution_boundary_proposal_relpath,
         "effect_budget_preflight_vocabulary": effect_budget_preflight_vocabulary_relpath,
@@ -770,6 +780,9 @@ def _manifest_payload() -> dict[str, Any]:
                 "readable_render_boundary": docs["readable_render_boundary"],
                 "readable_render_golden_examples": docs[
                     "readable_render_golden_examples"
+                ],
+                "readable_render_api_promotion_checklist": docs[
+                    "readable_render_api_promotion_checklist"
                 ],
                 "hrc_companion_asset_classification": docs[
                     "hrc_companion_asset_classification"
@@ -882,6 +895,10 @@ def _release_check_payload() -> dict[str, Any]:
         "CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md",
         "CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md",
     )
+    readable_render_api_promotion_checklist_path, _ = _resolve_project_artifact(
+        "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
+        "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
+    )
     node_consumer_script_path, _ = _resolve_project_artifact(
         "examples/node_host_consumer/consume_hrc_envelopes.mjs",
     )
@@ -933,6 +950,10 @@ def _release_check_payload() -> dict[str, Any]:
     )
     readable_render_golden_examples_packaged = (
         "_public_assets/CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md"
+        in package_data
+    )
+    readable_render_api_promotion_checklist_packaged = (
+        "_public_assets/CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md"
         in package_data
     )
     hrc_companion_asset_classification_packaged = (
@@ -1042,6 +1063,14 @@ def _release_check_payload() -> dict[str, Any]:
                 and readable_render_golden_examples_packaged
             ),
             "detail": "readable render golden examples + package data",
+        },
+        {
+            "name": "readable_render_api_promotion_checklist",
+            "ok": (
+                readable_render_api_promotion_checklist_path.exists()
+                and readable_render_api_promotion_checklist_packaged
+            ),
+            "detail": "readable render API promotion checklist + package data",
         },
         {
             "name": "hrc_companion_asset_classification",
@@ -2343,6 +2372,10 @@ def main(argv: list[str] | None = None) -> int:
             print(
                 "readable_render_golden_examples: "
                 + payload["docs"]["readable_render_golden_examples"]
+            )
+            print(
+                "readable_render_api_promotion_checklist: "
+                + payload["docs"]["readable_render_api_promotion_checklist"]
             )
             print(
                 "hrc_companion_asset_classification: "

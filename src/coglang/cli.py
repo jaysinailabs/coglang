@@ -494,6 +494,10 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
         "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md",
         "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md",
     )
+    hrc_companion_asset_classification_path, _ = _resolve_project_artifact(
+        "CogLang_HRC_Companion_Asset_Classification_v0_1.md",
+        "CogLang_HRC_Companion_Asset_Classification_v0_1.md",
+    )
     node_consumer_script_path, _ = _resolve_project_artifact(
         "examples/node_host_consumer/consume_hrc_envelopes.mjs",
     )
@@ -586,12 +590,13 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
             "name": "G7_host_runtime_freeze_evidence",
             "ok": (
                 hrc_v0_2_final_freeze_path.exists()
+                and hrc_companion_asset_classification_path.exists()
                 and "host-demo" in info["commands"]
                 and "reference-host-demo" in info["commands"]
                 and node_consumer_script_path.exists()
                 and node_consumer_readme_path.exists()
             ),
-            "detail": "HRC v0.2 final freeze record + host demos + Node consumer",
+            "detail": "HRC v0.2 final freeze record + companion classification + host demos + Node consumer",
         },
     ]
     passed_gate_count = sum(1 for item in gates if item["ok"])
@@ -639,6 +644,10 @@ def _manifest_payload() -> dict[str, Any]:
         "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md",
         "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md",
     )[1]
+    hrc_companion_asset_classification_relpath = _resolve_project_artifact(
+        "CogLang_HRC_Companion_Asset_Classification_v0_1.md",
+        "CogLang_HRC_Companion_Asset_Classification_v0_1.md",
+    )[1]
     contribution_guide_relpath = _resolve_project_artifact(
         "CogLang_Contribution_Guide_v0_1.md",
         "CogLang_Contribution_Guide_v0_1.md",
@@ -674,6 +683,7 @@ def _manifest_payload() -> dict[str, Any]:
         "install_guide": install_guide_relpath,
         "release_notes": release_notes_relpath,
         "hrc_v0_2_final_freeze": hrc_v0_2_final_freeze_relpath,
+        "hrc_companion_asset_classification": hrc_companion_asset_classification_relpath,
         "contribution_guide": contribution_guide_relpath,
         "reserved_operator_promotion_criteria": reserved_operator_promotion_criteria_relpath,
         "send_carry_forward_exit_matrix": send_carry_forward_exit_matrix_relpath,
@@ -720,6 +730,9 @@ def _manifest_payload() -> dict[str, Any]:
                 ],
                 "send_carry_forward_exit_matrix": docs[
                     "send_carry_forward_exit_matrix"
+                ],
+                "hrc_companion_asset_classification": docs[
+                    "hrc_companion_asset_classification"
                 ],
                 "roadmap": docs["roadmap"],
                 "maintenance": docs["maintenance"],
@@ -809,6 +822,10 @@ def _release_check_payload() -> dict[str, Any]:
         "CogLang_Host_Runtime_Contract_v0_1.md",
         "CogLang_Host_Runtime_Contract_v0_1.md",
     )
+    hrc_companion_asset_classification_path, _ = _resolve_project_artifact(
+        "CogLang_HRC_Companion_Asset_Classification_v0_1.md",
+        "CogLang_HRC_Companion_Asset_Classification_v0_1.md",
+    )
     reserved_operator_promotion_criteria_path, _ = _resolve_project_artifact(
         "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md",
         "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md",
@@ -860,6 +877,10 @@ def _release_check_payload() -> dict[str, Any]:
     )
     send_carry_forward_exit_matrix_packaged = (
         "_public_assets/CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md"
+        in package_data
+    )
+    hrc_companion_asset_classification_packaged = (
+        "_public_assets/CogLang_HRC_Companion_Asset_Classification_v0_1.md"
         in package_data
     )
 
@@ -949,6 +970,14 @@ def _release_check_payload() -> dict[str, Any]:
                 and send_carry_forward_exit_matrix_packaged
             ),
             "detail": "Send carry-forward exit matrix + package data",
+        },
+        {
+            "name": "hrc_companion_asset_classification",
+            "ok": (
+                hrc_companion_asset_classification_path.exists()
+                and hrc_companion_asset_classification_packaged
+            ),
+            "detail": "HRC companion asset classification + package data",
         },
         {
             "name": "open_source_boundary",
@@ -2234,6 +2263,10 @@ def main(argv: list[str] | None = None) -> int:
             print(
                 "send_carry_forward_exit_matrix: "
                 + payload["docs"]["send_carry_forward_exit_matrix"]
+            )
+            print(
+                "hrc_companion_asset_classification: "
+                + payload["docs"]["hrc_companion_asset_classification"]
             )
             print(f"roadmap: {payload['docs']['roadmap']}")
             print(f"maintenance: {payload['docs']['maintenance']}")

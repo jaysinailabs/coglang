@@ -126,9 +126,9 @@ exercises tiny `execute` / `validate` and typed write-envelope success/failure
 paths. These examples are companion evidence, not an expansion of the HRC v0.2
 frozen scope.
 
-The likely next step is:
+The companion/formal asset decision is recorded in
+`CogLang_HRC_Companion_Asset_Classification_v0_1.md`. The likely next steps are:
 
-- a public decision on which host-runtime schema assets are companion material versus formal contract
 - regular public CI validation for the frozen HRC surface before each package release
 - eventually, a host example maintained outside the core runtime repository
 

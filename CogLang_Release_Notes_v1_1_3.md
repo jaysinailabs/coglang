@@ -52,6 +52,9 @@ This release publishes the maintenance evidence added after `1.1.2`:
 - Release-check and CI evidence now cover the public asset mirror, built wheel
   and sdist validation, HRC host demos, Node examples, generation-eval, and
   preflight fixtures.
+- Schema version identifiers now have a central `schema_versions.py` registry
+  used by Python runtime payload producers, without changing existing payload
+  values.
 - Repository metadata now includes `.mailmap` so historical commits authored as
   `xinjingshun <xinjingshun@foxmail.com>` are attributed to
   `Jason Xin <xinjingshun@foxmail.com>` without rewriting Git history.

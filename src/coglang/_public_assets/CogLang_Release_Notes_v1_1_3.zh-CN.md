@@ -27,9 +27,13 @@ CogLang `1.1.3` 是 stable `v1.1.0` 语言线上的包级 patch release。
 - `coglang preflight` 和 `coglang preflight-fixture` 暴露候选 v1.2 静态
   preflight 路径，覆盖 effect summary、graph budget、budget estimate 和
   preflight decision。
+- 静态 preflight 现在把 `estimated_traversal_depth` 解释为嵌套 `Traverse`
+  深度，而不是 `Traverse` 出现总数。
 - `coglang generation-eval` 随包提供确定性的 L1-L3 fixture，用于检查生成的
   CogLang 文本是否能 parse、canonicalize、validate，是否匹配预期顶层 head，
   是否包含幻觉算子，并输出 maturity summary 与 preflight decision。
+- generation-eval 的 maturity summary 现在区分 fixture-defined levels 与
+  evaluated levels，因此 L4-L6 会明确显示为未评估，而不是被暗示已经覆盖。
 - 抽象 `CogLangExecutor` surface 保持最小化：二次实现只需要实现
   `execute()` 和 `validate()`。
 - `examples/node_host_consumer` 展示 Node.js 标准库消费 HRC schema pack 与

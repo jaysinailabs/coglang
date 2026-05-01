@@ -139,6 +139,28 @@ def _iter_exprs(value: Any) -> list[CogLangExpr]:
     return found
 
 
+def _max_traversal_depth(value: Any, current_depth: int = 0) -> int:
+    if isinstance(value, CogLangExpr):
+        next_depth = current_depth + 1 if value.head in _TRAVERSE_HEADS else current_depth
+        max_depth = next_depth
+        if value.head in OPAQUE_ARG_HEADS:
+            return max_depth
+        for arg in value.args:
+            max_depth = max(max_depth, _max_traversal_depth(arg, next_depth))
+        return max_depth
+    if isinstance(value, dict):
+        return max(
+            (_max_traversal_depth(item, current_depth) for item in value.values()),
+            default=current_depth,
+        )
+    if isinstance(value, (list, tuple)):
+        return max(
+            (_max_traversal_depth(item, current_depth) for item in value),
+            default=current_depth,
+        )
+    return current_depth
+
+
 def _ordered_effects(effects: set[str]) -> list[str]:
     return [effect for effect in _EFFECT_ORDER if effect in effects]
 
@@ -625,6 +647,7 @@ def estimate_graph_budget(
 
     nodes = _iter_exprs(expr)
     traverse_count = sum(1 for node in nodes if node.head in _TRAVERSE_HEADS)
+    traversal_depth = _max_traversal_depth(expr)
     unification_count = sum(1 for node in nodes if node.head in _UNIFY_HEADS)
     query_like_count = sum(1 for node in nodes if node.head in {"AllNodes", "Query"})
 
@@ -645,7 +668,7 @@ def estimate_graph_budget(
         notes.append("static helper does not inspect graph degree statistics")
 
     return GraphBudgetEstimate(
-        estimated_traversal_depth=traverse_count if traverse_count else None,
+        estimated_traversal_depth=traversal_depth if traversal_depth else None,
         estimated_visited_nodes=estimated_visited_nodes,
         estimated_result_count=estimated_result_count,
         estimated_unification_branches=unification_count if unification_count else None,

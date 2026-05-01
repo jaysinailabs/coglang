@@ -797,8 +797,14 @@ def test_cli_generation_eval_json_output():
     assert payload["failure_cases"] == []
     assert payload["summary"]["validate_ok_count"] == 50
     assert payload["summary"]["failure_category_counts"] == {}
+    assert payload["maturity"]["defined_levels"] == ["L1", "L2", "L3", "L4", "L5", "L6"]
+    assert payload["maturity"]["evaluated_levels"] == ["L1", "L2", "L3"]
+    assert payload["maturity"]["unevaluated_levels"] == ["L4", "L5", "L6"]
     assert payload["maturity"]["highest_contiguous_level"] == "L3"
+    assert payload["maturity"]["highest_contiguous_evaluated_level"] == "L3"
+    assert payload["maturity"]["next_unevaluated_level"] == "L4"
     assert payload["maturity"]["blocked_level"] is None
+    assert payload["maturity"]["maturity_claim_scope"] == "evaluated_fixture_levels_only"
     assert payload["level_summary"]["L1"]["case_count"] == 18
     assert payload["level_summary"]["L2"]["case_count"] == 16
     assert payload["level_summary"]["L3"]["case_count"] == 16
@@ -837,6 +843,8 @@ def test_cli_generation_eval_failures_only_json_output(tmp_path):
     assert [case["case_id"] for case in payload["cases"]] == ["L2-001"]
     assert [case["case_id"] for case in payload["failure_cases"]] == ["L2-001"]
     assert payload["maturity"]["highest_contiguous_level"] == "L1"
+    assert payload["maturity"]["highest_contiguous_evaluated_level"] == "L1"
+    assert payload["maturity"]["unevaluated_levels"] == ["L4", "L5", "L6"]
     assert payload["maturity"]["blocked_level"] == "L2"
 
 
@@ -849,6 +857,10 @@ def test_cli_generation_eval_text_output():
     assert "case_count: 50" in output
     assert "failure_case_count: 0" in output
     assert "maturity.highest_contiguous_level: L3" in output
+    assert "maturity.highest_contiguous_evaluated_level: L3" in output
+    assert "maturity.unevaluated_levels: L4, L5, L6" in output
+    assert "maturity.next_unevaluated_level: L4" in output
+    assert "maturity.claim_scope: evaluated_fixture_levels_only" in output
     assert "maturity.blocked_level: none" in output
     assert "validate_ok: 50/50" in output
     assert "failure_category_counts: none" in output
@@ -874,6 +886,8 @@ def test_cli_generation_eval_text_reports_failure_cases(tmp_path):
     assert code == 1
     assert "failure_case_count: 1" in output
     assert "maturity.highest_contiguous_level: L1" in output
+    assert "maturity.highest_contiguous_evaluated_level: L1" in output
+    assert "maturity.unevaluated_levels: L4, L5, L6" in output
     assert "maturity.blocked_level: L2" in output
     assert (
         "failure L2-001 level=L2 "

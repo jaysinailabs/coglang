@@ -2,6 +2,7 @@
   "schema_version": "coglang-generation-eval-fixture/v0.1",
   "name": "minimal-l1-l3-offline-generation-eval",
   "description": "Fifty offline prompt cases for deterministic CogLang generation scoring. This fixture does not call an external model and is not a benchmark claim.",
+  "defined_levels": ["L1", "L2", "L3", "L4", "L5", "L6"],
   "cases": [
     {"case_id": "L1-001", "level": "L1", "prompt": "Return a CogLang expression that checks whether 1 equals 1.", "reference_expr": "Equal[1, 1]", "expected_top_level_heads": ["Equal"]},
     {"case_id": "L1-002", "level": "L1", "prompt": "Return a CogLang expression that compares two different labels.", "reference_expr": "Equal[\"cat\", \"dog\"]", "expected_top_level_heads": ["Equal"]},

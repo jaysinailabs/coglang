@@ -28,10 +28,14 @@ This release publishes the maintenance evidence added after `1.1.2`:
 - `coglang preflight` and `coglang preflight-fixture` expose the candidate v1.2
   static preflight path for effect summaries, graph budgets, budget estimates,
   and preflight decisions.
+- Static preflight now treats `estimated_traversal_depth` as nested `Traverse`
+  depth rather than the total number of `Traverse` occurrences.
 - `coglang generation-eval` packages a deterministic L1-L3 fixture for checking
   generated CogLang text against parse, canonicalization, validation, expected
   top-level heads, hallucinated operators, maturity summaries, and preflight
   decisions.
+- The generation-eval maturity summary now distinguishes fixture-defined levels
+  from evaluated levels, so L4-L6 are reported as unevaluated instead of implied.
 - The abstract `CogLangExecutor` surface is kept minimal for second
   implementations: `execute()` and `validate()` are the required methods.
 - `examples/node_host_consumer` demonstrates Node.js standard-library

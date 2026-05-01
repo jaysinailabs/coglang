@@ -6,6 +6,7 @@ import coglang.generation_eval as generation_eval_module
 from coglang.generation_eval import (
     generation_eval_payload,
     load_generation_eval_cases,
+    load_generation_eval_fixture,
     reference_generation_eval_answers,
 )
 from coglang.vocab import OPAQUE_ARG_HEADS
@@ -16,8 +17,10 @@ def test_generation_eval_uses_shared_opaque_argument_metadata():
 
 
 def test_default_generation_eval_fixture_has_50_cases():
+    fixture = load_generation_eval_fixture()
     cases = load_generation_eval_cases()
 
+    assert fixture["defined_levels"] == ["L1", "L2", "L3", "L4", "L5", "L6"]
     assert len(cases) == 50
     assert {case.level for case in cases} == {"L1", "L2", "L3"}
     assert all(case.reference_expr for case in cases)
@@ -38,11 +41,17 @@ def test_generation_eval_reference_outputs_score_cleanly():
     assert payload["failure_case_count"] == 0
     assert payload["failure_cases"] == []
     assert payload["maturity"] == {
+        "defined_levels": ["L1", "L2", "L3", "L4", "L5", "L6"],
         "evaluated_levels": ["L1", "L2", "L3"],
+        "unevaluated_levels": ["L4", "L5", "L6"],
         "passed_levels": ["L1", "L2", "L3"],
         "contiguous_passed_levels": ["L1", "L2", "L3"],
         "highest_contiguous_level": "L3",
+        "highest_contiguous_evaluated_level": "L3",
+        "next_unevaluated_level": "L4",
         "blocked_level": None,
+        "evaluation_complete": False,
+        "maturity_claim_scope": "evaluated_fixture_levels_only",
     }
     assert set(level_summary) == {"L1", "L2", "L3"}
     assert sum(item["case_count"] for item in level_summary.values()) == 50
@@ -102,7 +111,11 @@ def test_generation_eval_detects_hallucinated_operator(tmp_path):
     assert payload["maturity"]["passed_levels"] == ["L2", "L3"]
     assert payload["maturity"]["contiguous_passed_levels"] == []
     assert payload["maturity"]["highest_contiguous_level"] == "L0"
+    assert payload["maturity"]["highest_contiguous_evaluated_level"] == "L0"
+    assert payload["maturity"]["unevaluated_levels"] == ["L4", "L5", "L6"]
+    assert payload["maturity"]["next_unevaluated_level"] == "L4"
     assert payload["maturity"]["blocked_level"] == "L1"
+    assert payload["maturity"]["maturity_claim_scope"] == "evaluated_fixture_levels_only"
     assert failed_case["hallucinated_heads"] == ["BetterEqual"]
     assert failed_case["failure_categories"] == [
         "validation_error",
@@ -152,6 +165,8 @@ def test_generation_eval_categorizes_missing_and_parse_errors(tmp_path):
     assert payload["level_summary"]["L1"]["missing_output_count"] == 1
     assert payload["level_summary"]["L1"]["parse_ok_count"] == 16
     assert payload["maturity"]["highest_contiguous_level"] == "L0"
+    assert payload["maturity"]["highest_contiguous_evaluated_level"] == "L0"
+    assert payload["maturity"]["unevaluated_levels"] == ["L4", "L5", "L6"]
     assert payload["maturity"]["blocked_level"] == "L1"
     assert missing_case["failure_categories"] == ["missing_output"]
     assert parse_case["failure_categories"] == ["parse_error"]
@@ -182,4 +197,6 @@ def test_generation_eval_maturity_requires_contiguous_level_success(tmp_path):
     assert payload["maturity"]["passed_levels"] == ["L1", "L3"]
     assert payload["maturity"]["contiguous_passed_levels"] == ["L1"]
     assert payload["maturity"]["highest_contiguous_level"] == "L1"
+    assert payload["maturity"]["highest_contiguous_evaluated_level"] == "L1"
+    assert payload["maturity"]["next_unevaluated_level"] == "L4"
     assert payload["maturity"]["blocked_level"] == "L2"

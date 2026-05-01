@@ -1894,6 +1894,23 @@ def _print_generation_eval_text(payload: dict[str, Any]) -> None:
         + str(maturity.get("highest_contiguous_level", "unknown"))
     )
     print(
+        "maturity.highest_contiguous_evaluated_level: "
+        + str(maturity.get("highest_contiguous_evaluated_level", "unknown"))
+    )
+    unevaluated_levels = maturity.get("unevaluated_levels", [])
+    print(
+        "maturity.unevaluated_levels: "
+        + (", ".join(unevaluated_levels) if unevaluated_levels else "none")
+    )
+    print(
+        "maturity.next_unevaluated_level: "
+        + str(maturity.get("next_unevaluated_level") or "none")
+    )
+    print(
+        "maturity.claim_scope: "
+        + str(maturity.get("maturity_claim_scope", "unknown"))
+    )
+    print(
         "maturity.blocked_level: "
         + str(maturity.get("blocked_level") or "none")
     )

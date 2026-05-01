@@ -94,8 +94,20 @@ def load_generation_eval_fixture(path: str | Path | None = None) -> dict[str, An
         raise ValueError("unsupported generation eval fixture schema_version")
     if not isinstance(data.get("cases"), list):
         raise TypeError("generation eval fixture must contain a cases list")
+    if "defined_levels" in data and not isinstance(data["defined_levels"], list):
+        raise TypeError("generation eval fixture defined_levels must be a list")
     data["path"] = str(fixture_path)
     return data
+
+
+def _defined_levels_from_fixture(
+    fixture: dict[str, Any],
+    cases: list["GenerationEvalCase"],
+) -> list[str]:
+    raw_defined_levels = fixture.get("defined_levels")
+    if raw_defined_levels is None:
+        return sorted({case.level for case in cases}, key=_level_sort_key)
+    return sorted({str(level) for level in raw_defined_levels}, key=_level_sort_key)
 
 
 def load_generation_eval_cases(path: str | Path | None = None) -> list[GenerationEvalCase]:
@@ -267,8 +279,16 @@ def _level_sort_key(level: str) -> tuple[int, str]:
 
 def _maturity_summary(
     level_summary: dict[str, dict[str, Any]],
+    *,
+    defined_levels: list[str] | None = None,
 ) -> dict[str, Any]:
     evaluated_levels = sorted(level_summary, key=_level_sort_key)
+    defined_level_set = set(defined_levels or evaluated_levels)
+    defined_level_set.update(evaluated_levels)
+    sorted_defined_levels = sorted(defined_level_set, key=_level_sort_key)
+    unevaluated_levels = [
+        level for level in sorted_defined_levels if level not in level_summary
+    ]
     passed_levels = [
         level for level in evaluated_levels if level_summary[level]["ok"] is True
     ]
@@ -281,13 +301,27 @@ def _maturity_summary(
         blocked_level = level
         break
     return {
+        "defined_levels": sorted_defined_levels,
         "evaluated_levels": evaluated_levels,
+        "unevaluated_levels": unevaluated_levels,
         "passed_levels": passed_levels,
         "contiguous_passed_levels": contiguous_passed_levels,
         "highest_contiguous_level": (
             contiguous_passed_levels[-1] if contiguous_passed_levels else "L0"
         ),
+        "highest_contiguous_evaluated_level": (
+            contiguous_passed_levels[-1] if contiguous_passed_levels else "L0"
+        ),
+        "next_unevaluated_level": (
+            unevaluated_levels[0] if unevaluated_levels else None
+        ),
         "blocked_level": blocked_level,
+        "evaluation_complete": not unevaluated_levels,
+        "maturity_claim_scope": (
+            "defined_levels_complete"
+            if not unevaluated_levels
+            else "evaluated_fixture_levels_only"
+        ),
     }
 
 
@@ -312,6 +346,7 @@ def score_generation_eval(
     answers: dict[str, str],
     *,
     answer_source: str,
+    defined_levels: list[str] | None = None,
 ) -> dict[str, Any]:
     results = [_score_case(case, answers.get(case.case_id)) for case in cases]
     summary = _summarize_results(results)
@@ -329,7 +364,7 @@ def score_generation_eval(
         "case_count": summary["case_count"],
         "summary": summary,
         "level_summary": level_summary,
-        "maturity": _maturity_summary(level_summary),
+        "maturity": _maturity_summary(level_summary, defined_levels=defined_levels),
         "failure_case_count": len(failure_cases),
         "failure_cases": failure_cases,
         "cases": [item.to_dict() for item in results],
@@ -341,13 +376,20 @@ def generation_eval_payload(
     fixture_path: str | Path | None = None,
     answers_path: str | Path | None = None,
 ) -> dict[str, Any]:
-    cases = load_generation_eval_cases(fixture_path)
+    fixture = load_generation_eval_fixture(fixture_path)
+    cases = [GenerationEvalCase.from_dict(dict(item)) for item in fixture["cases"]]
+    defined_levels = _defined_levels_from_fixture(fixture, cases)
     if answers_path is None:
         answers = reference_generation_eval_answers(cases)
         answer_source = "fixture_reference"
     else:
         answers = load_generation_eval_answers(answers_path)
         answer_source = str(answers_path)
-    payload = score_generation_eval(cases, answers, answer_source=answer_source)
-    payload["fixture_path"] = load_generation_eval_fixture(fixture_path)["path"]
+    payload = score_generation_eval(
+        cases,
+        answers,
+        answer_source=answer_source,
+        defined_levels=defined_levels,
+    )
+    payload["fixture_path"] = fixture["path"]
     return payload

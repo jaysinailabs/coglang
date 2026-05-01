@@ -470,6 +470,10 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
         "CogLang_Quickstart_v1_1_0.md",
         "CogLang_Quickstart_v1_1_0.md",
     )
+    reserved_operator_promotion_criteria_path, _ = _resolve_project_artifact(
+        "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md",
+        "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md",
+    )
     install_guide_path, _ = _resolve_project_artifact(
         "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
         "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
@@ -506,10 +510,11 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
             "ok": (
                 readme_path.exists()
                 and quickstart_path.exists()
+                and reserved_operator_promotion_criteria_path.exists()
                 and llms_path.exists()
                 and llms_full_path.exists()
             ),
-            "detail": "public docs set + readiness checklist",
+            "detail": "public docs set + operator promotion criteria",
         },
         {
             "name": "G2_public_release_surface",
@@ -633,6 +638,10 @@ def _manifest_payload() -> dict[str, Any]:
         "CogLang_Contribution_Guide_v0_1.md",
         "CogLang_Contribution_Guide_v0_1.md",
     )[1]
+    reserved_operator_promotion_criteria_relpath = _resolve_project_artifact(
+        "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md",
+        "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md",
+    )[1]
     vision_proposal_relpath = _resolve_project_artifact(
         "CogLang_Vision_Proposal_v0_1.md",
         "CogLang_Vision_Proposal_v0_1.md",
@@ -657,6 +666,7 @@ def _manifest_payload() -> dict[str, Any]:
         "release_notes": release_notes_relpath,
         "hrc_v0_2_final_freeze": hrc_v0_2_final_freeze_relpath,
         "contribution_guide": contribution_guide_relpath,
+        "reserved_operator_promotion_criteria": reserved_operator_promotion_criteria_relpath,
         "vision_proposal": vision_proposal_relpath,
         "evolution_boundary_proposal": evolution_boundary_proposal_relpath,
         "effect_budget_preflight_vocabulary": effect_budget_preflight_vocabulary_relpath,
@@ -695,6 +705,9 @@ def _manifest_payload() -> dict[str, Any]:
                 "vision_proposal": docs["vision_proposal"],
                 "evolution_boundary_proposal": docs["evolution_boundary_proposal"],
                 "effect_budget_preflight_vocabulary": docs["effect_budget_preflight_vocabulary"],
+                "reserved_operator_promotion_criteria": docs[
+                    "reserved_operator_promotion_criteria"
+                ],
                 "roadmap": docs["roadmap"],
                 "maintenance": docs["maintenance"],
             },
@@ -783,6 +796,10 @@ def _release_check_payload() -> dict[str, Any]:
         "CogLang_Host_Runtime_Contract_v0_1.md",
         "CogLang_Host_Runtime_Contract_v0_1.md",
     )
+    reserved_operator_promotion_criteria_path, _ = _resolve_project_artifact(
+        "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md",
+        "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md",
+    )
     node_consumer_script_path, _ = _resolve_project_artifact(
         "examples/node_host_consumer/consume_hrc_envelopes.mjs",
     )
@@ -819,6 +836,10 @@ def _release_check_payload() -> dict[str, Any]:
     node_consumer_packaged = "_public_assets/examples/node_host_consumer/*" in package_data
     node_minimal_stub_packaged = (
         "_public_assets/examples/node_minimal_host_runtime_stub/*" in package_data
+    )
+    reserved_operator_promotion_criteria_packaged = (
+        "_public_assets/CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md"
+        in package_data
     )
 
     runtime_entry_paths = distribution["runtime_entry_paths"]
@@ -891,6 +912,14 @@ def _release_check_payload() -> dict[str, Any]:
                 and llms_full_path.exists()
             ),
             "detail": "README + roadmap + maintenance + llms summaries",
+        },
+        {
+            "name": "reserved_operator_promotion_criteria",
+            "ok": (
+                reserved_operator_promotion_criteria_path.exists()
+                and reserved_operator_promotion_criteria_packaged
+            ),
+            "detail": "reserved operator promotion criteria + package data",
         },
         {
             "name": "open_source_boundary",
@@ -2169,6 +2198,10 @@ def main(argv: list[str] | None = None) -> int:
             print(f"vision_proposal: {payload['docs']['vision_proposal']}")
             print(f"evolution_boundary_proposal: {payload['docs']['evolution_boundary_proposal']}")
             print(f"effect_budget_preflight_vocabulary: {payload['docs']['effect_budget_preflight_vocabulary']}")
+            print(
+                "reserved_operator_promotion_criteria: "
+                + payload["docs"]["reserved_operator_promotion_criteria"]
+            )
             print(f"roadmap: {payload['docs']['roadmap']}")
             print(f"maintenance: {payload['docs']['maintenance']}")
             print(f"llms: {payload['machine_readable_summaries']['llms']}")

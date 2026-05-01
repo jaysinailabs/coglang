@@ -176,6 +176,8 @@ that the packaged fixture is present and loadable.
   Profile and capability boundaries.
 - `CogLang_Operator_Catalog_v1_1_0.md`
   Operator status and call-surface summary.
+- `CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md`
+  Evidence bar for moving `Carry-forward`, `Reserved`, or `Experimental` entries toward a more stable surface.
 - `CogLang_Standalone_Install_and_Release_Guide_v0_1.md`
   Install, build, and local release verification.
 - `CogLang_Host_Runtime_Contract_v0_1.md`

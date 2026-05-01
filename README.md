@@ -9,10 +9,7 @@ Status:
 - active experimental maintenance for host/runtime ecosystem work
 - host bridge v0.2 frozen only for the narrow typed write-envelope surface
 
-Current public language release: `v1.1.0`. The current Python distribution version is `1.1.2`.
-The current repository `main` branch is ahead of the published `1.1.2` package
-for experimental maintenance commands such as `preflight` and
-`generation-eval`; `1.1.3` release preparation is the next packaging task.
+Current public language release: `v1.1.0`. The current Python distribution version is `1.1.3`.
 The Host Runtime Contract v0.2 frozen scope is the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`.
 A minimal Node.js standard-library consumer is also included at `examples/node_host_consumer` to show non-Python tooling can read the HRC schema pack and envelope samples without importing the Python runtime.
 An experimental in-repository Node.js minimal host/runtime stub is included at `examples/node_minimal_host_runtime_stub`; it is post-freeze example evidence, not an expansion of HRC v0.2.
@@ -38,7 +35,7 @@ Short runnable examples:
 ```powershell
 coglang execute 'Query[n_, Equal[Get[n_, "category"], "Person"]]'
 coglang execute 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
-coglang preflight --format text 'Create["Entity", {"category": "Person"}]'
+coglang preflight --format text 'AllNodes[]'
 coglang generation-eval --summary-only
 coglang demo
 node examples/node_host_consumer/consume_hrc_envelopes.mjs
@@ -62,7 +59,7 @@ Use this table when you do not know which document to open first:
 
 | You are... | Read first | Then read |
 | --- | --- | --- |
-| Trying CogLang as a user | [CogLang_Quickstart_v1_1_0.md](CogLang_Quickstart_v1_1_0.md) | `coglang demo`, then [CogLang_Release_Notes_v1_1_2.md](CogLang_Release_Notes_v1_1_2.md) |
+| Trying CogLang as a user | [CogLang_Quickstart_v1_1_0.md](CogLang_Quickstart_v1_1_0.md) | `coglang demo`, then [CogLang_Release_Notes_v1_1_3.md](CogLang_Release_Notes_v1_1_3.md) |
 | Checking install or release health | [CogLang_Standalone_Install_and_Release_Guide_v0_1.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.md) | `coglang release-check`, then [CogLang_Minimal_CI_Baseline_v0_1.json](CogLang_Minimal_CI_Baseline_v0_1.json) |
 | Implementing a host boundary | [CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md](CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md) | [CogLang_HRC_Companion_Asset_Classification_v0_1.md](CogLang_HRC_Companion_Asset_Classification_v0_1.md), then `examples/node_host_consumer` |
 | Contributing changes | [CogLang_Contribution_Guide_v0_1.md](CogLang_Contribution_Guide_v0_1.md) | [ROADMAP.md](ROADMAP.md), then the focused governance note for the subsystem you touch |
@@ -105,6 +102,8 @@ From the stable release artifact:
 pip install coglang
 coglang info
 coglang release-check
+coglang preflight --format text 'AllNodes[]'
+coglang generation-eval --summary-only
 coglang execute 'Equal[1, 1]'
 ```
 
@@ -186,6 +185,7 @@ Integration and release-facing documents:
 - [CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md](CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md)
 - [CogLang_Host_Runtime_Contract_v0_1.md](CogLang_Host_Runtime_Contract_v0_1.md)
 - [CogLang_Standalone_Install_and_Release_Guide_v0_1.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.md)
+- [CogLang_Release_Notes_v1_1_3.md](CogLang_Release_Notes_v1_1_3.md)
 - [CogLang_Release_Notes_v1_1_2.md](CogLang_Release_Notes_v1_1_2.md)
 - [CogLang_Release_Notes_v1_1_1.md](CogLang_Release_Notes_v1_1_1.md)
 - [CogLang_Release_Notes_v1_1_0.md](CogLang_Release_Notes_v1_1_0.md)
@@ -202,6 +202,7 @@ Chinese companion translations:
 - [CogLang_Specification_v1_1_0_Draft.zh-CN.md](CogLang_Specification_v1_1_0_Draft.zh-CN.md)
 - [CogLang_Conformance_Suite_v1_1_0.zh-CN.md](CogLang_Conformance_Suite_v1_1_0.zh-CN.md)
 - [CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md)
+- [CogLang_Release_Notes_v1_1_3.zh-CN.md](CogLang_Release_Notes_v1_1_3.zh-CN.md)
 - [CogLang_Release_Notes_v1_1_2.zh-CN.md](CogLang_Release_Notes_v1_1_2.zh-CN.md)
 - [CogLang_Release_Notes_v1_1_1.zh-CN.md](CogLang_Release_Notes_v1_1_1.zh-CN.md)
 - [CogLang_Release_Notes_v1_1_0.zh-CN.md](CogLang_Release_Notes_v1_1_0.zh-CN.md)
@@ -246,7 +247,8 @@ Lower-priority contributions:
 
 Use the project documents this way:
 
-- [CogLang_Release_Notes_v1_1_2.md](CogLang_Release_Notes_v1_1_2.md): latest Python package patch notes.
+- [CogLang_Release_Notes_v1_1_3.md](CogLang_Release_Notes_v1_1_3.md): latest Python package patch notes.
+- [CogLang_Release_Notes_v1_1_2.md](CogLang_Release_Notes_v1_1_2.md): previous Python package patch notes.
 - [CogLang_Release_Notes_v1_1_0.md](CogLang_Release_Notes_v1_1_0.md): stable language release commitments.
 - [CogLang_Vision_Proposal_v0_1.md](CogLang_Vision_Proposal_v0_1.md): long-term capability proposal, not a release contract.
 - [CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md](CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md): v1.2 planning boundary for semantic-action evolution, not a stable specification.

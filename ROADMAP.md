@@ -57,10 +57,11 @@ The stable `v1.1.0` release path is PyPI publication through Trusted Publishing.
 Recent review feedback is being handled as a sequence of small, reviewable
 changes. The current priority order is:
 
-1. `1.1.3` release preparation.
-   Align `pyproject.toml`, release notes, README/PyPI-facing text,
-   machine-readable summaries, package data, manifest metadata, and
-   release-check expectations for the repository features added after `1.1.2`.
+1. `1.1.3` release publication follow-through.
+   Keep the prepared `1.1.3` package metadata, release notes, README/PyPI-facing
+   text, machine-readable summaries, package data, manifest metadata, and
+   release-check expectations aligned until the Trusted Publishing release is
+   tagged and published.
 2. Reader routing and documentation density.
    Keep the README first screen oriented around a 30-second reader guide, then
    move larger governance reorganization only if the public extract and package

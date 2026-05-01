@@ -66,6 +66,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "examples" / "node_minimal_host_runtime_stub" / "README.md").exists()
     assert (destination / "CogLang_Operator_Catalog_v1_1_0.md").exists()
     assert (destination / "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md").exists()
+    assert (destination / "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md").exists()
     assert (destination / "CogLang_Quickstart_v1_1_0.zh-CN.md").exists()
     assert (destination / "CogLang_Specification_v1_1_0_Draft.zh-CN.md").exists()
     assert (destination / "CogLang_Conformance_Suite_v1_1_0.zh-CN.md").exists()
@@ -135,6 +136,13 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         / "_public_assets"
         / "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md"
     ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md"
+    ).exists()
     assert (destination / "internal_schemas" / "host_runtime" / "v0.1" / "schema-pack.json").exists()
     assert (destination / "src" / "coglang" / "cli.py").exists()
     assert (destination / "tests" / "coglang").exists()
@@ -188,6 +196,10 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         manifest["docs"]["reserved_operator_promotion_criteria"]
         == "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md"
     )
+    assert (
+        manifest["docs"]["send_carry_forward_exit_matrix"]
+        == "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md"
+    )
     assert manifest["docs"]["roadmap"] == "ROADMAP.md"
     assert manifest["machine_readable_summaries"]["llms"] == "llms.txt"
     assert distribution["console_script"] == "coglang"
@@ -208,6 +220,10 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (
         installed_like_manifest["docs"]["reserved_operator_promotion_criteria"]
         == "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md"
+    )
+    assert (
+        installed_like_manifest["docs"]["send_carry_forward_exit_matrix"]
+        == "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md"
     )
     assert installed_like_manifest["open_source_boundary"]["status"] != "missing"
     assert installed_like_manifest["minimal_ci_baseline"]["workflow_template_present"] is True

@@ -138,3 +138,4 @@ Only a small number of boundary-sensitive entries remain in `Carry-forward`. The
 
 1. `Send`
    If the cross-instance protocol, default failure shape, and minimal trace requirements are frozen before `v1.2.0`, `Send` may be promoted into the main specification. If those boundaries are still not frozen before `v1.2.0`, it should move from `Carry-forward` to `Reserved` so that it does not remain indefinitely ambiguous.
+   `CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md` records the current evidence matrix for that decision; it does not freeze cross-instance dispatch.

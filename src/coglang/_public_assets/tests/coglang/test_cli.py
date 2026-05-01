@@ -430,6 +430,9 @@ def test_cli_manifest_payload_shape():
     assert payload["docs"]["reserved_operator_promotion_criteria"].endswith(
         "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md"
     )
+    assert payload["docs"]["send_carry_forward_exit_matrix"].endswith(
+        "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md"
+    )
     assert payload["docs"]["roadmap"].endswith("ROADMAP.md")
     assert payload["docs"]["maintenance"].endswith("MAINTENANCE.md")
     assert payload["machine_readable_summaries"]["llms"].endswith("llms.txt")
@@ -451,6 +454,10 @@ def test_cli_manifest_payload_shape():
     assert (
         payload["public_release_surface"]["project_docs"]["reserved_operator_promotion_criteria"]
         == payload["docs"]["reserved_operator_promotion_criteria"]
+    )
+    assert (
+        payload["public_release_surface"]["project_docs"]["send_carry_forward_exit_matrix"]
+        == payload["docs"]["send_carry_forward_exit_matrix"]
     )
     assert payload["open_source_boundary"]["schema_version"] == "coglang-open-source-boundary/v0.1"
     assert payload["open_source_boundary"]["public_distribution_name"] == "coglang"
@@ -474,6 +481,7 @@ def test_cli_manifest_json_output():
     assert '"public_release_surface"' in output
     assert '"machine_readable_summaries"' in output
     assert '"reserved_operator_promotion_criteria"' in output
+    assert '"send_carry_forward_exit_matrix"' in output
     assert '"open_source_boundary"' in output
     assert '"minimal_ci_baseline"' in output
     assert '"public_repo_extract_manifest"' in output
@@ -508,6 +516,11 @@ def test_cli_manifest_text_output():
         f"{_path_in_layout('CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md', 'CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md')}"
         in output
     )
+    assert (
+        f"send_carry_forward_exit_matrix: "
+        f"{_path_in_layout('CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md', 'CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md')}"
+        in output
+    )
     assert f"maintenance: {_path_in_layout('MAINTENANCE.md', 'MAINTENANCE.md')}" in output
     assert f"llms: {_path_in_layout('llms.txt', 'llms.txt')}" in output
     assert f"llms_full: {_path_in_layout('llms-full.txt', 'llms-full.txt')}" in output
@@ -540,6 +553,14 @@ def test_cli_bundle_payload_shape():
         _path_in_layout(
             "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md",
             "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md",
+        )
+    )
+    assert payload["public_release_surface"]["project_docs"][
+        "send_carry_forward_exit_matrix"
+    ].endswith(
+        _path_in_layout(
+            "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md",
+            "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md",
         )
     )
     assert payload["open_source_boundary"]["repository_strategy"] == "standalone_repository"
@@ -1431,6 +1452,11 @@ def test_cli_release_check_payload_shape():
         and item["ok"] is True
         for item in payload["checks"]
     )
+    assert any(
+        item["name"] == "send_carry_forward_exit_matrix"
+        and item["ok"] is True
+        for item in payload["checks"]
+    )
     assert any(item["name"] == "open_source_boundary" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "minimal_ci_baseline" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "public_repo_extract_manifest" and item["ok"] is True for item in payload["checks"])
@@ -1461,6 +1487,7 @@ def test_cli_release_check_json_output():
     assert '"distribution_metadata"' in output
     assert '"public_release_docs"' in output
     assert '"reserved_operator_promotion_criteria"' in output
+    assert '"send_carry_forward_exit_matrix"' in output
     assert '"open_source_boundary"' in output
     assert '"minimal_ci_baseline"' in output
     assert '"public_repo_extract_manifest"' in output
@@ -1482,6 +1509,10 @@ def test_cli_release_check_text_output():
     assert (
         "reserved_operator_promotion_criteria: ok "
         "(reserved operator promotion criteria + package data)" in output
+    )
+    assert (
+        "send_carry_forward_exit_matrix: ok "
+        "(Send carry-forward exit matrix + package data)" in output
     )
     assert (
         f"open_source_boundary: ok "
@@ -1584,7 +1615,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 49
+    assert payload["entry_count"] == 50
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -1617,6 +1648,9 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Quickstart_v1_1_0.zh-CN.md" in [
@@ -1704,7 +1738,10 @@ def test_cli_formal_open_source_readiness_payload_shape():
         "G6_maintenance_and_contribution_surface",
         "G7_host_runtime_freeze_evidence",
     ]
-    assert payload["gates"][0]["detail"] == "public docs set + operator promotion criteria"
+    assert (
+        payload["gates"][0]["detail"]
+        == "public docs set + operator promotion criteria + Send exit matrix"
+    )
     assert payload["gates"][-1]["detail"] == "HRC v0.2 final freeze record + host demos + Node consumer"
 
 

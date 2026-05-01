@@ -104,7 +104,11 @@ Some `Reserved / Experimental` capabilities already have stable signatures or pl
 evidence bar for moving a `Carry-forward`, `Reserved`, or `Experimental` entry
 toward a more stable surface.
 
-The next step is to apply that criteria note to specific candidates:
+`CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md` applies that evidence bar to
+`Send`, the remaining meaningful `Carry-forward` entry, and records what would
+be needed for promotion versus downgrade to `Reserved`.
+
+The next step is to use those criteria notes when reviewing specific candidates:
 
 - what evidence is required before promotion
 - which operators are blocked on host-side capability work

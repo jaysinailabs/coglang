@@ -474,6 +474,10 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
         "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md",
         "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md",
     )
+    send_carry_forward_exit_matrix_path, _ = _resolve_project_artifact(
+        "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md",
+        "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md",
+    )
     install_guide_path, _ = _resolve_project_artifact(
         "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
         "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
@@ -511,10 +515,11 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
                 readme_path.exists()
                 and quickstart_path.exists()
                 and reserved_operator_promotion_criteria_path.exists()
+                and send_carry_forward_exit_matrix_path.exists()
                 and llms_path.exists()
                 and llms_full_path.exists()
             ),
-            "detail": "public docs set + operator promotion criteria",
+            "detail": "public docs set + operator promotion criteria + Send exit matrix",
         },
         {
             "name": "G2_public_release_surface",
@@ -642,6 +647,10 @@ def _manifest_payload() -> dict[str, Any]:
         "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md",
         "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md",
     )[1]
+    send_carry_forward_exit_matrix_relpath = _resolve_project_artifact(
+        "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md",
+        "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md",
+    )[1]
     vision_proposal_relpath = _resolve_project_artifact(
         "CogLang_Vision_Proposal_v0_1.md",
         "CogLang_Vision_Proposal_v0_1.md",
@@ -667,6 +676,7 @@ def _manifest_payload() -> dict[str, Any]:
         "hrc_v0_2_final_freeze": hrc_v0_2_final_freeze_relpath,
         "contribution_guide": contribution_guide_relpath,
         "reserved_operator_promotion_criteria": reserved_operator_promotion_criteria_relpath,
+        "send_carry_forward_exit_matrix": send_carry_forward_exit_matrix_relpath,
         "vision_proposal": vision_proposal_relpath,
         "evolution_boundary_proposal": evolution_boundary_proposal_relpath,
         "effect_budget_preflight_vocabulary": effect_budget_preflight_vocabulary_relpath,
@@ -707,6 +717,9 @@ def _manifest_payload() -> dict[str, Any]:
                 "effect_budget_preflight_vocabulary": docs["effect_budget_preflight_vocabulary"],
                 "reserved_operator_promotion_criteria": docs[
                     "reserved_operator_promotion_criteria"
+                ],
+                "send_carry_forward_exit_matrix": docs[
+                    "send_carry_forward_exit_matrix"
                 ],
                 "roadmap": docs["roadmap"],
                 "maintenance": docs["maintenance"],
@@ -800,6 +813,10 @@ def _release_check_payload() -> dict[str, Any]:
         "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md",
         "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md",
     )
+    send_carry_forward_exit_matrix_path, _ = _resolve_project_artifact(
+        "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md",
+        "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md",
+    )
     node_consumer_script_path, _ = _resolve_project_artifact(
         "examples/node_host_consumer/consume_hrc_envelopes.mjs",
     )
@@ -839,6 +856,10 @@ def _release_check_payload() -> dict[str, Any]:
     )
     reserved_operator_promotion_criteria_packaged = (
         "_public_assets/CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md"
+        in package_data
+    )
+    send_carry_forward_exit_matrix_packaged = (
+        "_public_assets/CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md"
         in package_data
     )
 
@@ -920,6 +941,14 @@ def _release_check_payload() -> dict[str, Any]:
                 and reserved_operator_promotion_criteria_packaged
             ),
             "detail": "reserved operator promotion criteria + package data",
+        },
+        {
+            "name": "send_carry_forward_exit_matrix",
+            "ok": (
+                send_carry_forward_exit_matrix_path.exists()
+                and send_carry_forward_exit_matrix_packaged
+            ),
+            "detail": "Send carry-forward exit matrix + package data",
         },
         {
             "name": "open_source_boundary",
@@ -2201,6 +2230,10 @@ def main(argv: list[str] | None = None) -> int:
             print(
                 "reserved_operator_promotion_criteria: "
                 + payload["docs"]["reserved_operator_promotion_criteria"]
+            )
+            print(
+                "send_carry_forward_exit_matrix: "
+                + payload["docs"]["send_carry_forward_exit_matrix"]
             )
             print(f"roadmap: {payload['docs']['roadmap']}")
             print(f"maintenance: {payload['docs']['maintenance']}")

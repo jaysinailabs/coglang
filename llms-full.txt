@@ -182,6 +182,8 @@ that the packaged fixture is present and loadable.
   `Send`-specific promotion or downgrade evidence matrix; not a cross-instance protocol freeze.
 - `CogLang_Readable_Render_Boundary_v0_1.md`
   Boundary between canonical text, display-only readable rendering, and structured transport envelopes; not a renderer implementation.
+- `CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md`
+  Candidate readable-render examples and invariants for future renderer work; not stable renderer output.
 - `CogLang_HRC_Companion_Asset_Classification_v0_1.md`
   HRC formal versus companion asset classification; not an HRC scope expansion.
 - `CogLang_Standalone_Install_and_Release_Guide_v0_1.md`

@@ -10,6 +10,9 @@ Status:
 - host bridge v0.2 frozen only for the narrow typed write-envelope surface
 
 Current public language release: `v1.1.0`. The current Python distribution version is `1.1.2`.
+The current repository `main` branch is ahead of the published `1.1.2` package
+for experimental maintenance commands such as `preflight` and
+`generation-eval`; `1.1.3` release preparation is the next packaging task.
 The Host Runtime Contract v0.2 frozen scope is the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`.
 A minimal Node.js standard-library consumer is also included at `examples/node_host_consumer` to show non-Python tooling can read the HRC schema pack and envelope samples without importing the Python runtime.
 An experimental in-repository Node.js minimal host/runtime stub is included at `examples/node_minimal_host_runtime_stub`; it is post-freeze example evidence, not an expansion of HRC v0.2.
@@ -53,6 +56,18 @@ CogLang's public documentation target is English-first.
 
 New public-facing documentation should be written in English first. Chinese translations may be added as separate companion files, preferably with a `.zh-CN.md` suffix. If an English document and a translation disagree, the English document, executable conformance suite, and implementation tests take precedence.
 
+## 30-Second Reading Guide
+
+Use this table when you do not know which document to open first:
+
+| You are... | Read first | Then read |
+| --- | --- | --- |
+| Trying CogLang as a user | [CogLang_Quickstart_v1_1_0.md](CogLang_Quickstart_v1_1_0.md) | `coglang demo`, then [CogLang_Release_Notes_v1_1_2.md](CogLang_Release_Notes_v1_1_2.md) |
+| Checking install or release health | [CogLang_Standalone_Install_and_Release_Guide_v0_1.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.md) | `coglang release-check`, then [CogLang_Minimal_CI_Baseline_v0_1.json](CogLang_Minimal_CI_Baseline_v0_1.json) |
+| Implementing a host boundary | [CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md](CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md) | [CogLang_HRC_Companion_Asset_Classification_v0_1.md](CogLang_HRC_Companion_Asset_Classification_v0_1.md), then `examples/node_host_consumer` |
+| Contributing changes | [CogLang_Contribution_Guide_v0_1.md](CogLang_Contribution_Guide_v0_1.md) | [ROADMAP.md](ROADMAP.md), then the focused governance note for the subsystem you touch |
+| Reviewing future work | [ROADMAP.md](ROADMAP.md) | v1.2 and readable-render notes only when that subsystem is in scope |
+
 ## First Reading Path
 
 If this is your first time reading CogLang, start here:
@@ -90,7 +105,6 @@ From the stable release artifact:
 pip install coglang
 coglang info
 coglang release-check
-coglang generation-eval --summary-only
 coglang execute 'Equal[1, 1]'
 ```
 
@@ -107,6 +121,8 @@ From a checkout for development:
 ```powershell
 pip install -e ".[dev]"
 coglang bundle
+coglang preflight --format text 'AllNodes[]'
+coglang generation-eval --summary-only
 coglang smoke
 coglang demo
 coglang conformance --level smoke

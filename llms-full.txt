@@ -83,6 +83,17 @@ CogLang separates `Core`, `Reserved`, and `Experimental` capabilities so stable 
 
 CogLang expression values are expected to remain suitable for canonical text, readable rendering, hashing, diffing, and replay. Large opaque host-owned payloads should normally be represented by references plus metadata rather than embedded as raw bytes.
 
+7. Minimal executor surface
+
+The abstract `CogLangExecutor` surface is intentionally small. A second
+implementation should start with `execute(expr)` and `validate(expr)`. Optional
+write-candidate hooks may be overridden, but their default behavior is safe for
+minimal executors. Python host-local helpers such as local write queries,
+dict/JSON view variants, and submission-id lookup conveniences belong to
+`PythonCogLangExecutor` and host tooling; they are not required inheritance
+surface for every implementation. `coglang release-check` includes an
+`executor_interface` gate to keep this boundary visible.
+
 ## Good Matching User Intents
 
 User intent:

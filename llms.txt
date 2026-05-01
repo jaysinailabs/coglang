@@ -35,6 +35,7 @@ Key design choices:
 - HRC v0.2 typed write-envelope evidence through `host-demo` and `reference-host-demo`
 - non-Python HRC envelope consumption through `examples/node_host_consumer`
 - a minimal `generation-eval` fixture for checking LLM-generated CogLang outputs against parse, canonicalization, validation, top-level-head, hallucinated-operator, and maturity summaries
+- a minimal executor interface: second implementations should start with `execute` and `validate`; Python host-local query/dict/JSON helpers are convenience APIs, not required inheritance surface
 - semantic-event audit focus: use CogLang to represent inspectable graph intents and host-visible outcomes, not every low-level model or infrastructure signal
 
 Core documents:

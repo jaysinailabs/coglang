@@ -34,6 +34,7 @@ Short runnable examples:
 coglang execute 'Query[n_, Equal[Get[n_, "category"], "Person"]]'
 coglang execute 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
 coglang preflight --format text 'Create["Entity", {"category": "Person"}]'
+coglang generation-eval --summary-only
 coglang demo
 node examples/node_host_consumer/consume_hrc_envelopes.mjs
 ```
@@ -86,6 +87,7 @@ From the stable release artifact:
 pip install coglang
 coglang info
 coglang release-check
+coglang generation-eval --summary-only
 coglang execute 'Equal[1, 1]'
 ```
 
@@ -115,6 +117,7 @@ The current minimal public command surface includes:
 - `canonicalize`
 - `validate`
 - `preflight`
+- `preflight-fixture`
 - `execute`
 - `conformance`
 - `repl`
@@ -124,6 +127,7 @@ The current minimal public command surface includes:
 - `doctor`
 - `vocab`
 - `examples`
+- `generation-eval`
 - `smoke`
 - `demo`
 - `host-demo`
@@ -196,6 +200,7 @@ The highest-value contributions are currently:
 - conformance examples that pin down existing semantics
 - documentation fixes that improve the first-run experience
 - host integration examples that keep language semantics separate from host policy
+- minimal executor examples that implement `execute` and `validate` without copying Python host-local helpers
 - small CLI or packaging improvements that improve repeatable validation
 
 For local test development, install the development extras:

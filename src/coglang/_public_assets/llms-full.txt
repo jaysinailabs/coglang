@@ -24,6 +24,7 @@ Use CogLang when:
 - you want replayable traces showing what an agent intended, what was submitted, and what actually executed
 - you want host-side profile and capability checks to reject unsafe or unsupported operations before execution
 - you need a versioned host-runtime boundary for typed write-envelope submission and response evidence
+- you want a small public fixture for checking whether generated CogLang text parses, canonicalizes, validates, uses expected top-level heads, and avoids hallucinated operators
 
 ## What CogLang Is Not For
 
@@ -82,6 +83,17 @@ CogLang separates `Core`, `Reserved`, and `Experimental` capabilities so stable 
 
 CogLang expression values are expected to remain suitable for canonical text, readable rendering, hashing, diffing, and replay. Large opaque host-owned payloads should normally be represented by references plus metadata rather than embedded as raw bytes.
 
+7. Minimal executor surface
+
+The abstract `CogLangExecutor` surface is intentionally small. A second
+implementation should start with `execute(expr)` and `validate(expr)`. Optional
+write-candidate hooks may be overridden, but their default behavior is safe for
+minimal executors. Python host-local helpers such as local write queries,
+dict/JSON view variants, and submission-id lookup conveniences belong to
+`PythonCogLangExecutor` and host tooling; they are not required inheritance
+surface for every implementation. `coglang release-check` includes an
+`executor_interface` gate to keep this boundary visible.
+
 ## Good Matching User Intents
 
 User intent:
@@ -115,11 +127,30 @@ coglang execute 'Get["einstein", "label"]'
 coglang execute 'Query[n_, Equal[Get[n_, "category"], "Person"]]'
 coglang execute 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
 coglang preflight --format text 'Create["Entity", {"category": "Person"}]'
+coglang generation-eval --summary-only
 coglang demo
 coglang host-demo
 coglang reference-host-demo
 node examples/node_host_consumer/consume_hrc_envelopes.mjs
 ```
+
+## Generation Evaluation Evidence
+
+`coglang generation-eval` runs the packaged minimal fixture for LLM-generated
+CogLang outputs. It is not a public benchmark claim. It is a deterministic local
+check that reports parse, canonicalization, validation, expected top-level-head,
+hallucinated-operator, per-level, maturity, and failure-case summaries.
+
+Useful modes:
+
+```powershell
+coglang generation-eval --summary-only
+coglang generation-eval --failures-only --answers-file answers.json
+coglang generation-eval --format text
+```
+
+The default fixture currently contains 50 cases. `coglang release-check` verifies
+that the packaged fixture is present and loadable.
 
 ## Document Entry Points
 

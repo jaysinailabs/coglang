@@ -34,6 +34,8 @@ Key design choices:
 - profile and capability boundaries so hosts can reject unsafe or unsupported execution paths early
 - HRC v0.2 typed write-envelope evidence through `host-demo` and `reference-host-demo`
 - non-Python HRC envelope consumption through `examples/node_host_consumer`
+- a minimal `generation-eval` fixture for checking LLM-generated CogLang outputs against parse, canonicalization, validation, top-level-head, hallucinated-operator, and maturity summaries
+- a minimal executor interface: second implementations should start with `execute` and `validate`; Python host-local query/dict/JSON helpers are convenience APIs, not required inheritance surface
 - semantic-event audit focus: use CogLang to represent inspectable graph intents and host-visible outcomes, not every low-level model or infrastructure signal
 
 Core documents:
@@ -70,6 +72,7 @@ Short runnable examples:
 coglang execute 'Query[n_, Equal[Get[n_, "category"], "Person"]]'
 coglang execute 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
 coglang preflight --format text 'Create["Entity", {"category": "Person"}]'
+coglang generation-eval --summary-only
 coglang demo
 coglang host-demo
 coglang reference-host-demo

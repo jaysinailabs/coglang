@@ -200,6 +200,7 @@ The highest-value contributions are currently:
 - conformance examples that pin down existing semantics
 - documentation fixes that improve the first-run experience
 - host integration examples that keep language semantics separate from host policy
+- minimal executor examples that implement `execute` and `validate` without copying Python host-local helpers
 - small CLI or packaging improvements that improve repeatable validation
 
 For local test development, install the development extras:

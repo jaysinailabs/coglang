@@ -84,7 +84,22 @@ Prioritize issues such as:
 - a minimal graph-workflow host
 - independent examples showing that `CogLang` is not only a private in-project DSL
 
-### 1.6 Specification-Alignment Bug Fixes
+### 1.6 Minimal Executor Implementations
+
+Prioritize issues such as:
+
+- independent executor implementations that start from `execute(expr)` and `validate(expr)`
+- tests showing that host-local query helpers are not required for a valid executor
+- documentation that keeps the language executor boundary separate from host bridge convenience APIs
+
+The `CogLangExecutor` ABC is intentionally small. The inheritance requirement is
+the semantic minimum: `execute` and `validate`. Optional write-candidate hooks
+have safe default behavior, and Python-specific helpers such as
+`query_local_write_result`, dict/JSON view helpers, and submission-id lookup
+helpers are concrete runtime conveniences, not obligations for every second
+implementation.
+
+### 1.7 Specification-Alignment Bug Fixes
 
 These fixes are welcome:
 
@@ -214,6 +229,24 @@ media bytes should normally be represented by host-owned references plus
 metadata, not embedded directly as expression payloads. This is an extension
 design boundary, not a new frozen Core type rule; proposals in this area should
 come with clear host-contract, conformance, and security implications.
+
+### 3.6 Executor Interface Stays Minimal
+
+The minimal executor contract should remain small enough for another
+implementation to start without copying Python runtime internals.
+
+Contributors should preserve this split:
+
+- `CogLangExecutor`: semantic execution minimum, currently `execute` and `validate`
+- optional write-candidate hooks: default no-op or unsupported behavior is acceptable
+- `PythonCogLangExecutor`: reference runtime plus local host/write-view convenience helpers
+- host-runtime contract: typed envelopes, local views, and cross-view evidence for hosts
+
+Do not move host-local query helpers, dict/JSON variants, or correlation-id
+lookup conveniences back into the abstract executor unless there is strong
+cross-implementation evidence that they belong in the semantic minimum.
+`coglang release-check` includes an `executor_interface` gate to make this
+boundary visible before release.
 
 ---
 

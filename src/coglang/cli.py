@@ -312,23 +312,39 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
         "CogLang_Public_PyPI_Publish_Workflow_v0_1.yml",
         ".github/workflows/publish.yml",
     )
-    required_command_names = ["bundle", "release_check", "smoke", "conformance_smoke"]
+    required_command_names = [
+        "bundle",
+        "release_check",
+        "smoke",
+        "conformance_smoke",
+        "host_demo",
+        "reference_host_demo",
+    ]
     required_packaging_check_names = [
         "build_distributions",
         "wheel_install_release_check",
         "wheel_install_smoke",
+        "wheel_install_hrc_host_demos",
         "sdist_install_release_check",
         "sdist_install_smoke",
+        "sdist_install_hrc_host_demos",
     ]
     workflow_required_step_names = [
         "Install build frontend",
         "Build sdist and wheel",
         "Validate installed wheel",
         "Validate installed sdist",
+        "Run HRC host demos",
     ]
     workflow_required_smoke_snippets = [
         ".tmp_ci_wheel/bin/python -m coglang smoke",
+        ".tmp_ci_wheel/bin/python -m coglang host-demo",
+        ".tmp_ci_wheel/bin/python -m coglang reference-host-demo",
         ".tmp_ci_sdist/bin/python -m coglang smoke",
+        ".tmp_ci_sdist/bin/python -m coglang host-demo",
+        ".tmp_ci_sdist/bin/python -m coglang reference-host-demo",
+        "python -m coglang host-demo",
+        "python -m coglang reference-host-demo",
     ]
     publish_workflow_required_snippets = [
         "pypa/gh-action-pypi-publish@release/v1",

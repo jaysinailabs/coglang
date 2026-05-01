@@ -42,6 +42,16 @@
       "name": "conformance_smoke",
       "command": "coglang conformance smoke",
       "purpose": "standalone smoke conformance evidence"
+    },
+    {
+      "name": "host_demo",
+      "command": "coglang host-demo",
+      "purpose": "frozen HRC v0.2 LocalCogLangHost evidence"
+    },
+    {
+      "name": "reference_host_demo",
+      "command": "coglang reference-host-demo",
+      "purpose": "frozen HRC v0.2 reference-host evidence"
     }
   ],
   "packaging_verification": [
@@ -61,6 +71,11 @@
       "purpose": "verify installed wheel can complete the minimal runtime validation path"
     },
     {
+      "name": "wheel_install_hrc_host_demos",
+      "command": "install built wheel in a fresh venv and run coglang host-demo and coglang reference-host-demo",
+      "purpose": "verify installed wheel exposes frozen HRC v0.2 evidence paths"
+    },
+    {
       "name": "sdist_install_release_check",
       "command": "install built sdist in a fresh venv and run coglang manifest/release-check",
       "purpose": "verify source distribution install path exposes release-facing CLI and public assets"
@@ -69,23 +84,32 @@
       "name": "sdist_install_smoke",
       "command": "install built sdist with minimal dev checks in a fresh venv and run coglang smoke",
       "purpose": "verify source distribution install path can complete the minimal runtime validation path"
+    },
+    {
+      "name": "sdist_install_hrc_host_demos",
+      "command": "install built sdist in a fresh venv and run coglang host-demo and coglang reference-host-demo",
+      "purpose": "verify installed sdist exposes frozen HRC v0.2 evidence paths"
     }
   ],
   "evidence_outputs": [
     "build_artifacts",
     "installed_wheel_release_check",
     "installed_wheel_smoke",
+    "installed_wheel_hrc_host_demos",
     "installed_sdist_release_check",
     "installed_sdist_smoke",
+    "installed_sdist_hrc_host_demos",
     "bundle",
     "release_check",
     "doctor",
-    "smoke"
+    "smoke",
+    "hrc_host_demos"
   ],
   "scope": [
     "release-facing CLI surface",
     "public docs presence",
     "smoke verification",
+    "frozen HRC host-demo/reference-host-demo validation",
     "distribution build and install verification"
   ]
 }

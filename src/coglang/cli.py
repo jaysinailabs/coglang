@@ -789,6 +789,12 @@ def _release_check_payload() -> dict[str, Any]:
     node_consumer_readme_path, _ = _resolve_project_artifact(
         "examples/node_host_consumer/README.md",
     )
+    node_minimal_stub_run_path, _ = _resolve_project_artifact(
+        "examples/node_minimal_host_runtime_stub/run_demo.mjs",
+    )
+    node_minimal_stub_readme_path, _ = _resolve_project_artifact(
+        "examples/node_minimal_host_runtime_stub/README.md",
+    )
     license_path, _ = _resolve_project_artifact("LICENSE")
 
     distribution = _distribution_metadata()
@@ -811,6 +817,9 @@ def _release_check_payload() -> dict[str, Any]:
         .get("coglang", [])
     )
     node_consumer_packaged = "_public_assets/examples/node_host_consumer/*" in package_data
+    node_minimal_stub_packaged = (
+        "_public_assets/examples/node_minimal_host_runtime_stub/*" in package_data
+    )
 
     runtime_entry_paths = distribution["runtime_entry_paths"]
     runtime_entry_ok = _paths_exist(root, runtime_entry_paths)
@@ -950,6 +959,15 @@ def _release_check_payload() -> dict[str, Any]:
                 and node_consumer_packaged
             ),
             "detail": "examples/node_host_consumer + package data",
+        },
+        {
+            "name": "node_minimal_host_runtime_stub",
+            "ok": (
+                node_minimal_stub_run_path.exists()
+                and node_minimal_stub_readme_path.exists()
+                and node_minimal_stub_packaged
+            ),
+            "detail": "examples/node_minimal_host_runtime_stub + package data",
         },
         {
             "name": "executor_interface",

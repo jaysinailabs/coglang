@@ -10,7 +10,7 @@ Status:
 - host bridge v0.2 frozen only for the narrow typed write-envelope surface
 
 Current public language release: `v1.1.0`. Current Python distribution version: `1.1.2`.
-HRC v0.2 is frozen for the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`. A minimal Node.js standard-library consumer under `examples/node_host_consumer` reads the HRC schema pack and envelope samples without importing the Python runtime.
+HRC v0.2 is frozen for the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`. A minimal Node.js standard-library consumer under `examples/node_host_consumer` reads the HRC schema pack and envelope samples without importing the Python runtime. An experimental in-repository Node.js minimal host/runtime stub under `examples/node_minimal_host_runtime_stub` is post-freeze example evidence, not an HRC scope expansion.
 
 When to use CogLang:
 
@@ -35,6 +35,7 @@ Key design choices:
 - profile and capability boundaries so hosts can reject unsafe or unsupported execution paths early
 - HRC v0.2 typed write-envelope evidence through `host-demo` and `reference-host-demo`
 - non-Python HRC envelope consumption through `examples/node_host_consumer`
+- non-Python minimal host/runtime stub evidence through `examples/node_minimal_host_runtime_stub`, without changing HRC v0.2
 - a minimal `generation-eval` fixture for checking LLM-generated CogLang outputs against parse, canonicalization, validation, top-level-head, hallucinated-operator, and maturity summaries
 - a minimal executor interface: second implementations should start with `execute` and `validate`; Python host-local query/dict/JSON helpers are convenience APIs, not required inheritance surface
 - semantic-event audit focus: use CogLang to represent inspectable graph intents and host-visible outcomes, not every low-level model or infrastructure signal
@@ -78,4 +79,5 @@ coglang demo
 coglang host-demo
 coglang reference-host-demo
 node examples/node_host_consumer/consume_hrc_envelopes.mjs
+node examples/node_minimal_host_runtime_stub/run_demo.mjs
 ```

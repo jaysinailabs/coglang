@@ -46,6 +46,7 @@
         "test_integration.py",
         "test_local_host.py",
         "test_node_host_consumer.py",
+        "test_node_minimal_host_runtime_stub.py",
         "test_open_source_extract.py",
         "test_package_layout.py",
         "test_parser.py",
@@ -64,6 +65,11 @@
       "kind": "tree",
       "source": "examples/node_host_consumer",
       "destination": "examples/node_host_consumer"
+    },
+    {
+      "kind": "tree",
+      "source": "examples/node_minimal_host_runtime_stub",
+      "destination": "examples/node_minimal_host_runtime_stub"
     },
     {
       "kind": "file",

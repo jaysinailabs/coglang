@@ -1,7 +1,7 @@
 # CogLang Vision Proposal v0.1
 
-**Status**: public vision proposal  
-**Scope**: long-term capability direction, not a release contract  
+**Status**: public vision proposal
+**Scope**: long-term capability direction, not a release contract
 **Audience**: users, contributors, host implementers, and AI-system builders evaluating where CogLang may go next
 
 ---

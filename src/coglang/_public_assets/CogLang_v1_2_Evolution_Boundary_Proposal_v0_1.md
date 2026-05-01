@@ -1,7 +1,7 @@
 # CogLang v1.2 Evolution Boundary Proposal v0.1
 
-**Status**: public design proposal  
-**Scope**: v1.2 evolution boundary and planning discipline, not a release contract  
+**Status**: public design proposal
+**Scope**: v1.2 evolution boundary and planning discipline, not a release contract
 **Audience**: maintainers, contributors, host implementers, and AI-system builders
 
 ---
@@ -654,4 +654,3 @@ The v1.2 direction is:
 > Keep the Core kernel stable, make semantic-action preflight explicit, and let
 > formal profiles carry future AI-action domains without turning CogLang into a
 > general scripting language.
-

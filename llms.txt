@@ -4,9 +4,10 @@ CogLang is a graph-first intermediate language designed for LLM-generated graph 
 
 Status:
 
-- stable language release
+- stable `v1.1.0` language core
 - reference implementation
-- host bridge v0.2 frozen for the typed write-envelope surface
+- active experimental maintenance for host/runtime ecosystem work
+- host bridge v0.2 frozen only for the narrow typed write-envelope surface
 
 Current public language release: `v1.1.0`. Current Python distribution version: `1.1.2`.
 HRC v0.2 is frozen for the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`. A minimal Node.js standard-library consumer under `examples/node_host_consumer` reads the HRC schema pack and envelope samples without importing the Python runtime.
@@ -55,7 +56,7 @@ Core documents:
 - CogLang_Release_Notes_v1_1_0.md: stable language release commitments
 - CogLang_Vision_Proposal_v0_1.md: long-term capability proposal, including v1.2 candidate themes, graph-compute governance, and AI learning maturity
 - CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md: v1.2 planning boundary for semantic-action evolution, Core stability, profiles, effect preflight, graph budgets, and review bundles
-- CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md: minimal v1.2 vocabulary candidate for EffectSummary, GraphBudget, GraphBudgetEstimate, PreflightDecision, and budget-related errors
+- CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md: minimal v1.2 vocabulary candidate for EffectSummary, GraphBudget, GraphBudgetEstimate, PreflightDecision, and budget-related errors; not stable v1.1 syntax
 - CogLang_Contribution_Guide_v0_1.md: contribution boundaries and review expectations
 - ROADMAP.md: current direction, not a release contract
 - MAINTENANCE.md: maintenance, freeze, transfer, and archive policy

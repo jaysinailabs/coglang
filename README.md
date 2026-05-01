@@ -4,9 +4,10 @@ CogLang is a graph-first intermediate language for LLM-generated graph queries a
 
 Status:
 
-- stable language release
+- stable `v1.1.0` language core
 - reference implementation
-- host bridge v0.2 frozen for the typed write-envelope surface
+- active experimental maintenance for host/runtime ecosystem work
+- host bridge v0.2 frozen only for the narrow typed write-envelope surface
 
 Current public language release: `v1.1.0`. The current Python distribution version is `1.1.2`.
 The Host Runtime Contract v0.2 frozen scope is the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`.

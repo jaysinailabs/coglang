@@ -1,7 +1,7 @@
 # CogLang v1.2 Effect And Graph-Budget Preflight Vocabulary v0.1
 
-**Status**: public design proposal  
-**Scope**: minimal v1.2 vocabulary candidate, not a stable specification  
+**Status**: public design proposal
+**Scope**: minimal v1.2 vocabulary candidate, not a stable specification
 **Audience**: maintainers, contributors, host implementers, and AI-system builders
 
 ---
@@ -471,4 +471,3 @@ confidence, review requirements, and rejection reasons.
 This is the smallest practical step from "auditable graph expression" toward
 "auditable AI semantic-action preflight" without expanding CogLang into a
 general-purpose runtime.
-

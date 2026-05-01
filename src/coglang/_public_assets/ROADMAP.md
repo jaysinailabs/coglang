@@ -1,7 +1,7 @@
 # CogLang Roadmap
 
-**Status**: public roadmap  
-**Scope**: direction layer, not stability guarantees  
+**Status**: public roadmap
+**Scope**: direction layer, not stability guarantees
 **Audience**: readers, implementers, and contributors who want to know where `CogLang` is going next
 
 ---
@@ -28,9 +28,9 @@ It separates three levels:
 
 ## Stable v1.1.0 Release Status
 
-The current major project target is the stable `v1.1.0` release line.
+The current stable release line is `v1.1.0`.
 
-That target is not a date promise. It means the project is now focused on keeping the public language surface, package metadata, release artifacts, and documentation aligned for the stable `v1.1.0` release.
+That status is not a date promise. It means the project is now focused on keeping the public language surface, package metadata, release artifacts, and documentation aligned for the stable `v1.1.0` release line.
 
 For `v1.1.0`, the project should keep the following surfaces aligned:
 

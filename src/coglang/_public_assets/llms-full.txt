@@ -6,9 +6,10 @@ It is best understood as a language layer that can sit between a language model 
 
 Current status:
 
-- stable language release
+- stable `v1.1.0` language core
 - reference implementation
-- language core plus HRC v0.2 typed write-envelope host bridge
+- active experimental maintenance for host/runtime ecosystem work
+- HRC v0.2 frozen only for the narrow typed write-envelope host bridge
 
 Current public language release: `v1.1.0`. Current Python distribution version: `1.1.2`.
 HRC v0.2 is frozen for the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`. A minimal Node.js standard-library consumer under `examples/node_host_consumer` reads the HRC schema pack and envelope samples without importing the Python runtime.
@@ -183,7 +184,7 @@ that the packaged fixture is present and loadable.
 - `CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md`
   v1.2 planning boundary for semantic-action evolution, Core stability, profile contract packs, effect preflight, graph budgets, and review bundles.
 - `CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md`
-  Minimal v1.2 vocabulary candidate for EffectSummary, GraphBudget, GraphBudgetEstimate, PreflightDecision, and budget-related errors.
+  Minimal v1.2 vocabulary candidate for EffectSummary, GraphBudget, GraphBudgetEstimate, PreflightDecision, and budget-related errors. These names are proposal material, not stable v1.1 syntax.
 - `CogLang_Contribution_Guide_v0_1.md`
   Contribution boundaries and review expectations.
 - `ROADMAP.md`
@@ -197,4 +198,4 @@ Public-facing canonical documentation is English-first. Chinese companion transl
 
 ## One-Sentence Summary
 
-CogLang is a stable language and reference implementation for auditable LLM-produced graph operations: the kind of language you can place between a language model and a graph-backed system without losing the ability to inspect, replay, or deny any given step. Host Runtime Contract and ecosystem work remain versioned separately.
+CogLang is a stable v1.1 language core and reference implementation for auditable LLM-produced graph operations: the kind of language you can place between a language model and a graph-backed system without losing the ability to inspect, replay, or deny any given step. Host Runtime Contract and ecosystem work remain versioned separately and narrower than a complete host platform.

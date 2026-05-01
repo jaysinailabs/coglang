@@ -37,6 +37,8 @@ jobs:
           .tmp_ci_wheel/bin/python -m coglang manifest --format json
           .tmp_ci_wheel/bin/python -m coglang release-check --format json
           .tmp_ci_wheel/bin/python -m coglang smoke
+          .tmp_ci_wheel/bin/python -m coglang host-demo
+          .tmp_ci_wheel/bin/python -m coglang reference-host-demo
 
       - name: Validate installed sdist
         run: |
@@ -46,6 +48,8 @@ jobs:
           .tmp_ci_sdist/bin/python -m coglang manifest --format json
           .tmp_ci_sdist/bin/python -m coglang release-check --format json
           .tmp_ci_sdist/bin/python -m coglang smoke
+          .tmp_ci_sdist/bin/python -m coglang host-demo
+          .tmp_ci_sdist/bin/python -m coglang reference-host-demo
 
       - name: Build release bundle
         run: python -m coglang bundle
@@ -55,6 +59,11 @@ jobs:
 
       - name: Run smoke checks
         run: python -m coglang smoke
+
+      - name: Run HRC host demos
+        run: |
+          python -m coglang host-demo
+          python -m coglang reference-host-demo
 
       - name: Run conformance smoke
         run: python -m coglang conformance smoke

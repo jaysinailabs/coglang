@@ -127,9 +127,11 @@ paths. These examples are companion evidence, not an expansion of the HRC v0.2
 frozen scope.
 
 The companion/formal asset decision is recorded in
-`CogLang_HRC_Companion_Asset_Classification_v0_1.md`. The likely next steps are:
+`CogLang_HRC_Companion_Asset_Classification_v0_1.md`. Public CI now runs the
+frozen HRC evidence commands, `coglang host-demo` and
+`coglang reference-host-demo`, against both built distribution paths. The likely
+next step is:
 
-- regular public CI validation for the frozen HRC surface before each package release
 - eventually, a host example maintained outside the core runtime repository
 
 Contributions in this area are especially welcome.

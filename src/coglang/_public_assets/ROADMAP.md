@@ -140,10 +140,15 @@ Contributions in this area are especially welcome.
 
 `canonical text` is currently the stability anchor.
 
-A likely next step is to separate the human-facing rendering story more cleanly:
+`CogLang_Readable_Render_Boundary_v0_1.md` records the first public boundary
+between canonical text, display-only readable rendering, and structured
+transport envelopes.
+
+The next step is to turn that boundary into a narrow subsystem proposal:
 
 - clearer readable rendering rules
-- clearer boundaries between canonical form, readable form, and transport envelopes
+- golden examples comparing parsed value, canonical text, and readable render
+- tests proving canonicalization, parsing, and transport envelopes are unchanged
 - less ambiguity for tooling and UI consumers
 
 Contributions in this area are especially welcome.

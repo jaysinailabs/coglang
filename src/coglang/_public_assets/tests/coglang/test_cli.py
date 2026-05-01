@@ -436,6 +436,9 @@ def test_cli_manifest_payload_shape():
     assert payload["docs"]["send_carry_forward_exit_matrix"].endswith(
         "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md"
     )
+    assert payload["docs"]["readable_render_boundary"].endswith(
+        "CogLang_Readable_Render_Boundary_v0_1.md"
+    )
     assert payload["docs"]["roadmap"].endswith("ROADMAP.md")
     assert payload["docs"]["maintenance"].endswith("MAINTENANCE.md")
     assert payload["machine_readable_summaries"]["llms"].endswith("llms.txt")
@@ -461,6 +464,10 @@ def test_cli_manifest_payload_shape():
     assert (
         payload["public_release_surface"]["project_docs"]["send_carry_forward_exit_matrix"]
         == payload["docs"]["send_carry_forward_exit_matrix"]
+    )
+    assert (
+        payload["public_release_surface"]["project_docs"]["readable_render_boundary"]
+        == payload["docs"]["readable_render_boundary"]
     )
     assert (
         payload["public_release_surface"]["project_docs"]["hrc_companion_asset_classification"]
@@ -489,6 +496,7 @@ def test_cli_manifest_json_output():
     assert '"machine_readable_summaries"' in output
     assert '"reserved_operator_promotion_criteria"' in output
     assert '"send_carry_forward_exit_matrix"' in output
+    assert '"readable_render_boundary"' in output
     assert '"hrc_companion_asset_classification"' in output
     assert '"open_source_boundary"' in output
     assert '"minimal_ci_baseline"' in output
@@ -527,6 +535,11 @@ def test_cli_manifest_text_output():
     assert (
         f"send_carry_forward_exit_matrix: "
         f"{_path_in_layout('CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md', 'CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md')}"
+        in output
+    )
+    assert (
+        f"readable_render_boundary: "
+        f"{_path_in_layout('CogLang_Readable_Render_Boundary_v0_1.md', 'CogLang_Readable_Render_Boundary_v0_1.md')}"
         in output
     )
     assert (
@@ -574,6 +587,14 @@ def test_cli_bundle_payload_shape():
         _path_in_layout(
             "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md",
             "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md",
+        )
+    )
+    assert payload["public_release_surface"]["project_docs"][
+        "readable_render_boundary"
+    ].endswith(
+        _path_in_layout(
+            "CogLang_Readable_Render_Boundary_v0_1.md",
+            "CogLang_Readable_Render_Boundary_v0_1.md",
         )
     )
     assert payload["public_release_surface"]["project_docs"][
@@ -1479,6 +1500,11 @@ def test_cli_release_check_payload_shape():
         for item in payload["checks"]
     )
     assert any(
+        item["name"] == "readable_render_boundary"
+        and item["ok"] is True
+        for item in payload["checks"]
+    )
+    assert any(
         item["name"] == "hrc_companion_asset_classification"
         and item["ok"] is True
         for item in payload["checks"]
@@ -1514,6 +1540,7 @@ def test_cli_release_check_json_output():
     assert '"public_release_docs"' in output
     assert '"reserved_operator_promotion_criteria"' in output
     assert '"send_carry_forward_exit_matrix"' in output
+    assert '"readable_render_boundary"' in output
     assert '"hrc_companion_asset_classification"' in output
     assert '"open_source_boundary"' in output
     assert '"minimal_ci_baseline"' in output
@@ -1540,6 +1567,10 @@ def test_cli_release_check_text_output():
     assert (
         "send_carry_forward_exit_matrix: ok "
         "(Send carry-forward exit matrix + package data)" in output
+    )
+    assert (
+        "readable_render_boundary: ok "
+        "(readable render boundary + package data)" in output
     )
     assert (
         "hrc_companion_asset_classification: ok "
@@ -1657,7 +1688,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 51
+    assert payload["entry_count"] == 52
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -1693,6 +1724,9 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Readable_Render_Boundary_v0_1.md" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Quickstart_v1_1_0.zh-CN.md" in [
@@ -1785,7 +1819,7 @@ def test_cli_formal_open_source_readiness_payload_shape():
     ]
     assert (
         payload["gates"][0]["detail"]
-        == "public docs set + operator promotion criteria + Send exit matrix"
+        == "public docs set + operator/render boundaries"
     )
     assert (
         payload["gates"][-1]["detail"]

@@ -77,6 +77,7 @@ coglang = [
     "_public_assets/CogLang_Operator_Catalog_v1_1_0.zh-CN.md",
     "_public_assets/CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md",
     "_public_assets/CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md",
+    "_public_assets/CogLang_Readable_Render_Boundary_v0_1.md",
     "_public_assets/CogLang_Profiles_and_Capabilities_v1_1_0.md",
     "_public_assets/CogLang_Profiles_and_Capabilities_v1_1_0.zh-CN.md",
     "_public_assets/CogLang_Standalone_Install_and_Release_Guide_v0_1.md",

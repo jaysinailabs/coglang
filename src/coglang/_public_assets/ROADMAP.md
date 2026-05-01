@@ -148,8 +148,12 @@ transport envelopes.
 candidate display examples and invariants for future renderer work without
 freezing a renderer API.
 
-The next step is to decide whether those examples should become executable
-renderer tests:
+`CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md` now records the
+API, CLI, host/transport, packaging, and test gates that must be answered before
+candidate examples are promoted into implementation.
+
+The next implementation step is to draft or accept a small API proposal only
+after those gates are answered:
 
 - a small `to_readable()` or equivalent API proposal
 - tests proving canonicalization, parsing, and transport envelopes are unchanged

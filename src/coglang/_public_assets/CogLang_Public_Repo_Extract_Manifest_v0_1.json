@@ -198,6 +198,11 @@
     },
     {
       "kind": "file",
+      "source": "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
+      "destination": "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md"
+    },
+    {
+      "kind": "file",
       "source": "CogLang_Profiles_and_Capabilities_v1_1_0.md",
       "destination": "CogLang_Profiles_and_Capabilities_v1_1_0.md"
     },

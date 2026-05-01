@@ -442,6 +442,9 @@ def test_cli_manifest_payload_shape():
     assert payload["docs"]["readable_render_golden_examples"].endswith(
         "CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md"
     )
+    assert payload["docs"]["readable_render_api_promotion_checklist"].endswith(
+        "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md"
+    )
     assert payload["docs"]["roadmap"].endswith("ROADMAP.md")
     assert payload["docs"]["maintenance"].endswith("MAINTENANCE.md")
     assert payload["machine_readable_summaries"]["llms"].endswith("llms.txt")
@@ -479,6 +482,12 @@ def test_cli_manifest_payload_shape():
         == payload["docs"]["readable_render_golden_examples"]
     )
     assert (
+        payload["public_release_surface"]["project_docs"][
+            "readable_render_api_promotion_checklist"
+        ]
+        == payload["docs"]["readable_render_api_promotion_checklist"]
+    )
+    assert (
         payload["public_release_surface"]["project_docs"]["hrc_companion_asset_classification"]
         == payload["docs"]["hrc_companion_asset_classification"]
     )
@@ -507,6 +516,7 @@ def test_cli_manifest_json_output():
     assert '"send_carry_forward_exit_matrix"' in output
     assert '"readable_render_boundary"' in output
     assert '"readable_render_golden_examples"' in output
+    assert '"readable_render_api_promotion_checklist"' in output
     assert '"hrc_companion_asset_classification"' in output
     assert '"open_source_boundary"' in output
     assert '"minimal_ci_baseline"' in output
@@ -555,6 +565,11 @@ def test_cli_manifest_text_output():
     assert (
         f"readable_render_golden_examples: "
         f"{_path_in_layout('CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md', 'CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md')}"
+        in output
+    )
+    assert (
+        f"readable_render_api_promotion_checklist: "
+        f"{_path_in_layout('CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md', 'CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md')}"
         in output
     )
     assert (
@@ -618,6 +633,14 @@ def test_cli_bundle_payload_shape():
         _path_in_layout(
             "CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md",
             "CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md",
+        )
+    )
+    assert payload["public_release_surface"]["project_docs"][
+        "readable_render_api_promotion_checklist"
+    ].endswith(
+        _path_in_layout(
+            "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
+            "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
         )
     )
     assert payload["public_release_surface"]["project_docs"][
@@ -1533,6 +1556,11 @@ def test_cli_release_check_payload_shape():
         for item in payload["checks"]
     )
     assert any(
+        item["name"] == "readable_render_api_promotion_checklist"
+        and item["ok"] is True
+        for item in payload["checks"]
+    )
+    assert any(
         item["name"] == "hrc_companion_asset_classification"
         and item["ok"] is True
         for item in payload["checks"]
@@ -1570,6 +1598,7 @@ def test_cli_release_check_json_output():
     assert '"send_carry_forward_exit_matrix"' in output
     assert '"readable_render_boundary"' in output
     assert '"readable_render_golden_examples"' in output
+    assert '"readable_render_api_promotion_checklist"' in output
     assert '"hrc_companion_asset_classification"' in output
     assert '"open_source_boundary"' in output
     assert '"minimal_ci_baseline"' in output
@@ -1604,6 +1633,10 @@ def test_cli_release_check_text_output():
     assert (
         "readable_render_golden_examples: ok "
         "(readable render golden examples + package data)" in output
+    )
+    assert (
+        "readable_render_api_promotion_checklist: ok "
+        "(readable render API promotion checklist + package data)" in output
     )
     assert (
         "hrc_companion_asset_classification: ok "
@@ -1721,7 +1754,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 53
+    assert payload["entry_count"] == 54
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -1763,6 +1796,9 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Quickstart_v1_1_0.zh-CN.md" in [
@@ -1855,7 +1891,7 @@ def test_cli_formal_open_source_readiness_payload_shape():
     ]
     assert (
         payload["gates"][0]["detail"]
-        == "public docs set + operator/render boundaries and examples"
+        == "public docs set + operator/render governance"
     )
     assert (
         payload["gates"][-1]["detail"]

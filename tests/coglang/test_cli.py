@@ -420,6 +420,9 @@ def test_cli_manifest_payload_shape():
     assert payload["docs"]["hrc_v0_2_final_freeze"].endswith(
         "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md"
     )
+    assert payload["docs"]["hrc_companion_asset_classification"].endswith(
+        "CogLang_HRC_Companion_Asset_Classification_v0_1.md"
+    )
     assert payload["docs"]["vision_proposal"].endswith("CogLang_Vision_Proposal_v0_1.md")
     assert payload["docs"]["evolution_boundary_proposal"].endswith(
         "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md"
@@ -459,6 +462,10 @@ def test_cli_manifest_payload_shape():
         payload["public_release_surface"]["project_docs"]["send_carry_forward_exit_matrix"]
         == payload["docs"]["send_carry_forward_exit_matrix"]
     )
+    assert (
+        payload["public_release_surface"]["project_docs"]["hrc_companion_asset_classification"]
+        == payload["docs"]["hrc_companion_asset_classification"]
+    )
     assert payload["open_source_boundary"]["schema_version"] == "coglang-open-source-boundary/v0.1"
     assert payload["open_source_boundary"]["public_distribution_name"] == "coglang"
     assert payload["open_source_boundary"]["release_roots_exist"] is True
@@ -482,6 +489,7 @@ def test_cli_manifest_json_output():
     assert '"machine_readable_summaries"' in output
     assert '"reserved_operator_promotion_criteria"' in output
     assert '"send_carry_forward_exit_matrix"' in output
+    assert '"hrc_companion_asset_classification"' in output
     assert '"open_source_boundary"' in output
     assert '"minimal_ci_baseline"' in output
     assert '"public_repo_extract_manifest"' in output
@@ -519,6 +527,11 @@ def test_cli_manifest_text_output():
     assert (
         f"send_carry_forward_exit_matrix: "
         f"{_path_in_layout('CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md', 'CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md')}"
+        in output
+    )
+    assert (
+        f"hrc_companion_asset_classification: "
+        f"{_path_in_layout('CogLang_HRC_Companion_Asset_Classification_v0_1.md', 'CogLang_HRC_Companion_Asset_Classification_v0_1.md')}"
         in output
     )
     assert f"maintenance: {_path_in_layout('MAINTENANCE.md', 'MAINTENANCE.md')}" in output
@@ -561,6 +574,14 @@ def test_cli_bundle_payload_shape():
         _path_in_layout(
             "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md",
             "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md",
+        )
+    )
+    assert payload["public_release_surface"]["project_docs"][
+        "hrc_companion_asset_classification"
+    ].endswith(
+        _path_in_layout(
+            "CogLang_HRC_Companion_Asset_Classification_v0_1.md",
+            "CogLang_HRC_Companion_Asset_Classification_v0_1.md",
         )
     )
     assert payload["open_source_boundary"]["repository_strategy"] == "standalone_repository"
@@ -1457,6 +1478,11 @@ def test_cli_release_check_payload_shape():
         and item["ok"] is True
         for item in payload["checks"]
     )
+    assert any(
+        item["name"] == "hrc_companion_asset_classification"
+        and item["ok"] is True
+        for item in payload["checks"]
+    )
     assert any(item["name"] == "open_source_boundary" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "minimal_ci_baseline" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "public_repo_extract_manifest" and item["ok"] is True for item in payload["checks"])
@@ -1488,6 +1514,7 @@ def test_cli_release_check_json_output():
     assert '"public_release_docs"' in output
     assert '"reserved_operator_promotion_criteria"' in output
     assert '"send_carry_forward_exit_matrix"' in output
+    assert '"hrc_companion_asset_classification"' in output
     assert '"open_source_boundary"' in output
     assert '"minimal_ci_baseline"' in output
     assert '"public_repo_extract_manifest"' in output
@@ -1513,6 +1540,10 @@ def test_cli_release_check_text_output():
     assert (
         "send_carry_forward_exit_matrix: ok "
         "(Send carry-forward exit matrix + package data)" in output
+    )
+    assert (
+        "hrc_companion_asset_classification: ok "
+        "(HRC companion asset classification + package data)" in output
     )
     assert (
         f"open_source_boundary: ok "
@@ -1615,7 +1646,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 50
+    assert payload["entry_count"] == 51
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -1701,6 +1732,9 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md" in [
         item["source"] for item in payload["entries"]
     ]
+    assert "CogLang_HRC_Companion_Asset_Classification_v0_1.md" in [
+        item["source"] for item in payload["entries"]
+    ]
     assert "CogLang_Operator_Catalog_v1_1_0.zh-CN.md" in [
         item["source"] for item in payload["entries"]
     ]
@@ -1742,7 +1776,10 @@ def test_cli_formal_open_source_readiness_payload_shape():
         payload["gates"][0]["detail"]
         == "public docs set + operator promotion criteria + Send exit matrix"
     )
-    assert payload["gates"][-1]["detail"] == "HRC v0.2 final freeze record + host demos + Node consumer"
+    assert (
+        payload["gates"][-1]["detail"]
+        == "HRC v0.2 final freeze record + companion classification + host demos + Node consumer"
+    )
 
 
 def test_cli_distribution_metadata_shape():

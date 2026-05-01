@@ -50,6 +50,7 @@ Core documents:
 - CogLang_Operator_Catalog_v1_1_0.md: operator status and call-surface summary
 - CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md: evidence bar for promoting Carry-forward, Reserved, or Experimental entries
 - CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md: Send-specific promotion or downgrade evidence matrix; not a cross-instance protocol freeze
+- CogLang_HRC_Companion_Asset_Classification_v0_1.md: HRC formal versus companion asset classification; not an HRC scope expansion
 - CogLang_Standalone_Install_and_Release_Guide_v0_1.md: install, build, and local release verification
 - CogLang_Host_Runtime_Contract_v0_1.md: minimal host contract
 - CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md: host-runtime contract v0.2 frozen scope and evidence

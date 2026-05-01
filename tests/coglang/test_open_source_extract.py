@@ -43,6 +43,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
 
     assert (destination / "pyproject.toml").exists()
     assert (destination / "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md").exists()
+    assert (destination / "CogLang_HRC_Companion_Asset_Classification_v0_1.md").exists()
     assert (destination / "CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md").exists()
     assert (destination / "src" / "coglang" / "reference_host.py").exists()
     assert (destination / ".gitignore").exists()
@@ -143,6 +144,13 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         / "_public_assets"
         / "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md"
     ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "CogLang_HRC_Companion_Asset_Classification_v0_1.md"
+    ).exists()
     assert (destination / "internal_schemas" / "host_runtime" / "v0.1" / "schema-pack.json").exists()
     assert (destination / "src" / "coglang" / "cli.py").exists()
     assert (destination / "tests" / "coglang").exists()
@@ -200,6 +208,10 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         manifest["docs"]["send_carry_forward_exit_matrix"]
         == "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md"
     )
+    assert (
+        manifest["docs"]["hrc_companion_asset_classification"]
+        == "CogLang_HRC_Companion_Asset_Classification_v0_1.md"
+    )
     assert manifest["docs"]["roadmap"] == "ROADMAP.md"
     assert manifest["machine_readable_summaries"]["llms"] == "llms.txt"
     assert distribution["console_script"] == "coglang"
@@ -224,6 +236,10 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (
         installed_like_manifest["docs"]["send_carry_forward_exit_matrix"]
         == "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md"
+    )
+    assert (
+        installed_like_manifest["docs"]["hrc_companion_asset_classification"]
+        == "CogLang_HRC_Companion_Asset_Classification_v0_1.md"
     )
     assert installed_like_manifest["open_source_boundary"]["status"] != "missing"
     assert installed_like_manifest["minimal_ci_baseline"]["workflow_template_present"] is True

@@ -180,6 +180,8 @@ that the packaged fixture is present and loadable.
   Evidence bar for moving `Carry-forward`, `Reserved`, or `Experimental` entries toward a more stable surface.
 - `CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md`
   `Send`-specific promotion or downgrade evidence matrix; not a cross-instance protocol freeze.
+- `CogLang_HRC_Companion_Asset_Classification_v0_1.md`
+  HRC formal versus companion asset classification; not an HRC scope expansion.
 - `CogLang_Standalone_Install_and_Release_Guide_v0_1.md`
   Install, build, and local release verification.
 - `CogLang_Host_Runtime_Contract_v0_1.md`

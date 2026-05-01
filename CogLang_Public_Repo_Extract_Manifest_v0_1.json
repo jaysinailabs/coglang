@@ -288,6 +288,11 @@
     },
     {
       "kind": "file",
+      "source": "CogLang_HRC_Companion_Asset_Classification_v0_1.md",
+      "destination": "CogLang_HRC_Companion_Asset_Classification_v0_1.md"
+    },
+    {
+      "kind": "file",
       "source": "CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md",
       "destination": "CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md"
     },

@@ -163,6 +163,7 @@ Core documents:
 Integration and release-facing documents:
 
 - [CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md](CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md)
+- [CogLang_HRC_Companion_Asset_Classification_v0_1.md](CogLang_HRC_Companion_Asset_Classification_v0_1.md)
 - [CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md](CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md)
 - [CogLang_Host_Runtime_Contract_v0_1.md](CogLang_Host_Runtime_Contract_v0_1.md)
 - [CogLang_Standalone_Install_and_Release_Guide_v0_1.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.md)
@@ -234,6 +235,7 @@ Use the project documents this way:
 - [CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md](CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md): evidence bar for moving `Carry-forward`, `Reserved`, or `Experimental` entries toward a more stable surface.
 - [CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md](CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md): candidate-specific exit matrix for `Send`; it does not freeze cross-instance dispatch.
 - [CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md](CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md): host-runtime contract v0.2 frozen scope and evidence.
+- [CogLang_HRC_Companion_Asset_Classification_v0_1.md](CogLang_HRC_Companion_Asset_Classification_v0_1.md): classification of HRC formal scope, companion schema/examples, and historical records.
 - [CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md](CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md): prior freeze-candidate review record.
 - [ROADMAP.md](ROADMAP.md): what is prioritized or being explored.
 - [MAINTENANCE.md](MAINTENANCE.md): how the project may slow down, freeze, transfer, or archive.

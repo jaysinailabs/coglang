@@ -1378,6 +1378,12 @@ def test_cli_release_check_payload_shape():
     assert any(item["name"] == "preflight_fixture" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "generation_eval" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "node_host_consumer" and item["ok"] is True for item in payload["checks"])
+    assert any(
+        item["name"] == "executor_interface"
+        and item["ok"] is True
+        and item["detail"] == "abstract_methods=execute,validate"
+        for item in payload["checks"]
+    )
     assert payload["ok"] is True
 
 
@@ -1396,6 +1402,7 @@ def test_cli_release_check_json_output():
     assert '"preflight_fixture"' in output
     assert '"generation_eval"' in output
     assert '"node_host_consumer"' in output
+    assert '"executor_interface"' in output
 
 
 def test_cli_release_check_text_output():
@@ -1424,6 +1431,7 @@ def test_cli_release_check_text_output():
     assert "preflight_fixture: ok (9 cases)" in output
     assert "generation_eval: ok (50 cases)" in output
     assert "node_host_consumer: ok (examples/node_host_consumer + package data)" in output
+    assert "executor_interface: ok (abstract_methods=execute,validate)" in output
 
 
 def test_cli_open_source_boundary_payload_shape():

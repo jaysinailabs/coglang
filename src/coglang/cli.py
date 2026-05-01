@@ -10,7 +10,7 @@ from textwrap import dedent
 from typing import Any
 import tomllib
 
-from .executor import PythonCogLangExecutor
+from .executor import CogLangExecutor, PythonCogLangExecutor
 from .generation_eval import generation_eval_payload
 from .local_host import LocalCogLangHost, LocalHostSnapshot, LocalHostSummary
 from .parser import CogLangExpr, CogLangVar, canonicalize, parse
@@ -814,6 +814,14 @@ def _release_check_payload() -> dict[str, Any]:
 
     runtime_entry_paths = distribution["runtime_entry_paths"]
     runtime_entry_ok = _paths_exist(root, runtime_entry_paths)
+    executor_abstract_methods = sorted(CogLangExecutor.__abstractmethods__)
+    executor_interface_ok = (
+        executor_abstract_methods == ["execute", "validate"]
+        and "query_local_write_result" not in CogLangExecutor.__dict__
+        and "query_local_write_result_json" not in CogLangExecutor.__dict__
+        and callable(getattr(PythonCogLangExecutor, "query_local_write_result", None))
+        and callable(getattr(PythonCogLangExecutor, "query_local_write_result_json", None))
+    )
 
     checks = [
         {
@@ -942,6 +950,14 @@ def _release_check_payload() -> dict[str, Any]:
                 and node_consumer_packaged
             ),
             "detail": "examples/node_host_consumer + package data",
+        },
+        {
+            "name": "executor_interface",
+            "ok": executor_interface_ok,
+            "detail": (
+                "abstract_methods="
+                + ",".join(executor_abstract_methods)
+            ),
         },
     ]
     return {

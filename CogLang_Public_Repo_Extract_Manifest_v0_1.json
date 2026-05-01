@@ -50,6 +50,7 @@
         "test_package_layout.py",
         "test_parser.py",
         "test_preflight.py",
+        "test_public_assets_mirror.py",
         "test_unify.py",
         "test_validator.py"
       ]

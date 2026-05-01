@@ -76,6 +76,7 @@ Current work continues to focus on:
 - turning key semantics into golden examples
 - keeping spec, runtime, and CLI output aligned
 - reducing places where contract claims are only implied, rather than tested
+- keeping the minimal `generation-eval` fixture useful as executable evidence for AI-produced CogLang text, without presenting it as a benchmark claim
 
 Contributions in this area are especially welcome.
 

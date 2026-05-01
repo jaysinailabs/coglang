@@ -68,6 +68,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "CogLang_Operator_Catalog_v1_1_0.md").exists()
     assert (destination / "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md").exists()
     assert (destination / "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md").exists()
+    assert (destination / "CogLang_Readable_Render_Boundary_v0_1.md").exists()
     assert (destination / "CogLang_Quickstart_v1_1_0.zh-CN.md").exists()
     assert (destination / "CogLang_Specification_v1_1_0_Draft.zh-CN.md").exists()
     assert (destination / "CogLang_Conformance_Suite_v1_1_0.zh-CN.md").exists()
@@ -149,6 +150,13 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         / "src"
         / "coglang"
         / "_public_assets"
+        / "CogLang_Readable_Render_Boundary_v0_1.md"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
         / "CogLang_HRC_Companion_Asset_Classification_v0_1.md"
     ).exists()
     assert (destination / "internal_schemas" / "host_runtime" / "v0.1" / "schema-pack.json").exists()
@@ -209,6 +217,10 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         == "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md"
     )
     assert (
+        manifest["docs"]["readable_render_boundary"]
+        == "CogLang_Readable_Render_Boundary_v0_1.md"
+    )
+    assert (
         manifest["docs"]["hrc_companion_asset_classification"]
         == "CogLang_HRC_Companion_Asset_Classification_v0_1.md"
     )
@@ -236,6 +248,10 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (
         installed_like_manifest["docs"]["send_carry_forward_exit_matrix"]
         == "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md"
+    )
+    assert (
+        installed_like_manifest["docs"]["readable_render_boundary"]
+        == "CogLang_Readable_Render_Boundary_v0_1.md"
     )
     assert (
         installed_like_manifest["docs"]["hrc_companion_asset_classification"]

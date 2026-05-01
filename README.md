@@ -159,6 +159,7 @@ Core documents:
 - [CogLang_Operator_Catalog_v1_1_0.md](CogLang_Operator_Catalog_v1_1_0.md)
 - [CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md](CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md)
 - [CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md](CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md)
+- [CogLang_Readable_Render_Boundary_v0_1.md](CogLang_Readable_Render_Boundary_v0_1.md)
 
 Integration and release-facing documents:
 
@@ -234,6 +235,7 @@ Use the project documents this way:
 - [CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md](CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md): minimal v1.2 vocabulary candidate for effect and graph-budget preflight, not executable v1.1 syntax.
 - [CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md](CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md): evidence bar for moving `Carry-forward`, `Reserved`, or `Experimental` entries toward a more stable surface.
 - [CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md](CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md): candidate-specific exit matrix for `Send`; it does not freeze cross-instance dispatch.
+- [CogLang_Readable_Render_Boundary_v0_1.md](CogLang_Readable_Render_Boundary_v0_1.md): boundary between canonical text, display-only readable rendering, and structured transport envelopes; it does not implement a renderer.
 - [CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md](CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md): host-runtime contract v0.2 frozen scope and evidence.
 - [CogLang_HRC_Companion_Asset_Classification_v0_1.md](CogLang_HRC_Companion_Asset_Classification_v0_1.md): classification of HRC formal scope, companion schema/examples, and historical records.
 - [CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md](CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md): prior freeze-candidate review record.

@@ -434,6 +434,7 @@ def _public_repo_extract_manifest_payload() -> dict[str, Any]:
         "pyproject.toml",
         "README.md",
         ".gitignore",
+        ".mailmap",
         "pytest.ini",
         "src/coglang",
         "tests/coglang",

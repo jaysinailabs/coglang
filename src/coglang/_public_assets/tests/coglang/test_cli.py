@@ -1768,11 +1768,12 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 56
+    assert payload["entry_count"] == 57
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
         ".gitignore",
+        ".mailmap",
         "pytest.ini",
         "src/coglang",
         "tests/coglang",
@@ -1885,6 +1886,9 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert ".gitignore" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert ".mailmap" in [
         item["source"] for item in payload["entries"]
     ]
     assert "pytest.ini" in [

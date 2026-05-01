@@ -144,11 +144,16 @@ Contributions in this area are especially welcome.
 between canonical text, display-only readable rendering, and structured
 transport envelopes.
 
-The next step is to turn that boundary into a narrow subsystem proposal:
+`CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md` now records
+candidate display examples and invariants for future renderer work without
+freezing a renderer API.
 
-- clearer readable rendering rules
-- golden examples comparing parsed value, canonical text, and readable render
+The next step is to decide whether those examples should become executable
+renderer tests:
+
+- a small `to_readable()` or equivalent API proposal
 - tests proving canonicalization, parsing, and transport envelopes are unchanged
+- CLI/API documentation only if a public readable mode is deliberately added
 - less ambiguity for tooling and UI consumers
 
 Contributions in this area are especially welcome.

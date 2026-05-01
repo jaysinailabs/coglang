@@ -2,9 +2,9 @@
 from __future__ import annotations
 
 from .parser import CogLangExpr
-from .vocab import COGLANG_VOCAB
+from .vocab import COGLANG_VOCAB, OPAQUE_ARG_HEADS
 
-# Heads whose arguments are opaque Prolog terms, not CogLang expressions.
+# Opaque argument heads contain Prolog terms, not CogLang expressions.
 # Unify[f[X_, b], f[a, Y_]] is a valid CogLang expression; the nested f[...] are
 # Prolog functor terms (data), not CogLang sub-expressions.  Applying vocab
 # validation recursively to those args would incorrectly reject all Unify/Match
@@ -14,7 +14,6 @@ from .vocab import COGLANG_VOCAB
 # (must be in vocab) and "Prolog data position" (arbitrary functor structure).
 # The parser represents both as CogLangExpr because M-expression syntax is
 # identical; the validator is the layer that knows which positions are which.
-_OPAQUE_ARG_HEADS: frozenset[str] = frozenset({"Unify", "Match"})
 
 _SPECIAL_FORM_ARITIES: dict[str, frozenset[int]] = {
     "Do": frozenset({1}),
@@ -48,7 +47,7 @@ def valid_coglang(
        Operation node (dynamic extension via Compose[]).
     2. Argument positions are unconstrained (no vocab check on args).
     3. Nested CogLangExpr arguments are validated recursively, EXCEPT for
-       heads in _OPAQUE_ARG_HEADS (Unify, Match) whose args are Prolog terms.
+       heads in OPAQUE_ARG_HEADS (Unify, Match) whose args are Prolog terms.
 
     Args:
         expr:  The expression to validate.
@@ -72,7 +71,7 @@ def valid_coglang(
         return False
 
     # Unify/Match args are Prolog terms (opaque data).  Do not recurse into them.
-    if expr.head in _OPAQUE_ARG_HEADS:
+    if expr.head in OPAQUE_ARG_HEADS:
         return True
 
     for arg in expr.args:

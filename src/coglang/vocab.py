@@ -51,6 +51,28 @@ COGLANG_VOCAB: frozenset[str] = frozenset({
 # Total: 49 built-in Heads
 
 
+# Heads that represent callable or reserved operator surfaces. Data/value heads
+# remain in COGLANG_VOCAB but are intentionally excluded from the operator
+# catalog alignment contract.
+COGLANG_OPERATOR_HEADS: frozenset[str] = frozenset({
+    "Abstract", "AllNodes", "Assert", "Compare", "Compose",
+    "Create", "Delete", "Decompose", "Defer", "Do",
+    "Equal", "Estimate", "Explain", "Explore", "ForEach",
+    "Get", "If", "IfFound", "Inspect", "Instantiate",
+    "Match", "Merge", "Probe", "Query", "Resume",
+    "Send", "Trace", "Traverse", "Unify", "Update",
+})
+
+
+# Operator heads whose argument positions contain opaque Prolog terms rather
+# than nested CogLang program expressions. Validators must not recursively
+# enforce CogLang head vocabulary inside these argument positions.
+OPAQUE_ARG_HEADS: frozenset[str] = frozenset({
+    "Match",
+    "Unify",
+})
+
+
 # Error heads: used by executor for error propagation checks.
 ERROR_HEADS: frozenset[str] = frozenset({
     "NotFound",

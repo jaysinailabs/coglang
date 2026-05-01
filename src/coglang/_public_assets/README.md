@@ -4,11 +4,14 @@ CogLang is a graph-first intermediate language for LLM-generated graph queries a
 
 Status:
 
-- stable language release
+- stable `v1.1.0` language core
 - reference implementation
-- host bridge v0.x
+- active experimental maintenance for host/runtime ecosystem work
+- host bridge v0.2 frozen only for the narrow typed write-envelope surface
 
 Current public language release: `v1.1.0`. The current Python distribution version is `1.1.2`.
+The Host Runtime Contract v0.2 frozen scope is the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`.
+A minimal Node.js standard-library consumer is also included at `examples/node_host_consumer` to show non-Python tooling can read the HRC schema pack and envelope samples without importing the Python runtime.
 
 ## LLM Discovery Snapshot
 
@@ -18,6 +21,7 @@ When to use CogLang:
 - You need errors to stay explicit values instead of becoming hidden control-flow failures.
 - You need replayable traces for what an agent intended, submitted, and actually executed.
 - You want host-side profile and capability checks before execution.
+- You need a versioned host-runtime boundary for typed write-envelope submission and response evidence.
 
 When not to use CogLang:
 
@@ -30,7 +34,10 @@ Short runnable examples:
 ```powershell
 coglang execute 'Query[n_, Equal[Get[n_, "category"], "Person"]]'
 coglang execute 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
+coglang preflight --format text 'Create["Entity", {"category": "Person"}]'
+coglang generation-eval --summary-only
 coglang demo
+node examples/node_host_consumer/consume_hrc_envelopes.mjs
 ```
 
 Machine-readable project summaries:
@@ -58,6 +65,14 @@ If this is your first time reading CogLang, start here:
    Check executable examples and regression boundaries.
 5. [CogLang_Standalone_Install_and_Release_Guide_v0_1.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.md)
    Use this when you need standalone install, local validation, or release-facing checks.
+6. [CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md](CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md)
+   Check the frozen typed write-envelope host-runtime scope and executable evidence.
+7. [CogLang_Vision_Proposal_v0_1.md](CogLang_Vision_Proposal_v0_1.md)
+   Read the long-term capability proposal, including v1.2 candidate themes, graph-compute governance, and AI learning maturity.
+8. [CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md](CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md)
+   Read the v1.2 planning boundary for keeping Core stable while widening future semantic-action surfaces.
+9. [CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md](CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md)
+   Review the minimal v1.2 vocabulary candidate for effect summaries, graph budgets, budget estimates, and preflight decisions.
 
 If you only have 10 minutes:
 
@@ -73,6 +88,7 @@ From the stable release artifact:
 pip install coglang
 coglang info
 coglang release-check
+coglang generation-eval --summary-only
 coglang execute 'Equal[1, 1]'
 ```
 
@@ -101,6 +117,8 @@ The current minimal public command surface includes:
 - `parse`
 - `canonicalize`
 - `validate`
+- `preflight`
+- `preflight-fixture`
 - `execute`
 - `conformance`
 - `repl`
@@ -110,6 +128,7 @@ The current minimal public command surface includes:
 - `doctor`
 - `vocab`
 - `examples`
+- `generation-eval`
 - `smoke`
 - `demo`
 - `host-demo`
@@ -139,12 +158,17 @@ Core documents:
 
 Integration and release-facing documents:
 
+- [CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md](CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md)
+- [CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md](CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md)
 - [CogLang_Host_Runtime_Contract_v0_1.md](CogLang_Host_Runtime_Contract_v0_1.md)
 - [CogLang_Standalone_Install_and_Release_Guide_v0_1.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.md)
 - [CogLang_Release_Notes_v1_1_2.md](CogLang_Release_Notes_v1_1_2.md)
 - [CogLang_Release_Notes_v1_1_1.md](CogLang_Release_Notes_v1_1_1.md)
 - [CogLang_Release_Notes_v1_1_0.md](CogLang_Release_Notes_v1_1_0.md)
 - [CogLang_Contribution_Guide_v0_1.md](CogLang_Contribution_Guide_v0_1.md)
+- [CogLang_Vision_Proposal_v0_1.md](CogLang_Vision_Proposal_v0_1.md)
+- [CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md](CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md)
+- [CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md](CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md)
 - [ROADMAP.md](ROADMAP.md)
 - [MAINTENANCE.md](MAINTENANCE.md)
 
@@ -177,6 +201,7 @@ The highest-value contributions are currently:
 - conformance examples that pin down existing semantics
 - documentation fixes that improve the first-run experience
 - host integration examples that keep language semantics separate from host policy
+- minimal executor examples that implement `execute` and `validate` without copying Python host-local helpers
 - small CLI or packaging improvements that improve repeatable validation
 
 For local test development, install the development extras:
@@ -198,6 +223,9 @@ Use the project documents this way:
 
 - [CogLang_Release_Notes_v1_1_2.md](CogLang_Release_Notes_v1_1_2.md): latest Python package patch notes.
 - [CogLang_Release_Notes_v1_1_0.md](CogLang_Release_Notes_v1_1_0.md): stable language release commitments.
+- [CogLang_Vision_Proposal_v0_1.md](CogLang_Vision_Proposal_v0_1.md): long-term capability proposal, not a release contract.
+- [CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md](CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md): v1.2 planning boundary for semantic-action evolution, not a stable specification.
+- [CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md](CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md): minimal v1.2 vocabulary candidate for effect and graph-budget preflight, not executable v1.1 syntax.
 - [CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md](CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md): host-runtime contract v0.2 frozen scope and evidence.
 - [CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md](CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md): prior freeze-candidate review record.
 - [ROADMAP.md](ROADMAP.md): what is prioritized or being explored.

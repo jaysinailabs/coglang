@@ -1,0 +1,159 @@
+{
+  "schema_version": "coglang-preflight-fixture/v0.1",
+  "name": "minimal-v1-2-candidate-preflight-fixture",
+  "description": "Small deterministic fixture for the v1.2-candidate effect and graph-budget preflight vocabulary. It does not execute expressions and is not a runtime safety proof.",
+  "cases": [
+    {
+      "case_id": "PF-001",
+      "description": "Bounded graph read with static cardinality caveat.",
+      "expression": "Query[n_, Equal[Get[n_, \"category\"], \"Person\"]]",
+      "correlation_id": "preflight-fixture-001",
+      "expected": {
+        "decision": "accepted_with_warnings",
+        "required_review": false,
+        "reasons": ["effect.graph_read", "budget.within_default"],
+        "effects": ["graph.read"],
+        "required_capabilities": ["graph.read"],
+        "possible_errors": [],
+        "estimate_confidence": "estimated"
+      }
+    },
+    {
+      "case_id": "PF-002",
+      "description": "Graph write requires review by default.",
+      "expression": "Create[\"Entity\", {\"id\": \"ada\", \"category\": \"Person\"}]",
+      "correlation_id": "preflight-fixture-002",
+      "expected": {
+        "decision": "requires_review",
+        "required_review": true,
+        "reasons": ["effect.graph_write", "policy.review_required"],
+        "effects": ["graph.write", "host.policy", "human.review"],
+        "required_capabilities": ["graph.write"],
+        "possible_errors": ["CapabilityRequired", "ReviewRequired"],
+        "estimate_confidence": "known"
+      }
+    },
+    {
+      "case_id": "PF-003",
+      "description": "Traversal requires host graph statistics before automatic execution.",
+      "expression": "Traverse[\"einstein\", \"born_in\"]",
+      "correlation_id": "preflight-fixture-003",
+      "expected": {
+        "decision": "cannot_estimate",
+        "required_review": true,
+        "reasons": ["budget.traversal_unbounded", "host.index_unknown"],
+        "effects": ["graph.read", "graph.traverse", "host.policy", "human.review"],
+        "required_capabilities": ["graph.read"],
+        "possible_errors": ["TraversalLimitExceeded", "HostCostUnsupported"],
+        "estimate_confidence": "unknown"
+      }
+    },
+    {
+      "case_id": "PF-004",
+      "description": "A traversal depth budget of zero rejects one Traverse before runtime.",
+      "expression": "Traverse[\"einstein\", \"born_in\"]",
+      "correlation_id": "preflight-fixture-004",
+      "budget": {
+        "max_traversal_depth": 0,
+        "host_cost_class": "closed"
+      },
+      "expected": {
+        "decision": "rejected",
+        "required_review": false,
+        "reasons": ["budget.traversal_depth_exceeded"],
+        "effects": ["graph.read", "graph.traverse"],
+        "required_capabilities": ["graph.read"],
+        "possible_errors": ["TraversalLimitExceeded", "BudgetExceeded"],
+        "estimate_confidence": "unknown"
+      }
+    },
+    {
+      "case_id": "PF-005",
+      "description": "Unknown heads are rejected by static validation before runtime.",
+      "expression": "UnknownHead[]",
+      "correlation_id": "preflight-fixture-005",
+      "expected": {
+        "decision": "rejected",
+        "required_review": false,
+        "reasons": ["validation.invalid"],
+        "effects": ["pure"],
+        "required_capabilities": [],
+        "possible_errors": ["TypeError"],
+        "estimate_confidence": "known"
+      }
+    },
+    {
+      "case_id": "PF-006",
+      "description": "Parse errors are rejected before any effect or budget estimate is trusted.",
+      "expression": "Query[n_, Equal[Get[n_, \"category\"], \"Person\"]",
+      "correlation_id": "preflight-fixture-006",
+      "expected": {
+        "decision": "rejected",
+        "required_review": false,
+        "reasons": ["parse.error"],
+        "effects": ["pure"],
+        "required_capabilities": [],
+        "possible_errors": ["ParseError"],
+        "estimate_confidence": "not_supported"
+      }
+    },
+    {
+      "case_id": "PF-007",
+      "description": "Hosts that provide a capability manifest reject missing write capability before review.",
+      "expression": "Create[\"Entity\", {\"id\": \"ada\", \"category\": \"Person\"}]",
+      "correlation_id": "preflight-fixture-007",
+      "enabled_capabilities": ["graph.read"],
+      "expected": {
+        "decision": "rejected",
+        "required_review": false,
+        "reasons": ["capability.missing", "capability.missing.graph_write"],
+        "effects": ["graph.write"],
+        "required_capabilities": ["graph.write"],
+        "possible_errors": ["CapabilityRequired"],
+        "estimate_confidence": "known"
+      }
+    },
+    {
+      "case_id": "PF-008",
+      "description": "Known one-result graph reads reject when a host declares a zero result budget.",
+      "expression": "Get[\"ada\", \"category\"]",
+      "correlation_id": "preflight-fixture-008",
+      "budget": {
+        "max_result_count": 0,
+        "host_cost_class": "closed"
+      },
+      "expected": {
+        "decision": "rejected",
+        "required_review": false,
+        "reasons": ["budget.result_count_exceeded"],
+        "effects": ["graph.read"],
+        "required_capabilities": ["graph.read"],
+        "possible_errors": ["BudgetExceeded", "ResultLimitExceeded"],
+        "estimate_confidence": "known"
+      }
+    },
+    {
+      "case_id": "PF-009",
+      "description": "Known one-branch unification rejects when a host declares a zero unification budget.",
+      "expression": "Unify[f[X_, b], f[a, Y_]]",
+      "correlation_id": "preflight-fixture-009",
+      "budget": {
+        "max_unification_branches": 0,
+        "host_cost_class": "closed"
+      },
+      "expected": {
+        "decision": "rejected",
+        "required_review": false,
+        "reasons": ["budget.unification_branches_exceeded"],
+        "effects": ["graph.unify"],
+        "required_capabilities": ["graph.unify"],
+        "possible_errors": [
+          "UnificationBranchLimitExceeded",
+          "BudgetExceeded",
+          "UnificationLimitExceeded"
+        ],
+        "estimate_confidence": "known"
+      }
+    }
+  ]
+}

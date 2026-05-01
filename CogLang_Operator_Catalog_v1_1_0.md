@@ -93,6 +93,14 @@ The following directions must not be treated as stable operators that are availa
 | Direction | Status | Notes |
 |-----------|--------|-------|
 | `Inspect` | `Reserved` | Object-structure inspection boundaries are described, but the default implementation may remain a stub. |
+| `Instantiate` | `Reserved` | Preset shortcut head retained in the static vocabulary; semantics are not promoted to Core in `v1.1`. |
+| `Probe` | `Reserved` | Preset shortcut head retained in the static vocabulary; semantics are not promoted to Core in `v1.1`. |
+| `Explore` | `Reserved` | Preset shortcut head retained in the static vocabulary; semantics are not promoted to Core in `v1.1`. |
+| `Estimate` | `Reserved` | Preset shortcut head retained in the static vocabulary; semantics are not promoted to Core in `v1.1`. |
+| `Decompose` | `Reserved` | Preset shortcut head retained in the static vocabulary; semantics are not promoted to Core in `v1.1`. |
+| `Defer` | `Reserved` | Preset shortcut head retained in the static vocabulary; semantics are not promoted to Core in `v1.1`. |
+| `Resume` | `Reserved` | Preset shortcut head retained in the static vocabulary; semantics are not promoted to Core in `v1.1`. |
+| `Merge` | `Reserved` | Preset shortcut head retained in the static vocabulary; semantics are not promoted to Core in `v1.1`. |
 | Non-default `Query.mode` | `Reserved` | A default implementation is not required. |
 | Query `cost / gain` meta-reasoning interfaces | `Reserved` | Key names are reserved. The complete schema is not frozen. |
 | Rule candidate envelope | `Reserved` | Reserved as a bridge point for downstream rule-induction and validation stages. |

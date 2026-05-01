@@ -93,6 +93,14 @@
 | 方向 | Status | 备注 |
 |------|----------|------|
 | `Inspect` | `Reserved` | 对象结构检视边界已写明，默认实现仍可留桩 |
+| `Instantiate` | `Reserved` | 静态词表保留的 preset shortcut head；`v1.1` 不提升为 Core 语义 |
+| `Probe` | `Reserved` | 静态词表保留的 preset shortcut head；`v1.1` 不提升为 Core 语义 |
+| `Explore` | `Reserved` | 静态词表保留的 preset shortcut head；`v1.1` 不提升为 Core 语义 |
+| `Estimate` | `Reserved` | 静态词表保留的 preset shortcut head；`v1.1` 不提升为 Core 语义 |
+| `Decompose` | `Reserved` | 静态词表保留的 preset shortcut head；`v1.1` 不提升为 Core 语义 |
+| `Defer` | `Reserved` | 静态词表保留的 preset shortcut head；`v1.1` 不提升为 Core 语义 |
+| `Resume` | `Reserved` | 静态词表保留的 preset shortcut head；`v1.1` 不提升为 Core 语义 |
+| `Merge` | `Reserved` | 静态词表保留的 preset shortcut head；`v1.1` 不提升为 Core 语义 |
 | 非默认 `Query.mode` | `Reserved` | 不要求默认实现 |
 | 查询 `cost / gain` 相关元推理接口 | `Reserved` | 键名已预留，完整 schema 未冻结 |
 | 规则候选 envelope | `Reserved` | 为后续规则归纳与验证阶段预留桥接点 |

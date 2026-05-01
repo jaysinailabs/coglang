@@ -59,6 +59,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 coglang = [
+    "eval_fixtures/*.json",
     "_public_assets/pyproject.toml",
     "_public_assets/LICENSE",
     "_public_assets/README.md",
@@ -86,6 +87,9 @@ coglang = [
     "_public_assets/CogLang_Release_Notes_v1_1_1.zh-CN.md",
     "_public_assets/CogLang_Release_Notes_v1_1_0_pre.md",
     "_public_assets/CogLang_Release_Notes_v1_1_0_pre.zh-CN.md",
+    "_public_assets/CogLang_Vision_Proposal_v0_1.md",
+    "_public_assets/CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md",
+    "_public_assets/CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md",
     "_public_assets/CogLang_Contribution_Guide_v0_1.md",
     "_public_assets/CogLang_Contribution_Guide_v0_1.zh-CN.md",
     "_public_assets/CogLang_Host_Runtime_Contract_v0_1.md",
@@ -102,4 +106,5 @@ coglang = [
     "_public_assets/tests/coglang/*.py",
     "_public_assets/internal_schemas/host_runtime/v0.1/*.json",
     "_public_assets/internal_schemas/host_runtime/v0.1/examples/*.json",
+    "_public_assets/examples/node_host_consumer/*",
 ]

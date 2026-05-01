@@ -45,6 +45,21 @@ def _var_key(var: CogLangVar) -> str:
     return name[0].upper() + name[1:]
 
 
+def _typed_to_dict(value: Any | None) -> Optional[dict[str, Any]]:
+    """Return a typed object's dict envelope while preserving missing lookups."""
+    return None if value is None else value.to_dict()
+
+
+def _typed_to_json(value: Any | None) -> Optional[str]:
+    """Return a typed object's JSON envelope while preserving missing lookups."""
+    return None if value is None else value.to_json()
+
+
+def _typed_list_to_dicts(values: list[Any]) -> list[dict[str, Any]]:
+    """Return dict envelopes for a homogeneous typed-object list."""
+    return [value.to_dict() for value in values]
+
+
 # ---------------------------------------------------------------------------
 # Observer protocol (S2c-1)
 # ---------------------------------------------------------------------------
@@ -72,7 +87,14 @@ class NullObserver(Observer):
 # ---------------------------------------------------------------------------
 
 class CogLangExecutor(ABC):
-    """Abstract CogLang execution engine interface."""
+    """Minimal abstract CogLang execution engine interface.
+
+    This ABC intentionally covers only the semantic executor surface that a
+    second implementation must provide. Host-local query helpers, dict/JSON
+    export variants, and submission-id lookup conveniences belong on concrete
+    runtimes such as PythonCogLangExecutor; they are not inheritance
+    requirements for every executor implementation.
+    """
 
     @abstractmethod
     def execute(self, expr: Any) -> Any:
@@ -82,431 +104,36 @@ class CogLangExecutor(ABC):
     def validate(self, expr: Any) -> bool:
         """Return True if expr is a structurally valid CogLang expression."""
 
-    @abstractmethod
     def execute_with_write_bundle_candidate(
         self, expr: Any, env: Optional[dict] = None
     ) -> tuple[Any, Optional[WriteBundleCandidate]]:
-        """Evaluate expr and return (result, write_bundle_candidate)."""
+        """Evaluate expr and return (result, write_bundle_candidate).
 
-    @abstractmethod
+        Minimal executor implementations are not required to support local
+        write-bundle candidates. Runtimes that need env-aware execution or
+        write-candidate capture should override this method.
+        """
+        return self.execute(expr), self.peek_write_bundle_candidate()
+
     def peek_write_bundle_candidate(self) -> Optional[WriteBundleCandidate]:
         """Return the most recent write bundle candidate without consuming it."""
+        return None
 
-    @abstractmethod
     def consume_write_bundle_candidate(self) -> Optional[WriteBundleCandidate]:
         """Return and clear the most recent write bundle candidate."""
+        return None
 
-    @abstractmethod
     def validate_write_bundle_candidate(
         self, candidate: Optional[WriteBundleCandidate] = None
     ) -> tuple[bool, list[str]]:
         """Validate a write bundle candidate against the current graph snapshot."""
-
-    @abstractmethod
-    def prepare_write_bundle_submission_payload(
-        self,
-        correlation_id: Optional[str] = None,
-        metadata: Optional[dict[str, Any]] = None,
-        consume: bool = False,
-    ) -> Optional[dict[str, Any]]:
-        """Return a transport-safe submission payload for the latest write bundle candidate."""
-
-    @abstractmethod
-    def prepare_write_bundle_submission_message(
-        self,
-        correlation_id: Optional[str] = None,
-        metadata: Optional[dict[str, Any]] = None,
-        consume: bool = False,
-    ) -> Optional[WriteBundleSubmissionMessage]:
-        """Return a typed submission message object for the latest write bundle candidate."""
-
-    @abstractmethod
-    def apply_write_bundle_candidate(
-        self,
-        candidate: Optional[WriteBundleCandidate] = None,
-        consume: bool = False,
-    ) -> Optional[WriteBundleSubmissionResult]:
-        """Validate and locally apply a write bundle candidate against the current backend."""
-
-    @abstractmethod
-    def submit_write_bundle_submission_message_local(
-        self,
-        message: WriteBundleSubmissionMessage,
-    ) -> WriteResult | ErrorReport:
-        """Submit a typed write message locally and return a typed response object."""
-
-    @abstractmethod
-    def submit_write_bundle_candidate_local_message(
-        self,
-        candidate: Optional[WriteBundleCandidate] = None,
-        correlation_id: Optional[str] = None,
-        metadata: Optional[dict[str, Any]] = None,
-        consume: bool = False,
-    ) -> Optional[WriteBundleResponseMessage]:
-        """Return a local typed response envelope for the given bundle candidate."""
-
-    @abstractmethod
-    def submit_write_bundle_submission_message_local_message(
-        self,
-        message: WriteBundleSubmissionMessage,
-        metadata: Optional[dict[str, Any]] = None,
-    ) -> WriteBundleResponseMessage:
-        """Submit a typed write message locally and return a typed response envelope."""
-
-    @abstractmethod
-    def submit_write_bundle_candidate_local(
-        self,
-        candidate: Optional[WriteBundleCandidate] = None,
-        correlation_id: Optional[str] = None,
-        consume: bool = False,
-    ) -> Optional[WriteResult | ErrorReport]:
-        """Return a local architecture-shaped write receipt for the given bundle candidate."""
-
-    @abstractmethod
-    def query_local_write_status(self, correlation_id: str) -> str:
-        """Return committed / failed / not_found for a previously submitted local write."""
-
-    @abstractmethod
-    def clear_local_write_state(self) -> None:
-        """Clear locally recorded write responses, records, and query state."""
-
-    @abstractmethod
-    def query_local_write_result(self, correlation_id: str) -> LocalWriteQueryResult:
-        """Return a typed provenance-style local query result for one correlation_id."""
-
-    @abstractmethod
-    def query_local_write_result_by_submission_id(
-        self, submission_id: str
-    ) -> LocalWriteQueryResult:
-        """Return a typed provenance-style local query result for one submission_id."""
-
-    @abstractmethod
-    def query_local_write_result_dict(
-        self, correlation_id: str
-    ) -> dict[str, Any]:
-        """Return a transport-safe dict form of the local query result for one correlation_id."""
-
-    @abstractmethod
-    def query_local_write_result_dict_by_submission_id(
-        self, submission_id: str
-    ) -> dict[str, Any]:
-        """Return a transport-safe dict form of the local query result for one submission_id."""
-
-    @abstractmethod
-    def query_local_write_result_json(self, correlation_id: str) -> str:
-        """Return a JSON form of the local query result for one correlation_id."""
-
-    @abstractmethod
-    def query_local_write_result_json_by_submission_id(
-        self, submission_id: str
-    ) -> str:
-        """Return a JSON form of the local query result for one submission_id."""
-
-    @abstractmethod
-    def query_local_write_header(self, correlation_id: str) -> LocalWriteHeader:
-        """Return a typed minimal local write header for one correlation_id."""
-
-    @abstractmethod
-    def query_local_write_header_by_submission_id(
-        self, submission_id: str
-    ) -> LocalWriteHeader:
-        """Return a typed minimal local write header for one submission_id."""
-
-    @abstractmethod
-    def query_local_write_payload_kind(self, correlation_id: str) -> Optional[str]:
-        """Return the minimal payload kind for one correlation_id, if present."""
-
-    @abstractmethod
-    def query_local_write_payload_kind_by_submission_id(
-        self, submission_id: str
-    ) -> Optional[str]:
-        """Return the minimal payload kind for one submission_id, if present."""
-
-    @abstractmethod
-    def query_local_write_header_dict(self, correlation_id: str) -> dict[str, Any]:
-        """Return a transport-safe dict form of the local write header for one correlation_id."""
-
-    @abstractmethod
-    def query_local_write_header_dict_by_submission_id(
-        self, submission_id: str
-    ) -> dict[str, Any]:
-        """Return a transport-safe dict form of the local write header for one submission_id."""
-
-    @abstractmethod
-    def query_local_write_header_json(self, correlation_id: str) -> str:
-        """Return a JSON form of the local write header for one correlation_id."""
-
-    @abstractmethod
-    def query_local_write_header_json_by_submission_id(
-        self, submission_id: str
-    ) -> str:
-        """Return a JSON form of the local write header for one submission_id."""
-
-    @abstractmethod
-    def export_local_write_headers(self) -> list[LocalWriteHeader]:
-        """Return typed local write headers in insertion order."""
-
-    @abstractmethod
-    def query_local_write_headers(
-        self, status: Optional[str] = None
-    ) -> list[LocalWriteHeader]:
-        """Return typed local write headers, optionally filtered by status."""
-
-    @abstractmethod
-    def export_local_write_headers_json(self) -> str:
-        """Return typed local write headers in JSON form."""
-
-    @abstractmethod
-    def query_local_write_headers_json(self, status: Optional[str] = None) -> str:
-        """Return typed local write headers in JSON form, optionally filtered by status."""
-
-    @abstractmethod
-    def export_local_write_header_history(self) -> list[dict[str, Any]]:
-        """Return transport-safe local write headers in insertion order."""
-
-    @abstractmethod
-    def export_local_write_header_history_by_status(
-        self, status: str
-    ) -> list[dict[str, Any]]:
-        """Return transport-safe local write headers filtered by one status."""
-
-    @abstractmethod
-    def export_local_write_header_history_json(self) -> str:
-        """Return JSON-form local write headers in insertion order."""
-
-    @abstractmethod
-    def export_local_write_header_history_json_by_status(
-        self, status: str
-    ) -> str:
-        """Return JSON-form local write headers filtered by one status."""
-
-    @abstractmethod
-    def peek_local_write_response_message(
-        self, correlation_id: str
-    ) -> Optional[WriteBundleResponseMessage]:
-        """Return the local typed response envelope for a prior correlation_id, if present."""
-
-    @abstractmethod
-    def peek_local_write_response_message_by_submission_id(
-        self, submission_id: str
-    ) -> Optional[WriteBundleResponseMessage]:
-        """Return the local typed response envelope for a prior submission_id, if present."""
-
-    @abstractmethod
-    def query_local_write_response_message_dict(
-        self, correlation_id: str
-    ) -> Optional[dict[str, Any]]:
-        """Return a transport-safe dict form of the local response envelope, if present."""
-
-    @abstractmethod
-    def query_local_write_response_message_dict_by_submission_id(
-        self, submission_id: str
-    ) -> Optional[dict[str, Any]]:
-        """Return a transport-safe dict form of the local response envelope for one submission_id."""
-
-    @abstractmethod
-    def query_local_write_response_message_json(
-        self, correlation_id: str
-    ) -> Optional[str]:
-        """Return a JSON form of the local response envelope, if present."""
-
-    @abstractmethod
-    def query_local_write_response_message_json_by_submission_id(
-        self, submission_id: str
-    ) -> Optional[str]:
-        """Return a JSON form of the local response envelope for one submission_id."""
-
-    @abstractmethod
-    def peek_local_write_submission_message(
-        self, correlation_id: str
-    ) -> Optional[WriteBundleSubmissionMessage]:
-        """Return the local typed submission message for a prior correlation_id, if present."""
-
-    @abstractmethod
-    def peek_local_write_submission_message_by_submission_id(
-        self, submission_id: str
-    ) -> Optional[WriteBundleSubmissionMessage]:
-        """Return the local typed submission message for a prior submission_id, if present."""
-
-    @abstractmethod
-    def query_local_write_submission_message_dict(
-        self, correlation_id: str
-    ) -> Optional[dict[str, Any]]:
-        """Return a transport-safe dict form of the local submission message, if present."""
-
-    @abstractmethod
-    def query_local_write_submission_message_dict_by_submission_id(
-        self, submission_id: str
-    ) -> Optional[dict[str, Any]]:
-        """Return a transport-safe dict form of the local submission message for one submission_id."""
-
-    @abstractmethod
-    def query_local_write_submission_message_json(
-        self, correlation_id: str
-    ) -> Optional[str]:
-        """Return a JSON form of the local submission message, if present."""
-
-    @abstractmethod
-    def query_local_write_submission_message_json_by_submission_id(
-        self, submission_id: str
-    ) -> Optional[str]:
-        """Return a JSON form of the local submission message for one submission_id."""
-
-    @abstractmethod
-    def peek_local_write_submission_record(
-        self, correlation_id: str
-    ) -> Optional[LocalWriteSubmissionRecord]:
-        """Return the local request/response record for a prior correlation_id, if present."""
-
-    @abstractmethod
-    def peek_local_write_submission_record_by_submission_id(
-        self, submission_id: str
-    ) -> Optional[LocalWriteSubmissionRecord]:
-        """Return the local request/response record for a prior submission_id, if present."""
-
-    @abstractmethod
-    def query_local_write_submission_record_dict(
-        self, correlation_id: str
-    ) -> Optional[dict[str, Any]]:
-        """Return a transport-safe dict form of the local submission record, if present."""
-
-    @abstractmethod
-    def query_local_write_submission_record_dict_by_submission_id(
-        self, submission_id: str
-    ) -> Optional[dict[str, Any]]:
-        """Return a transport-safe dict form of the local submission record for one submission_id."""
-
-    @abstractmethod
-    def query_local_write_submission_record_json(
-        self, correlation_id: str
-    ) -> Optional[str]:
-        """Return a JSON form of the local submission record, if present."""
-
-    @abstractmethod
-    def query_local_write_submission_record_json_by_submission_id(
-        self, submission_id: str
-    ) -> Optional[str]:
-        """Return a JSON form of the local submission record for one submission_id."""
-
-    @abstractmethod
-    def export_local_write_submission_history(self) -> list[dict[str, Any]]:
-        """Return all recorded local submission records in insertion order."""
-
-    @abstractmethod
-    def export_local_write_submission_history_json(self) -> str:
-        """Return all recorded local submission records in JSON form."""
-
-    @abstractmethod
-    def export_local_write_response_history(self) -> list[dict[str, Any]]:
-        """Return all recorded local response envelopes in insertion order."""
-
-    @abstractmethod
-    def export_local_write_response_history_json(self) -> str:
-        """Return all recorded local response envelopes in JSON form."""
-
-    @abstractmethod
-    def export_local_write_submission_messages(self) -> list[WriteBundleSubmissionMessage]:
-        """Return all recorded local submission messages in insertion order."""
-
-    @abstractmethod
-    def export_local_write_submission_message_history(self) -> list[dict[str, Any]]:
-        """Return all recorded local submission messages in insertion order."""
-
-    @abstractmethod
-    def export_local_write_submission_message_history_json(self) -> str:
-        """Return all recorded local submission messages in JSON form."""
-
-    @abstractmethod
-    def export_local_write_query_results(self) -> list[dict[str, Any]]:
-        """Return all local write query results in insertion order."""
-
-    @abstractmethod
-    def export_local_write_query_results_json(self) -> str:
-        """Return all local write query results in JSON form."""
-
-    @abstractmethod
-    def query_local_write_results(
-        self, status: Optional[str] = None
-    ) -> list[LocalWriteQueryResult]:
-        """Return typed local write query results, optionally filtered by status."""
-
-    @abstractmethod
-    def export_local_write_query_results_by_status(
-        self, status: str
-    ) -> list[dict[str, Any]]:
-        """Return transport-safe local write query results filtered by one status."""
-
-    @abstractmethod
-    def export_local_write_query_results_json_by_status(self, status: str) -> str:
-        """Return JSON-form local write query results filtered by one status."""
-
-    @abstractmethod
-    def export_local_write_submission_history_by_status(
-        self, status: str
-    ) -> list[dict[str, Any]]:
-        """Return recorded local submission records filtered by one status."""
-
-    @abstractmethod
-    def export_local_write_submission_history_json_by_status(
-        self, status: str
-    ) -> str:
-        """Return JSON-form local submission records filtered by one status."""
-
-    @abstractmethod
-    def export_local_write_response_history_by_status(
-        self, status: str
-    ) -> list[dict[str, Any]]:
-        """Return recorded local response envelopes filtered by one status."""
-
-    @abstractmethod
-    def export_local_write_response_history_json_by_status(
-        self, status: str
-    ) -> str:
-        """Return JSON-form local response envelopes filtered by one status."""
-
-    @abstractmethod
-    def export_local_write_submission_message_history_by_status(
-        self, status: str
-    ) -> list[dict[str, Any]]:
-        """Return recorded local submission messages filtered by one status."""
-
-    @abstractmethod
-    def export_local_write_submission_message_history_json_by_status(
-        self, status: str
-    ) -> str:
-        """Return JSON-form local submission messages filtered by one status."""
-
-    @abstractmethod
-    def query_local_write_trace_dict(
-        self, correlation_id: str
-    ) -> Optional[dict[str, Any]]:
-        """Return a transport-safe dict form of the local write trace, if present."""
-
-    @abstractmethod
-    def query_local_write_trace_dict_by_submission_id(
-        self, submission_id: str
-    ) -> Optional[dict[str, Any]]:
-        """Return a transport-safe dict form of the local write trace for one submission_id."""
-
-    @abstractmethod
-    def query_local_write_trace_json(
-        self, correlation_id: str
-    ) -> Optional[str]:
-        """Return a JSON form of the local write trace, if present."""
-
-    @abstractmethod
-    def query_local_write_trace_json_by_submission_id(
-        self, submission_id: str
-    ) -> Optional[str]:
-        """Return a JSON form of the local write trace for one submission_id."""
-
-    @abstractmethod
-    def export_local_write_trace_history_json(self) -> str:
-        """Return JSON-form local write traces in insertion order."""
-
-    @abstractmethod
-    def export_local_write_trace_history_json_by_status(self, status: str) -> str:
-        """Return JSON-form local write traces filtered by one status."""
+        if candidate is None:
+            return True, []
+        return False, ["write bundle candidates are not supported by this executor"]
+
+    def set_observer(self, observer: Observer) -> None:
+        """Inject an execution observer when a concrete runtime exposes one."""
+        self.observer = observer
 
 
 # ---------------------------------------------------------------------------
@@ -933,12 +560,12 @@ class PythonCogLangExecutor(CogLangExecutor):
         )
 
     def export_local_write_header_history(self) -> list[dict[str, Any]]:
-        return [item.to_dict() for item in self.export_local_write_headers()]
+        return _typed_list_to_dicts(self.export_local_write_headers())
 
     def export_local_write_header_history_by_status(
         self, status: str
     ) -> list[dict[str, Any]]:
-        return [item.to_dict() for item in self.query_local_write_headers(status=status)]
+        return _typed_list_to_dicts(self.query_local_write_headers(status=status))
 
     def export_local_write_header_history_json(self) -> str:
         return self.export_local_write_headers_json()
@@ -975,30 +602,22 @@ class PythonCogLangExecutor(CogLangExecutor):
     def query_local_write_trace_dict(
         self, correlation_id: str
     ) -> Optional[dict[str, Any]]:
-        trace = self.query_local_write_trace(correlation_id)
-        return None if trace is None else trace.to_dict()
+        return _typed_to_dict(self.query_local_write_trace(correlation_id))
 
     def query_local_write_trace_dict_by_submission_id(
         self, submission_id: str
     ) -> Optional[dict[str, Any]]:
-        trace = self.query_local_write_trace_by_submission_id(submission_id)
-        return None if trace is None else trace.to_dict()
+        return _typed_to_dict(self.query_local_write_trace_by_submission_id(submission_id))
 
     def query_local_write_trace_json(
         self, correlation_id: str
     ) -> Optional[str]:
-        trace = self.query_local_write_trace(correlation_id)
-        if trace is None:
-            return None
-        return trace.to_json()
+        return _typed_to_json(self.query_local_write_trace(correlation_id))
 
     def query_local_write_trace_json_by_submission_id(
         self, submission_id: str
     ) -> Optional[str]:
-        trace = self.query_local_write_trace_by_submission_id(submission_id)
-        if trace is None:
-            return None
-        return trace.to_json()
+        return _typed_to_json(self.query_local_write_trace_by_submission_id(submission_id))
 
     def peek_local_write_response_message(
         self, correlation_id: str
@@ -1014,30 +633,26 @@ class PythonCogLangExecutor(CogLangExecutor):
     def query_local_write_response_message_dict(
         self, correlation_id: str
     ) -> Optional[dict[str, Any]]:
-        response = self.peek_local_write_response_message(correlation_id)
-        return None if response is None else response.to_dict()
+        return _typed_to_dict(self.peek_local_write_response_message(correlation_id))
 
     def query_local_write_response_message_dict_by_submission_id(
         self, submission_id: str
     ) -> Optional[dict[str, Any]]:
-        record = self.peek_local_write_submission_record_by_submission_id(submission_id)
-        return None if record is None else record.response.to_dict()
+        return _typed_to_dict(
+            self.peek_local_write_response_message_by_submission_id(submission_id)
+        )
 
     def query_local_write_response_message_json(
         self, correlation_id: str
     ) -> Optional[str]:
-        response = self.peek_local_write_response_message(correlation_id)
-        if response is None:
-            return None
-        return response.to_json()
+        return _typed_to_json(self.peek_local_write_response_message(correlation_id))
 
     def query_local_write_response_message_json_by_submission_id(
         self, submission_id: str
     ) -> Optional[str]:
-        response = self.peek_local_write_response_message_by_submission_id(submission_id)
-        if response is None:
-            return None
-        return response.to_json()
+        return _typed_to_json(
+            self.peek_local_write_response_message_by_submission_id(submission_id)
+        )
 
     def peek_local_write_submission_message(
         self, correlation_id: str
@@ -1054,30 +669,26 @@ class PythonCogLangExecutor(CogLangExecutor):
     def query_local_write_submission_message_dict(
         self, correlation_id: str
     ) -> Optional[dict[str, Any]]:
-        message = self.peek_local_write_submission_message(correlation_id)
-        return None if message is None else message.to_dict()
+        return _typed_to_dict(self.peek_local_write_submission_message(correlation_id))
 
     def query_local_write_submission_message_dict_by_submission_id(
         self, submission_id: str
     ) -> Optional[dict[str, Any]]:
-        message = self.peek_local_write_submission_message_by_submission_id(submission_id)
-        return None if message is None else message.to_dict()
+        return _typed_to_dict(
+            self.peek_local_write_submission_message_by_submission_id(submission_id)
+        )
 
     def query_local_write_submission_message_json(
         self, correlation_id: str
     ) -> Optional[str]:
-        message = self.peek_local_write_submission_message(correlation_id)
-        if message is None:
-            return None
-        return message.to_json()
+        return _typed_to_json(self.peek_local_write_submission_message(correlation_id))
 
     def query_local_write_submission_message_json_by_submission_id(
         self, submission_id: str
     ) -> Optional[str]:
-        message = self.peek_local_write_submission_message_by_submission_id(submission_id)
-        if message is None:
-            return None
-        return message.to_json()
+        return _typed_to_json(
+            self.peek_local_write_submission_message_by_submission_id(submission_id)
+        )
 
     def peek_local_write_submission_record(
         self, correlation_id: str
@@ -1092,33 +703,29 @@ class PythonCogLangExecutor(CogLangExecutor):
     def query_local_write_submission_record_dict(
         self, correlation_id: str
     ) -> Optional[dict[str, Any]]:
-        record = self.peek_local_write_submission_record(correlation_id)
-        return None if record is None else record.to_dict()
+        return _typed_to_dict(self.peek_local_write_submission_record(correlation_id))
 
     def query_local_write_submission_record_dict_by_submission_id(
         self, submission_id: str
     ) -> Optional[dict[str, Any]]:
-        record = self.peek_local_write_submission_record_by_submission_id(submission_id)
-        return None if record is None else record.to_dict()
+        return _typed_to_dict(
+            self.peek_local_write_submission_record_by_submission_id(submission_id)
+        )
 
     def query_local_write_submission_record_json(
         self, correlation_id: str
     ) -> Optional[str]:
-        record = self.peek_local_write_submission_record(correlation_id)
-        if record is None:
-            return None
-        return record.to_json()
+        return _typed_to_json(self.peek_local_write_submission_record(correlation_id))
 
     def query_local_write_submission_record_json_by_submission_id(
         self, submission_id: str
     ) -> Optional[str]:
-        record = self.peek_local_write_submission_record_by_submission_id(submission_id)
-        if record is None:
-            return None
-        return record.to_json()
+        return _typed_to_json(
+            self.peek_local_write_submission_record_by_submission_id(submission_id)
+        )
 
     def export_local_write_submission_history(self) -> list[dict[str, Any]]:
-        return [record.to_dict() for record in self.write_submission_history]
+        return _typed_list_to_dicts(self.write_submission_history)
 
     def export_local_write_submission_history_json(self) -> str:
         return LocalWriteSubmissionRecord.to_json_many(
@@ -1138,7 +745,9 @@ class PythonCogLangExecutor(CogLangExecutor):
     def export_local_write_submission_history_by_status(
         self, status: str
     ) -> list[dict[str, Any]]:
-        return [record.to_dict() for record in self.query_local_write_submission_records(status=status)]
+        return _typed_list_to_dicts(
+            self.query_local_write_submission_records(status=status)
+        )
 
     def export_local_write_submission_history_json_by_status(
         self, status: str
@@ -1148,7 +757,7 @@ class PythonCogLangExecutor(CogLangExecutor):
         )
 
     def export_local_write_response_history(self) -> list[dict[str, Any]]:
-        return [response.to_dict() for response in self.write_response_history]
+        return _typed_list_to_dicts(self.write_response_history)
 
     def export_local_write_response_history_json(self) -> str:
         return WriteBundleResponseMessage.to_json_many(
@@ -1172,7 +781,9 @@ class PythonCogLangExecutor(CogLangExecutor):
     def export_local_write_response_history_by_status(
         self, status: str
     ) -> list[dict[str, Any]]:
-        return [response.to_dict() for response in self.query_local_write_response_messages(status=status)]
+        return _typed_list_to_dicts(
+            self.query_local_write_response_messages(status=status)
+        )
 
     def export_local_write_response_history_json_by_status(
         self, status: str
@@ -1194,7 +805,7 @@ class PythonCogLangExecutor(CogLangExecutor):
         ]
 
     def export_local_write_submission_message_history(self) -> list[dict[str, Any]]:
-        return [record.request.to_dict() for record in self.write_submission_history]
+        return _typed_list_to_dicts(self.export_local_write_submission_messages())
 
     def export_local_write_submission_message_history_json(self) -> str:
         return WriteBundleSubmissionMessage.to_json_many(
@@ -1204,7 +815,9 @@ class PythonCogLangExecutor(CogLangExecutor):
     def export_local_write_submission_message_history_by_status(
         self, status: str
     ) -> list[dict[str, Any]]:
-        return [message.to_dict() for message in self.query_local_write_submission_messages(status=status)]
+        return _typed_list_to_dicts(
+            self.query_local_write_submission_messages(status=status)
+        )
 
     def export_local_write_submission_message_history_json_by_status(
         self, status: str
@@ -1214,14 +827,7 @@ class PythonCogLangExecutor(CogLangExecutor):
         )
 
     def export_local_write_query_results(self) -> list[dict[str, Any]]:
-        return [
-            local_write_query_result(
-                correlation_id=record.correlation_id,
-                response=record.response,
-                record=record,
-            ).to_dict()
-            for record in self.write_submission_history
-        ]
+        return _typed_list_to_dicts(self.query_local_write_results())
 
     def export_local_write_query_results_json(self) -> str:
         return LocalWriteQueryResult.to_json_many(self.query_local_write_results())
@@ -1244,7 +850,7 @@ class PythonCogLangExecutor(CogLangExecutor):
     def export_local_write_query_results_by_status(
         self, status: str
     ) -> list[dict[str, Any]]:
-        return [result.to_dict() for result in self.query_local_write_results(status=status)]
+        return _typed_list_to_dicts(self.query_local_write_results(status=status))
 
     def export_local_write_query_results_json_by_status(
         self, status: str
@@ -1272,7 +878,7 @@ class PythonCogLangExecutor(CogLangExecutor):
         return [trace for trace in traces if trace.query_result.status == status]
 
     def export_local_write_trace_history(self) -> list[dict[str, Any]]:
-        return [trace.to_dict() for trace in self.export_local_write_traces()]
+        return _typed_list_to_dicts(self.export_local_write_traces())
 
     def export_local_write_trace_history_json(self) -> str:
         return LocalWriteTrace.to_json_many(self.export_local_write_traces())
@@ -1280,7 +886,7 @@ class PythonCogLangExecutor(CogLangExecutor):
     def export_local_write_trace_history_by_status(
         self, status: str
     ) -> list[dict[str, Any]]:
-        return [trace.to_dict() for trace in self.query_local_write_traces(status=status)]
+        return _typed_list_to_dicts(self.query_local_write_traces(status=status))
 
     def export_local_write_trace_history_json_by_status(self, status: str) -> str:
         return LocalWriteTrace.to_json_many(

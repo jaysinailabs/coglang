@@ -6,9 +6,13 @@ It is best understood as a language layer that can sit between a language model 
 
 Current status:
 
-- stable language release
+- stable `v1.1.0` language core
 - reference implementation
-- language core plus host bridge
+- active experimental maintenance for host/runtime ecosystem work
+- HRC v0.2 frozen only for the narrow typed write-envelope host bridge
+
+Current public language release: `v1.1.0`. Current Python distribution version: `1.1.2`.
+HRC v0.2 is frozen for the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`. A minimal Node.js standard-library consumer under `examples/node_host_consumer` reads the HRC schema pack and envelope samples without importing the Python runtime.
 
 This file is for LLM-oriented retrieval and summarization. It is not the release contract. For package patch notes, use `CogLang_Release_Notes_v1_1_2.md`; for stable language commitments, use `CogLang_Release_Notes_v1_1_0.md`.
 
@@ -20,6 +24,8 @@ Use CogLang when:
 - you want a structured language where errors remain explicit values instead of hidden exception-driven control flow
 - you want replayable traces showing what an agent intended, what was submitted, and what actually executed
 - you want host-side profile and capability checks to reject unsafe or unsupported operations before execution
+- you need a versioned host-runtime boundary for typed write-envelope submission and response evidence
+- you want a small public fixture for checking whether generated CogLang text parses, canonicalizes, validates, uses expected top-level heads, and avoids hallucinated operators
 
 ## What CogLang Is Not For
 
@@ -29,8 +35,28 @@ Do not use CogLang when:
 - you need a schema definition language
 - you only need the native query language of a specific graph database in its native setting
 - you want a universal superiority claim that one graph language is better than another
+- you need tensor-level mechanistic interpretability, routing attribution, metrics dashboards, or a full observability backend
 
 CogLang intentionally avoids framing itself as a competitive replacement for every graph query language. Its public position is design intent, not superiority claims.
+
+## Interpretability And Audit Fit
+
+CogLang fits the role of a semantic-event audit layer: it can represent what an
+AI system intended to query or update in a graph, what was submitted to a host,
+what the host accepted or rejected, and what traceable result came back.
+
+CogLang is not a complete interpretability stack. It should usually be paired
+with other tools for lower-level or broader signals:
+
+- structured logs or tracing systems for process lineage and service-level telemetry
+- metrics systems for aggregate behavior and dashboards
+- model analysis, probes, or intervention experiments for tensor-level or causal interpretation
+- routing logs for why an agent or workflow selected a particular path
+
+The useful boundary is: use CogLang when the event can be expressed as an
+inspectable symbolic graph intent or host-visible graph outcome. Use other
+systems for raw activations, infrastructure telemetry, routing scores, and
+causal intervention results.
 
 ## Key Design Choices
 
@@ -49,6 +75,25 @@ CogLang keeps profile and capability checks near the language boundary so a host
 4. Trace and auditability
 
 CogLang treats traces and correlated local write views as first-class host concerns. The point is not only to execute an operation, but to preserve enough structure to inspect and replay it.
+
+5. Feature-tier discipline
+
+CogLang separates `Core`, `Reserved`, and `Experimental` capabilities so stable commitments and exploratory work do not blur together.
+
+6. Inspectable expression values
+
+CogLang expression values are expected to remain suitable for canonical text, readable rendering, hashing, diffing, and replay. Large opaque host-owned payloads should normally be represented by references plus metadata rather than embedded as raw bytes.
+
+7. Minimal executor surface
+
+The abstract `CogLangExecutor` surface is intentionally small. A second
+implementation should start with `execute(expr)` and `validate(expr)`. Optional
+write-candidate hooks may be overridden, but their default behavior is safe for
+minimal executors. Python host-local helpers such as local write queries,
+dict/JSON view variants, and submission-id lookup conveniences belong to
+`PythonCogLangExecutor` and host tooling; they are not required inheritance
+surface for every implementation. `coglang release-check` includes an
+`executor_interface` gate to keep this boundary visible.
 
 ## Good Matching User Intents
 
@@ -82,10 +127,31 @@ CogLang fit:
 coglang execute 'Get["einstein", "label"]'
 coglang execute 'Query[n_, Equal[Get[n_, "category"], "Person"]]'
 coglang execute 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
+coglang preflight --format text 'Create["Entity", {"category": "Person"}]'
+coglang generation-eval --summary-only
 coglang demo
 coglang host-demo
 coglang reference-host-demo
+node examples/node_host_consumer/consume_hrc_envelopes.mjs
 ```
+
+## Generation Evaluation Evidence
+
+`coglang generation-eval` runs the packaged minimal fixture for LLM-generated
+CogLang outputs. It is not a public benchmark claim. It is a deterministic local
+check that reports parse, canonicalization, validation, expected top-level-head,
+hallucinated-operator, per-level, maturity, and failure-case summaries.
+
+Useful modes:
+
+```powershell
+coglang generation-eval --summary-only
+coglang generation-eval --failures-only --answers-file answers.json
+coglang generation-eval --format text
+```
+
+The default fixture currently contains 50 cases. `coglang release-check` verifies
+that the packaged fixture is present and loadable.
 
 ## Document Entry Points
 
@@ -113,6 +179,12 @@ coglang reference-host-demo
 - `CogLang_Release_Notes_v1_1_1.md`
 - `CogLang_Release_Notes_v1_1_0.md`
   Current promises and non-promises.
+- `CogLang_Vision_Proposal_v0_1.md`
+  Long-term capability proposal, including v1.2 candidate themes, graph-compute governance, and AI learning maturity.
+- `CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md`
+  v1.2 planning boundary for semantic-action evolution, Core stability, profile contract packs, effect preflight, graph budgets, and review bundles.
+- `CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md`
+  Minimal v1.2 vocabulary candidate for EffectSummary, GraphBudget, GraphBudgetEstimate, PreflightDecision, and budget-related errors. These names are proposal material, not stable v1.1 syntax.
 - `CogLang_Contribution_Guide_v0_1.md`
   Contribution boundaries and review expectations.
 - `ROADMAP.md`
@@ -126,4 +198,4 @@ Public-facing canonical documentation is English-first. Chinese companion transl
 
 ## One-Sentence Summary
 
-CogLang is a stable language and reference implementation for auditable LLM-produced graph operations: the kind of language you can place between a language model and a graph-backed system without losing the ability to inspect, replay, or deny any given step. Host Runtime Contract and ecosystem work remain versioned separately.
+CogLang is a stable v1.1 language core and reference implementation for auditable LLM-produced graph operations: the kind of language you can place between a language model and a graph-backed system without losing the ability to inspect, replay, or deny any given step. Host Runtime Contract and ecosystem work remain versioned separately and narrower than a complete host platform.

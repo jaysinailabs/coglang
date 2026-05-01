@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import json
 import os
 import sys
 import tempfile
@@ -11,6 +12,7 @@ from pathlib import Path
 
 from coglang.cli import (
     COGLANG_LANGUAGE_RELEASE,
+    EXAMPLES,
     HOST_DEMO_TOP_LEVEL_KEYS,
     REFERENCE_HOST_DEMO_TOP_LEVEL_KEYS,
     _bundle_payload,
@@ -33,6 +35,10 @@ from coglang.cli import (
     _run_smoke,
     _vocab_payload,
     main,
+)
+from coglang.generation_eval import (
+    load_generation_eval_cases,
+    reference_generation_eval_answers,
 )
 from coglang.local_host import LocalHostSnapshot, LocalHostSummary, LocalHostTrace
 from coglang.write_bundle import (
@@ -124,6 +130,141 @@ def test_cli_execute_json_result():
     code, output = _run(["execute", "--format", "json", 'Equal[1, 2]'])
     assert code == 0
     assert '"head": "False"' in output
+
+
+def test_cli_preflight_json_accepts_query_with_warning():
+    code, output = _run(
+        ["preflight", "--correlation-id", "cli-preflight-001", EXAMPLES["query"]]
+    )
+    payload = json.loads(output)
+
+    assert code == 0
+    assert payload["schema_version"] == "coglang-preflight-decision/v0.1"
+    assert payload["decision"] == "accepted_with_warnings"
+    assert payload["reasons"] == ["effect.graph_read", "budget.within_default"]
+    assert payload["required_review"] is False
+    assert payload["effect_summary"]["effects"] == ["graph.read"]
+    assert payload["budget_estimate"]["estimate_confidence"] == "estimated"
+    assert payload["correlation_id"] == "cli-preflight-001"
+
+
+def test_cli_preflight_text_requires_review_for_write():
+    code, output = _run(["preflight", "--format", "text", EXAMPLES["write"]])
+
+    assert code == 0
+    assert "schema_version: coglang-preflight-decision/v0.1" in output
+    assert "decision: requires_review" in output
+    assert "required_review: true" in output
+    assert "reasons: effect.graph_write, policy.review_required" in output
+    assert "effects: graph.write, host.policy, human.review" in output
+
+
+def test_cli_preflight_rejects_invalid_expression():
+    code, output = _run(["preflight", "UnknownHead[]"])
+    payload = json.loads(output)
+
+    assert code == 1
+    assert payload["decision"] == "rejected"
+    assert payload["reasons"] == ["validation.invalid"]
+
+
+def test_cli_preflight_rejects_missing_enabled_capability():
+    code, output = _run(
+        [
+            "preflight",
+            "--enabled-capability",
+            "graph.read",
+            EXAMPLES["write"],
+        ]
+    )
+    payload = json.loads(output)
+
+    assert code == 1
+    assert payload["decision"] == "rejected"
+    assert payload["reasons"] == [
+        "capability.missing",
+        "capability.missing.graph_write",
+    ]
+    assert payload["effect_summary"]["required_capabilities"] == ["graph.write"]
+    assert payload["possible_errors"] == ["CapabilityRequired"]
+
+
+def test_cli_preflight_rejects_known_result_count_over_budget():
+    code, output = _run(
+        [
+            "preflight",
+            "--max-result-count",
+            "0",
+            'Get["ada", "category"]',
+        ]
+    )
+    payload = json.loads(output)
+
+    assert code == 1
+    assert payload["decision"] == "rejected"
+    assert payload["reasons"] == ["budget.result_count_exceeded"]
+    assert payload["budget"]["max_result_count"] == 0
+    assert payload["budget_estimate"]["estimated_result_count"] == 1
+    assert payload["possible_errors"] == ["BudgetExceeded", "ResultLimitExceeded"]
+
+
+def test_cli_preflight_rejects_known_unification_branches_over_budget():
+    code, output = _run(
+        [
+            "preflight",
+            "--max-unification-branches",
+            "0",
+            "Unify[f[X_, b], f[a, Y_]]",
+        ]
+    )
+    payload = json.loads(output)
+
+    assert code == 1
+    assert payload["decision"] == "rejected"
+    assert payload["reasons"] == ["budget.unification_branches_exceeded"]
+    assert payload["budget"]["max_unification_branches"] == 0
+    assert payload["budget_estimate"]["estimated_unification_branches"] == 1
+    assert payload["possible_errors"] == [
+        "UnificationBranchLimitExceeded",
+        "BudgetExceeded",
+        "UnificationLimitExceeded",
+    ]
+
+
+def test_cli_preflight_fixture_json_output():
+    code, output = _run(["preflight-fixture"])
+    payload = json.loads(output)
+
+    assert code == 0
+    assert payload["schema_version"] == "coglang-preflight-fixture-result/v0.1"
+    assert payload["fixture_schema_version"] == "coglang-preflight-fixture/v0.1"
+    assert payload["case_count"] == 9
+    assert payload["ok"] is True
+    assert [case["case_id"] for case in payload["cases"]] == [
+        "PF-001",
+        "PF-002",
+        "PF-003",
+        "PF-004",
+        "PF-005",
+        "PF-006",
+        "PF-007",
+        "PF-008",
+        "PF-009",
+    ]
+
+
+def test_cli_preflight_fixture_text_output():
+    code, output = _run(["preflight-fixture", "--format", "text"])
+
+    assert code == 0
+    assert "schema_version: coglang-preflight-fixture-result/v0.1" in output
+    assert "fixture_schema_version: coglang-preflight-fixture/v0.1" in output
+    assert "case_count: 9" in output
+    assert "PF-001: ok decision=accepted_with_warnings" in output
+    assert "PF-004: ok decision=rejected" in output
+    assert "PF-007: ok decision=rejected" in output
+    assert "PF-008: ok decision=rejected" in output
+    assert "PF-009: ok decision=rejected" in output
 
 
 def test_cli_conformance_targets_smoke():
@@ -243,6 +384,9 @@ def test_cli_info_payload_shape():
     assert payload["package"] == DISTRIBUTION_NAME
     assert payload["language_release"] == "v1.1.0"
     assert "parse" in payload["commands"]
+    assert "preflight" in payload["commands"]
+    assert "preflight-fixture" in payload["commands"]
+    assert "generation-eval" in payload["commands"]
     assert "smoke" in payload["conformance_suites"]
     assert "host-demo" in payload["commands"]
     assert "reference-host-demo" in payload["commands"]
@@ -276,12 +420,31 @@ def test_cli_manifest_payload_shape():
     assert payload["docs"]["hrc_v0_2_final_freeze"].endswith(
         "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md"
     )
+    assert payload["docs"]["vision_proposal"].endswith("CogLang_Vision_Proposal_v0_1.md")
+    assert payload["docs"]["evolution_boundary_proposal"].endswith(
+        "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md"
+    )
+    assert payload["docs"]["effect_budget_preflight_vocabulary"].endswith(
+        "CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md"
+    )
     assert payload["docs"]["roadmap"].endswith("ROADMAP.md")
     assert payload["docs"]["maintenance"].endswith("MAINTENANCE.md")
     assert payload["machine_readable_summaries"]["llms"].endswith("llms.txt")
     assert payload["machine_readable_summaries"]["llms_full"].endswith("llms-full.txt")
     assert payload["public_release_surface"]["entrypoint"] == "coglang"
     assert payload["public_release_surface"]["project_docs"]["readme"] == payload["docs"]["readme"]
+    assert (
+        payload["public_release_surface"]["project_docs"]["vision_proposal"]
+        == payload["docs"]["vision_proposal"]
+    )
+    assert (
+        payload["public_release_surface"]["project_docs"]["evolution_boundary_proposal"]
+        == payload["docs"]["evolution_boundary_proposal"]
+    )
+    assert (
+        payload["public_release_surface"]["project_docs"]["effect_budget_preflight_vocabulary"]
+        == payload["docs"]["effect_budget_preflight_vocabulary"]
+    )
     assert payload["open_source_boundary"]["schema_version"] == "coglang-open-source-boundary/v0.1"
     assert payload["open_source_boundary"]["public_distribution_name"] == "coglang"
     assert payload["open_source_boundary"]["release_roots_exist"] is True
@@ -317,6 +480,21 @@ def test_cli_manifest_text_output():
     assert "recommended_entrypoint: coglang" in output
     assert "console_script: coglang" in output
     assert f"roadmap: {_path_in_layout('ROADMAP.md', 'ROADMAP.md')}" in output
+    assert (
+        f"vision_proposal: "
+        f"{_path_in_layout('CogLang_Vision_Proposal_v0_1.md', 'CogLang_Vision_Proposal_v0_1.md')}"
+        in output
+    )
+    assert (
+        f"evolution_boundary_proposal: "
+        f"{_path_in_layout('CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md', 'CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md')}"
+        in output
+    )
+    assert (
+        f"effect_budget_preflight_vocabulary: "
+        f"{_path_in_layout('CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md', 'CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md')}"
+        in output
+    )
     assert f"maintenance: {_path_in_layout('MAINTENANCE.md', 'MAINTENANCE.md')}" in output
     assert f"llms: {_path_in_layout('llms.txt', 'llms.txt')}" in output
     assert f"llms_full: {_path_in_layout('llms-full.txt', 'llms-full.txt')}" in output
@@ -458,6 +636,119 @@ def test_cli_examples_named_output():
     code, output = _run(["examples", "--name", "bind"])
     assert code == 0
     assert output == 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
+
+
+def _write_generation_eval_answers(path: Path, overrides: dict[str, str]) -> None:
+    cases = load_generation_eval_cases()
+    answers = reference_generation_eval_answers(cases)
+    answers.update(overrides)
+    path.write_text(
+        json.dumps(
+            {
+                "answers": [
+                    {"case_id": case_id, "output": output}
+                    for case_id, output in answers.items()
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+
+def test_cli_generation_eval_json_output():
+    code, output = _run(["generation-eval"])
+    payload = json.loads(output)
+
+    assert code == 0
+    assert payload["schema_version"] == "coglang-generation-eval-result/v0.1"
+    assert payload["answer_source"] == "fixture_reference"
+    assert payload["case_count"] == 50
+    assert payload["failure_case_count"] == 0
+    assert payload["failure_cases"] == []
+    assert payload["summary"]["validate_ok_count"] == 50
+    assert payload["summary"]["failure_category_counts"] == {}
+    assert payload["maturity"]["highest_contiguous_level"] == "L3"
+    assert payload["maturity"]["blocked_level"] is None
+    assert payload["level_summary"]["L1"]["case_count"] == 18
+    assert payload["level_summary"]["L2"]["case_count"] == 16
+    assert payload["level_summary"]["L3"]["case_count"] == 16
+
+
+def test_cli_generation_eval_summary_only_json_output():
+    code, output = _run(["generation-eval", "--summary-only"])
+    payload = json.loads(output)
+
+    assert code == 0
+    assert payload["case_count"] == 50
+    assert "summary" in payload
+    assert "level_summary" in payload
+    assert "maturity" in payload
+    assert payload["failure_cases"] == []
+    assert "cases" not in payload
+
+
+def test_cli_generation_eval_failures_only_json_output(tmp_path):
+    answers_path = tmp_path / "answers.json"
+    _write_generation_eval_answers(answers_path, {"L2-001": "BetterQuery[n_]"})
+
+    code, output = _run(
+        [
+            "generation-eval",
+            "--answers-file",
+            str(answers_path),
+            "--failures-only",
+        ]
+    )
+    payload = json.loads(output)
+
+    assert code == 1
+    assert payload["case_count"] == 50
+    assert payload["failure_case_count"] == 1
+    assert [case["case_id"] for case in payload["cases"]] == ["L2-001"]
+    assert [case["case_id"] for case in payload["failure_cases"]] == ["L2-001"]
+    assert payload["maturity"]["highest_contiguous_level"] == "L1"
+    assert payload["maturity"]["blocked_level"] == "L2"
+
+
+def test_cli_generation_eval_text_output():
+    code, output = _run(["generation-eval", "--format", "text"])
+
+    assert code == 0
+    assert "schema_version: coglang-generation-eval-result/v0.1" in output
+    assert "answer_source: fixture_reference" in output
+    assert "case_count: 50" in output
+    assert "failure_case_count: 0" in output
+    assert "maturity.highest_contiguous_level: L3" in output
+    assert "maturity.blocked_level: none" in output
+    assert "validate_ok: 50/50" in output
+    assert "failure_category_counts: none" in output
+    assert "L1: validate_ok 18/18, head_ok 18/18, hallucinated 0" in output
+    assert "L2: validate_ok 16/16, head_ok 16/16, hallucinated 0" in output
+    assert "L3: validate_ok 16/16, head_ok 16/16, hallucinated 0" in output
+
+
+def test_cli_generation_eval_text_reports_failure_cases(tmp_path):
+    answers_path = tmp_path / "answers.json"
+    _write_generation_eval_answers(answers_path, {"L2-001": "BetterQuery[n_]"})
+
+    code, output = _run(
+        [
+            "generation-eval",
+            "--answers-file",
+            str(answers_path),
+            "--format",
+            "text",
+        ]
+    )
+
+    assert code == 1
+    assert "failure_case_count: 1" in output
+    assert "maturity.highest_contiguous_level: L1" in output
+    assert "maturity.blocked_level: L2" in output
+    assert (
+        "failure L2-001 level=L2 "
+        "categories=validation_error, top_level_head_mismatch, hallucinated_operator"
+    ) in output
 
 
 def test_cli_smoke_dispatch_success(monkeypatch):
@@ -1118,6 +1409,15 @@ def test_cli_release_check_payload_shape():
     assert any(item["name"] == "minimal_ci_baseline" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "public_repo_extract_manifest" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "formal_open_source_readiness" and item["ok"] is True for item in payload["checks"])
+    assert any(item["name"] == "preflight_fixture" and item["ok"] is True for item in payload["checks"])
+    assert any(item["name"] == "generation_eval" and item["ok"] is True for item in payload["checks"])
+    assert any(item["name"] == "node_host_consumer" and item["ok"] is True for item in payload["checks"])
+    assert any(
+        item["name"] == "executor_interface"
+        and item["ok"] is True
+        and item["detail"] == "abstract_methods=execute,validate"
+        for item in payload["checks"]
+    )
     assert payload["ok"] is True
 
 
@@ -1133,6 +1433,10 @@ def test_cli_release_check_json_output():
     assert '"minimal_ci_baseline"' in output
     assert '"public_repo_extract_manifest"' in output
     assert '"formal_open_source_readiness"' in output
+    assert '"preflight_fixture"' in output
+    assert '"generation_eval"' in output
+    assert '"node_host_consumer"' in output
+    assert '"executor_interface"' in output
 
 
 def test_cli_release_check_text_output():
@@ -1158,6 +1462,10 @@ def test_cli_release_check_text_output():
         in output
     )
     assert "formal_open_source_readiness: ok (ready-for-formal-open-source-candidate-decision)" in output
+    assert "preflight_fixture: ok (9 cases)" in output
+    assert "generation_eval: ok (50 cases)" in output
+    assert "node_host_consumer: ok (examples/node_host_consumer + package data)" in output
+    assert "executor_interface: ok (abstract_methods=execute,validate)" in output
 
 
 def test_cli_open_source_boundary_payload_shape():
@@ -1235,7 +1543,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 43
+    assert payload["entry_count"] == 47
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -1248,6 +1556,18 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["required_destinations_present"] is True
     assert payload["source_paths_exist"] is True
     assert payload["destination_paths_unique"] is True
+    tree_entries = {item["source"]: item for item in payload["entries"] if item["kind"] == "tree"}
+    assert "eval_fixtures" in tree_entries["src/coglang"]["include"]
+    assert "generation_eval.py" in tree_entries["src/coglang"]["include"]
+    assert "preflight.py" in tree_entries["src/coglang"]["include"]
+    assert "test_catalog_alignment.py" in tree_entries["tests/coglang"]["include"]
+    assert "test_executor_interface.py" in tree_entries["tests/coglang"]["include"]
+    assert "test_generation_eval.py" in tree_entries["tests/coglang"]["include"]
+    assert "test_node_host_consumer.py" in tree_entries["tests/coglang"]["include"]
+    assert "test_preflight.py" in tree_entries["tests/coglang"]["include"]
+    assert "examples/node_host_consumer" in [
+        item["source"] for item in payload["entries"]
+    ]
     assert "CogLang_Operator_Catalog_v1_1_0.md" in [
         item["source"] for item in payload["entries"]
     ]
@@ -1276,6 +1596,15 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Contribution_Guide_v0_1.zh-CN.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Vision_Proposal_v0_1.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md" in [
@@ -1327,6 +1656,7 @@ def test_cli_formal_open_source_readiness_payload_shape():
         "G6_maintenance_and_contribution_surface",
         "G7_host_runtime_freeze_evidence",
     ]
+    assert payload["gates"][-1]["detail"] == "HRC v0.2 final freeze record + host demos + Node consumer"
 
 
 def test_cli_distribution_metadata_shape():

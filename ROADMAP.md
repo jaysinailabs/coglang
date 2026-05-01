@@ -1,7 +1,7 @@
 # CogLang Roadmap
 
-**Status**: public roadmap  
-**Scope**: direction layer, not stability guarantees  
+**Status**: public roadmap
+**Scope**: direction layer, not stability guarantees
 **Audience**: readers, implementers, and contributors who want to know where `CogLang` is going next
 
 ---
@@ -28,9 +28,9 @@ It separates three levels:
 
 ## Stable v1.1.0 Release Status
 
-The current major project target is the stable `v1.1.0` release line.
+The current stable release line is `v1.1.0`.
 
-That target is not a date promise. It means the project is now focused on keeping the public language surface, package metadata, release artifacts, and documentation aligned for the stable `v1.1.0` release.
+That status is not a date promise. It means the project is now focused on keeping the public language surface, package metadata, release artifacts, and documentation aligned for the stable `v1.1.0` release line.
 
 For `v1.1.0`, the project should keep the following surfaces aligned:
 
@@ -76,6 +76,7 @@ Current work continues to focus on:
 - turning key semantics into golden examples
 - keeping spec, runtime, and CLI output aligned
 - reducing places where contract claims are only implied, rather than tested
+- keeping the minimal `generation-eval` fixture useful as executable evidence for AI-produced CogLang text, without presenting it as a benchmark claim
 
 Contributions in this area are especially welcome.
 
@@ -172,6 +173,24 @@ Longer-term exploration includes:
 - easier evidence that the language core survives outside any single runtime
 
 This is a direction, not a commitment.
+
+Contributions in this area are especially welcome.
+
+### 10. Semantic-event audit examples
+
+`CogLang` fits naturally as a semantic-event audit layer for AI systems that
+produce graph operations.
+
+Longer-term exploration includes small, runnable examples for:
+
+- agent memory or RAG knowledge-graph write preflight
+- OpenTelemetry sidecar metadata carrying canonical CogLang intent
+- MCP or tool-wrapper preflight for graph operations
+- human review artifacts showing canonical expression, planned graph diff,
+  capability requirements, and host-visible outcome
+
+This is a direction, not a commitment. These examples should complement agent
+frameworks, tool protocols, and observability stacks rather than replace them.
 
 Contributions in this area are especially welcome.
 

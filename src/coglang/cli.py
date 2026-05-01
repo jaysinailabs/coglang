@@ -10,9 +10,11 @@ from textwrap import dedent
 from typing import Any
 import tomllib
 
-from .executor import PythonCogLangExecutor
+from .executor import CogLangExecutor, PythonCogLangExecutor
+from .generation_eval import generation_eval_payload
 from .local_host import LocalCogLangHost, LocalHostSnapshot, LocalHostSummary
 from .parser import CogLangExpr, CogLangVar, canonicalize, parse
+from .preflight import GraphBudget, preflight_expression, preflight_fixture_payload
 from .reference_host import ReferenceTransportHost
 from .validator import valid_coglang
 from .vocab import COGLANG_VOCAB, ERROR_HEADS
@@ -199,6 +201,8 @@ def _info_payload() -> dict[str, Any]:
             "parse",
             "canonicalize",
             "validate",
+            "preflight",
+            "preflight-fixture",
             "execute",
             "conformance",
             "repl",
@@ -208,6 +212,7 @@ def _info_payload() -> dict[str, Any]:
             "doctor",
             "vocab",
             "examples",
+            "generation-eval",
             "smoke",
             "demo",
             "host-demo",
@@ -481,6 +486,12 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
         "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md",
         "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md",
     )
+    node_consumer_script_path, _ = _resolve_project_artifact(
+        "examples/node_host_consumer/consume_hrc_envelopes.mjs",
+    )
+    node_consumer_readme_path, _ = _resolve_project_artifact(
+        "examples/node_host_consumer/README.md",
+    )
     roadmap_path, _ = _resolve_project_artifact("ROADMAP.md", "ROADMAP.md")
     maintenance_path, _ = _resolve_project_artifact("MAINTENANCE.md", "MAINTENANCE.md")
     public_docs_checklist_path, _ = _resolve_project_artifact(
@@ -567,8 +578,10 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
                 hrc_v0_2_final_freeze_path.exists()
                 and "host-demo" in info["commands"]
                 and "reference-host-demo" in info["commands"]
+                and node_consumer_script_path.exists()
+                and node_consumer_readme_path.exists()
             ),
-            "detail": "HRC v0.2 final freeze record + executable host demos",
+            "detail": "HRC v0.2 final freeze record + host demos + Node consumer",
         },
     ]
     passed_gate_count = sum(1 for item in gates if item["ok"])
@@ -620,6 +633,18 @@ def _manifest_payload() -> dict[str, Any]:
         "CogLang_Contribution_Guide_v0_1.md",
         "CogLang_Contribution_Guide_v0_1.md",
     )[1]
+    vision_proposal_relpath = _resolve_project_artifact(
+        "CogLang_Vision_Proposal_v0_1.md",
+        "CogLang_Vision_Proposal_v0_1.md",
+    )[1]
+    evolution_boundary_proposal_relpath = _resolve_project_artifact(
+        "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md",
+        "CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md",
+    )[1]
+    effect_budget_preflight_vocabulary_relpath = _resolve_project_artifact(
+        "CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md",
+        "CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md",
+    )[1]
     roadmap_relpath = _resolve_project_artifact("ROADMAP.md", "ROADMAP.md")[1]
     maintenance_relpath = _resolve_project_artifact("MAINTENANCE.md", "MAINTENANCE.md")[1]
     llms_relpath = _resolve_project_artifact("llms.txt", "llms.txt")[1]
@@ -632,6 +657,9 @@ def _manifest_payload() -> dict[str, Any]:
         "release_notes": release_notes_relpath,
         "hrc_v0_2_final_freeze": hrc_v0_2_final_freeze_relpath,
         "contribution_guide": contribution_guide_relpath,
+        "vision_proposal": vision_proposal_relpath,
+        "evolution_boundary_proposal": evolution_boundary_proposal_relpath,
+        "effect_budget_preflight_vocabulary": effect_budget_preflight_vocabulary_relpath,
         "roadmap": roadmap_relpath,
         "maintenance": maintenance_relpath,
     }
@@ -664,6 +692,9 @@ def _manifest_payload() -> dict[str, Any]:
             "entrypoint": "coglang",
             "project_docs": {
                 "readme": docs["readme"],
+                "vision_proposal": docs["vision_proposal"],
+                "evolution_boundary_proposal": docs["evolution_boundary_proposal"],
+                "effect_budget_preflight_vocabulary": docs["effect_budget_preflight_vocabulary"],
                 "roadmap": docs["roadmap"],
                 "maintenance": docs["maintenance"],
             },
@@ -752,6 +783,12 @@ def _release_check_payload() -> dict[str, Any]:
         "CogLang_Host_Runtime_Contract_v0_1.md",
         "CogLang_Host_Runtime_Contract_v0_1.md",
     )
+    node_consumer_script_path, _ = _resolve_project_artifact(
+        "examples/node_host_consumer/consume_hrc_envelopes.mjs",
+    )
+    node_consumer_readme_path, _ = _resolve_project_artifact(
+        "examples/node_host_consumer/README.md",
+    )
     license_path, _ = _resolve_project_artifact("LICENSE")
 
     distribution = _distribution_metadata()
@@ -759,14 +796,32 @@ def _release_check_payload() -> dict[str, Any]:
     minimal_ci_baseline = _minimal_ci_baseline_payload()
     public_repo_extract_manifest = _public_repo_extract_manifest_payload()
     formal_open_source_readiness = _formal_open_source_readiness_payload()
+    preflight_fixture = preflight_fixture_payload()
+    generation_eval = generation_eval_payload()
     license_declared = False
+    pyproject: dict[str, Any] = {}
     if pyproject_path.exists():
         pyproject = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
         project = pyproject.get("project", {})
         license_declared = bool(project.get("license"))
+    package_data = (
+        pyproject.get("tool", {})
+        .get("setuptools", {})
+        .get("package-data", {})
+        .get("coglang", [])
+    )
+    node_consumer_packaged = "_public_assets/examples/node_host_consumer/*" in package_data
 
     runtime_entry_paths = distribution["runtime_entry_paths"]
     runtime_entry_ok = _paths_exist(root, runtime_entry_paths)
+    executor_abstract_methods = sorted(CogLangExecutor.__abstractmethods__)
+    executor_interface_ok = (
+        executor_abstract_methods == ["execute", "validate"]
+        and "query_local_write_result" not in CogLangExecutor.__dict__
+        and "query_local_write_result_json" not in CogLangExecutor.__dict__
+        and callable(getattr(PythonCogLangExecutor, "query_local_write_result", None))
+        and callable(getattr(PythonCogLangExecutor, "query_local_write_result_json", None))
+    )
 
     checks = [
         {
@@ -869,6 +924,40 @@ def _release_check_payload() -> dict[str, Any]:
             "name": "formal_open_source_readiness",
             "ok": formal_open_source_readiness["ready_for_candidate_decision"] is True,
             "detail": formal_open_source_readiness["status"],
+        },
+        {
+            "name": "preflight_fixture",
+            "ok": (
+                preflight_fixture["ok"] is True
+                and preflight_fixture["case_count"] >= 1
+            ),
+            "detail": f"{preflight_fixture['case_count']} cases",
+        },
+        {
+            "name": "generation_eval",
+            "ok": (
+                generation_eval["ok"] is True
+                and generation_eval["case_count"] >= 1
+                and generation_eval["summary"]["hallucinated_operator_count"] == 0
+            ),
+            "detail": f"{generation_eval['case_count']} cases",
+        },
+        {
+            "name": "node_host_consumer",
+            "ok": (
+                node_consumer_script_path.exists()
+                and node_consumer_readme_path.exists()
+                and node_consumer_packaged
+            ),
+            "detail": "examples/node_host_consumer + package data",
+        },
+        {
+            "name": "executor_interface",
+            "ok": executor_interface_ok,
+            "detail": (
+                "abstract_methods="
+                + ",".join(executor_abstract_methods)
+            ),
         },
     ]
     return {
@@ -1539,6 +1628,127 @@ def _print_text_step_blocks(steps: list[dict[str, Any]]) -> None:
             print(f"  {key}: {value}")
 
 
+def _preflight_budget_from_args(args: argparse.Namespace) -> GraphBudget | None:
+    budget_fields = {
+        "max_traversal_depth": args.max_traversal_depth,
+        "max_visited_nodes": args.max_visited_nodes,
+        "max_result_count": args.max_result_count,
+        "max_unification_branches": args.max_unification_branches,
+        "max_execution_ms": args.max_execution_ms,
+    }
+    if all(value is None for value in budget_fields.values()):
+        return None
+    return GraphBudget(**budget_fields)
+
+
+def _print_preflight_text(payload: dict[str, Any]) -> None:
+    print(f"schema_version: {payload['schema_version']}")
+    print(f"decision: {payload['decision']}")
+    print(f"required_review: {str(payload['required_review']).lower()}")
+    print("reasons: " + ", ".join(payload["reasons"]))
+    print("possible_errors: " + ", ".join(payload["possible_errors"]))
+    effect_summary = payload.get("effect_summary") or {}
+    print("effects: " + ", ".join(effect_summary.get("effects", [])))
+    print(
+        "required_capabilities: "
+        + ", ".join(effect_summary.get("required_capabilities", []))
+    )
+    budget_estimate = payload.get("budget_estimate") or {}
+    print(
+        "estimate_confidence: "
+        + str(budget_estimate.get("estimate_confidence", "unknown"))
+    )
+    if payload.get("correlation_id") is not None:
+        print(f"correlation_id: {payload['correlation_id']}")
+
+
+def _print_preflight_fixture_text(payload: dict[str, Any]) -> None:
+    print(f"schema_version: {payload['schema_version']}")
+    print(f"ok: {str(payload['ok']).lower()}")
+    print(f"fixture_schema_version: {payload['fixture_schema_version']}")
+    print(f"fixture_path: {payload['fixture_path']}")
+    print(f"case_count: {payload['case_count']}")
+    for case in payload["cases"]:
+        status = "ok" if case["ok"] else "fail"
+        print(f"{case['case_id']}: {status} decision={case['actual'].get('decision')}")
+
+
+def _print_generation_eval_text(payload: dict[str, Any]) -> None:
+    summary = payload["summary"]
+    failure_counts = summary.get("failure_category_counts", {})
+    print(f"schema_version: {payload['schema_version']}")
+    print(f"tool: {payload['tool']}")
+    print(f"ok: {str(payload['ok']).lower()}")
+    print(f"answer_source: {payload['answer_source']}")
+    print(f"case_count: {payload['case_count']}")
+    print(f"failure_case_count: {payload.get('failure_case_count', 0)}")
+    maturity = payload.get("maturity", {})
+    print(
+        "maturity.highest_contiguous_level: "
+        + str(maturity.get("highest_contiguous_level", "unknown"))
+    )
+    print(
+        "maturity.blocked_level: "
+        + str(maturity.get("blocked_level") or "none")
+    )
+    print(f"missing_output_count: {summary['missing_output_count']}")
+    print(f"parse_ok: {summary['parse_ok_count']}/{payload['case_count']}")
+    print(f"canonicalize_ok: {summary['canonicalize_ok_count']}/{payload['case_count']}")
+    print(f"validate_ok: {summary['validate_ok_count']}/{payload['case_count']}")
+    print(
+        "expected_top_level_head_ok: "
+        f"{summary['expected_top_level_head_ok_count']}/{payload['case_count']}"
+    )
+    print(f"hallucinated_operator_count: {summary['hallucinated_operator_count']}")
+    if failure_counts:
+        failure_items = ", ".join(
+            f"{category}={count}" for category, count in failure_counts.items()
+        )
+    else:
+        failure_items = "none"
+    print(f"failure_category_counts: {failure_items}")
+    for failure in payload.get("failure_cases", []):
+        categories = ", ".join(failure.get("failure_categories", []))
+        print(
+            f"failure {failure['case_id']} "
+            f"level={failure['level']} categories={categories}"
+        )
+    for level, level_summary in payload.get("level_summary", {}).items():
+        print(
+            f"{level}: validate_ok "
+            f"{level_summary['validate_ok_count']}/{level_summary['case_count']}, "
+            f"head_ok "
+            f"{level_summary['expected_top_level_head_ok_count']}/"
+            f"{level_summary['case_count']}, "
+            f"hallucinated {level_summary['hallucinated_operator_count']}"
+        )
+
+
+def _generation_eval_output_payload(
+    payload: dict[str, Any],
+    *,
+    summary_only: bool = False,
+    failures_only: bool = False,
+) -> dict[str, Any]:
+    if summary_only:
+        output = dict(payload)
+        output.pop("cases", None)
+        return output
+    if failures_only:
+        failed_case_ids = {
+            str(failure["case_id"])
+            for failure in payload.get("failure_cases", [])
+        }
+        output = dict(payload)
+        output["cases"] = [
+            case
+            for case in payload.get("cases", [])
+            if str(case.get("case_id")) in failed_case_ids
+        ]
+        return output
+    return payload
+
+
 def _conformance_targets(suite: str) -> list[str]:
     base = _conformance_base()
     suites = {
@@ -1643,6 +1853,76 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Emit a JSON object instead of plain true/false.",
     )
 
+    preflight_cmd = subparsers.add_parser(
+        "preflight",
+        help="Run a static v1.2-candidate preflight check without executing.",
+    )
+    add_expr_source(preflight_cmd)
+    preflight_cmd.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="Output format for the preflight decision.",
+    )
+    preflight_cmd.add_argument(
+        "--correlation-id",
+        help="Optional host correlation identifier to include in the decision.",
+    )
+    preflight_cmd.add_argument(
+        "--allow-writes-without-review",
+        action="store_true",
+        help="Do not force graph writes into requires_review during static preflight.",
+    )
+    preflight_cmd.add_argument(
+        "--enabled-capability",
+        action="append",
+        default=None,
+        help=(
+            "Declare one host-enabled capability. Repeat to provide a minimal "
+            "capability manifest for preflight rejection checks."
+        ),
+    )
+    preflight_cmd.add_argument(
+        "--max-traversal-depth",
+        type=int,
+        help="Optional traversal-depth budget override.",
+    )
+    preflight_cmd.add_argument(
+        "--max-visited-nodes",
+        type=int,
+        help="Optional visited-node budget override.",
+    )
+    preflight_cmd.add_argument(
+        "--max-result-count",
+        type=int,
+        help="Optional result-count budget override.",
+    )
+    preflight_cmd.add_argument(
+        "--max-unification-branches",
+        type=int,
+        help="Optional unification-branch budget override.",
+    )
+    preflight_cmd.add_argument(
+        "--max-execution-ms",
+        type=int,
+        help="Optional execution-time budget override.",
+    )
+
+    preflight_fixture_cmd = subparsers.add_parser(
+        "preflight-fixture",
+        help="Run the packaged v1.2-candidate preflight fixture without execution.",
+    )
+    preflight_fixture_cmd.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="Output format for the fixture run.",
+    )
+    preflight_fixture_cmd.add_argument(
+        "--fixture",
+        help="Optional path to a compatible preflight fixture JSON file.",
+    )
+
     execute_cmd = subparsers.add_parser(
         "execute", help="Execute one expression against an empty in-memory graph."
     )
@@ -1737,6 +2017,36 @@ def _build_parser() -> argparse.ArgumentParser:
         "--name",
         choices=tuple(EXAMPLES.keys()),
         help="Print one named example instead of the full listing.",
+    )
+
+    generation_eval_cmd = subparsers.add_parser(
+        "generation-eval",
+        help="Score offline CogLang generation outputs against a prompt fixture.",
+    )
+    generation_eval_cmd.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="Output format for the generation eval report.",
+    )
+    generation_eval_cmd.add_argument(
+        "--fixture",
+        help="Optional fixture JSON path. Defaults to the packaged minimal fixture.",
+    )
+    generation_eval_cmd.add_argument(
+        "--answers-file",
+        help="Optional answers JSON path. Defaults to fixture reference expressions.",
+    )
+    generation_eval_output = generation_eval_cmd.add_mutually_exclusive_group()
+    generation_eval_output.add_argument(
+        "--summary-only",
+        action="store_true",
+        help="Omit per-case results from JSON output.",
+    )
+    generation_eval_output.add_argument(
+        "--failures-only",
+        action="store_true",
+        help="Limit JSON per-case results to failed cases.",
     )
 
     smoke_cmd = subparsers.add_parser(
@@ -1838,6 +2148,9 @@ def main(argv: list[str] | None = None) -> int:
             print("conformance_suites: " + ", ".join(payload["conformance_suites"]))
             print(f"readme: {payload['docs']['readme']}")
             print(f"install_guide: {payload['docs']['install_guide']}")
+            print(f"vision_proposal: {payload['docs']['vision_proposal']}")
+            print(f"evolution_boundary_proposal: {payload['docs']['evolution_boundary_proposal']}")
+            print(f"effect_budget_preflight_vocabulary: {payload['docs']['effect_budget_preflight_vocabulary']}")
             print(f"roadmap: {payload['docs']['roadmap']}")
             print(f"maintenance: {payload['docs']['maintenance']}")
             print(f"llms: {payload['machine_readable_summaries']['llms']}")
@@ -1948,6 +2261,30 @@ def main(argv: list[str] | None = None) -> int:
         else:
             print(json.dumps(payload, ensure_ascii=False, indent=2))
         return 0
+
+    if args.command == "generation-eval":
+        payload = generation_eval_payload(
+            fixture_path=args.fixture,
+            answers_path=args.answers_file,
+        )
+        payload = _generation_eval_output_payload(
+            payload,
+            summary_only=args.summary_only,
+            failures_only=args.failures_only,
+        )
+        if args.format == "text":
+            _print_generation_eval_text(payload)
+        else:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0 if payload["ok"] else 1
+
+    if args.command == "preflight-fixture":
+        payload = preflight_fixture_payload(args.fixture)
+        if args.format == "text":
+            _print_preflight_fixture_text(payload)
+        else:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0 if payload["ok"] else 1
 
     if args.command == "smoke":
         pytest_args = list(args.pytest_args)
@@ -2076,6 +2413,21 @@ def main(argv: list[str] | None = None) -> int:
         else:
             print("true" if valid else "false")
         return 0 if valid else 1
+
+    if args.command == "preflight":
+        decision = preflight_expression(
+            expr,
+            budget=_preflight_budget_from_args(args),
+            correlation_id=args.correlation_id,
+            enabled_capabilities=args.enabled_capability,
+            require_review_for_writes=not args.allow_writes_without_review,
+        )
+        payload = decision.to_dict()
+        if args.format == "text":
+            _print_preflight_text(payload)
+        else:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 1 if decision.decision == "rejected" else 0
 
     if args.command == "execute":
         if expr.head == "ParseError":

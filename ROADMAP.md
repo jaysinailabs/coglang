@@ -52,6 +52,41 @@ The stable `v1.1.0` release path is PyPI publication through Trusted Publishing.
 
 ---
 
+## Review Response Work Plan
+
+Recent review feedback is being handled as a sequence of small, reviewable
+changes. The current priority order is:
+
+1. `1.1.3` release preparation.
+   Align `pyproject.toml`, release notes, README/PyPI-facing text,
+   machine-readable summaries, package data, manifest metadata, and
+   release-check expectations for the repository features added after `1.1.2`.
+2. Reader routing and documentation density.
+   Keep the README first screen oriented around a 30-second reader guide, then
+   move larger governance reorganization only if the public extract and package
+   asset paths can stay clear.
+3. Preflight and generation-eval clarity.
+   Add an obviously accepted preflight example, clarify traversal estimate
+   semantics, and make generation-eval report evaluated versus unevaluated
+   maturity levels.
+4. Readable-render executable anchors.
+   Convert RRG candidate examples into a small fixture that pins canonical text
+   anchors before any renderer API or CLI mode is implemented.
+5. Schema-version registry.
+   Centralize schema-version string constants and add a release-check entry so
+   future schema bumps have one reviewable registration point.
+6. Public asset generation ergonomics.
+   Explore whether `_public_assets/` can eventually be derived during build or
+   release preparation, reducing manual mirror churn without weakening package
+   verification.
+
+The governance framework is now strong enough for a first external host
+implementation review. The most useful external contribution would be a host
+or consumer maintained outside the core runtime repository, evaluated against
+the existing HRC companion/formal boundary.
+
+---
+
 ## In Progress
 
 ### 1. Host Runtime Contract v0.2 tightening

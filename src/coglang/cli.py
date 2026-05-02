@@ -385,6 +385,7 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
             "workflow_required_step_names_present": False,
             "workflow_required_smoke_snippets": workflow_required_smoke_snippets,
             "workflow_required_smoke_snippets_present": False,
+            "workflow_manual_trigger_present": False,
             "public_entrypoint_only": False,
         }
     payload = json.loads(descriptor_path.read_text(encoding="utf-8"))
@@ -402,6 +403,11 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
         workflow_template_path.read_text(encoding="utf-8")
         if workflow_template_path.exists()
         else ""
+    )
+    workflow_manual_trigger_present = (
+        "workflow_dispatch:" in workflow_text
+        and "pull_request:" not in workflow_text
+        and "\n  push:" not in workflow_text
     )
     publish_workflow_text = (
         publish_workflow_template_path.read_text(encoding="utf-8")
@@ -433,6 +439,7 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
     payload["workflow_required_smoke_snippets_present"] = all(
         snippet in workflow_text for snippet in workflow_required_smoke_snippets
     )
+    payload["workflow_manual_trigger_present"] = workflow_manual_trigger_present
     payload["public_entrypoint_only"] = public_entrypoint_only
     return payload
 
@@ -1205,6 +1212,7 @@ def _release_check_payload() -> dict[str, Any]:
                 and minimal_ci_baseline["required_packaging_check_names_present"] is True
                 and minimal_ci_baseline["public_entrypoint_only"] is True
                 and minimal_ci_baseline["workflow_template_present"] is True
+                and minimal_ci_baseline["workflow_manual_trigger_present"] is True
                 and minimal_ci_baseline["workflow_required_step_names_present"] is True
                 and minimal_ci_baseline["workflow_required_smoke_snippets_present"] is True
             ),

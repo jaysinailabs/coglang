@@ -4,7 +4,8 @@
   "intent": "release-facing verification baseline",
   "workflow_template": {
     "source": ".github/workflows/ci.yml",
-    "destination": ".github/workflows/ci.yml"
+    "destination": ".github/workflows/ci.yml",
+    "trigger": "manual workflow_dispatch for pre-merge or release-preparation evidence"
   },
   "publish_workflow_template": {
     "source": ".github/workflows/publish.yml",

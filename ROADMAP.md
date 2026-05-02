@@ -90,6 +90,11 @@ Completed in the current maintenance sequence:
    `coglang public-assets --sync` repairs exact file mirrors in source or
    public-extract layouts. This is a source-checkout maintenance helper, not
    part of the minimum stable runtime command surface.
+9. Local-first CI budget discipline.
+   Contributors should use focused local tests, `coglang release-check`, and
+   `coglang smoke` before pushing. The `ci` workflow is manually triggered and
+   reserved for merge review, release preparation, or platform-specific remote
+   evidence.
 
 Open follow-through:
 
@@ -206,9 +211,10 @@ paths. These examples are companion evidence, not an expansion of the HRC v0.2
 frozen scope.
 
 The companion/formal asset decision is recorded in
-`CogLang_HRC_Companion_Asset_Classification_v0_1.md`. Public CI now runs the
-frozen HRC evidence commands, `coglang host-demo` and
-`coglang reference-host-demo`, against both built distribution paths. The likely
+`CogLang_HRC_Companion_Asset_Classification_v0_1.md`. Pre-merge or
+release-preparation CI can run the frozen HRC evidence commands, `coglang
+host-demo` and `coglang reference-host-demo`, against both built distribution
+paths. The likely
 next step is:
 
 - eventually, a host example maintained outside the core runtime repository

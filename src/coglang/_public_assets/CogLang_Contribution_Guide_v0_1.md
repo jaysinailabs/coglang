@@ -252,6 +252,29 @@ boundary visible before release.
 
 ## 4. What To Do Before Contributing
 
+### 4.0 Local-First Validation And CI Budget
+
+CogLang is maintained with a local-first validation policy. GitHub Actions is
+useful merge evidence, but it should not be the basic edit/test loop.
+
+Use this workflow by default:
+
+1. Work on a local branch and make small commits locally.
+2. Run the focused tests for the files you changed.
+3. Run `coglang release-check` for release-facing, packaging, CLI, public
+   documentation, or public asset mirror changes.
+4. Run `coglang smoke` before requesting review when the change touches runtime,
+   CLI, packaging, public assets, conformance, or host evidence.
+5. Batch follow-up fixes locally, then push once when remote evidence is useful.
+
+If remote discussion is needed before a branch is ready, open a draft PR and
+keep iterating locally. The `ci` workflow is manual, so it should be triggered
+only when a PR is ready for merge review, release preparation, or
+platform-specific remote evidence. This lets a draft carry context without
+spending full validation minutes. Mark the PR ready for review only when the
+local checks are already clean or when a platform-specific remote check is the
+thing being tested.
+
 Before opening a PR, follow this minimal path:
 
 1. Read [CogLang_Quickstart_v1_1_0.md](./CogLang_Quickstart_v1_1_0.md).

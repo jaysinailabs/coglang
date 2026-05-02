@@ -132,10 +132,20 @@ coglang bundle
 coglang preflight --format text 'AllNodes[]'
 coglang generation-eval --summary-only
 coglang generation-eval --export-requests --request-format jsonl
+coglang release-check
 coglang smoke
+coglang host-demo
+coglang reference-host-demo
 coglang demo
 coglang conformance --level smoke
 ```
+
+Use local validation as the normal edit/test loop. Accumulate small fixes in a
+local branch, run focused tests plus `coglang release-check` and `coglang smoke`
+when relevant, then push only when a PR is ready for review or remote evidence.
+Draft PRs are for early discussion. The GitHub `ci` workflow is manual and
+should be triggered only for merge review, release preparation, or
+platform-specific remote evidence.
 
 The public CLI entry point is `coglang`.
 

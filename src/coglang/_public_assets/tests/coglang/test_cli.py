@@ -1984,6 +1984,10 @@ def test_cli_minimal_ci_baseline_payload_shape():
         ".github/workflows/ci.yml",
     }
     assert payload["workflow_template_present"] is True
+    assert payload["workflow_template"]["trigger"] == (
+        "manual workflow_dispatch for pre-merge or release-preparation evidence"
+    )
+    assert payload["workflow_manual_trigger_present"] is True
     assert payload["publish_workflow_template_path"] in {
         "CogLang_Public_PyPI_Publish_Workflow_v0_1.yml",
         ".github/workflows/publish.yml",

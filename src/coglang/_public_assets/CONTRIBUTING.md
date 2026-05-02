@@ -14,6 +14,13 @@ Start here:
 
 Before opening a pull request:
 
+- Use a local-first validation flow to conserve GitHub Actions minutes. Batch
+  small commits locally, run the relevant checks in your checkout, and push only
+  when the branch is ready for review or remote evidence.
+- If you need early remote discussion before CI evidence is useful, open a draft
+  PR and keep iterating locally. The `ci` workflow is manual and should be run
+  by a maintainer only when the PR is ready for merge review, release
+  preparation, or platform-specific remote evidence.
 - Keep the scope narrow and state the validation commands you ran.
 - Use the pull request template in
   [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md).

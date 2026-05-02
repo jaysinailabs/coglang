@@ -168,13 +168,21 @@ coglang generation-eval --format text
 ```
 
 The request/response adapter is provider-neutral: it writes prompt records for
-an external runner and imports returned JSON or JSONL records with `case_id` and
-`output` fields. It does not call OpenAI, Anthropic, Ollama, or any other model
+an external runner and imports returned JSON or JSONL records with
+`schema_version`, `case_id`, and `output` fields. It does not call OpenAI,
+Anthropic, Ollama, or any other model
 provider directly. The default fixture currently contains 50 cases. `coglang
 release-check` verifies that the packaged fixture is present and loadable.
 `examples/generation_eval_offline_runner` provides a no-provider dry run of the
 same response-file contract, plus a three-case contract-smoke fixture under
 `examples/generation_eval_offline_runner/fixtures`.
+
+The versioned file boundary is documented in
+`CogLang_Generation_Eval_Request_Response_Contract_v0_1.md`. Request records use
+`coglang-generation-eval-request/v0.1`; response records use
+`coglang-generation-eval-response/v0.1`. New runners should include per-record
+`schema_version` values, while the scorer accepts omitted response
+`schema_version` values for transition compatibility.
 
 ## Editor Syntax Companion
 
@@ -239,6 +247,8 @@ contributor and maintainer workflow helper, not a new public `coglang` command.
 - `CogLang_Release_Notes_v1_1_1.md`
 - `CogLang_Release_Notes_v1_1_0.md`
   Current promises and non-promises.
+- `CogLang_Generation_Eval_Request_Response_Contract_v0_1.md`
+  Provider-neutral request/response file contract for external generation-eval runners.
 - `CogLang_Vision_Proposal_v0_1.md`
   Long-term capability proposal, including v1.2 candidate themes, graph-compute governance, and AI learning maturity.
 - `CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md`

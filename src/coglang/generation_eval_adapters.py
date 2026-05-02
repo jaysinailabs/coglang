@@ -11,7 +11,9 @@ from .generation_eval import (
 from .schema_versions import (
     GENERATION_EVAL_FIXTURE_SCHEMA_VERSION,
     GENERATION_EVAL_REQUEST_BATCH_SCHEMA_VERSION,
+    GENERATION_EVAL_REQUEST_SCHEMA_VERSION,
     GENERATION_EVAL_RESPONSE_BATCH_SCHEMA_VERSION,
+    GENERATION_EVAL_RESPONSE_SCHEMA_VERSION,
 )
 
 GENERATION_EVAL_OUTPUT_INSTRUCTIONS = (
@@ -36,6 +38,7 @@ def generation_eval_request_batch_payload(
     requests: list[dict[str, Any]] = []
     for case in cases:
         request = {
+            "schema_version": GENERATION_EVAL_REQUEST_SCHEMA_VERSION,
             "case_id": case.case_id,
             "level": case.level,
             "prompt": case.prompt,
@@ -54,10 +57,14 @@ def generation_eval_request_batch_payload(
         "case_count": len(requests),
         "include_reference": include_reference,
         "response_schema_version": GENERATION_EVAL_RESPONSE_BATCH_SCHEMA_VERSION,
+        "request_record_schema_version": GENERATION_EVAL_REQUEST_SCHEMA_VERSION,
+        "response_record_schema_version": GENERATION_EVAL_RESPONSE_SCHEMA_VERSION,
         "response_contract": {
             "format": "json_or_jsonl",
-            "required_fields": ["case_id", "output"],
+            "required_fields": ["schema_version", "case_id"],
             "optional_fields": ["model", "provider", "latency_ms", "raw_response_id"],
+            "preferred_output_field": "output",
+            "accepted_output_fields": ["output", "text", "completion"],
             "output_instructions": GENERATION_EVAL_OUTPUT_INSTRUCTIONS,
         },
         "requests": requests,
@@ -87,6 +94,7 @@ def load_generation_eval_response_answers(path: str | Path) -> dict[str, str]:
     for record in records:
         if not isinstance(record, dict):
             raise TypeError("generation eval response entries must be objects")
+        _validate_response_schema_version(record)
         case_id = str(record["case_id"])
         output = _response_output(record)
         answers[case_id] = output
@@ -101,7 +109,11 @@ def generation_eval_response_answers_payload(path: str | Path) -> dict[str, Any]
         "source_path": str(path),
         "answer_count": len(answers),
         "answers": [
-            {"case_id": case_id, "output": output}
+            {
+                "schema_version": GENERATION_EVAL_RESPONSE_SCHEMA_VERSION,
+                "case_id": case_id,
+                "output": output,
+            }
             for case_id, output in sorted(answers.items())
         ],
     }
@@ -123,6 +135,8 @@ def _load_response_records(path: Path) -> list[Any]:
     if isinstance(data, list):
         return data
     if isinstance(data, dict):
+        if "case_id" in data and any(key in data for key in ("output", "text", "completion")):
+            return [data]
         if "responses" in data:
             raw_records = data["responses"]
         elif "answers" in data:
@@ -135,6 +149,17 @@ def _load_response_records(path: Path) -> list[Any]:
             raise TypeError("generation eval response batch must contain a responses list")
         return raw_records
     raise TypeError("generation eval responses must be JSON object, list, or JSONL")
+
+
+def _validate_response_schema_version(record: dict[str, Any]) -> None:
+    schema_version = record.get("schema_version")
+    if schema_version is None:
+        return
+    if schema_version != GENERATION_EVAL_RESPONSE_SCHEMA_VERSION:
+        raise ValueError(
+            "generation eval response entry schema_version must be "
+            f"{GENERATION_EVAL_RESPONSE_SCHEMA_VERSION}"
+        )
 
 
 def _response_output(record: dict[str, Any]) -> str:

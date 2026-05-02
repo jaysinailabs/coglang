@@ -63,7 +63,9 @@ to create prompt records for an external model runner, then score returned
 JSON/JSONL records with `coglang generation-eval --responses-file responses.jsonl`.
 For a no-provider dry run of that file contract, see
 [examples/generation_eval_offline_runner](examples/generation_eval_offline_runner),
-which includes a three-case contract smoke fixture.
+which includes a three-case contract smoke fixture. The versioned file shape is
+defined in
+[CogLang_Generation_Eval_Request_Response_Contract_v0_1.md](CogLang_Generation_Eval_Request_Response_Contract_v0_1.md).
 
 Machine-readable project summaries:
 
@@ -227,6 +229,7 @@ Integration and release-facing documents:
 - [CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md](CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md)
 - [CogLang_Host_Runtime_Contract_v0_1.md](CogLang_Host_Runtime_Contract_v0_1.md)
 - [CogLang_Standalone_Install_and_Release_Guide_v0_1.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.md)
+- [CogLang_Generation_Eval_Request_Response_Contract_v0_1.md](CogLang_Generation_Eval_Request_Response_Contract_v0_1.md)
 - [CogLang_Release_Notes_v1_1_5.md](CogLang_Release_Notes_v1_1_5.md)
 - [CogLang_Release_Notes_v1_1_4.md](CogLang_Release_Notes_v1_1_4.md)
 - [CogLang_Release_Notes_v1_1_3.md](CogLang_Release_Notes_v1_1_3.md)
@@ -299,6 +302,7 @@ Use the project documents this way:
 - [CogLang_Release_Notes_v1_1_3.md](CogLang_Release_Notes_v1_1_3.md): older Python package patch notes.
 - [CogLang_Release_Notes_v1_1_2.md](CogLang_Release_Notes_v1_1_2.md): older Python package patch notes.
 - [CogLang_Release_Notes_v1_1_0.md](CogLang_Release_Notes_v1_1_0.md): stable language release commitments.
+- [CogLang_Generation_Eval_Request_Response_Contract_v0_1.md](CogLang_Generation_Eval_Request_Response_Contract_v0_1.md): provider-neutral request/response file contract for external generation-eval runners.
 - [CogLang_Vision_Proposal_v0_1.md](CogLang_Vision_Proposal_v0_1.md): long-term capability proposal, not a release contract.
 - [CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md](CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md): v1.2 planning boundary for semantic-action evolution, not a stable specification.
 - [CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md](CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md): minimal v1.2 vocabulary candidate for effect and graph-budget preflight, not executable v1.1 syntax.

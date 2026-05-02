@@ -35,7 +35,8 @@ This release publishes the source-maintenance batch accumulated after `1.1.4`:
   replace `parse` or `valid_coglang`.
 - `coglang generation-eval` now supports provider-neutral request export and
   response-file scoring, so external model runners can be evaluated without
-  adding provider SDK dependencies.
+  adding provider SDK dependencies. The record shape is now documented in
+  `CogLang_Generation_Eval_Request_Response_Contract_v0_1.md`.
 - `examples/generation_eval_offline_runner` provides a no-provider three-case
   dry run for the generation-eval request/response file contract.
 - `examples/vscode_textmate_syntax` provides a private, local-installable

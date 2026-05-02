@@ -47,13 +47,17 @@ def test_local_ci_ci_dry_run_includes_offline_contract_and_conformance():
     payload = local_ci.run_profile("ci", dry_run=True)
     step_names = [step["name"] for step in payload["steps"]]
 
-    assert step_names[:3] == [
+    assert step_names[:4] == [
+        "pytest",
         "public_assets",
         "generation_eval_offline_contract",
         "bundle",
     ]
     assert step_names[-1] == "conformance_smoke"
-    offline_contract = payload["steps"][1]
+    pytest_command = " ".join(payload["steps"][0]["command"])
+    assert "pytest" in pytest_command
+    assert "-q" in pytest_command
+    offline_contract = payload["steps"][2]
     rendered_command = " ".join(offline_contract["command"])
     assert "generation_eval_three_case_v0_1.json" in rendered_command
     assert "mock_responses.jsonl" in rendered_command

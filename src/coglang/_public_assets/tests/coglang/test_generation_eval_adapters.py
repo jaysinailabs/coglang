@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pytest
 
@@ -18,6 +19,23 @@ from coglang.generation_eval_adapters import (
 )
 
 
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
+def test_generation_eval_request_response_contract_doc_names_record_versions():
+    text = (
+        _repo_root()
+        / "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
+    ).read_text(encoding="utf-8")
+
+    assert "coglang-generation-eval-request/v0.1" in text
+    assert "coglang-generation-eval-response/v0.1" in text
+    assert "case_id" in text
+    assert "output" in text
+    assert "provider-neutral" in text
+
+
 def test_generation_eval_request_batch_exports_provider_neutral_records():
     payload = generation_eval_request_batch_payload()
     first_request = payload["requests"][0]
@@ -27,9 +45,25 @@ def test_generation_eval_request_batch_exports_provider_neutral_records():
     assert payload["response_schema_version"] == (
         "coglang-generation-eval-response-batch/v0.1"
     )
+    assert payload["request_record_schema_version"] == (
+        "coglang-generation-eval-request/v0.1"
+    )
+    assert payload["response_record_schema_version"] == (
+        "coglang-generation-eval-response/v0.1"
+    )
     assert payload["case_count"] == 50
     assert payload["include_reference"] is False
-    assert payload["response_contract"]["required_fields"] == ["case_id", "output"]
+    assert payload["response_contract"]["required_fields"] == [
+        "schema_version",
+        "case_id",
+    ]
+    assert payload["response_contract"]["preferred_output_field"] == "output"
+    assert payload["response_contract"]["accepted_output_fields"] == [
+        "output",
+        "text",
+        "completion",
+    ]
+    assert first_request["schema_version"] == "coglang-generation-eval-request/v0.1"
     assert first_request["case_id"] == "L1-001"
     assert first_request["instructions"] == GENERATION_EVAL_OUTPUT_INSTRUCTIONS
     assert first_request["expected_top_level_heads"] == ["Equal"]
@@ -49,6 +83,7 @@ def test_generation_eval_request_jsonl_exports_one_record_per_case():
     records = [json.loads(line) for line in text.splitlines()]
 
     assert len(records) == 50
+    assert records[0]["schema_version"] == "coglang-generation-eval-request/v0.1"
     assert records[0]["case_id"] == "L1-001"
     assert records[0]["instructions"] == GENERATION_EVAL_OUTPUT_INSTRUCTIONS
     assert "reference_expr" not in records[0]
@@ -60,8 +95,20 @@ def test_generation_eval_response_loader_accepts_jsonl_output(tmp_path):
         "\n".join(
             [
                 json.dumps({"case_id": "L1-001", "output": "Equal[1, 1]"}),
-                json.dumps({"case_id": "L1-002", "text": "NotEqual[1, 2]"}),
-                json.dumps({"case_id": "L1-003", "completion": "GreaterThan[2, 1]"}),
+                json.dumps(
+                    {
+                        "schema_version": "coglang-generation-eval-response/v0.1",
+                        "case_id": "L1-002",
+                        "text": "NotEqual[1, 2]",
+                    }
+                ),
+                json.dumps(
+                    {
+                        "schema_version": "coglang-generation-eval-response/v0.1",
+                        "case_id": "L1-003",
+                        "completion": "GreaterThan[2, 1]",
+                    }
+                ),
             ]
         ),
         encoding="utf-8",
@@ -93,8 +140,16 @@ def test_generation_eval_response_loader_accepts_json_response_batch(tmp_path):
     assert payload["schema_version"] == "coglang-generation-eval-response-batch/v0.1"
     assert payload["answer_count"] == 2
     assert payload["answers"] == [
-        {"case_id": "L1-001", "output": "Equal[1, 1]"},
-        {"case_id": "L1-002", "output": "NotEqual[1, 2]"},
+        {
+            "schema_version": "coglang-generation-eval-response/v0.1",
+            "case_id": "L1-001",
+            "output": "Equal[1, 1]",
+        },
+        {
+            "schema_version": "coglang-generation-eval-response/v0.1",
+            "case_id": "L1-002",
+            "output": "NotEqual[1, 2]",
+        },
     ]
 
 
@@ -118,6 +173,23 @@ def test_generation_eval_response_loader_rejects_missing_output(tmp_path):
     )
 
     with pytest.raises(KeyError, match="missing output"):
+        load_generation_eval_response_answers(responses_path)
+
+
+def test_generation_eval_response_loader_rejects_unknown_schema_version(tmp_path):
+    responses_path = tmp_path / "responses.jsonl"
+    responses_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "coglang-generation-eval-response/v9.9",
+                "case_id": "L1-001",
+                "output": "Equal[1, 1]",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="schema_version"):
         load_generation_eval_response_answers(responses_path)
 
 

@@ -33,7 +33,8 @@ CogLang `1.1.5` 是 stable `v1.1.0` 语言线上的包级维护 patch。
   或 `valid_coglang`。
 - `coglang generation-eval` 现在支持 provider-neutral request export 和
   response-file scoring，因此外部模型 runner 可以被评分，而不需要把 provider
-  SDK 加入 CogLang 依赖。
+  SDK 加入 CogLang 依赖。记录格式现在由
+  `CogLang_Generation_Eval_Request_Response_Contract_v0_1.md` 明确文档化。
 - `examples/generation_eval_offline_runner` 提供无 provider 的三用例 dry run，
   用于验证 generation-eval request/response 文件契约。
 - `examples/vscode_textmate_syntax` 提供 private、可本地安装的

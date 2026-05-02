@@ -18,7 +18,9 @@ from coglang.schema_versions import (
     FORMAL_OPEN_SOURCE_READINESS_SCHEMA_VERSION,
     GENERATION_EVAL_FIXTURE_SCHEMA_VERSION,
     GENERATION_EVAL_REQUEST_BATCH_SCHEMA_VERSION,
+    GENERATION_EVAL_REQUEST_SCHEMA_VERSION,
     GENERATION_EVAL_RESPONSE_BATCH_SCHEMA_VERSION,
+    GENERATION_EVAL_RESPONSE_SCHEMA_VERSION,
     GENERATION_EVAL_RESULT_SCHEMA_VERSION,
     GRAPH_BUDGET_ESTIMATE_SCHEMA_VERSION,
     GRAPH_BUDGET_SCHEMA_VERSION,
@@ -63,7 +65,9 @@ EXPECTED_SCHEMA_VERSION_REGISTRY = {
     "generation_eval_fixture": "coglang-generation-eval-fixture/v0.1",
     "generation_eval_result": "coglang-generation-eval-result/v0.1",
     "generation_eval_request_batch": "coglang-generation-eval-request-batch/v0.1",
+    "generation_eval_request": "coglang-generation-eval-request/v0.1",
     "generation_eval_response_batch": "coglang-generation-eval-response-batch/v0.1",
+    "generation_eval_response": "coglang-generation-eval-response/v0.1",
     "readable_render_golden_candidates": (
         "coglang-readable-render-golden-candidates/v0.1"
     ),
@@ -155,8 +159,16 @@ def test_schema_version_constants_match_registry_values():
         == SCHEMA_VERSION_REGISTRY["generation_eval_request_batch"]
     )
     assert (
+        GENERATION_EVAL_REQUEST_SCHEMA_VERSION
+        == SCHEMA_VERSION_REGISTRY["generation_eval_request"]
+    )
+    assert (
         GENERATION_EVAL_RESPONSE_BATCH_SCHEMA_VERSION
         == SCHEMA_VERSION_REGISTRY["generation_eval_response_batch"]
+    )
+    assert (
+        GENERATION_EVAL_RESPONSE_SCHEMA_VERSION
+        == SCHEMA_VERSION_REGISTRY["generation_eval_response"]
     )
     assert (
         READABLE_RENDER_GOLDEN_CANDIDATES_SCHEMA_VERSION
@@ -202,8 +214,16 @@ def test_runtime_modules_import_schema_versions_from_registry():
         == GENERATION_EVAL_REQUEST_BATCH_SCHEMA_VERSION
     )
     assert (
+        generation_eval_adapters.GENERATION_EVAL_REQUEST_SCHEMA_VERSION
+        == GENERATION_EVAL_REQUEST_SCHEMA_VERSION
+    )
+    assert (
         generation_eval_adapters.GENERATION_EVAL_RESPONSE_BATCH_SCHEMA_VERSION
         == GENERATION_EVAL_RESPONSE_BATCH_SCHEMA_VERSION
+    )
+    assert (
+        generation_eval_adapters.GENERATION_EVAL_RESPONSE_SCHEMA_VERSION
+        == GENERATION_EVAL_RESPONSE_SCHEMA_VERSION
     )
     assert (
         open_source_extract.PUBLIC_REPO_EXTRACT_RUN_SCHEMA_VERSION

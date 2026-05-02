@@ -28,6 +28,10 @@
     "profiles": ["quick", "ci", "package"],
     "intent": "local-first validation before maintainer-triggered remote workflow evidence"
   },
+  "workflow_action_refs": [
+    "actions/checkout@v4",
+    "actions/setup-python@v5"
+  ],
   "commands": [
     {
       "name": "bundle",

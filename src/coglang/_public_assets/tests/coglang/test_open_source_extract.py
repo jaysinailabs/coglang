@@ -150,6 +150,9 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (
         destination / "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md"
     ).exists()
+    assert (
+        destination / "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
+    ).exists()
     assert (destination / "CogLang_Quickstart_v1_1_0.zh-CN.md").exists()
     assert (destination / "CogLang_Specification_v1_1_0_Draft.zh-CN.md").exists()
     assert (destination / "CogLang_Conformance_Suite_v1_1_0.zh-CN.md").exists()
@@ -472,6 +475,10 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         == "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md"
     )
     assert (
+        manifest["docs"]["generation_eval_request_response_contract"]
+        == "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
+    )
+    assert (
         manifest["docs"]["hrc_companion_asset_classification"]
         == "CogLang_HRC_Companion_Asset_Classification_v0_1.md"
     )
@@ -511,6 +518,10 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (
         installed_like_manifest["docs"]["readable_render_api_promotion_checklist"]
         == "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md"
+    )
+    assert (
+        installed_like_manifest["docs"]["generation_eval_request_response_contract"]
+        == "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
     )
     assert (
         installed_like_manifest["docs"]["hrc_companion_asset_classification"]

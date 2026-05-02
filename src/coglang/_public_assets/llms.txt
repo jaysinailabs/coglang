@@ -38,6 +38,7 @@ Key design choices:
 - non-Python minimal host/runtime stub evidence through `examples/node_minimal_host_runtime_stub`, without changing HRC v0.2
 - a minimal `generation-eval` fixture for checking LLM-generated CogLang outputs against parse, canonicalization, validation, top-level-head, hallucinated-operator, and maturity summaries
 - a provider-neutral `generation-eval` request/response adapter for exporting prompt records and scoring external model JSON/JSONL responses without importing provider SDKs
+- CogLang_Generation_Eval_Request_Response_Contract_v0_1.md as the versioned file contract for external generation-eval runners
 - `examples/generation_eval_offline_runner` for a no-provider dry run and three-case contract smoke of the generation-eval response-file contract
 - `scripts/local_ci.py` for local-first validation profiles before maintainer-triggered GitHub Actions evidence
 - `examples/vscode_textmate_syntax` for companion editor-only TextMate highlighting; not a parser, validator, LSP, formatter, or normative grammar
@@ -68,6 +69,7 @@ Core documents:
 - CogLang_Release_Notes_v1_1_2.md: older Python package patch notes
 - CogLang_Release_Notes_v1_1_1.md: older Python package patch notes
 - CogLang_Release_Notes_v1_1_0.md: stable language release commitments
+- CogLang_Generation_Eval_Request_Response_Contract_v0_1.md: provider-neutral request/response file contract for external generation-eval runners
 - CogLang_Vision_Proposal_v0_1.md: long-term capability proposal, including v1.2 candidate themes, graph-compute governance, and AI learning maturity
 - CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md: v1.2 planning boundary for semantic-action evolution, Core stability, profiles, effect preflight, graph budgets, and review bundles
 - CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md: minimal v1.2 vocabulary candidate for EffectSummary, GraphBudget, GraphBudgetEstimate, PreflightDecision, and budget-related errors; not stable v1.1 syntax

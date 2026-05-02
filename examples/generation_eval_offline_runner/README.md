@@ -8,6 +8,9 @@ loop. The runner uses only the Python standard library and echoes fixture
 `reference_expr` values from request records so the response-file contract can
 be tested without spending model tokens or importing provider SDKs.
 
+The file contract is defined in
+[CogLang_Generation_Eval_Request_Response_Contract_v0_1.md](../../CogLang_Generation_Eval_Request_Response_Contract_v0_1.md).
+
 ## Contract Smoke
 
 For the shortest path, score the included three-case fixture and static
@@ -31,9 +34,25 @@ python -m coglang generation-eval --responses-file .tmp_generation_eval_response
 ```
 
 The first command exports provider-neutral prompt records. The second command
-acts as a tiny external runner and writes JSONL response records with `case_id`
-and `output`. The third command scores those responses with CogLang's
-deterministic scorer.
+acts as a tiny external runner and writes JSONL response records with
+`schema_version`, `case_id`, and `output`. The third command scores those
+responses with CogLang's deterministic scorer.
 
 For real model usage, replace `mock_responses.py` with your own runner that
 preserves the same response-file shape.
+
+## Constrained Generation Link
+
+The companion grammars in [../grammar](../grammar) can be used by an external
+runner before it writes response JSONL:
+
+1. export request records with `coglang generation-eval --export-requests`
+2. use a Lark, GBNF, Outlines, llama.cpp, or other grammar-aware runner to
+   produce one CogLang M-expression per `case_id`
+3. write response records with schema version
+   `coglang-generation-eval-response/v0.1`
+4. score the response file with `coglang generation-eval --responses-file`
+
+CogLang intentionally keeps that runner outside the core package. The grammar
+files reduce malformed output; `parse`, `canonicalize`, `valid_coglang`, and
+the deterministic scorer remain the authority.

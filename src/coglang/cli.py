@@ -378,6 +378,10 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
         "python -m coglang host-demo",
         "python -m coglang reference-host-demo",
     ]
+    workflow_required_action_refs = [
+        "actions/checkout@v4",
+        "actions/setup-python@v5",
+    ]
     publish_workflow_required_snippets = [
         "pypa/gh-action-pypi-publish@release/v1",
         "id-token: write",
@@ -404,6 +408,8 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
             "workflow_required_step_names_present": False,
             "workflow_required_smoke_snippets": workflow_required_smoke_snippets,
             "workflow_required_smoke_snippets_present": False,
+            "workflow_required_action_refs": workflow_required_action_refs,
+            "workflow_required_action_refs_present": False,
             "workflow_manual_trigger_present": False,
             "local_ci_script_path": local_ci_script_relpath,
             "local_ci_script_present": False,
@@ -461,6 +467,10 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
     payload["workflow_required_smoke_snippets"] = workflow_required_smoke_snippets
     payload["workflow_required_smoke_snippets_present"] = all(
         snippet in workflow_text for snippet in workflow_required_smoke_snippets
+    )
+    payload["workflow_required_action_refs"] = workflow_required_action_refs
+    payload["workflow_required_action_refs_present"] = all(
+        ref in workflow_text for ref in workflow_required_action_refs
     )
     payload["workflow_manual_trigger_present"] = workflow_manual_trigger_present
     local_simulation = payload.get("local_simulation", {})
@@ -641,6 +651,10 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
         "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
         "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
     )
+    generation_eval_contract_path, _ = _resolve_project_artifact(
+        "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
+        "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
+    )
     install_guide_path, _ = _resolve_project_artifact(
         "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
         "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
@@ -686,10 +700,11 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
                 and readable_render_boundary_path.exists()
                 and readable_render_golden_examples_path.exists()
                 and readable_render_api_promotion_checklist_path.exists()
+                and generation_eval_contract_path.exists()
                 and llms_path.exists()
                 and llms_full_path.exists()
             ),
-            "detail": "public docs set + operator/render governance",
+            "detail": "public docs set + operator/render/eval governance",
         },
         {
             "name": "G2_public_release_surface",
@@ -711,6 +726,7 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
                 and ci_baseline["required_command_names_present"] is True
                 and ci_baseline["required_packaging_check_names_present"] is True
                 and ci_baseline["workflow_required_smoke_snippets_present"] is True
+                and ci_baseline["workflow_required_action_refs_present"] is True
             ),
             "detail": "install guide + bundle/release-check/smoke path",
         },
@@ -739,6 +755,7 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
                 and ci_baseline["workflow_template_present"] is True
                 and ci_baseline["workflow_required_step_names_present"] is True
                 and ci_baseline["workflow_required_smoke_snippets_present"] is True
+                and ci_baseline["workflow_required_action_refs_present"] is True
             ),
             "detail": ci_baseline["path"],
         },
@@ -838,6 +855,10 @@ def _manifest_payload() -> dict[str, Any]:
         "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
         "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
     )[1]
+    generation_eval_contract_relpath = _resolve_project_artifact(
+        "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
+        "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
+    )[1]
     vision_proposal_relpath = _resolve_project_artifact(
         "CogLang_Vision_Proposal_v0_1.md",
         "CogLang_Vision_Proposal_v0_1.md",
@@ -868,6 +889,7 @@ def _manifest_payload() -> dict[str, Any]:
         "readable_render_boundary": readable_render_boundary_relpath,
         "readable_render_golden_examples": readable_render_golden_examples_relpath,
         "readable_render_api_promotion_checklist": readable_render_api_promotion_checklist_relpath,
+        "generation_eval_request_response_contract": generation_eval_contract_relpath,
         "vision_proposal": vision_proposal_relpath,
         "evolution_boundary_proposal": evolution_boundary_proposal_relpath,
         "effect_budget_preflight_vocabulary": effect_budget_preflight_vocabulary_relpath,
@@ -921,6 +943,9 @@ def _manifest_payload() -> dict[str, Any]:
                 ],
                 "hrc_companion_asset_classification": docs[
                     "hrc_companion_asset_classification"
+                ],
+                "generation_eval_request_response_contract": docs[
+                    "generation_eval_request_response_contract"
                 ],
                 "roadmap": docs["roadmap"],
                 "maintenance": docs["maintenance"],
@@ -1033,6 +1058,10 @@ def _release_check_payload() -> dict[str, Any]:
     readable_render_api_promotion_checklist_path, _ = _resolve_project_artifact(
         "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
         "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
+    )
+    generation_eval_contract_path, _ = _resolve_project_artifact(
+        "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
+        "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
     )
     node_consumer_script_path, _ = _resolve_project_artifact(
         "examples/node_host_consumer/consume_hrc_envelopes.mjs",
@@ -1176,6 +1205,10 @@ def _release_check_payload() -> dict[str, Any]:
         "_public_assets/CogLang_HRC_Companion_Asset_Classification_v0_1.md"
         in package_data
     )
+    generation_eval_contract_packaged = (
+        "_public_assets/CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
+        in package_data
+    )
 
     runtime_entry_paths = distribution["runtime_entry_paths"]
     runtime_entry_ok = _paths_exist(root, runtime_entry_paths)
@@ -1297,6 +1330,14 @@ def _release_check_payload() -> dict[str, Any]:
             "detail": "HRC companion asset classification + package data",
         },
         {
+            "name": "generation_eval_file_contract",
+            "ok": (
+                generation_eval_contract_path.exists()
+                and generation_eval_contract_packaged
+            ),
+            "detail": "generation-eval request/response file contract + package data",
+        },
+        {
             "name": "open_source_boundary",
             "ok": (
                 open_source_boundary["schema_version"]
@@ -1321,6 +1362,7 @@ def _release_check_payload() -> dict[str, Any]:
                 and minimal_ci_baseline["local_ci_profiles_present"] is True
                 and minimal_ci_baseline["workflow_required_step_names_present"] is True
                 and minimal_ci_baseline["workflow_required_smoke_snippets_present"] is True
+                and minimal_ci_baseline["workflow_required_action_refs_present"] is True
             ),
             "detail": minimal_ci_baseline["path"],
         },
@@ -2253,10 +2295,22 @@ def _print_generation_eval_request_batch_text(payload: dict[str, Any]) -> None:
     print(f"case_count: {payload['case_count']}")
     print(f"include_reference: {str(payload['include_reference']).lower()}")
     print(f"response_schema_version: {payload['response_schema_version']}")
+    print(
+        "request_record_schema_version: "
+        + str(payload.get("request_record_schema_version", "unknown"))
+    )
+    print(
+        "response_record_schema_version: "
+        + str(payload.get("response_record_schema_version", "unknown"))
+    )
     print("response_format: " + str(response_contract.get("format", "unknown")))
     print(
         "response_required_fields: "
         + ", ".join(response_contract.get("required_fields", []))
+    )
+    print(
+        "response_output_fields: "
+        + ", ".join(response_contract.get("accepted_output_fields", []))
     )
 
 
@@ -2744,6 +2798,10 @@ def main(argv: list[str] | None = None) -> int:
             print(
                 "hrc_companion_asset_classification: "
                 + payload["docs"]["hrc_companion_asset_classification"]
+            )
+            print(
+                "generation_eval_request_response_contract: "
+                + payload["docs"]["generation_eval_request_response_contract"]
             )
             print(f"roadmap: {payload['docs']['roadmap']}")
             print(f"maintenance: {payload['docs']['maintenance']}")

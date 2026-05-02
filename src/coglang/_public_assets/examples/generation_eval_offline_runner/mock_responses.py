@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 SCHEMA_VERSION = "coglang-generation-eval-offline-runner-demo/v0.1"
+RESPONSE_SCHEMA_VERSION = "coglang-generation-eval-response/v0.1"
 
 
 def _load_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -26,6 +27,7 @@ def _response_for_request(record: dict[str, Any]) -> dict[str, str]:
             "mock_responses.py requires request records exported with --include-reference"
         )
     return {
+        "schema_version": RESPONSE_SCHEMA_VERSION,
         "case_id": str(record["case_id"]),
         "output": str(record["reference_expr"]),
     }

@@ -52,6 +52,8 @@ def test_generation_eval_offline_runner_writes_scorable_responses(tmp_path):
         "jsonl-response-output",
     ]
     assert responses_path.exists()
+    first_response = json.loads(responses_path.read_text(encoding="utf-8").splitlines()[0])
+    assert first_response["schema_version"] == "coglang-generation-eval-response/v0.1"
     assert scored["ok"] is True
     assert scored["summary"]["validate_ok_count"] == 50
 
@@ -119,5 +121,7 @@ def test_generation_eval_offline_runner_readme_documents_provider_boundary():
     assert "--include-reference" in readme
     assert "--responses-file" in readme
     assert "provider SDKs" in readme
+    assert "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md" in readme
+    assert "coglang-generation-eval-response/v0.1" in readme
     assert "three-case fixture" in readme
     assert "not a replacement" in readme

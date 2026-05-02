@@ -66,6 +66,7 @@ def _ci_steps() -> list[Step]:
     )
     responses = "examples/generation_eval_offline_runner/fixtures/mock_responses.jsonl"
     return [
+        Step("pytest", _python("-m", "pytest", "-q")),
         Step(
             "public_assets",
             _python("-m", "coglang", "public-assets", "--format", "text"),

@@ -139,6 +139,7 @@ coglang execute 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
 coglang preflight --format text 'AllNodes[]'
 coglang generation-eval --summary-only
 coglang generation-eval --export-requests --request-format jsonl
+python scripts/local_ci.py --profile quick
 coglang demo
 coglang host-demo
 coglang reference-host-demo
@@ -169,7 +170,22 @@ an external runner and imports returned JSON or JSONL records with `case_id` and
 provider directly. The default fixture currently contains 50 cases. `coglang
 release-check` verifies that the packaged fixture is present and loadable.
 `examples/generation_eval_offline_runner` provides a no-provider dry run of the
-same response-file contract.
+same response-file contract, plus a three-case contract-smoke fixture under
+`examples/generation_eval_offline_runner/fixtures`.
+
+## Local CI Simulation
+
+The GitHub `ci` workflow is manually triggered to conserve Actions minutes.
+Use `scripts/local_ci.py` for local-first validation:
+
+```powershell
+python scripts/local_ci.py --profile quick
+python scripts/local_ci.py --profile ci
+python scripts/local_ci.py --profile package
+```
+
+The script only orchestrates existing release-facing commands. It is a
+contributor and maintainer workflow helper, not a new public `coglang` command.
 
 ## Document Entry Points
 

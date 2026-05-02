@@ -1,0 +1,3 @@
+{"case_id": "GE-SMOKE-L1", "output": "Equal[1, 1]"}
+{"case_id": "GE-SMOKE-L2", "output": "AllNodes[]"}
+{"case_id": "GE-SMOKE-L3", "output": "Create[\"Entity\", {\"id\": \"ada\", \"category\": \"Person\"}]"}

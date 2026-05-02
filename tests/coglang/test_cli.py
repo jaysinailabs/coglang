@@ -1783,6 +1783,11 @@ def test_cli_release_check_payload_shape():
         for item in payload["checks"]
     )
     assert any(
+        item["name"] == "local_ci_simulation"
+        and item["ok"] is True
+        for item in payload["checks"]
+    )
+    assert any(
         item["name"] == "executor_interface"
         and item["ok"] is True
         and item["detail"] == "abstract_methods=execute,validate"
@@ -1845,6 +1850,7 @@ def test_cli_release_check_json_output():
     assert '"node_minimal_host_runtime_stub"' in output
     assert '"grammar_examples"' in output
     assert '"generation_eval_offline_runner"' in output
+    assert '"local_ci_simulation"' in output
     assert '"executor_interface"' in output
 
 
@@ -1910,7 +1916,11 @@ def test_cli_release_check_text_output():
     assert "grammar_examples: ok (examples/grammar + package data)" in output
     assert (
         "generation_eval_offline_runner: ok "
-        "(examples/generation_eval_offline_runner + package data)" in output
+        "(examples/generation_eval_offline_runner + fixture + package data)" in output
+    )
+    assert (
+        "local_ci_simulation: ok "
+        "(scripts/local_ci.py + package data)" in output
     )
     assert "executor_interface: ok (abstract_methods=execute,validate)" in output
 
@@ -2017,6 +2027,10 @@ def test_cli_minimal_ci_baseline_payload_shape():
     assert payload["required_packaging_check_names_present"] is True
     assert payload["workflow_required_step_names_present"] is True
     assert payload["workflow_required_smoke_snippets_present"] is True
+    assert payload["local_ci_script_path"] == "scripts/local_ci.py"
+    assert payload["local_ci_script_present"] is True
+    assert payload["local_ci_profiles"] == ["quick", "ci", "package"]
+    assert payload["local_ci_profiles_present"] is True
     assert payload["public_entrypoint_only"] is True
     assert payload["required_command_names"] == [
         "bundle",
@@ -2064,7 +2078,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 64
+    assert payload["entry_count"] == 65
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -2091,6 +2105,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "test_generation_eval_adapters.py" in tree_entries["tests/coglang"]["include"]
     assert "test_generation_eval_offline_runner.py" in tree_entries["tests/coglang"]["include"]
     assert "test_grammar_examples.py" in tree_entries["tests/coglang"]["include"]
+    assert "test_local_ci_script.py" in tree_entries["tests/coglang"]["include"]
     assert "test_node_host_consumer.py" in tree_entries["tests/coglang"]["include"]
     assert "test_node_minimal_host_runtime_stub.py" in tree_entries["tests/coglang"]["include"]
     assert "test_preflight.py" in tree_entries["tests/coglang"]["include"]
@@ -2111,7 +2126,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "examples/generation_eval_offline_runner" in [
         item["source"] for item in payload["entries"]
     ]
-    assert "examples/generation_eval_offline_runner" in [
+    assert "scripts" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Operator_Catalog_v1_1_0.md" in [

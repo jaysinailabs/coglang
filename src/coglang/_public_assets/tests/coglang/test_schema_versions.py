@@ -24,6 +24,7 @@ from coglang.schema_versions import (
     GRAPH_BUDGET_SCHEMA_VERSION,
     HOST_DEMO_SCHEMA_VERSION,
     HOST_RUNTIME_SCHEMA_PACK_ID,
+    LOCAL_CI_SIMULATION_SCHEMA_VERSION,
     MINIMAL_CI_BASELINE_SCHEMA_VERSION,
     NODE_HOST_CONSUMER_DEMO_SCHEMA_VERSION,
     NODE_MINIMAL_HOST_RUNTIME_STUB_DEMO_SCHEMA_VERSION,
@@ -51,6 +52,7 @@ EXPECTED_SCHEMA_VERSION_REGISTRY = {
     "minimal_ci_baseline": "coglang-minimal-ci-baseline/v0.1",
     "public_repo_extract_manifest": "coglang-public-repo-extract-manifest/v0.1",
     "public_repo_extract_run": "coglang-public-repo-extract-run/v0.1",
+    "local_ci_simulation": "coglang-local-ci-simulation/v0.1",
     "effect_summary": "coglang-effect-summary/v0.1",
     "graph_budget": "coglang-graph-budget/v0.1",
     "graph_budget_estimate": "coglang-graph-budget-estimate/v0.1",
@@ -116,6 +118,10 @@ def test_schema_version_constants_match_registry_values():
     assert (
         PUBLIC_REPO_EXTRACT_RUN_SCHEMA_VERSION
         == SCHEMA_VERSION_REGISTRY["public_repo_extract_run"]
+    )
+    assert (
+        LOCAL_CI_SIMULATION_SCHEMA_VERSION
+        == SCHEMA_VERSION_REGISTRY["local_ci_simulation"]
     )
     assert EFFECT_SUMMARY_SCHEMA_VERSION == SCHEMA_VERSION_REGISTRY["effect_summary"]
     assert GRAPH_BUDGET_SCHEMA_VERSION == SCHEMA_VERSION_REGISTRY["graph_budget"]

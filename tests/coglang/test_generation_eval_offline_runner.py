@@ -75,6 +75,37 @@ def test_generation_eval_offline_runner_requires_reference_records(tmp_path):
     assert not responses_path.exists()
 
 
+def test_generation_eval_offline_runner_static_contract_smoke_fixture():
+    root = _repo_root()
+    fixture_path = (
+        root
+        / "examples"
+        / "generation_eval_offline_runner"
+        / "fixtures"
+        / "generation_eval_three_case_v0_1.json"
+    )
+    responses_path = (
+        root
+        / "examples"
+        / "generation_eval_offline_runner"
+        / "fixtures"
+        / "mock_responses.jsonl"
+    )
+
+    payload = generation_eval_payload(
+        fixture_path=fixture_path,
+        answers=load_generation_eval_response_answers(responses_path),
+        answer_source=str(responses_path),
+    )
+
+    assert payload["ok"] is True
+    assert payload["case_count"] == 3
+    assert payload["summary"]["validate_ok_count"] == 3
+    assert payload["maturity"]["evaluated_levels"] == ["L1", "L2", "L3"]
+    assert payload["maturity"]["unevaluated_levels"] == ["L4", "L5", "L6"]
+    assert payload["maturity"]["evaluation_complete"] is False
+
+
 def test_generation_eval_offline_runner_readme_documents_provider_boundary():
     readme = (
         _repo_root()
@@ -88,3 +119,5 @@ def test_generation_eval_offline_runner_readme_documents_provider_boundary():
     assert "--include-reference" in readme
     assert "--responses-file" in readme
     assert "provider SDKs" in readme
+    assert "three-case fixture" in readme
+    assert "not a replacement" in readme

@@ -265,7 +265,10 @@ Use this workflow by default:
    documentation, or public asset mirror changes.
 4. Run `coglang smoke` before requesting review when the change touches runtime,
    CLI, packaging, public assets, conformance, or host evidence.
-5. Batch follow-up fixes locally, then push once when remote evidence is useful.
+5. Use `python scripts/local_ci.py --profile quick` during normal iteration,
+   `--profile ci` before review, and `--profile package` before release
+   preparation when wheel/sdist install evidence is needed.
+6. Batch follow-up fixes locally, then push once when remote evidence is useful.
 
 If remote discussion is needed before a branch is ready, open a draft PR and
 keep iterating locally. The `ci` workflow is manual, so it should be triggered
@@ -286,6 +289,7 @@ Before opening a PR, follow this minimal path:
 ```powershell
 coglang bundle
 coglang smoke
+python scripts/local_ci.py --profile quick
 ```
 
 If your change touches the host bridge or runtime contract, also read:

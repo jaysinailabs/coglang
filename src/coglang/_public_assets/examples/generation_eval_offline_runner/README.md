@@ -8,6 +8,18 @@ loop. The runner uses only the Python standard library and echoes fixture
 `reference_expr` values from request records so the response-file contract can
 be tested without spending model tokens or importing provider SDKs.
 
+## Contract Smoke
+
+For the shortest path, score the included three-case fixture and static
+response file:
+
+```powershell
+python -m coglang generation-eval --fixture examples/generation_eval_offline_runner/fixtures/generation_eval_three_case_v0_1.json --responses-file examples/generation_eval_offline_runner/fixtures/mock_responses.jsonl --summary-only
+```
+
+This fixture only checks the response-file contract. It is not a replacement
+for the default 50-case L1-L3 generation-eval fixture.
+
 ## Dry Run
 
 From the repository root:

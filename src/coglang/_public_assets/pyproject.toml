@@ -124,4 +124,6 @@ coglang = [
     "_public_assets/examples/node_minimal_host_runtime_stub/*",
     "_public_assets/examples/grammar/*",
     "_public_assets/examples/generation_eval_offline_runner/*",
+    "_public_assets/examples/generation_eval_offline_runner/fixtures/*",
+    "_public_assets/scripts/*",
 ]

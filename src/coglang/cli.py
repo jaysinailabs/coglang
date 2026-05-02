@@ -325,6 +325,9 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
         "CogLang_Public_PyPI_Publish_Workflow_v0_1.yml",
         ".github/workflows/publish.yml",
     )
+    local_ci_script_path, local_ci_script_relpath = _resolve_project_artifact(
+        "scripts/local_ci.py",
+    )
     required_command_names = [
         "bundle",
         "release_check",
@@ -386,6 +389,10 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
             "workflow_required_smoke_snippets": workflow_required_smoke_snippets,
             "workflow_required_smoke_snippets_present": False,
             "workflow_manual_trigger_present": False,
+            "local_ci_script_path": local_ci_script_relpath,
+            "local_ci_script_present": False,
+            "local_ci_profiles": ["quick", "ci", "package"],
+            "local_ci_profiles_present": False,
             "public_entrypoint_only": False,
         }
     payload = json.loads(descriptor_path.read_text(encoding="utf-8"))
@@ -440,6 +447,17 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
         snippet in workflow_text for snippet in workflow_required_smoke_snippets
     )
     payload["workflow_manual_trigger_present"] = workflow_manual_trigger_present
+    local_simulation = payload.get("local_simulation", {})
+    local_ci_profiles = [
+        str(item) for item in local_simulation.get("profiles", [])
+    ] if isinstance(local_simulation, dict) else []
+    required_local_ci_profiles = ["quick", "ci", "package"]
+    payload["local_ci_script_path"] = local_ci_script_relpath
+    payload["local_ci_script_present"] = local_ci_script_path.exists()
+    payload["local_ci_profiles"] = local_ci_profiles
+    payload["local_ci_profiles_present"] = all(
+        profile in local_ci_profiles for profile in required_local_ci_profiles
+    )
     payload["public_entrypoint_only"] = public_entrypoint_only
     return payload
 
@@ -1027,6 +1045,13 @@ def _release_check_payload() -> dict[str, Any]:
     generation_eval_offline_runner_readme_path, _ = _resolve_project_artifact(
         "examples/generation_eval_offline_runner/README.md",
     )
+    generation_eval_offline_fixture_path, _ = _resolve_project_artifact(
+        "examples/generation_eval_offline_runner/fixtures/generation_eval_three_case_v0_1.json",
+    )
+    generation_eval_offline_responses_path, _ = _resolve_project_artifact(
+        "examples/generation_eval_offline_runner/fixtures/mock_responses.jsonl",
+    )
+    local_ci_script_path, _ = _resolve_project_artifact("scripts/local_ci.py")
     license_path, _ = _resolve_project_artifact("LICENSE")
 
     distribution = _distribution_metadata()
@@ -1057,6 +1082,10 @@ def _release_check_payload() -> dict[str, Any]:
     generation_eval_offline_runner_packaged = (
         "_public_assets/examples/generation_eval_offline_runner/*" in package_data
     )
+    generation_eval_offline_runner_fixtures_packaged = (
+        "_public_assets/examples/generation_eval_offline_runner/fixtures/*" in package_data
+    )
+    local_ci_script_packaged = "_public_assets/scripts/*" in package_data
     reserved_operator_promotion_criteria_packaged = (
         "_public_assets/CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md"
         in package_data
@@ -1222,6 +1251,8 @@ def _release_check_payload() -> dict[str, Any]:
                 and minimal_ci_baseline["public_entrypoint_only"] is True
                 and minimal_ci_baseline["workflow_template_present"] is True
                 and minimal_ci_baseline["workflow_manual_trigger_present"] is True
+                and minimal_ci_baseline["local_ci_script_present"] is True
+                and minimal_ci_baseline["local_ci_profiles_present"] is True
                 and minimal_ci_baseline["workflow_required_step_names_present"] is True
                 and minimal_ci_baseline["workflow_required_smoke_snippets_present"] is True
             ),
@@ -1301,9 +1332,17 @@ def _release_check_payload() -> dict[str, Any]:
             "ok": (
                 generation_eval_offline_runner_path.exists()
                 and generation_eval_offline_runner_readme_path.exists()
+                and generation_eval_offline_fixture_path.exists()
+                and generation_eval_offline_responses_path.exists()
                 and generation_eval_offline_runner_packaged
+                and generation_eval_offline_runner_fixtures_packaged
             ),
-            "detail": "examples/generation_eval_offline_runner + package data",
+            "detail": "examples/generation_eval_offline_runner + fixture + package data",
+        },
+        {
+            "name": "local_ci_simulation",
+            "ok": local_ci_script_path.exists() and local_ci_script_packaged,
+            "detail": "scripts/local_ci.py + package data",
         },
         {
             "name": "executor_interface",

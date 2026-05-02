@@ -50,6 +50,7 @@
         "test_host_runtime_schema_seeds.py",
         "test_integration.py",
         "test_local_host.py",
+        "test_local_ci_script.py",
         "test_node_host_consumer.py",
         "test_node_minimal_host_runtime_stub.py",
         "test_open_source_extract.py",
@@ -87,6 +88,11 @@
       "kind": "tree",
       "source": "examples/generation_eval_offline_runner",
       "destination": "examples/generation_eval_offline_runner"
+    },
+    {
+      "kind": "tree",
+      "source": "scripts",
+      "destination": "scripts"
     },
     {
       "kind": "file",

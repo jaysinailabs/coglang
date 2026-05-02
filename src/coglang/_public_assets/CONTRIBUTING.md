@@ -17,6 +17,10 @@ Before opening a pull request:
 - Use a local-first validation flow to conserve GitHub Actions minutes. Batch
   small commits locally, run the relevant checks in your checkout, and push only
   when the branch is ready for review or remote evidence.
+- For a local simulation of the maintainer-triggered workflow, run
+  `python scripts/local_ci.py --profile quick` during normal iteration,
+  `python scripts/local_ci.py --profile ci` before review, and
+  `python scripts/local_ci.py --profile package` before release preparation.
 - If you need early remote discussion before CI evidence is useful, open a draft
   PR and keep iterating locally. The `ci` workflow is manual and should be run
   by a maintainer only when the PR is ready for merge review, release

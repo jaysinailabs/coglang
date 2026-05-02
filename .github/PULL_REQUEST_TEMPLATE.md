@@ -6,6 +6,7 @@
 
 - [ ] `coglang release-check`
 - [ ] `coglang smoke`
+- [ ] `python scripts/local_ci.py --profile quick`
 - [ ] I batched local fixes before pushing so remote CI runs only when useful.
 - Python version:
 - Validation date:

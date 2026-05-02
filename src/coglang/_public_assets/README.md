@@ -53,7 +53,8 @@ adapter. Use `coglang generation-eval --export-requests --request-format jsonl`
 to create prompt records for an external model runner, then score returned
 JSON/JSONL records with `coglang generation-eval --responses-file responses.jsonl`.
 For a no-provider dry run of that file contract, see
-[examples/generation_eval_offline_runner](examples/generation_eval_offline_runner).
+[examples/generation_eval_offline_runner](examples/generation_eval_offline_runner),
+which includes a three-case contract smoke fixture.
 
 Machine-readable project summaries:
 
@@ -140,6 +141,7 @@ coglang host-demo
 coglang reference-host-demo
 coglang demo
 coglang conformance --level smoke
+python scripts/local_ci.py --profile quick
 ```
 
 Use local validation as the normal edit/test loop. Accumulate small fixes in a
@@ -147,7 +149,10 @@ local branch, run focused tests plus `coglang release-check` and `coglang smoke`
 when relevant, then push only when a PR is ready for review or remote evidence.
 Draft PRs are for early discussion. The GitHub `ci` workflow is manual and
 should be triggered only for merge review, release preparation, or
-platform-specific remote evidence.
+platform-specific remote evidence. To simulate the remote validation path
+locally without spending GitHub Actions minutes, use
+`python scripts/local_ci.py --profile ci`; use `--profile package` before a
+release candidate when wheel/sdist install evidence is needed.
 
 The public CLI entry point is `coglang`.
 

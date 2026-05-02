@@ -94,7 +94,13 @@ Completed in the current maintenance sequence:
    Contributors should use focused local tests, `coglang release-check`, and
    `coglang smoke` before pushing. The `ci` workflow is manually triggered and
    reserved for merge review, release preparation, or platform-specific remote
-   evidence.
+   evidence. `scripts/local_ci.py` now provides `quick`, `ci`, and `package`
+   local simulation profiles so maintainers can batch validation before
+   spending GitHub Actions minutes.
+10. Generation-eval offline contract smoke.
+   `examples/generation_eval_offline_runner/fixtures` provides a three-case
+   response-file contract fixture and static response JSONL, keeping the first
+   offline scoring path shorter than the default 50-case eval fixture.
 
 Open follow-through:
 
@@ -130,6 +136,8 @@ The current unreleased source-maintenance batch includes:
   dependencies
 - a no-provider `examples/generation_eval_offline_runner` dry run for the
   generation-eval request/response file contract
+- `scripts/local_ci.py` profiles for local-first validation before any
+  maintainer-triggered remote workflow run
 
 These are source-HEAD capabilities until the next package patch release. When
 the batch is large enough to publish, update the package version, release notes,

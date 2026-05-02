@@ -1,0 +1,29 @@
+{
+  "schema_version": "coglang-generation-eval-fixture/v0.1",
+  "name": "generation-eval-response-file-contract-smoke",
+  "description": "Three-case fixture for testing the generation-eval response-file contract without model provider calls. This is not a benchmark or maturity coverage claim.",
+  "defined_levels": ["L1", "L2", "L3", "L4", "L5", "L6"],
+  "cases": [
+    {
+      "case_id": "GE-SMOKE-L1",
+      "level": "L1",
+      "prompt": "Return a CogLang expression that checks whether 1 equals 1.",
+      "reference_expr": "Equal[1, 1]",
+      "expected_top_level_heads": ["Equal"]
+    },
+    {
+      "case_id": "GE-SMOKE-L2",
+      "level": "L2",
+      "prompt": "Return a CogLang expression that lists all visible graph nodes.",
+      "reference_expr": "AllNodes[]",
+      "expected_top_level_heads": ["AllNodes"]
+    },
+    {
+      "case_id": "GE-SMOKE-L3",
+      "level": "L3",
+      "prompt": "Return a CogLang expression that creates a Person entity named ada.",
+      "reference_expr": "Create[\"Entity\", {\"id\": \"ada\", \"category\": \"Person\"}]",
+      "expected_top_level_heads": ["Create"]
+    }
+  ]
+}

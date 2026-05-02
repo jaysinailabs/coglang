@@ -23,6 +23,11 @@
     "long_lived_api_token": false,
     "pre_releases_are_github_only": true
   },
+  "local_simulation": {
+    "script": "scripts/local_ci.py",
+    "profiles": ["quick", "ci", "package"],
+    "intent": "local-first validation before maintainer-triggered remote workflow evidence"
+  },
   "commands": [
     {
       "name": "bundle",

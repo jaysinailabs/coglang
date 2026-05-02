@@ -16,6 +16,7 @@ PUBLIC_REPO_EXTRACT_MANIFEST_SCHEMA_VERSION = (
     "coglang-public-repo-extract-manifest/v0.1"
 )
 PUBLIC_REPO_EXTRACT_RUN_SCHEMA_VERSION = "coglang-public-repo-extract-run/v0.1"
+LOCAL_CI_SIMULATION_SCHEMA_VERSION = "coglang-local-ci-simulation/v0.1"
 
 EFFECT_SUMMARY_SCHEMA_VERSION = "coglang-effect-summary/v0.1"
 GRAPH_BUDGET_SCHEMA_VERSION = "coglang-graph-budget/v0.1"
@@ -55,6 +56,7 @@ SCHEMA_VERSION_REGISTRY = MappingProxyType(
         "minimal_ci_baseline": MINIMAL_CI_BASELINE_SCHEMA_VERSION,
         "public_repo_extract_manifest": PUBLIC_REPO_EXTRACT_MANIFEST_SCHEMA_VERSION,
         "public_repo_extract_run": PUBLIC_REPO_EXTRACT_RUN_SCHEMA_VERSION,
+        "local_ci_simulation": LOCAL_CI_SIMULATION_SCHEMA_VERSION,
         "effect_summary": EFFECT_SUMMARY_SCHEMA_VERSION,
         "graph_budget": GRAPH_BUDGET_SCHEMA_VERSION,
         "graph_budget_estimate": GRAPH_BUDGET_ESTIMATE_SCHEMA_VERSION,
@@ -93,6 +95,7 @@ __all__ = [
     "GRAPH_BUDGET_SCHEMA_VERSION",
     "HOST_DEMO_SCHEMA_VERSION",
     "HOST_RUNTIME_SCHEMA_PACK_ID",
+    "LOCAL_CI_SIMULATION_SCHEMA_VERSION",
     "MINIMAL_CI_BASELINE_SCHEMA_VERSION",
     "NODE_HOST_CONSUMER_DEMO_SCHEMA_VERSION",
     "NODE_MINIMAL_HOST_RUNTIME_STUB_DEMO_SCHEMA_VERSION",

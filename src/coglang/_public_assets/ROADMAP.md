@@ -114,8 +114,11 @@ The current unreleased source-maintenance batch includes:
 
 - external host/consumer contribution checklist and PR template
 - external host/consumer issue template
+- GitHub-recognized `CONTRIBUTING.md` entry point
 - `coglang public-assets` and `coglang public-assets --sync` for exact public
   asset mirror maintenance
+- `coglang doctor` non-failing guidance for public asset mirror drift
+- preflight default traversal depth tuned for small nested demo expressions
 
 These are source-HEAD capabilities until the next package patch release. When
 the batch is large enough to publish, update the package version, release notes,

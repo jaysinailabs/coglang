@@ -54,6 +54,8 @@ CogLang `1.1.3` 是 stable `v1.1.0` 语言线上的包级 patch release。
 - readable-render golden example candidates 现在有随包 JSON fixture，用于固定
   canonical text 与 candidate display strings；这不新增 renderer API，也不声明
   readable output 已稳定。
+- public asset mirror 维护现在有可复用的 check 与 sync helper，source/extracted
+  tree 可以检测并修复镜像 drift；这不改变 public release contract。
 - 仓库元数据新增 `.mailmap`，将历史提交中的
   `xinjingshun <xinjingshun@foxmail.com>` 归并显示为
   `Jason Xin <xinjingshun@foxmail.com>`，不重写 Git 历史。

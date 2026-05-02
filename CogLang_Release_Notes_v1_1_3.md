@@ -58,6 +58,9 @@ This release publishes the maintenance evidence added after `1.1.2`:
 - Readable-render golden example candidates now have a packaged JSON fixture
   that pins their canonical text and candidate display strings without adding a
   renderer API or stable readable-output claim.
+- Public asset mirror maintenance now has reusable check and sync helpers so
+  source/extracted trees can detect and repair mirror drift without changing the
+  public release contract.
 - Repository metadata now includes `.mailmap` so historical commits authored as
   `xinjingshun <xinjingshun@foxmail.com>` are attributed to
   `Jason Xin <xinjingshun@foxmail.com>` without rewriting Git history.

@@ -152,6 +152,8 @@ The current recommended standalone tool entry points are:
 - `parse`
 - `canonicalize`
 - `validate`
+- `preflight`
+- `preflight-fixture`
 - `execute`
 - `conformance`
 - `repl`
@@ -161,9 +163,11 @@ The current recommended standalone tool entry points are:
 - `doctor`
 - `vocab`
 - `examples`
+- `generation-eval`
 - `smoke`
 - `demo`
 - `host-demo`
+- `reference-host-demo`
 - `release-check`
 
 This means `CogLang` is no longer only a specification plus a reference runtime. It also has a minimum tool surface that can be tried independently.
@@ -214,7 +218,7 @@ The release policy is:
 - Normal releases should not use long-lived PyPI API tokens.
 - The publishing workflow must verify that the tag and `pyproject.toml` package version match before uploading artifacts.
 
-Before the first PyPI upload, the project owner must configure PyPI Trusted Publishing for:
+PyPI Trusted Publishing is configured for:
 
 - PyPI project: `coglang`
 - GitHub repository: `jaysinailabs/coglang`
@@ -223,22 +227,29 @@ Before the first PyPI upload, the project owner must configure PyPI Trusted Publ
 
 The checked-in publish workflow is intentionally inert for ordinary pushes. It only runs on matching Git tags and refuses to publish non-stable tags or mismatched package versions.
 
+The `1.1.3` package release exercised this path end to end, and later
+`1.1.x` package patches should continue to use the same path:
+
+- a stable `v1.1.x` tag triggered Trusted Publishing
+- GitHub Actions built and validated the wheel before upload
+- PyPI received both the wheel and sdist
+- a GitHub Release exists for the tag and uses the package release notes
+- post-publish verification installed the released `coglang[dev]==1.1.x` from PyPI and ran `release-check` plus `smoke`
+
 ---
 
-## 7. Remaining Gaps After Stable v1.1.0
+## 7. Remaining Gaps After Package v1.1.x
 
-The most realistic next gaps are:
+The most realistic next gaps are now:
 
-1. **Trusted Publishing setup**
-   Confirm the PyPI project and GitHub environment before the stable tag is pushed.
-2. **Release metadata and version cadence**
-   Make package publication, artifact validation, and language-release labels easier to follow.
-3. **More stable Host Runtime Contract**
+1. **External host or consumer review**
+   Accept or link a first host or consumer maintained outside the core runtime repository.
+2. **More stable Host Runtime Contract**
    Lower the integration cost for external hosts.
-4. **At least one non-reference host demo**
-   Show that this is not a private in-project DSL.
-5. **More complete release automation**
-   For example, release notes generation and post-publish verification.
+3. **Public asset generation ergonomics**
+   Reduce manual `_public_assets/` mirror churn without weakening package verification.
+4. **More complete release automation**
+   For example, release notes generation and repeatable GitHub Release creation.
 
 ---
 

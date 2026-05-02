@@ -1640,6 +1640,7 @@ def test_cli_release_check_payload_shape():
     assert any(item["name"] == "open_source_boundary" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "minimal_ci_baseline" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "public_repo_extract_manifest" and item["ok"] is True for item in payload["checks"])
+    assert any(item["name"] == "public_assets_mirror" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "formal_open_source_readiness" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "preflight_fixture" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "generation_eval" and item["ok"] is True for item in payload["checks"])
@@ -1656,6 +1657,35 @@ def test_cli_release_check_payload_shape():
         for item in payload["checks"]
     )
     assert payload["ok"] is True
+
+
+def test_cli_release_check_fails_when_public_assets_mirror_drift_is_reported(monkeypatch):
+    def fake_check(_root: Path) -> dict[str, object]:
+        return {
+            "ok": False,
+            "manifest_path": "CogLang_Public_Repo_Extract_Manifest_v0_1.json",
+            "checked_file_count": 1,
+            "missing_package_data_entries": [],
+            "extra_package_data_entries": [],
+            "missing_sources": [],
+            "missing_mirrors": [],
+            "mismatched_mirrors": ["src/coglang/_public_assets/README.md"],
+        }
+
+    monkeypatch.setattr(_cli_attr("_installed_public_package_mode"), lambda: False)
+    monkeypatch.setattr(_cli_attr("check_public_assets_mirror"), fake_check)
+
+    payload = _release_check_payload()
+    public_assets_mirror = next(
+        item for item in payload["checks"] if item["name"] == "public_assets_mirror"
+    )
+
+    assert payload["ok"] is False
+    assert public_assets_mirror == {
+        "name": "public_assets_mirror",
+        "ok": False,
+        "detail": "mismatched_mirrors=1",
+    }
 
 
 def test_cli_release_check_json_output():
@@ -1675,6 +1705,7 @@ def test_cli_release_check_json_output():
     assert '"open_source_boundary"' in output
     assert '"minimal_ci_baseline"' in output
     assert '"public_repo_extract_manifest"' in output
+    assert '"public_assets_mirror"' in output
     assert '"formal_open_source_readiness"' in output
     assert '"preflight_fixture"' in output
     assert '"generation_eval"' in output
@@ -1729,6 +1760,11 @@ def test_cli_release_check_text_output():
         f"({_path_in_layout('CogLang_Public_Repo_Extract_Manifest_v0_1.json', 'CogLang_Public_Repo_Extract_Manifest_v0_1.json')})"
         in output
     )
+    assert "public_assets_mirror: ok (" in output
+    assert (
+        "exact mirror files aligned" in output
+        or "source mirror comparison not applicable" in output
+    )
     assert "formal_open_source_readiness: ok (ready-for-formal-open-source-candidate-decision)" in output
     assert "preflight_fixture: ok (9 cases)" in output
     assert "generation_eval: ok (50 cases)" in output
@@ -1768,7 +1804,7 @@ def test_cli_minimal_ci_baseline_payload_shape():
     assert payload["publish_workflow_required_snippets_present"] is True
     assert payload["stable_release_policy"] == {
         "stable_language_tag": "v1.1.0",
-        "stable_python_distribution_version": "1.1.3",
+        "stable_python_distribution_version": "1.1.4",
         "package_index": "PyPI",
         "pypi_project": "coglang",
         "trusted_publishing": True,
@@ -1826,7 +1862,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 57
+    assert payload["entry_count"] == 59
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -1890,6 +1926,12 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Release_Notes_v1_1_0.zh-CN.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Release_Notes_v1_1_4.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Release_Notes_v1_1_4.zh-CN.md" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Release_Notes_v1_1_3.md" in [

@@ -9,7 +9,7 @@ Status:
 - active experimental maintenance for host/runtime ecosystem work
 - host bridge v0.2 frozen only for the narrow typed write-envelope surface
 
-Current public language release: `v1.1.0`. Current Python distribution version: `1.1.3`.
+Current public language release: `v1.1.0`. Current Python distribution version: `1.1.4`.
 HRC v0.2 is frozen for the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`. A minimal Node.js standard-library consumer under `examples/node_host_consumer` reads the HRC schema pack and envelope samples without importing the Python runtime. An experimental in-repository Node.js minimal host/runtime stub under `examples/node_minimal_host_runtime_stub` is post-freeze example evidence, not an HRC scope expansion.
 
 When to use CogLang:
@@ -58,8 +58,9 @@ Core documents:
 - CogLang_Host_Runtime_Contract_v0_1.md: minimal host contract
 - CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md: host-runtime contract v0.2 frozen scope and evidence
 - CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md: prior freeze-candidate review record
-- CogLang_Release_Notes_v1_1_3.md: latest Python package patch notes
-- CogLang_Release_Notes_v1_1_2.md: previous Python package patch notes
+- CogLang_Release_Notes_v1_1_4.md: latest Python package patch notes
+- CogLang_Release_Notes_v1_1_3.md: previous Python package patch notes
+- CogLang_Release_Notes_v1_1_2.md: older Python package patch notes
 - CogLang_Release_Notes_v1_1_1.md: older Python package patch notes
 - CogLang_Release_Notes_v1_1_0.md: stable language release commitments
 - CogLang_Vision_Proposal_v0_1.md: long-term capability proposal, including v1.2 candidate themes, graph-compute governance, and AI learning maturity

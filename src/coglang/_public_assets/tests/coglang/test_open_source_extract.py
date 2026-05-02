@@ -101,6 +101,8 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "CogLang_Conformance_Suite_v1_1_0.zh-CN.md").exists()
     assert (destination / "CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md").exists()
     assert (destination / "CogLang_Release_Notes_v1_1_0.zh-CN.md").exists()
+    assert (destination / "CogLang_Release_Notes_v1_1_4.md").exists()
+    assert (destination / "CogLang_Release_Notes_v1_1_4.zh-CN.md").exists()
     assert (destination / "CogLang_Release_Notes_v1_1_3.md").exists()
     assert (destination / "CogLang_Release_Notes_v1_1_3.zh-CN.md").exists()
     assert (destination / "CogLang_Release_Notes_v1_1_2.md").exists()

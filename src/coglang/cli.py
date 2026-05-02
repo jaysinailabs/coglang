@@ -1000,6 +1000,15 @@ def _release_check_payload() -> dict[str, Any]:
     node_minimal_stub_readme_path, _ = _resolve_project_artifact(
         "examples/node_minimal_host_runtime_stub/README.md",
     )
+    grammar_lark_path, _ = _resolve_project_artifact(
+        "examples/grammar/coglang.lark",
+    )
+    grammar_gbnf_path, _ = _resolve_project_artifact(
+        "examples/grammar/coglang.gbnf",
+    )
+    grammar_readme_path, _ = _resolve_project_artifact(
+        "examples/grammar/README.md",
+    )
     license_path, _ = _resolve_project_artifact("LICENSE")
 
     distribution = _distribution_metadata()
@@ -1026,6 +1035,7 @@ def _release_check_payload() -> dict[str, Any]:
     node_minimal_stub_packaged = (
         "_public_assets/examples/node_minimal_host_runtime_stub/*" in package_data
     )
+    grammar_examples_packaged = "_public_assets/examples/grammar/*" in package_data
     reserved_operator_promotion_criteria_packaged = (
         "_public_assets/CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md"
         in package_data
@@ -1253,6 +1263,16 @@ def _release_check_payload() -> dict[str, Any]:
                 and node_minimal_stub_packaged
             ),
             "detail": "examples/node_minimal_host_runtime_stub + package data",
+        },
+        {
+            "name": "grammar_examples",
+            "ok": (
+                grammar_lark_path.exists()
+                and grammar_gbnf_path.exists()
+                and grammar_readme_path.exists()
+                and grammar_examples_packaged
+            ),
+            "detail": "examples/grammar + package data",
         },
         {
             "name": "executor_interface",

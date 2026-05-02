@@ -212,6 +212,8 @@ that the packaged fixture is present and loadable.
   Contribution boundaries and review expectations.
 - `CONTRIBUTING.md`
   GitHub-facing contribution entry point and validation route.
+- `examples/grammar`
+  Companion Lark and GBNF grammar examples for constrained generation; not a normative parser or validator.
 - `ROADMAP.md`
   Current direction layer, not a release guarantee.
 - `MAINTENANCE.md`

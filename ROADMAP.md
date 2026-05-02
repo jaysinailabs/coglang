@@ -119,6 +119,7 @@ The current unreleased source-maintenance batch includes:
   asset mirror maintenance
 - `coglang doctor` non-failing guidance for public asset mirror drift
 - preflight default traversal depth tuned for small nested demo expressions
+- companion Lark and GBNF grammar examples for constrained generation
 
 These are source-HEAD capabilities until the next package patch release. When
 the batch is large enough to publish, update the package version, release notes,

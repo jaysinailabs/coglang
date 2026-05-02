@@ -68,6 +68,7 @@ Core documents:
 - CogLang_v1_2_Effect_Budget_Preflight_Vocabulary_v0_1.md: minimal v1.2 vocabulary candidate for EffectSummary, GraphBudget, GraphBudgetEstimate, PreflightDecision, and budget-related errors; not stable v1.1 syntax
 - CONTRIBUTING.md: GitHub-facing contribution entry point and validation route
 - CogLang_Contribution_Guide_v0_1.md: contribution boundaries and review expectations
+- examples/grammar: companion Lark and GBNF grammar examples for constrained generation; not a normative parser or validator
 - ROADMAP.md: current direction, not a release contract
 - MAINTENANCE.md: maintenance, freeze, transfer, and archive policy
 

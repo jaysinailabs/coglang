@@ -1,0 +1,33 @@
+// CogLang M-expression grammar example for constrained generation.
+// Status: companion material, not a normative parser.
+// Always run coglang.parser.parse and coglang.validator.valid_coglang after generation.
+
+start: expr
+
+?value: expr
+      | dict
+      | variable
+      | string
+      | number
+      | atom
+
+expr: symbol "[" [args] "]"
+args: value ("," value)*
+
+dict: "{" [pair ("," pair)*] "}"
+pair: string ":" value
+
+variable: "_" | VARIABLE
+atom: symbol
+
+symbol: SYMBOL
+string: DQ_STRING
+number: NUMBER
+
+SYMBOL: /[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?/
+VARIABLE: /[A-Za-z][A-Za-z0-9_]*_/
+DQ_STRING: /"([^"\\]|\\.)*"/
+NUMBER: /-?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)/
+
+%import common.WS
+%ignore WS

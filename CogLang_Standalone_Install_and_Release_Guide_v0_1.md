@@ -122,19 +122,38 @@ If you are wiring `CogLang` into scripts, CI, or a minimum release flow, prefer 
 The current machine-readable payloads for `manifest` / `bundle` may still expose implementation metadata.
 For public usage, treat `entrypoints.recommended = "coglang"` as the supported entry point instead of treating implementation module paths as the public main entry.
 
-### 2.5 Minimum Consistency Path
+### 2.5 Source-Checkout Public Asset Mirror Maintenance
+
+For maintainers working in a source checkout or materialized public extract,
+this helper checks whether exact public files and their packaged
+`_public_assets/` mirrors are aligned:
+
+```powershell
+coglang public-assets
+```
+
+To repair exact file mirrors after editing public documents, run:
+
+```powershell
+coglang public-assets --sync
+```
+
+This is a source-checkout maintenance helper. It is not part of the minimum
+stable runtime command surface, and it does not replace `release-check`.
+
+### 2.6 Minimum Consistency Path
 
 ```powershell
 coglang conformance smoke
 ```
 
-### 2.6 Minimum End-to-End Example
+### 2.7 Minimum End-to-End Example
 
 ```powershell
 coglang demo
 ```
 
-### 2.7 Host Integration Guidance
+### 2.8 Host Integration Guidance
 
 If you are integrating `CogLang` from a host implementer's perspective, do not use this install guide as the source for reference-implementation internals.
 Use this document instead:

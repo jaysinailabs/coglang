@@ -168,6 +168,8 @@ an external runner and imports returned JSON or JSONL records with `case_id` and
 `output` fields. It does not call OpenAI, Anthropic, Ollama, or any other model
 provider directly. The default fixture currently contains 50 cases. `coglang
 release-check` verifies that the packaged fixture is present and loadable.
+`examples/generation_eval_offline_runner` provides a no-provider dry run of the
+same response-file contract.
 
 ## Document Entry Points
 

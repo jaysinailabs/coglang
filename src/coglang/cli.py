@@ -1021,6 +1021,12 @@ def _release_check_payload() -> dict[str, Any]:
     grammar_readme_path, _ = _resolve_project_artifact(
         "examples/grammar/README.md",
     )
+    generation_eval_offline_runner_path, _ = _resolve_project_artifact(
+        "examples/generation_eval_offline_runner/mock_responses.py",
+    )
+    generation_eval_offline_runner_readme_path, _ = _resolve_project_artifact(
+        "examples/generation_eval_offline_runner/README.md",
+    )
     license_path, _ = _resolve_project_artifact("LICENSE")
 
     distribution = _distribution_metadata()
@@ -1048,6 +1054,9 @@ def _release_check_payload() -> dict[str, Any]:
         "_public_assets/examples/node_minimal_host_runtime_stub/*" in package_data
     )
     grammar_examples_packaged = "_public_assets/examples/grammar/*" in package_data
+    generation_eval_offline_runner_packaged = (
+        "_public_assets/examples/generation_eval_offline_runner/*" in package_data
+    )
     reserved_operator_promotion_criteria_packaged = (
         "_public_assets/CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md"
         in package_data
@@ -1286,6 +1295,15 @@ def _release_check_payload() -> dict[str, Any]:
                 and grammar_examples_packaged
             ),
             "detail": "examples/grammar + package data",
+        },
+        {
+            "name": "generation_eval_offline_runner",
+            "ok": (
+                generation_eval_offline_runner_path.exists()
+                and generation_eval_offline_runner_readme_path.exists()
+                and generation_eval_offline_runner_packaged
+            ),
+            "detail": "examples/generation_eval_offline_runner + package data",
         },
         {
             "name": "executor_interface",

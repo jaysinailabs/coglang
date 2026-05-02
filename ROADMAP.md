@@ -128,6 +128,8 @@ The current unreleased source-maintenance batch includes:
 - provider-neutral `generation-eval` request/response export and import for
   scoring external model JSON/JSONL outputs without adding provider SDK
   dependencies
+- a no-provider `examples/generation_eval_offline_runner` dry run for the
+  generation-eval request/response file contract
 
 These are source-HEAD capabilities until the next package patch release. When
 the batch is large enough to publish, update the package version, release notes,

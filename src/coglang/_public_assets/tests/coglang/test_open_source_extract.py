@@ -80,6 +80,9 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         destination / "tests" / "coglang" / "test_readable_render_golden_candidates.py"
     ).exists()
     assert (destination / "tests" / "coglang" / "test_schema_versions.py").exists()
+    assert (
+        destination / "tests" / "coglang" / "test_generation_eval_offline_runner.py"
+    ).exists()
     assert (destination / "tests" / "coglang" / "test_grammar_examples.py").exists()
     assert (destination / "tests" / "coglang" / "test_node_host_consumer.py").exists()
     assert (destination / "tests" / "coglang" / "test_node_minimal_host_runtime_stub.py").exists()
@@ -93,6 +96,15 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "examples" / "grammar" / "coglang.lark").exists()
     assert (destination / "examples" / "grammar" / "coglang.gbnf").exists()
     assert (destination / "examples" / "grammar" / "README.md").exists()
+    assert (
+        destination / "examples" / "generation_eval_offline_runner" / "README.md"
+    ).exists()
+    assert (
+        destination
+        / "examples"
+        / "generation_eval_offline_runner"
+        / "mock_responses.py"
+    ).exists()
     assert (destination / "CogLang_Operator_Catalog_v1_1_0.md").exists()
     assert (destination / "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md").exists()
     assert (destination / "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md").exists()
@@ -195,6 +207,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_public_assets_mirror.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_readable_render_golden_candidates.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_schema_versions.py").exists()
+    assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_generation_eval_offline_runner.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_grammar_examples.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "examples" / "node_host_consumer" / "consume_hrc_envelopes.mjs").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "examples" / "node_minimal_host_runtime_stub" / "run_demo.mjs").exists()
@@ -206,6 +219,15 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         / "examples"
         / "grammar"
         / "coglang.gbnf"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "examples"
+        / "generation_eval_offline_runner"
+        / "mock_responses.py"
     ).exists()
     assert (
         destination

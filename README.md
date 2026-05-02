@@ -52,6 +52,8 @@ Source HEAD also includes a provider-neutral `generation-eval` request/response
 adapter. Use `coglang generation-eval --export-requests --request-format jsonl`
 to create prompt records for an external model runner, then score returned
 JSON/JSONL records with `coglang generation-eval --responses-file responses.jsonl`.
+For a no-provider dry run of that file contract, see
+[examples/generation_eval_offline_runner](examples/generation_eval_offline_runner).
 
 Machine-readable project summaries:
 

@@ -1,0 +1,87 @@
+name: External host or consumer
+description: Propose a minimal external host, consumer, adapter, or executor contribution.
+title: "[External host/consumer]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for first external host or consumer proposals. Keep the scope narrow and evidence-first. Do not use this template to expand HRC v0.2 frozen scope.
+  - type: dropdown
+    id: contribution_type
+    attributes:
+      label: Contribution type
+      options:
+        - Consumer example
+        - Host stub
+        - Executor implementation
+        - Adapter or bridge
+        - Documentation or fixture only
+    validations:
+      required: true
+  - type: input
+    id: language_runtime
+    attributes:
+      label: Language/runtime
+      description: Name the implementation language and runtime version if known.
+      placeholder: "Example: Node.js 22, Go 1.23, Rust 1.84"
+    validations:
+      required: true
+  - type: dropdown
+    id: imports_python_runtime
+    attributes:
+      label: Does it import the Python runtime?
+      options:
+        - "No"
+        - "Yes"
+        - Not sure yet
+    validations:
+      required: true
+  - type: input
+    id: hrc_asset_class
+    attributes:
+      label: HRC asset class consumed
+      description: Use the terms from CogLang_HRC_Companion_Asset_Classification_v0_1.md.
+      placeholder: "Example: Companion consumer evidence"
+    validations:
+      required: true
+  - type: textarea
+    id: supported_subset
+    attributes:
+      label: Supported subset
+      description: State the envelope, expression, or host behavior subset this proposal intends to cover.
+    validations:
+      required: true
+  - type: textarea
+    id: explicit_non_goals
+    attributes:
+      label: Explicit non-goals
+      description: List what this proposal will not support or claim.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence_plan
+    attributes:
+      label: Evidence plan
+      description: List deterministic fixtures, samples, tests, or commands you expect to provide.
+      placeholder: |
+        - coglang host-demo
+        - coglang reference-host-demo
+        - node examples/my_consumer/run_demo.mjs
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Boundary statements
+      options:
+        - label: This proposal does not expand HRC v0.2 frozen scope.
+          required: true
+        - label: Companion schema material will not be presented as a normative JSON Schema contract.
+          required: true
+        - label: Host policy will stay separate from language-core semantics.
+          required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes or links
+      description: Add links to external repositories, drafts, or context if available.

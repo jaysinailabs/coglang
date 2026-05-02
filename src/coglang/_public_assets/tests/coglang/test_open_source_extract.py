@@ -116,6 +116,9 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "CogLang_Host_Runtime_Contract_v0_1.zh-CN.md").exists()
     assert (destination / "CogLang_Profiles_and_Capabilities_v1_1_0.zh-CN.md").exists()
     assert (destination / "CogLang_Operator_Catalog_v1_1_0.zh-CN.md").exists()
+    assert (
+        destination / ".github" / "ISSUE_TEMPLATE" / "external_host_consumer.yml"
+    ).exists()
     assert (destination / ".github" / "PULL_REQUEST_TEMPLATE.md").exists()
     assert (destination / ".github" / "workflows" / "ci.yml").exists()
     assert (destination / ".github" / "workflows" / "publish.yml").exists()
@@ -135,6 +138,15 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         / "coglang"
         / "_public_assets"
         / "pytest.ini"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / ".github"
+        / "ISSUE_TEMPLATE"
+        / "external_host_consumer.yml"
     ).exists()
     assert (
         destination
@@ -360,6 +372,22 @@ def test_public_assets_mirror_check_reports_clean_source_tree():
     assert payload["missing_sources"] == []
     assert payload["missing_mirrors"] == []
     assert payload["mismatched_mirrors"] == []
+
+
+def test_external_host_issue_template_preserves_boundary_questions():
+    template_path = (
+        _repo_root() / ".github" / "ISSUE_TEMPLATE" / "external_host_consumer.yml"
+    )
+    text = template_path.read_text(encoding="utf-8")
+
+    assert "External host or consumer" in text
+    assert "Contribution type" in text
+    assert "HRC asset class consumed" in text
+    assert "This proposal does not expand HRC v0.2 frozen scope." in text
+    assert (
+        "Companion schema material will not be presented as a normative JSON Schema contract."
+        in text
+    )
 
 
 def test_sync_public_assets_mirror_repairs_materialized_extract_mirror(tmp_path):

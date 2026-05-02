@@ -113,6 +113,7 @@ coglang = [
     "_public_assets/.mailmap",
     "_public_assets/pytest.ini",
     "_public_assets/.github/PULL_REQUEST_TEMPLATE.md",
+    "_public_assets/.github/ISSUE_TEMPLATE/external_host_consumer.yml",
     "_public_assets/.github/workflows/ci.yml",
     "_public_assets/.github/workflows/publish.yml",
     "_public_assets/tests/coglang/*.py",

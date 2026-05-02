@@ -13,6 +13,7 @@ import tomllib
 from .executor import CogLangExecutor, PythonCogLangExecutor
 from .generation_eval import generation_eval_payload
 from .local_host import LocalCogLangHost, LocalHostSnapshot, LocalHostSummary
+from .open_source_extract import check_public_assets_mirror
 from .parser import CogLangExpr, CogLangVar, canonicalize, parse
 from .preflight import GraphBudget, preflight_expression, preflight_fixture_payload
 from .reference_host import ReferenceTransportHost
@@ -135,7 +136,7 @@ def _cli_version() -> str:
             return package_version(candidate)
         except PackageNotFoundError:
             continue
-    return "1.1.3"
+    return "1.1.4"
 
 
 def _resolve_project_artifact(*relative_candidates: str) -> tuple[Path, str]:
@@ -482,6 +483,34 @@ def _public_repo_extract_manifest_payload() -> dict[str, Any]:
     return payload
 
 
+def _public_assets_mirror_release_check() -> dict[str, Any]:
+    if _installed_public_package_mode():
+        return {
+            "ok": True,
+            "detail": "installed package mode; source mirror comparison not applicable",
+            "payload": None,
+        }
+
+    payload = check_public_assets_mirror(_project_root())
+    if payload["ok"]:
+        detail = f"{payload['checked_file_count']} exact mirror files aligned"
+    else:
+        failing_keys = [
+            "missing_package_data_entries",
+            "extra_package_data_entries",
+            "missing_sources",
+            "missing_mirrors",
+            "mismatched_mirrors",
+        ]
+        failures = [
+            f"{key}={len(payload[key])}"
+            for key in failing_keys
+            if payload.get(key)
+        ]
+        detail = "; ".join(failures) if failures else "mirror check failed"
+    return {"ok": payload["ok"], "detail": detail, "payload": payload}
+
+
 def _formal_open_source_readiness_payload() -> dict[str, Any]:
     root = _project_root()
     distribution = _distribution_metadata()
@@ -523,8 +552,8 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
         "CogLang_Contribution_Guide_v0_1.md",
     )
     release_notes_path, _ = _resolve_project_artifact(
-        "CogLang_Release_Notes_v1_1_3.md",
-        "CogLang_Release_Notes_v1_1_3.md",
+        "CogLang_Release_Notes_v1_1_4.md",
+        "CogLang_Release_Notes_v1_1_4.md",
     )
     hrc_v0_2_final_freeze_path, _ = _resolve_project_artifact(
         "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md",
@@ -676,8 +705,8 @@ def _manifest_payload() -> dict[str, Any]:
         "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
     )[1]
     release_notes_relpath = _resolve_project_artifact(
-        "CogLang_Release_Notes_v1_1_3.md",
-        "CogLang_Release_Notes_v1_1_3.md",
+        "CogLang_Release_Notes_v1_1_4.md",
+        "CogLang_Release_Notes_v1_1_4.md",
     )[1]
     hrc_v0_2_final_freeze_relpath = _resolve_project_artifact(
         "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md",
@@ -925,6 +954,7 @@ def _release_check_payload() -> dict[str, Any]:
     open_source_boundary = _open_source_boundary_payload()
     minimal_ci_baseline = _minimal_ci_baseline_payload()
     public_repo_extract_manifest = _public_repo_extract_manifest_payload()
+    public_assets_mirror = _public_assets_mirror_release_check()
     formal_open_source_readiness = _formal_open_source_readiness_payload()
     preflight_fixture = preflight_fixture_payload()
     generation_eval = generation_eval_payload()
@@ -1126,6 +1156,11 @@ def _release_check_payload() -> dict[str, Any]:
                 and public_repo_extract_manifest["required_destinations_present"] is True
             ),
             "detail": public_repo_extract_manifest["path"],
+        },
+        {
+            "name": "public_assets_mirror",
+            "ok": public_assets_mirror["ok"],
+            "detail": public_assets_mirror["detail"],
         },
         {
             "name": "formal_open_source_readiness",

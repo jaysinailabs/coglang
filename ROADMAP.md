@@ -59,10 +59,11 @@ changes. The current review-response status is:
 
 Completed in the current maintenance sequence:
 
-1. `1.1.3` release publication follow-through.
+1. `1.1.3` package publication and post-publish verification.
    Package metadata, release notes, README/PyPI-facing text,
-   machine-readable summaries, package data, manifest metadata, and
-   release-check expectations are aligned for the `1.1.3` package line.
+   machine-readable summaries, package data, manifest metadata, release-check
+   expectations, the GitHub Release, the PyPI wheel/sdist, and post-publish
+   install verification are aligned for the `1.1.3` package line.
 2. Reader routing and documentation density.
    The README first screen now starts with a 30-second reader guide and keeps
    larger governance notes outside the first-pass reading path.
@@ -80,17 +81,18 @@ Completed in the current maintenance sequence:
    `coglang doctor` reports local generated artifact directories such as
    `build/` and `dist/` as non-failing cleanup guidance, and the
    conformance/smoke pytest runner uses a managed `--basetemp`.
+7. Release-gate mirror alignment.
+   `coglang release-check` now includes a `public_assets_mirror` gate for
+   source and public-extract layouts, so exact `_public_assets/` drift is part
+   of the normal release-facing validation path.
 
 Open follow-through:
 
-1. `1.1.3` Trusted Publishing release.
-   Tag and publish the package when the project is ready to turn the prepared
-   package evidence into a public PyPI release.
-2. Public asset generation ergonomics.
+1. Public asset generation ergonomics.
    Explore whether `_public_assets/` can eventually be derived during build or
    release preparation, reducing manual mirror churn without weakening package
    verification.
-3. External host implementation review.
+2. External host implementation review.
    Invite or accept a first host or consumer maintained outside the core
    runtime repository, evaluated against the existing HRC companion/formal
    boundary.

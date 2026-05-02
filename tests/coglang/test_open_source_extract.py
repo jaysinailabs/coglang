@@ -116,6 +116,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "CogLang_Host_Runtime_Contract_v0_1.zh-CN.md").exists()
     assert (destination / "CogLang_Profiles_and_Capabilities_v1_1_0.zh-CN.md").exists()
     assert (destination / "CogLang_Operator_Catalog_v1_1_0.zh-CN.md").exists()
+    assert (destination / ".github" / "PULL_REQUEST_TEMPLATE.md").exists()
     assert (destination / ".github" / "workflows" / "ci.yml").exists()
     assert (destination / ".github" / "workflows" / "publish.yml").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "README.md").exists()
@@ -134,6 +135,14 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         / "coglang"
         / "_public_assets"
         / "pytest.ini"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / ".github"
+        / "PULL_REQUEST_TEMPLATE.md"
     ).exists()
     assert (
         destination

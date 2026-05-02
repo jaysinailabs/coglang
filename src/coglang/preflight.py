@@ -462,7 +462,7 @@ def canonical_expression_hash(expr_or_source: CogLangExpr | str) -> str | None:
 def default_graph_budget() -> GraphBudget:
     """Return the small bounded budget used by the v1.2 preflight examples."""
     return GraphBudget(
-        max_traversal_depth=1,
+        max_traversal_depth=3,
         max_visited_nodes=1000,
         max_result_count=100,
         max_execution_ms=1000,

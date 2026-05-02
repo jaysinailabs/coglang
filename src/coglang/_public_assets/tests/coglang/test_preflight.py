@@ -47,7 +47,7 @@ def _accepted_preflight_decision() -> PreflightDecision:
             confidence="known",
         ),
         budget=GraphBudget(
-            max_traversal_depth=1,
+            max_traversal_depth=3,
             max_visited_nodes=1000,
             max_result_count=100,
             max_execution_ms=1000,
@@ -186,7 +186,7 @@ def test_preflight_decision_json_matches_document_shape():
         },
         "budget": {
             "schema_version": "coglang-graph-budget/v0.1",
-            "max_traversal_depth": 1,
+            "max_traversal_depth": 3,
             "max_visited_nodes": 1000,
             "max_result_count": 100,
             "max_execution_ms": 1000,

@@ -748,7 +748,11 @@ def test_cli_doctor_payload_shape():
     generated_artifact_dirs = next(
         item for item in payload["checks"] if item["name"] == "generated_artifact_dirs"
     )
+    public_assets_mirror = next(
+        item for item in payload["checks"] if item["name"] == "public_assets_mirror"
+    )
     assert generated_artifact_dirs["ok"] is True
+    assert public_assets_mirror["ok"] is True
 
 
 def test_cli_doctor_reports_generated_artifact_dirs_without_failing(monkeypatch, tmp_path):
@@ -769,6 +773,32 @@ def test_cli_doctor_reports_generated_artifact_dirs_without_failing(monkeypatch,
     assert payload["ok"] is True
 
 
+def test_cli_doctor_suggests_public_assets_sync_without_failing(monkeypatch):
+    monkeypatch.setattr(
+        _cli_attr("_public_assets_mirror_release_check"),
+        lambda: {
+            "ok": False,
+            "detail": "mismatched_mirrors=1",
+            "payload": None,
+        },
+    )
+
+    payload = _doctor_payload()
+    public_assets_mirror = next(
+        item for item in payload["checks"] if item["name"] == "public_assets_mirror"
+    )
+
+    assert public_assets_mirror == {
+        "name": "public_assets_mirror",
+        "ok": True,
+        "detail": (
+            "mismatched_mirrors=1; "
+            "run coglang public-assets --sync then coglang public-assets"
+        ),
+    }
+    assert payload["ok"] is True
+
+
 def test_cli_doctor_json_output():
     code, output = _run(["doctor"])
     assert code == 0
@@ -783,6 +813,7 @@ def test_cli_doctor_text_output():
     assert "tool: coglang" in output
     assert "language_release: v1.1.0" in output
     assert "generated_artifact_dirs: ok" in output
+    assert "public_assets_mirror: ok" in output
     assert "parse: ok" in output
 
 

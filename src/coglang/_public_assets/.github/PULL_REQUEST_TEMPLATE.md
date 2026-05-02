@@ -1,0 +1,37 @@
+## Summary
+
+- 
+
+## Validation
+
+- [ ] `coglang release-check`
+- [ ] `coglang smoke`
+
+## Host Or Consumer Boundary
+
+If this PR adds or changes a host, consumer, adapter, executor, or HRC-related
+example, complete this section. Otherwise write `not applicable`.
+
+- Contribution type:
+  - [ ] consumer example
+  - [ ] host stub
+  - [ ] executor implementation
+  - [ ] documentation or fixture only
+- Language/runtime:
+- Imports the Python runtime:
+  - [ ] yes
+  - [ ] no
+- HRC asset class consumed:
+- Supported subset:
+- Explicit non-goals:
+- Deterministic fixture or sample data:
+- Evidence commands:
+  - [ ] `coglang host-demo`
+  - [ ] `coglang reference-host-demo`
+  - [ ] language-native command, if non-Python:
+- Frozen-scope statement:
+  - [ ] This PR does not expand HRC v0.2 frozen scope.
+
+## Notes
+
+- 

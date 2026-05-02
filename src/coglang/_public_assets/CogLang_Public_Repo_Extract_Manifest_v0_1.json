@@ -136,6 +136,11 @@
     },
     {
       "kind": "file",
+      "source": "CONTRIBUTING.md",
+      "destination": "CONTRIBUTING.md"
+    },
+    {
+      "kind": "file",
       "source": "ROADMAP.md",
       "destination": "ROADMAP.md"
     },

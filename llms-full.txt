@@ -210,6 +210,8 @@ that the packaged fixture is present and loadable.
   Minimal v1.2 vocabulary candidate for EffectSummary, GraphBudget, GraphBudgetEstimate, PreflightDecision, and budget-related errors. These names are proposal material, not stable v1.1 syntax.
 - `CogLang_Contribution_Guide_v0_1.md`
   Contribution boundaries and review expectations.
+- `CONTRIBUTING.md`
+  GitHub-facing contribution entry point and validation route.
 - `ROADMAP.md`
   Current direction layer, not a release guarantee.
 - `MAINTENANCE.md`

@@ -63,7 +63,7 @@ Use this table when you do not know which document to open first:
 | Trying CogLang as a user | [CogLang_Quickstart_v1_1_0.md](CogLang_Quickstart_v1_1_0.md) | `coglang demo`, then [CogLang_Release_Notes_v1_1_4.md](CogLang_Release_Notes_v1_1_4.md) |
 | Checking install or release health | [CogLang_Standalone_Install_and_Release_Guide_v0_1.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.md) | `coglang release-check`, then [CogLang_Minimal_CI_Baseline_v0_1.json](CogLang_Minimal_CI_Baseline_v0_1.json) |
 | Implementing a host boundary | [CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md](CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md) | [CogLang_HRC_Companion_Asset_Classification_v0_1.md](CogLang_HRC_Companion_Asset_Classification_v0_1.md), then `examples/node_host_consumer` |
-| Contributing changes | [CogLang_Contribution_Guide_v0_1.md](CogLang_Contribution_Guide_v0_1.md) | [ROADMAP.md](ROADMAP.md), then the focused governance note for the subsystem you touch |
+| Contributing changes | [CONTRIBUTING.md](CONTRIBUTING.md) | [CogLang_Contribution_Guide_v0_1.md](CogLang_Contribution_Guide_v0_1.md), then [ROADMAP.md](ROADMAP.md) |
 | Reviewing future work | [ROADMAP.md](ROADMAP.md) | v1.2 and readable-render notes only when that subsystem is in scope |
 
 ## First Reading Path

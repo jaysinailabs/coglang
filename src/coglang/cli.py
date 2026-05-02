@@ -441,6 +441,7 @@ def _public_repo_extract_manifest_payload() -> dict[str, Any]:
     required_destinations = [
         "pyproject.toml",
         "README.md",
+        "CONTRIBUTING.md",
         ".gitignore",
         ".mailmap",
         "pytest.ini",

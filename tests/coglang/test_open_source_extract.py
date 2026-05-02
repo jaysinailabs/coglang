@@ -58,6 +58,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / ".mailmap").exists()
     assert (destination / "pytest.ini").exists()
     assert (destination / "README.md").exists()
+    assert (destination / "CONTRIBUTING.md").exists()
     assert (destination / "CogLang_Open_Source_Boundary_v0_1.json").exists()
     assert (destination / "CogLang_Minimal_CI_Baseline_v0_1.json").exists()
     assert (destination / "CogLang_Public_Repo_Extract_Manifest_v0_1.json").exists()
@@ -123,6 +124,9 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / ".github" / "workflows" / "ci.yml").exists()
     assert (destination / ".github" / "workflows" / "publish.yml").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "README.md").exists()
+    assert (
+        destination / "src" / "coglang" / "_public_assets" / "CONTRIBUTING.md"
+    ).exists()
     assert (destination / "src" / "coglang" / "_public_assets" / ".mailmap").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / ".gitignore").exists()
     assert (
@@ -388,6 +392,17 @@ def test_external_host_issue_template_preserves_boundary_questions():
         "Companion schema material will not be presented as a normative JSON Schema contract."
         in text
     )
+
+
+def test_contributing_entrypoint_routes_external_host_contributions():
+    text = (_repo_root() / "CONTRIBUTING.md").read_text(encoding="utf-8")
+
+    assert "CogLang_Contribution_Guide_v0_1.md" in text
+    assert ".github/PULL_REQUEST_TEMPLATE.md" in text
+    assert ".github/ISSUE_TEMPLATE/external_host_consumer.yml" in text
+    assert "coglang release-check" in text
+    assert "coglang public-assets --sync" in text
+    assert "Do not expand HRC v0.2 frozen scope" in text
 
 
 def test_sync_public_assets_mirror_repairs_materialized_extract_mirror(tmp_path):

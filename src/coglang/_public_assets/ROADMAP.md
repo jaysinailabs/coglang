@@ -106,6 +106,22 @@ The governance framework is now strong enough for that external-host review;
 the remaining need is an implementation or consumer outside this repository to
 exercise the companion/formal boundary under real maintainer feedback.
 
+### Source HEAD After `1.1.4`
+
+The current PyPI package line is `1.1.4`. Source HEAD intentionally accumulates
+small, reviewed maintenance capabilities before the next package version bump.
+The current unreleased source-maintenance batch includes:
+
+- external host/consumer contribution checklist and PR template
+- external host/consumer issue template
+- `coglang public-assets` and `coglang public-assets --sync` for exact public
+  asset mirror maintenance
+
+These are source-HEAD capabilities until the next package patch release. When
+the batch is large enough to publish, update the package version, release notes,
+README/PyPI-facing text, machine-readable summaries, package data, and
+post-publish verification together.
+
 ---
 
 ## In Progress

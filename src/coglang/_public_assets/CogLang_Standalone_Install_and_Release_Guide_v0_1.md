@@ -75,6 +75,12 @@ In the stable release shape, these two version meanings are aligned. In historic
 
 For stable `v1.1.0`, the initial stable release intentionally converged these two layers: the GitHub tag was `v1.1.0`, the Python package version was `1.1.0`, and `language_release` reported `v1.1.0`. Later package-only patch releases may report a Python package version such as `1.1.1` while continuing to report `language_release = v1.1.0`.
 
+Source documentation may occasionally run ahead of the current PyPI package
+while maintenance changes are being accumulated for the next patch release. If
+a source-checkout helper documented here is missing from your installed
+package, treat the package release notes as authoritative for that installed
+version and use a source checkout for source-maintenance commands.
+
 ### 2.2 Environment Self-Check
 
 ```powershell
@@ -140,6 +146,9 @@ coglang public-assets --sync
 
 This is a source-checkout maintenance helper. It is not part of the minimum
 stable runtime command surface, and it does not replace `release-check`.
+If your installed `coglang` package does not provide this command, you are
+reading source documentation ahead of your installed package; use the current
+source checkout or wait for the next patch release.
 
 ### 2.6 Minimum Consistency Path
 

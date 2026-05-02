@@ -11,7 +11,7 @@ Current status:
 - active experimental maintenance for host/runtime ecosystem work
 - HRC v0.2 frozen only for the narrow typed write-envelope host bridge
 
-Current public language release: `v1.1.0`. Current Python distribution version: `1.1.4`.
+Current public language release: `v1.1.0`. Current Python distribution version: `1.1.4`. Source HEAD may include unreleased maintenance changes after `1.1.4`; package release notes define what is available from PyPI.
 HRC v0.2 is frozen for the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`. A minimal Node.js standard-library consumer under `examples/node_host_consumer` reads the HRC schema pack and envelope samples without importing the Python runtime. An experimental in-repository Node.js minimal host/runtime stub under `examples/node_minimal_host_runtime_stub` is post-freeze example evidence, not an HRC scope expansion.
 
 This file is for LLM-oriented retrieval and summarization. It is not the release contract. For package patch notes, use `CogLang_Release_Notes_v1_1_4.md`; for stable language commitments, use `CogLang_Release_Notes_v1_1_0.md`.

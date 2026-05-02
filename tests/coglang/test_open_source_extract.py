@@ -7,9 +7,17 @@ import tomllib
 from pathlib import Path
 
 try:
-    from coglang.open_source_extract import materialize_public_repo_extract
+    from coglang.open_source_extract import (
+        check_public_assets_mirror,
+        materialize_public_repo_extract,
+        sync_public_assets_mirror,
+    )
 except ModuleNotFoundError:
-    from coglang.open_source_extract import materialize_public_repo_extract
+    from coglang.open_source_extract import (
+        check_public_assets_mirror,
+        materialize_public_repo_extract,
+        sync_public_assets_mirror,
+    )
 
 
 def _repo_root() -> Path:
@@ -329,6 +337,67 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     pytest_ini_text = (destination / "pytest.ini").read_text(encoding="utf-8")
     assert "L1: level 1 smoke and conformance marker" in pytest_ini_text
     assert "L2: level 2 smoke and conformance marker" in pytest_ini_text
+
+
+def test_public_assets_mirror_check_reports_clean_source_tree():
+    payload = check_public_assets_mirror(_repo_root())
+
+    assert payload["ok"] is True
+    assert payload["checked_file_count"] >= 50
+    assert payload["missing_package_data_entries"] == []
+    assert payload["extra_package_data_entries"] == []
+    assert payload["missing_sources"] == []
+    assert payload["missing_mirrors"] == []
+    assert payload["mismatched_mirrors"] == []
+
+
+def test_sync_public_assets_mirror_repairs_materialized_extract_mirror(tmp_path):
+    destination = tmp_path / "coglang-public-root"
+    materialize_public_repo_extract(destination)
+
+    source_readme = destination / "README.md"
+    mirror_readme = destination / "src" / "coglang" / "_public_assets" / "README.md"
+    wildcard_sentinel = (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "tests"
+        / "coglang"
+        / "sentinel.tmp"
+    )
+    mirror_readme.write_text("stale mirror\n", encoding="utf-8")
+    wildcard_sentinel.write_text("do not touch tree mirror\n", encoding="utf-8")
+
+    stale_check = check_public_assets_mirror(destination)
+    assert stale_check["ok"] is False
+    assert "src/coglang/_public_assets/README.md" in stale_check["mismatched_mirrors"]
+
+    payload = sync_public_assets_mirror(destination)
+
+    assert payload["ok"] is True
+    assert payload["mirrored_file_count"] >= 50
+    assert payload["check"]["ok"] is True
+    assert mirror_readme.read_text(encoding="utf-8") == source_readme.read_text(
+        encoding="utf-8"
+    )
+    assert wildcard_sentinel.read_text(encoding="utf-8") == "do not touch tree mirror\n"
+
+
+def test_public_assets_mirror_check_reports_missing_exact_files(tmp_path):
+    destination = tmp_path / "coglang-public-root"
+    materialize_public_repo_extract(destination)
+
+    source_readme = destination / "README.md"
+    mirror_license = destination / "src" / "coglang" / "_public_assets" / "LICENSE"
+    source_readme.unlink()
+    mirror_license.unlink()
+
+    payload = check_public_assets_mirror(destination)
+
+    assert payload["ok"] is False
+    assert "README.md" in payload["missing_sources"]
+    assert "src/coglang/_public_assets/LICENSE" in payload["missing_mirrors"]
 
 
 def test_materialize_public_repo_extract_rejects_existing_destination_without_overwrite(tmp_path):

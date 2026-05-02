@@ -55,36 +55,49 @@ The stable `v1.1.0` release path is PyPI publication through Trusted Publishing.
 ## Review Response Work Plan
 
 Recent review feedback is being handled as a sequence of small, reviewable
-changes. The current priority order is:
+changes. The current review-response status is:
+
+Completed in the current maintenance sequence:
 
 1. `1.1.3` release publication follow-through.
-   Keep the prepared `1.1.3` package metadata, release notes, README/PyPI-facing
-   text, machine-readable summaries, package data, manifest metadata, and
-   release-check expectations aligned until the Trusted Publishing release is
-   tagged and published.
+   Package metadata, release notes, README/PyPI-facing text,
+   machine-readable summaries, package data, manifest metadata, and
+   release-check expectations are aligned for the `1.1.3` package line.
 2. Reader routing and documentation density.
-   Keep the README first screen oriented around a 30-second reader guide, then
-   move larger governance reorganization only if the public extract and package
-   asset paths can stay clear.
+   The README first screen now starts with a 30-second reader guide and keeps
+   larger governance notes outside the first-pass reading path.
 3. Preflight and generation-eval clarity.
-   Add an obviously accepted preflight example, clarify traversal estimate
-   semantics, and make generation-eval report evaluated versus unevaluated
+   Preflight has an obviously accepted example, traversal estimate semantics
+   are clarified, and generation-eval reports evaluated versus unevaluated
    maturity levels.
 4. Readable-render executable anchors.
-   Convert RRG candidate examples into a small fixture that pins canonical text
-   anchors before any renderer API or CLI mode is implemented.
+   RRG candidate examples now have a fixture that pins canonical text anchors
+   before any renderer API or CLI mode is implemented.
 5. Schema-version registry.
-   Centralize schema-version string constants and add a release-check entry so
-   future schema bumps have one reviewable registration point.
-6. Public asset generation ergonomics.
+   Schema-version string constants are centralized so future schema bumps have
+   one reviewable registration point.
+6. Source-checkout hygiene.
+   `coglang doctor` reports local generated artifact directories such as
+   `build/` and `dist/` as non-failing cleanup guidance, and the
+   conformance/smoke pytest runner uses a managed `--basetemp`.
+
+Open follow-through:
+
+1. `1.1.3` Trusted Publishing release.
+   Tag and publish the package when the project is ready to turn the prepared
+   package evidence into a public PyPI release.
+2. Public asset generation ergonomics.
    Explore whether `_public_assets/` can eventually be derived during build or
    release preparation, reducing manual mirror churn without weakening package
    verification.
+3. External host implementation review.
+   Invite or accept a first host or consumer maintained outside the core
+   runtime repository, evaluated against the existing HRC companion/formal
+   boundary.
 
-The governance framework is now strong enough for a first external host
-implementation review. The most useful external contribution would be a host
-or consumer maintained outside the core runtime repository, evaluated against
-the existing HRC companion/formal boundary.
+The governance framework is now strong enough for that external-host review;
+the remaining need is an implementation or consumer outside this repository to
+exercise the companion/formal boundary under real maintainer feedback.
 
 ---
 

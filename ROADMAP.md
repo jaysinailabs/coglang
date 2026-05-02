@@ -110,6 +110,11 @@ Completed in the current maintenance sequence:
    `examples/node_host_consumer/package.json` keeps the Node HRC consumer
    locally testable with npm while remaining `private: true`, version `0.0.0`,
    and explicitly non-SDK/non-runtime example evidence.
+13. `1.1.5` local release preparation.
+   The accumulated local-first validation and AI-first DX companion asset batch
+   now has package metadata, release notes, package data, public extract
+   coverage, machine-readable summaries, and local wheel/sdist validation ready
+   for a maintainer-triggered release workflow.
 
 Open follow-through:
 
@@ -126,11 +131,10 @@ The governance framework is now strong enough for that external-host review;
 the remaining need is an implementation or consumer outside this repository to
 exercise the companion/formal boundary under real maintainer feedback.
 
-### Source HEAD After `1.1.4`
+### Source HEAD At `1.1.5`
 
-The current PyPI package line is `1.1.4`. Source HEAD intentionally accumulates
-small, reviewed maintenance capabilities before the next package version bump.
-The current unreleased source-maintenance batch includes:
+The current source package version is `1.1.5`, prepared as a local-first
+maintenance patch for the stable `v1.1.0` language line. This batch includes:
 
 - external host/consumer contribution checklist and PR template
 - external host/consumer issue template
@@ -152,10 +156,9 @@ The current unreleased source-maintenance batch includes:
 - a private `examples/node_host_consumer` npm scaffold for local Node consumer
   testing and dry-run packing, without publishing an npm package
 
-These are source-HEAD capabilities until the next package patch release. When
-the batch is large enough to publish, update the package version, release notes,
-README/PyPI-facing text, machine-readable summaries, package data, and
-post-publish verification together.
+Before publishing, run the local `quick` and `package` profiles. Remote GitHub
+workflow evidence should still be reserved for merge review or release
+preparation.
 
 ---
 

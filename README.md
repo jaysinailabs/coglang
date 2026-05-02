@@ -9,8 +9,8 @@ Status:
 - active experimental maintenance for host/runtime ecosystem work
 - host bridge v0.2 frozen only for the narrow typed write-envelope surface
 
-Current public language release: `v1.1.0`. The current Python distribution version is `1.1.4`.
-Source HEAD may include unreleased maintenance changes after `1.1.4`; package release notes remain the authority for what is available from PyPI.
+Current public language release: `v1.1.0`. The current source Python distribution version is `1.1.5`.
+Package release notes remain the authority for what is available from PyPI; source HEAD may be prepared before the remote release workflow is triggered.
 The Host Runtime Contract v0.2 frozen scope is the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`.
 A minimal Node.js standard-library consumer is also included at `examples/node_host_consumer` to show non-Python tooling can read the HRC schema pack and envelope samples without importing the Python runtime.
 That consumer includes a private npm scaffold for local `npm test` and
@@ -82,7 +82,7 @@ Use this table when you do not know which document to open first:
 
 | You are... | Read first | Then read |
 | --- | --- | --- |
-| Trying CogLang as a user | [CogLang_Quickstart_v1_1_0.md](CogLang_Quickstart_v1_1_0.md) | `coglang demo`, then [CogLang_Release_Notes_v1_1_4.md](CogLang_Release_Notes_v1_1_4.md) |
+| Trying CogLang as a user | [CogLang_Quickstart_v1_1_0.md](CogLang_Quickstart_v1_1_0.md) | `coglang demo`, then [CogLang_Release_Notes_v1_1_5.md](CogLang_Release_Notes_v1_1_5.md) |
 | Checking install or release health | [CogLang_Standalone_Install_and_Release_Guide_v0_1.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.md) | `coglang release-check`, then [CogLang_Minimal_CI_Baseline_v0_1.json](CogLang_Minimal_CI_Baseline_v0_1.json) |
 | Implementing a host boundary | [CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md](CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md) | [CogLang_HRC_Companion_Asset_Classification_v0_1.md](CogLang_HRC_Companion_Asset_Classification_v0_1.md), then `examples/node_host_consumer` |
 | Contributing changes | [CONTRIBUTING.md](CONTRIBUTING.md) | [CogLang_Contribution_Guide_v0_1.md](CogLang_Contribution_Guide_v0_1.md), then [ROADMAP.md](ROADMAP.md) |
@@ -227,6 +227,7 @@ Integration and release-facing documents:
 - [CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md](CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md)
 - [CogLang_Host_Runtime_Contract_v0_1.md](CogLang_Host_Runtime_Contract_v0_1.md)
 - [CogLang_Standalone_Install_and_Release_Guide_v0_1.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.md)
+- [CogLang_Release_Notes_v1_1_5.md](CogLang_Release_Notes_v1_1_5.md)
 - [CogLang_Release_Notes_v1_1_4.md](CogLang_Release_Notes_v1_1_4.md)
 - [CogLang_Release_Notes_v1_1_3.md](CogLang_Release_Notes_v1_1_3.md)
 - [CogLang_Release_Notes_v1_1_2.md](CogLang_Release_Notes_v1_1_2.md)
@@ -242,6 +243,7 @@ Chinese companion translations:
 - [CogLang_Specification_v1_1_0_Draft.zh-CN.md](CogLang_Specification_v1_1_0_Draft.zh-CN.md)
 - [CogLang_Conformance_Suite_v1_1_0.zh-CN.md](CogLang_Conformance_Suite_v1_1_0.zh-CN.md)
 - [CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md)
+- [CogLang_Release_Notes_v1_1_5.zh-CN.md](CogLang_Release_Notes_v1_1_5.zh-CN.md)
 - [CogLang_Release_Notes_v1_1_4.zh-CN.md](CogLang_Release_Notes_v1_1_4.zh-CN.md)
 - [CogLang_Release_Notes_v1_1_3.zh-CN.md](CogLang_Release_Notes_v1_1_3.zh-CN.md)
 - [CogLang_Release_Notes_v1_1_2.zh-CN.md](CogLang_Release_Notes_v1_1_2.zh-CN.md)
@@ -292,8 +294,9 @@ Lower-priority contributions:
 
 Use the project documents this way:
 
-- [CogLang_Release_Notes_v1_1_4.md](CogLang_Release_Notes_v1_1_4.md): latest Python package patch notes.
-- [CogLang_Release_Notes_v1_1_3.md](CogLang_Release_Notes_v1_1_3.md): previous Python package patch notes.
+- [CogLang_Release_Notes_v1_1_5.md](CogLang_Release_Notes_v1_1_5.md): latest Python package patch notes.
+- [CogLang_Release_Notes_v1_1_4.md](CogLang_Release_Notes_v1_1_4.md): previous Python package patch notes.
+- [CogLang_Release_Notes_v1_1_3.md](CogLang_Release_Notes_v1_1_3.md): older Python package patch notes.
 - [CogLang_Release_Notes_v1_1_2.md](CogLang_Release_Notes_v1_1_2.md): older Python package patch notes.
 - [CogLang_Release_Notes_v1_1_0.md](CogLang_Release_Notes_v1_1_0.md): stable language release commitments.
 - [CogLang_Vision_Proposal_v0_1.md](CogLang_Vision_Proposal_v0_1.md): long-term capability proposal, not a release contract.

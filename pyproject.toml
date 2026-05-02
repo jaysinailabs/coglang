@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "coglang"
-version = "1.1.4"
+version = "1.1.5"
 description = "Graph-first intermediate language for auditable LLM-generated graph queries and updates"
 readme = "README.md"
 authors = [{ name = "Jason Xin" }]
@@ -86,6 +86,8 @@ coglang = [
     "_public_assets/CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md",
     "_public_assets/CogLang_Release_Notes_v1_1_0.md",
     "_public_assets/CogLang_Release_Notes_v1_1_0.zh-CN.md",
+    "_public_assets/CogLang_Release_Notes_v1_1_5.md",
+    "_public_assets/CogLang_Release_Notes_v1_1_5.zh-CN.md",
     "_public_assets/CogLang_Release_Notes_v1_1_4.md",
     "_public_assets/CogLang_Release_Notes_v1_1_4.zh-CN.md",
     "_public_assets/CogLang_Release_Notes_v1_1_3.md",

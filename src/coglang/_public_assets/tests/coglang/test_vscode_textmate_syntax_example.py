@@ -88,7 +88,7 @@ def test_vscode_textmate_syntax_sample_expressions_parse_and_validate():
     )
     expressions = [line.strip() for line in sample.splitlines() if line.strip()]
 
-    assert len(expressions) == 3
+    assert len(expressions) == 12
     for source in expressions:
         expr = parse(source)
         assert expr.head != "ParseError"

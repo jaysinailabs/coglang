@@ -43,6 +43,7 @@
         "test_executor_interface.py",
         "test_graph_ops.py",
         "test_generation_eval.py",
+        "test_grammar_examples.py",
         "test_host_runtime_schema_seeds.py",
         "test_integration.py",
         "test_local_host.py",
@@ -73,6 +74,11 @@
       "kind": "tree",
       "source": "examples/node_minimal_host_runtime_stub",
       "destination": "examples/node_minimal_host_runtime_stub"
+    },
+    {
+      "kind": "tree",
+      "source": "examples/grammar",
+      "destination": "examples/grammar"
     },
     {
       "kind": "file",

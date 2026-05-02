@@ -43,6 +43,10 @@ node examples/node_host_consumer/consume_hrc_envelopes.mjs
 node examples/node_minimal_host_runtime_stub/run_demo.mjs
 ```
 
+For constrained-generation companion grammars, see
+[examples/grammar](examples/grammar). Those files reduce malformed model
+output but do not replace `parse` and `valid_coglang`.
+
 Machine-readable project summaries:
 
 - [llms.txt](llms.txt)

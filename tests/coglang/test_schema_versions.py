@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import pytest
@@ -93,6 +94,29 @@ def test_schema_version_registry_is_complete_and_unique():
 
     with pytest.raises(TypeError):
         SCHEMA_VERSION_REGISTRY["new_schema"] = "coglang-new-schema/v0.1"
+
+
+def test_generation_eval_contract_header_schema_versions_are_registered():
+    contract_text = (
+        _repo_root()
+        / "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
+    ).read_text(encoding="utf-8")
+    contract_header = contract_text.split("**Audience**", 1)[0]
+    documented_versions = set(
+        re.findall(r"`(coglang-generation-eval-[^`]+/v0\.1)`", contract_header)
+    )
+    expected_versions_by_key = {
+        "generation_eval_request_batch": GENERATION_EVAL_REQUEST_BATCH_SCHEMA_VERSION,
+        "generation_eval_request": GENERATION_EVAL_REQUEST_SCHEMA_VERSION,
+        "generation_eval_response_batch": GENERATION_EVAL_RESPONSE_BATCH_SCHEMA_VERSION,
+        "generation_eval_response": GENERATION_EVAL_RESPONSE_SCHEMA_VERSION,
+    }
+
+    assert documented_versions == set(expected_versions_by_key.values())
+    assert {
+        key: SCHEMA_VERSION_REGISTRY[key]
+        for key in expected_versions_by_key
+    } == expected_versions_by_key
 
 
 def test_schema_version_constants_match_registry_values():

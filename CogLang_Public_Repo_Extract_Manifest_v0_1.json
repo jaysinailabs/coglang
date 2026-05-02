@@ -61,7 +61,8 @@
         "test_readable_render_golden_candidates.py",
         "test_schema_versions.py",
         "test_unify.py",
-        "test_validator.py"
+        "test_validator.py",
+        "test_vscode_textmate_syntax_example.py"
       ]
     },
     {
@@ -88,6 +89,11 @@
       "kind": "tree",
       "source": "examples/generation_eval_offline_runner",
       "destination": "examples/generation_eval_offline_runner"
+    },
+    {
+      "kind": "tree",
+      "source": "examples/vscode_textmate_syntax",
+      "destination": "examples/vscode_textmate_syntax"
     },
     {
       "kind": "tree",

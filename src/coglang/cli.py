@@ -1039,6 +1039,21 @@ def _release_check_payload() -> dict[str, Any]:
     grammar_readme_path, _ = _resolve_project_artifact(
         "examples/grammar/README.md",
     )
+    vscode_textmate_package_path, _ = _resolve_project_artifact(
+        "examples/vscode_textmate_syntax/package.json",
+    )
+    vscode_textmate_language_config_path, _ = _resolve_project_artifact(
+        "examples/vscode_textmate_syntax/language-configuration.json",
+    )
+    vscode_textmate_grammar_path, _ = _resolve_project_artifact(
+        "examples/vscode_textmate_syntax/syntaxes/coglang.tmLanguage.json",
+    )
+    vscode_textmate_sample_path, _ = _resolve_project_artifact(
+        "examples/vscode_textmate_syntax/samples/basic.coglang",
+    )
+    vscode_textmate_readme_path, _ = _resolve_project_artifact(
+        "examples/vscode_textmate_syntax/README.md",
+    )
     generation_eval_offline_runner_path, _ = _resolve_project_artifact(
         "examples/generation_eval_offline_runner/mock_responses.py",
     )
@@ -1079,6 +1094,15 @@ def _release_check_payload() -> dict[str, Any]:
         "_public_assets/examples/node_minimal_host_runtime_stub/*" in package_data
     )
     grammar_examples_packaged = "_public_assets/examples/grammar/*" in package_data
+    vscode_textmate_packaged = (
+        "_public_assets/examples/vscode_textmate_syntax/*" in package_data
+    )
+    vscode_textmate_samples_packaged = (
+        "_public_assets/examples/vscode_textmate_syntax/samples/*" in package_data
+    )
+    vscode_textmate_syntaxes_packaged = (
+        "_public_assets/examples/vscode_textmate_syntax/syntaxes/*" in package_data
+    )
     generation_eval_offline_runner_packaged = (
         "_public_assets/examples/generation_eval_offline_runner/*" in package_data
     )
@@ -1326,6 +1350,20 @@ def _release_check_payload() -> dict[str, Any]:
                 and grammar_examples_packaged
             ),
             "detail": "examples/grammar + package data",
+        },
+        {
+            "name": "vscode_textmate_syntax",
+            "ok": (
+                vscode_textmate_package_path.exists()
+                and vscode_textmate_language_config_path.exists()
+                and vscode_textmate_grammar_path.exists()
+                and vscode_textmate_sample_path.exists()
+                and vscode_textmate_readme_path.exists()
+                and vscode_textmate_packaged
+                and vscode_textmate_samples_packaged
+                and vscode_textmate_syntaxes_packaged
+            ),
+            "detail": "examples/vscode_textmate_syntax + package data",
         },
         {
             "name": "generation_eval_offline_runner",

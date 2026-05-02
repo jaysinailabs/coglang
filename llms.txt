@@ -40,6 +40,7 @@ Key design choices:
 - a provider-neutral `generation-eval` request/response adapter for exporting prompt records and scoring external model JSON/JSONL responses without importing provider SDKs
 - `examples/generation_eval_offline_runner` for a no-provider dry run and three-case contract smoke of the generation-eval response-file contract
 - `scripts/local_ci.py` for local-first validation profiles before maintainer-triggered GitHub Actions evidence
+- `examples/vscode_textmate_syntax` for companion editor-only TextMate highlighting; not a parser, validator, LSP, formatter, or normative grammar
 - a minimal executor interface: second implementations should start with `execute` and `validate`; Python host-local query/dict/JSON helpers are convenience APIs, not required inheritance surface
 - semantic-event audit focus: use CogLang to represent inspectable graph intents and host-visible outcomes, not every low-level model or infrastructure signal
 
@@ -72,6 +73,7 @@ Core documents:
 - CONTRIBUTING.md: GitHub-facing contribution entry point and validation route
 - CogLang_Contribution_Guide_v0_1.md: contribution boundaries and review expectations
 - examples/grammar: companion Lark and GBNF grammar examples for constrained generation; not a normative parser or validator
+- examples/vscode_textmate_syntax: companion VS Code/TextMate syntax highlighting for `.coglang` files; not a parser, validator, LSP, formatter, renderer, or normative grammar
 - ROADMAP.md: current direction, not a release contract
 - MAINTENANCE.md: maintenance, freeze, transfer, and archive policy
 

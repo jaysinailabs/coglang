@@ -1,0 +1,3 @@
+Equal[1, 1]
+Query[n_, Equal[Get[n_, "category"], "Person"]]
+Create["Entity", {"id": "ada", "category": "Person"}]

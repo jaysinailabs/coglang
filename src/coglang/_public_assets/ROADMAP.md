@@ -101,6 +101,11 @@ Completed in the current maintenance sequence:
    `examples/generation_eval_offline_runner/fixtures` provides a three-case
    response-file contract fixture and static response JSONL, keeping the first
    offline scoring path shorter than the default 50-case eval fixture.
+11. Editor companion syntax highlighting.
+   `examples/vscode_textmate_syntax` provides a private, local-installable
+   VS Code/TextMate syntax package for `.coglang` files. It is explicitly
+   companion DX material, not a parser, validator, LSP, formatter, renderer, or
+   normative grammar.
 
 Open follow-through:
 
@@ -138,6 +143,8 @@ The current unreleased source-maintenance batch includes:
   generation-eval request/response file contract
 - `scripts/local_ci.py` profiles for local-first validation before any
   maintainer-triggered remote workflow run
+- a companion `examples/vscode_textmate_syntax` package for editor-only
+  `.coglang` TextMate highlighting
 
 These are source-HEAD capabilities until the next package patch release. When
 the batch is large enough to publish, update the package version, release notes,

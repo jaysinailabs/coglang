@@ -1778,6 +1778,11 @@ def test_cli_release_check_payload_shape():
         for item in payload["checks"]
     )
     assert any(
+        item["name"] == "vscode_textmate_syntax"
+        and item["ok"] is True
+        for item in payload["checks"]
+    )
+    assert any(
         item["name"] == "generation_eval_offline_runner"
         and item["ok"] is True
         for item in payload["checks"]
@@ -1849,6 +1854,7 @@ def test_cli_release_check_json_output():
     assert '"node_host_consumer"' in output
     assert '"node_minimal_host_runtime_stub"' in output
     assert '"grammar_examples"' in output
+    assert '"vscode_textmate_syntax"' in output
     assert '"generation_eval_offline_runner"' in output
     assert '"local_ci_simulation"' in output
     assert '"executor_interface"' in output
@@ -1914,6 +1920,10 @@ def test_cli_release_check_text_output():
         "(examples/node_minimal_host_runtime_stub + package data)" in output
     )
     assert "grammar_examples: ok (examples/grammar + package data)" in output
+    assert (
+        "vscode_textmate_syntax: ok "
+        "(examples/vscode_textmate_syntax + package data)" in output
+    )
     assert (
         "generation_eval_offline_runner: ok "
         "(examples/generation_eval_offline_runner + fixture + package data)" in output
@@ -2078,7 +2088,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 65
+    assert payload["entry_count"] == 66
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -2114,6 +2124,10 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         in tree_entries["tests/coglang"]["include"]
     )
     assert "test_schema_versions.py" in tree_entries["tests/coglang"]["include"]
+    assert (
+        "test_vscode_textmate_syntax_example.py"
+        in tree_entries["tests/coglang"]["include"]
+    )
     assert "examples/node_host_consumer" in [
         item["source"] for item in payload["entries"]
     ]
@@ -2124,6 +2138,9 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "examples/generation_eval_offline_runner" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "examples/vscode_textmate_syntax" in [
         item["source"] for item in payload["entries"]
     ]
     assert "scripts" in [

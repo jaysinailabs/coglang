@@ -48,6 +48,11 @@ For constrained-generation companion grammars, see
 [examples/grammar](examples/grammar). Those files reduce malformed model
 output but do not replace `parse` and `valid_coglang`.
 
+For editor-only highlighting, see
+[examples/vscode_textmate_syntax](examples/vscode_textmate_syntax). It is a
+companion TextMate syntax package, not a parser, validator, LSP, formatter, or
+normative grammar.
+
 Source HEAD also includes a provider-neutral `generation-eval` request/response
 adapter. Use `coglang generation-eval --export-requests --request-format jsonl`
 to create prompt records for an external model runner, then score returned

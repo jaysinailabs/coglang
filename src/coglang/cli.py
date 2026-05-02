@@ -1024,6 +1024,9 @@ def _release_check_payload() -> dict[str, Any]:
     node_consumer_readme_path, _ = _resolve_project_artifact(
         "examples/node_host_consumer/README.md",
     )
+    node_consumer_package_path, _ = _resolve_project_artifact(
+        "examples/node_host_consumer/package.json",
+    )
     node_minimal_stub_run_path, _ = _resolve_project_artifact(
         "examples/node_minimal_host_runtime_stub/run_demo.mjs",
     )
@@ -1090,6 +1093,29 @@ def _release_check_payload() -> dict[str, Any]:
         .get("coglang", [])
     )
     node_consumer_packaged = "_public_assets/examples/node_host_consumer/*" in package_data
+    node_consumer_package: dict[str, Any] = {}
+    if node_consumer_package_path.exists():
+        try:
+            node_consumer_package = json.loads(
+                node_consumer_package_path.read_text(encoding="utf-8")
+            )
+        except json.JSONDecodeError:
+            node_consumer_package = {}
+    node_consumer_package_scripts = node_consumer_package.get("scripts", {})
+    node_consumer_package_ok = (
+        node_consumer_package.get("name")
+        == "@coglang/hrc-envelope-consumer-example"
+        and node_consumer_package.get("version") == "0.0.0"
+        and node_consumer_package.get("private") is True
+        and node_consumer_package.get("type") == "module"
+        and node_consumer_package.get("bin", {}).get(
+            "coglang-hrc-consumer-example"
+        )
+        == "./consume_hrc_envelopes.mjs"
+        and node_consumer_package_scripts.get("test")
+        == "node ./consume_hrc_envelopes.mjs ../.."
+        and node_consumer_package_scripts.get("pack:dry") == "npm pack --dry-run"
+    )
     node_minimal_stub_packaged = (
         "_public_assets/examples/node_minimal_host_runtime_stub/*" in package_data
     )
@@ -1328,9 +1354,11 @@ def _release_check_payload() -> dict[str, Any]:
             "ok": (
                 node_consumer_script_path.exists()
                 and node_consumer_readme_path.exists()
+                and node_consumer_package_path.exists()
+                and node_consumer_package_ok
                 and node_consumer_packaged
             ),
-            "detail": "examples/node_host_consumer + package data",
+            "detail": "examples/node_host_consumer + private npm scaffold + package data",
         },
         {
             "name": "node_minimal_host_runtime_stub",

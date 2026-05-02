@@ -106,6 +106,10 @@ Completed in the current maintenance sequence:
    VS Code/TextMate syntax package for `.coglang` files. It is explicitly
    companion DX material, not a parser, validator, LSP, formatter, renderer, or
    normative grammar.
+12. Node consumer npm scaffold.
+   `examples/node_host_consumer/package.json` keeps the Node HRC consumer
+   locally testable with npm while remaining `private: true`, version `0.0.0`,
+   and explicitly non-SDK/non-runtime example evidence.
 
 Open follow-through:
 
@@ -145,6 +149,8 @@ The current unreleased source-maintenance batch includes:
   maintainer-triggered remote workflow run
 - a companion `examples/vscode_textmate_syntax` package for editor-only
   `.coglang` TextMate highlighting
+- a private `examples/node_host_consumer` npm scaffold for local Node consumer
+  testing and dry-run packing, without publishing an npm package
 
 These are source-HEAD capabilities until the next package patch release. When
 the batch is large enough to publish, update the package version, release notes,

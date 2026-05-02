@@ -12,7 +12,7 @@ Current status:
 - HRC v0.2 frozen only for the narrow typed write-envelope host bridge
 
 Current public language release: `v1.1.0`. Current Python distribution version: `1.1.4`. Source HEAD may include unreleased maintenance changes after `1.1.4`; package release notes define what is available from PyPI.
-HRC v0.2 is frozen for the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`. A minimal Node.js standard-library consumer under `examples/node_host_consumer` reads the HRC schema pack and envelope samples without importing the Python runtime. An experimental in-repository Node.js minimal host/runtime stub under `examples/node_minimal_host_runtime_stub` is post-freeze example evidence, not an HRC scope expansion.
+HRC v0.2 is frozen for the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`. A minimal Node.js standard-library consumer under `examples/node_host_consumer` reads the HRC schema pack and envelope samples without importing the Python runtime. Its private npm scaffold is local example packaging evidence, not a published JavaScript SDK. An experimental in-repository Node.js minimal host/runtime stub under `examples/node_minimal_host_runtime_stub` is post-freeze example evidence, not an HRC scope expansion.
 
 This file is for LLM-oriented retrieval and summarization. It is not the release contract. For package patch notes, use `CogLang_Release_Notes_v1_1_4.md`; for stable language commitments, use `CogLang_Release_Notes_v1_1_0.md`.
 
@@ -99,7 +99,9 @@ surface for every implementation. `coglang release-check` includes an
 8. Non-Python example evidence
 
 `examples/node_host_consumer` shows that Node.js standard-library tooling can
-read the HRC schema pack and envelope samples. `examples/node_minimal_host_runtime_stub`
+read the HRC schema pack and envelope samples. Its private npm scaffold supports
+local `npm test` and `npm pack --dry-run` checks, but is not a published
+JavaScript SDK or runtime API. `examples/node_minimal_host_runtime_stub`
 adds a small in-repository Node.js stub for tiny `execute` / `validate` behavior
 and typed write-envelope success/failure paths. It is companion evidence, not a
 new frozen HRC requirement.
@@ -144,6 +146,7 @@ coglang demo
 coglang host-demo
 coglang reference-host-demo
 node examples/node_host_consumer/consume_hrc_envelopes.mjs
+npm --prefix examples/node_host_consumer test
 node examples/node_minimal_host_runtime_stub/run_demo.mjs
 ```
 

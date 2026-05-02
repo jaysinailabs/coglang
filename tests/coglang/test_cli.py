@@ -1766,7 +1766,13 @@ def test_cli_release_check_payload_shape():
     assert any(item["name"] == "formal_open_source_readiness" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "preflight_fixture" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "generation_eval" and item["ok"] is True for item in payload["checks"])
-    assert any(item["name"] == "node_host_consumer" and item["ok"] is True for item in payload["checks"])
+    assert any(
+        item["name"] == "node_host_consumer"
+        and item["ok"] is True
+        and item["detail"]
+        == "examples/node_host_consumer + private npm scaffold + package data"
+        for item in payload["checks"]
+    )
     assert any(
         item["name"] == "node_minimal_host_runtime_stub"
         and item["ok"] is True
@@ -1914,7 +1920,11 @@ def test_cli_release_check_text_output():
     assert "formal_open_source_readiness: ok (ready-for-formal-open-source-candidate-decision)" in output
     assert "preflight_fixture: ok (9 cases)" in output
     assert "generation_eval: ok (50 cases)" in output
-    assert "node_host_consumer: ok (examples/node_host_consumer + package data)" in output
+    assert (
+        "node_host_consumer: ok "
+        "(examples/node_host_consumer + private npm scaffold + package data)"
+        in output
+    )
     assert (
         "node_minimal_host_runtime_stub: ok "
         "(examples/node_minimal_host_runtime_stub + package data)" in output

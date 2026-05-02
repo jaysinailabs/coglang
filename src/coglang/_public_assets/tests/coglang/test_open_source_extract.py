@@ -93,6 +93,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "tests" / "coglang" / "test_public_assets_mirror.py").exists()
     assert (destination / "examples" / "node_host_consumer" / "consume_hrc_envelopes.mjs").exists()
     assert (destination / "examples" / "node_host_consumer" / "README.md").exists()
+    assert (destination / "examples" / "node_host_consumer" / "package.json").exists()
     assert (destination / "examples" / "node_minimal_host_runtime_stub" / "run_demo.mjs").exists()
     assert (destination / "examples" / "node_minimal_host_runtime_stub" / "host_stub.mjs").exists()
     assert (destination / "examples" / "node_minimal_host_runtime_stub" / "runtime_stub.mjs").exists()
@@ -254,6 +255,15 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         / "test_vscode_textmate_syntax_example.py"
     ).exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "examples" / "node_host_consumer" / "consume_hrc_envelopes.mjs").exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "examples"
+        / "node_host_consumer"
+        / "package.json"
+    ).exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "examples" / "node_minimal_host_runtime_stub" / "run_demo.mjs").exists()
     assert (
         destination

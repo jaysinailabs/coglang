@@ -13,6 +13,9 @@ Current public language release: `v1.1.0`. The current Python distribution versi
 Source HEAD may include unreleased maintenance changes after `1.1.4`; package release notes remain the authority for what is available from PyPI.
 The Host Runtime Contract v0.2 frozen scope is the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`.
 A minimal Node.js standard-library consumer is also included at `examples/node_host_consumer` to show non-Python tooling can read the HRC schema pack and envelope samples without importing the Python runtime.
+That consumer includes a private npm scaffold for local `npm test` and
+`npm pack --dry-run` checks; it is example packaging evidence, not a published
+JavaScript SDK.
 An experimental in-repository Node.js minimal host/runtime stub is included at `examples/node_minimal_host_runtime_stub`; it is post-freeze example evidence, not an expansion of HRC v0.2.
 
 ## LLM Discovery Snapshot
@@ -41,6 +44,7 @@ coglang generation-eval --summary-only
 coglang generation-eval --export-requests --request-format jsonl
 coglang demo
 node examples/node_host_consumer/consume_hrc_envelopes.mjs
+npm --prefix examples/node_host_consumer test
 node examples/node_minimal_host_runtime_stub/run_demo.mjs
 ```
 

@@ -58,9 +58,9 @@ CogLang `1.1.3` 是 stable `v1.1.0` 语言线上的包级 patch release。
   tree 可以检测并修复镜像 drift；这不改变 public release contract。
 - `coglang doctor` 现在会把 `build/`、`dist/` 等本地生成目录报告为非失败型
   清理提示，方便 source checkout 维护。
-- `coglang smoke` 与 `coglang conformance` 现在会在受控临时目录下显式传入
-  pytest `--basetemp`，避免 Windows tempdir 清理竞争，同时保留用户自定义
-  `--basetemp` 的覆盖权。
+- `coglang smoke` 与 `coglang conformance` 现在会在每次运行独立的系统临时
+  目录下显式传入 pytest `--basetemp`，避免 Windows tempdir 清理竞争，同时
+  保留用户自定义 `--basetemp` 的覆盖权。
 - 仓库元数据新增 `.mailmap`，将历史提交中的
   `xinjingshun <xinjingshun@foxmail.com>` 归并显示为
   `Jason Xin <xinjingshun@foxmail.com>`，不重写 Git 历史。

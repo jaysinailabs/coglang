@@ -64,8 +64,8 @@ This release publishes the maintenance evidence added after `1.1.2`:
 - `coglang doctor` now reports local generated artifact directories such as
   `build/` and `dist/` as non-failing cleanup guidance for source checkouts.
 - `coglang smoke` and `coglang conformance` now pass an explicit pytest
-  `--basetemp` under their managed temp directory, avoiding Windows tempdir
-  cleanup races while preserving user-supplied `--basetemp` overrides.
+  `--basetemp` under a per-run system temp directory, avoiding Windows
+  tempdir cleanup races while preserving user-supplied `--basetemp` overrides.
 - Repository metadata now includes `.mailmap` so historical commits authored as
   `xinjingshun <xinjingshun@foxmail.com>` are attributed to
   `Jason Xin <xinjingshun@foxmail.com>` without rewriting Git history.

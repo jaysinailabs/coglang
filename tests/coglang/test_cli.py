@@ -322,13 +322,14 @@ def test_run_conformance_suite_cleans_tempdir_and_restores_environment(
     original_tempdir = tempfile.tempdir
 
     def fake_main(args: list[str]) -> int:
-        redirected_tmp = root / ".tmp_pytest"
+        basetemp = Path(args[args.index("--basetemp") + 1])
         seen["args"] = list(args)
+        seen["basetemp"] = basetemp
         seen["temp"] = os.environ.get("TEMP")
         seen["tmp"] = os.environ.get("TMP")
         seen["tempdir"] = tempfile.tempdir
-        seen["tmp_exists_during_run"] = redirected_tmp.exists()
-        (redirected_tmp / "sentinel.lock").write_text("lock", encoding="utf-8")
+        seen["basetemp_exists_during_run"] = basetemp.exists()
+        (basetemp / "sentinel.lock").write_text("lock", encoding="utf-8")
         return 0
 
     monkeypatch.setitem(sys.modules, "pytest", types.SimpleNamespace(main=fake_main))
@@ -339,16 +340,19 @@ def test_run_conformance_suite_cleans_tempdir_and_restores_environment(
     )
 
     assert _run_conformance_suite("smoke") == 0
+    basetemp = seen["basetemp"]
+    assert isinstance(basetemp, Path)
+    assert basetemp.name.startswith("coglang-pytest-")
     assert seen["args"] == [
         "tests/coglang/test_cli.py",
         "--basetemp",
-        str(root / ".tmp_pytest" / "basetemp"),
+        str(basetemp),
     ]
-    assert seen["temp"] == str(root / ".tmp_pytest")
-    assert seen["tmp"] == str(root / ".tmp_pytest")
-    assert seen["tempdir"] == str(root / ".tmp_pytest")
-    assert seen["tmp_exists_during_run"] is True
-    assert not (root / ".tmp_pytest").exists()
+    assert seen["temp"] == original_temp
+    assert seen["tmp"] == original_tmp
+    assert seen["tempdir"] == original_tempdir
+    assert seen["basetemp_exists_during_run"] is True
+    assert not basetemp.exists()
     assert tempfile.tempdir == original_tempdir
     assert os.environ.get("TEMP") == original_temp
     assert os.environ.get("TMP") == original_tmp
@@ -361,6 +365,7 @@ def test_run_conformance_suite_preserves_explicit_basetemp(monkeypatch, tmp_path
 
     def fake_main(args: list[str]) -> int:
         seen["args"] = list(args)
+        seen["temp"] = os.environ.get("TEMP")
         return 0
 
     monkeypatch.setitem(sys.modules, "pytest", types.SimpleNamespace(main=fake_main))
@@ -376,6 +381,7 @@ def test_run_conformance_suite_preserves_explicit_basetemp(monkeypatch, tmp_path
         "--basetemp",
         "custom-temp",
     ]
+    assert seen["temp"] == os.environ.get("TEMP")
 
 
 def test_repl_executes_one_expression_then_quits():

@@ -2020,9 +2020,9 @@ def _conformance_targets(suite: str) -> list[str]:
 
 def _run_conformance_suite(suite: str, pytest_args: list[str] | None = None) -> int:
     try:
-        import os
         import shutil
         import tempfile
+        import uuid
 
         import pytest
     except ImportError:
@@ -2031,34 +2031,21 @@ def _run_conformance_suite(suite: str, pytest_args: list[str] | None = None) -> 
 
     root = _project_root()
     targets = _conformance_targets(suite)
-    tmp = root / ".tmp_pytest"
-    previous_temp = os.environ.get("TEMP")
-    previous_tmp = os.environ.get("TMP")
-    previous_tempdir = tempfile.tempdir
-    tmp.mkdir(exist_ok=True)
-    os.environ["TEMP"] = str(tmp)
-    os.environ["TMP"] = str(tmp)
-    tempfile.tempdir = str(tmp)
     forwarded_args = list(pytest_args or [])
+    managed_basetemp: Path | None = None
     if not _pytest_args_include_basetemp(forwarded_args):
-        forwarded_args = ["--basetemp", str(tmp / "basetemp")] + forwarded_args
+        managed_basetemp = Path(
+            tempfile.mkdtemp(prefix=f"coglang-pytest-{uuid.uuid4().hex}-")
+        )
+        forwarded_args = ["--basetemp", str(managed_basetemp)] + forwarded_args
     args = targets + forwarded_args
     try:
         return pytest.main(args)
     finally:
-        tempfile.tempdir = previous_tempdir
-        if previous_temp is None:
-            os.environ.pop("TEMP", None)
-        else:
-            os.environ["TEMP"] = previous_temp
-        if previous_tmp is None:
-            os.environ.pop("TMP", None)
-        else:
-            os.environ["TMP"] = previous_tmp
-        # Clean up redirected tempdir so transitively-invoked libraries
-        # (filelock / huggingface_hub / etc.) don't leave sentinel files
-        # accumulating across runs. ignore_errors covers Windows file-lock races.
-        shutil.rmtree(tmp, ignore_errors=True)
+        if managed_basetemp is not None:
+            # Pytest owns this basetemp during the run. Remove only this run's
+            # temp path; the system temp parent may be shared by other processes.
+            shutil.rmtree(managed_basetemp, ignore_errors=True)
 
 
 def _pytest_args_include_basetemp(pytest_args: list[str]) -> bool:

@@ -38,6 +38,7 @@ coglang execute 'Query[n_, Equal[Get[n_, "category"], "Person"]]'
 coglang execute 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
 coglang preflight --format text 'AllNodes[]'
 coglang generation-eval --summary-only
+coglang generation-eval --export-requests --request-format jsonl
 coglang demo
 node examples/node_host_consumer/consume_hrc_envelopes.mjs
 node examples/node_minimal_host_runtime_stub/run_demo.mjs
@@ -46,6 +47,11 @@ node examples/node_minimal_host_runtime_stub/run_demo.mjs
 For constrained-generation companion grammars, see
 [examples/grammar](examples/grammar). Those files reduce malformed model
 output but do not replace `parse` and `valid_coglang`.
+
+Source HEAD also includes a provider-neutral `generation-eval` request/response
+adapter. Use `coglang generation-eval --export-requests --request-format jsonl`
+to create prompt records for an external model runner, then score returned
+JSON/JSONL records with `coglang generation-eval --responses-file responses.jsonl`.
 
 Machine-readable project summaries:
 
@@ -125,6 +131,7 @@ pip install -e ".[dev]"
 coglang bundle
 coglang preflight --format text 'AllNodes[]'
 coglang generation-eval --summary-only
+coglang generation-eval --export-requests --request-format jsonl
 coglang smoke
 coglang demo
 coglang conformance --level smoke

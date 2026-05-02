@@ -120,6 +120,9 @@ The current unreleased source-maintenance batch includes:
 - `coglang doctor` non-failing guidance for public asset mirror drift
 - preflight default traversal depth tuned for small nested demo expressions
 - companion Lark and GBNF grammar examples for constrained generation
+- provider-neutral `generation-eval` request/response export and import for
+  scoring external model JSON/JSONL outputs without adding provider SDK
+  dependencies
 
 These are source-HEAD capabilities until the next package patch release. When
 the batch is large enough to publish, update the package version, release notes,

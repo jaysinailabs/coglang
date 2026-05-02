@@ -26,6 +26,7 @@ Use CogLang when:
 - you want host-side profile and capability checks to reject unsafe or unsupported operations before execution
 - you need a versioned host-runtime boundary for typed write-envelope submission and response evidence
 - you want a small public fixture for checking whether generated CogLang text parses, canonicalizes, validates, uses expected top-level heads, and avoids hallucinated operators
+- you want to export generation-eval prompt records for an external model runner and score returned JSON/JSONL outputs without binding CogLang to a provider SDK
 
 ## What CogLang Is Not For
 
@@ -137,6 +138,7 @@ coglang execute 'Query[n_, Equal[Get[n_, "category"], "Person"]]'
 coglang execute 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
 coglang preflight --format text 'AllNodes[]'
 coglang generation-eval --summary-only
+coglang generation-eval --export-requests --request-format jsonl
 coglang demo
 coglang host-demo
 coglang reference-host-demo
@@ -155,12 +157,17 @@ Useful modes:
 
 ```powershell
 coglang generation-eval --summary-only
+coglang generation-eval --export-requests --request-format jsonl
+coglang generation-eval --responses-file responses.jsonl --summary-only
 coglang generation-eval --failures-only --answers-file answers.json
 coglang generation-eval --format text
 ```
 
-The default fixture currently contains 50 cases. `coglang release-check` verifies
-that the packaged fixture is present and loadable.
+The request/response adapter is provider-neutral: it writes prompt records for
+an external runner and imports returned JSON or JSONL records with `case_id` and
+`output` fields. It does not call OpenAI, Anthropic, Ollama, or any other model
+provider directly. The default fixture currently contains 50 cases. `coglang
+release-check` verifies that the packaged fixture is present and loadable.
 
 ## Document Entry Points
 

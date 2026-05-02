@@ -12,6 +12,11 @@ import tomllib
 
 from .executor import CogLangExecutor, PythonCogLangExecutor
 from .generation_eval import generation_eval_payload
+from .generation_eval_adapters import (
+    generation_eval_request_batch_payload,
+    generation_eval_request_jsonl,
+    load_generation_eval_response_answers,
+)
 from .local_host import LocalCogLangHost, LocalHostSnapshot, LocalHostSummary
 from .open_source_extract import check_public_assets_mirror, sync_public_assets_mirror
 from .parser import CogLangExpr, CogLangVar, canonicalize, parse
@@ -2092,6 +2097,22 @@ def _print_generation_eval_text(payload: dict[str, Any]) -> None:
         )
 
 
+def _print_generation_eval_request_batch_text(payload: dict[str, Any]) -> None:
+    response_contract = payload.get("response_contract", {})
+    print(f"schema_version: {payload['schema_version']}")
+    print(f"tool: {payload['tool']}")
+    print(f"fixture_schema_version: {payload['fixture_schema_version']}")
+    print(f"fixture_path: {payload['fixture_path']}")
+    print(f"case_count: {payload['case_count']}")
+    print(f"include_reference: {str(payload['include_reference']).lower()}")
+    print(f"response_schema_version: {payload['response_schema_version']}")
+    print("response_format: " + str(response_contract.get("format", "unknown")))
+    print(
+        "response_required_fields: "
+        + ", ".join(response_contract.get("required_fields", []))
+    )
+
+
 def _generation_eval_output_payload(
     payload: dict[str, Any],
     *,
@@ -2395,9 +2416,33 @@ def _build_parser() -> argparse.ArgumentParser:
         "--fixture",
         help="Optional fixture JSON path. Defaults to the packaged minimal fixture.",
     )
-    generation_eval_cmd.add_argument(
+    generation_eval_answers = generation_eval_cmd.add_mutually_exclusive_group()
+    generation_eval_answers.add_argument(
         "--answers-file",
         help="Optional answers JSON path. Defaults to fixture reference expressions.",
+    )
+    generation_eval_answers.add_argument(
+        "--responses-file",
+        help=(
+            "Optional external model responses JSON/JSONL path. Entries must contain "
+            "case_id plus output, text, or completion."
+        ),
+    )
+    generation_eval_cmd.add_argument(
+        "--export-requests",
+        action="store_true",
+        help="Export provider-neutral prompt records instead of scoring outputs.",
+    )
+    generation_eval_cmd.add_argument(
+        "--request-format",
+        choices=("json", "jsonl"),
+        default="json",
+        help="Request export format used with --export-requests.",
+    )
+    generation_eval_cmd.add_argument(
+        "--include-reference",
+        action="store_true",
+        help="Include fixture reference expressions in exported request records.",
     )
     generation_eval_output = generation_eval_cmd.add_mutually_exclusive_group()
     generation_eval_output.add_argument(
@@ -2665,9 +2710,34 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "generation-eval":
+        if args.export_requests:
+            if args.request_format == "jsonl":
+                print(
+                    generation_eval_request_jsonl(
+                        fixture_path=args.fixture,
+                        include_reference=args.include_reference,
+                    )
+                )
+                return 0
+            payload = generation_eval_request_batch_payload(
+                fixture_path=args.fixture,
+                include_reference=args.include_reference,
+            )
+            if args.format == "text":
+                _print_generation_eval_request_batch_text(payload)
+            else:
+                print(json.dumps(payload, ensure_ascii=False, indent=2))
+            return 0
+        answers = None
+        answer_source = None
+        if args.responses_file is not None:
+            answers = load_generation_eval_response_answers(args.responses_file)
+            answer_source = str(args.responses_file)
         payload = generation_eval_payload(
             fixture_path=args.fixture,
             answers_path=args.answers_file,
+            answers=answers,
+            answer_source=answer_source,
         )
         payload = _generation_eval_output_payload(
             payload,

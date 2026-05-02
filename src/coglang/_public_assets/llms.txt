@@ -37,6 +37,7 @@ Key design choices:
 - non-Python HRC envelope consumption through `examples/node_host_consumer`
 - non-Python minimal host/runtime stub evidence through `examples/node_minimal_host_runtime_stub`, without changing HRC v0.2
 - a minimal `generation-eval` fixture for checking LLM-generated CogLang outputs against parse, canonicalization, validation, top-level-head, hallucinated-operator, and maturity summaries
+- a provider-neutral `generation-eval` request/response adapter for exporting prompt records and scoring external model JSON/JSONL responses without importing provider SDKs
 - a minimal executor interface: second implementations should start with `execute` and `validate`; Python host-local query/dict/JSON helpers are convenience APIs, not required inheritance surface
 - semantic-event audit focus: use CogLang to represent inspectable graph intents and host-visible outcomes, not every low-level model or infrastructure signal
 
@@ -85,6 +86,7 @@ coglang execute 'Query[n_, Equal[Get[n_, "category"], "Person"]]'
 coglang execute 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
 coglang preflight --format text 'AllNodes[]'
 coglang generation-eval --summary-only
+coglang generation-eval --export-requests --request-format jsonl
 coglang demo
 coglang host-demo
 coglang reference-host-demo

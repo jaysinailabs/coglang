@@ -27,6 +27,12 @@ STATIC_PREFLIGHT_ESTIMATOR = "coglang-static-preflight/v0.1"
 
 GENERATION_EVAL_FIXTURE_SCHEMA_VERSION = "coglang-generation-eval-fixture/v0.1"
 GENERATION_EVAL_RESULT_SCHEMA_VERSION = "coglang-generation-eval-result/v0.1"
+GENERATION_EVAL_REQUEST_BATCH_SCHEMA_VERSION = (
+    "coglang-generation-eval-request-batch/v0.1"
+)
+GENERATION_EVAL_RESPONSE_BATCH_SCHEMA_VERSION = (
+    "coglang-generation-eval-response-batch/v0.1"
+)
 
 READABLE_RENDER_GOLDEN_CANDIDATES_SCHEMA_VERSION = (
     "coglang-readable-render-golden-candidates/v0.1"
@@ -58,6 +64,12 @@ SCHEMA_VERSION_REGISTRY = MappingProxyType(
         "static_preflight_estimator": STATIC_PREFLIGHT_ESTIMATOR,
         "generation_eval_fixture": GENERATION_EVAL_FIXTURE_SCHEMA_VERSION,
         "generation_eval_result": GENERATION_EVAL_RESULT_SCHEMA_VERSION,
+        "generation_eval_request_batch": (
+            GENERATION_EVAL_REQUEST_BATCH_SCHEMA_VERSION
+        ),
+        "generation_eval_response_batch": (
+            GENERATION_EVAL_RESPONSE_BATCH_SCHEMA_VERSION
+        ),
         "readable_render_golden_candidates": (
             READABLE_RENDER_GOLDEN_CANDIDATES_SCHEMA_VERSION
         ),
@@ -74,6 +86,8 @@ __all__ = [
     "EFFECT_SUMMARY_SCHEMA_VERSION",
     "FORMAL_OPEN_SOURCE_READINESS_SCHEMA_VERSION",
     "GENERATION_EVAL_FIXTURE_SCHEMA_VERSION",
+    "GENERATION_EVAL_REQUEST_BATCH_SCHEMA_VERSION",
+    "GENERATION_EVAL_RESPONSE_BATCH_SCHEMA_VERSION",
     "GENERATION_EVAL_RESULT_SCHEMA_VERSION",
     "GRAPH_BUDGET_ESTIMATE_SCHEMA_VERSION",
     "GRAPH_BUDGET_SCHEMA_VERSION",

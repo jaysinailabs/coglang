@@ -13,7 +13,7 @@ import tomllib
 from .executor import CogLangExecutor, PythonCogLangExecutor
 from .generation_eval import generation_eval_payload
 from .local_host import LocalCogLangHost, LocalHostSnapshot, LocalHostSummary
-from .open_source_extract import check_public_assets_mirror
+from .open_source_extract import check_public_assets_mirror, sync_public_assets_mirror
 from .parser import CogLangExpr, CogLangVar, canonicalize, parse
 from .preflight import GraphBudget, preflight_expression, preflight_fixture_payload
 from .reference_host import ReferenceTransportHost
@@ -509,6 +509,57 @@ def _public_assets_mirror_release_check() -> dict[str, Any]:
         ]
         detail = "; ".join(failures) if failures else "mirror check failed"
     return {"ok": payload["ok"], "detail": detail, "payload": payload}
+
+
+def _public_assets_payload(*, sync: bool = False) -> dict[str, Any]:
+    mode = "sync" if sync else "check"
+    if _installed_public_package_mode():
+        return {
+            "tool": "coglang",
+            "version": _cli_version(),
+            "mode": mode,
+            "ok": not sync,
+            "status": "installed_package_mode",
+            "detail": (
+                "source checkout required for public asset sync"
+                if sync
+                else "source mirror comparison not applicable"
+            ),
+            "check": None,
+        }
+
+    root = _project_root()
+    if sync:
+        sync_payload = sync_public_assets_mirror(root)
+        return {
+            "tool": "coglang",
+            "version": _cli_version(),
+            "mode": mode,
+            "ok": sync_payload["ok"],
+            "status": "synced" if sync_payload["ok"] else "sync_failed",
+            "detail": (
+                f"{sync_payload['mirrored_file_count']} exact mirror files copied"
+            ),
+            "manifest_path": sync_payload["manifest_path"],
+            "mirrored_file_count": sync_payload["mirrored_file_count"],
+            "check": sync_payload["check"],
+        }
+
+    check_payload = check_public_assets_mirror(root)
+    return {
+        "tool": "coglang",
+        "version": _cli_version(),
+        "mode": mode,
+        "ok": check_payload["ok"],
+        "status": "checked",
+        "detail": (
+            f"{check_payload['checked_file_count']} exact mirror files aligned"
+            if check_payload["ok"]
+            else "public asset mirror drift detected"
+        ),
+        "manifest_path": check_payload["manifest_path"],
+        "check": check_payload,
+    }
 
 
 def _formal_open_source_readiness_payload() -> dict[str, Any]:
@@ -2374,6 +2425,22 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Output format for the release-facing check report.",
     )
 
+    public_assets_cmd = subparsers.add_parser(
+        "public-assets",
+        help="Maintain source-checkout public asset mirrors.",
+    )
+    public_assets_cmd.add_argument(
+        "--sync",
+        action="store_true",
+        help="Copy exact public files into src/coglang/_public_assets.",
+    )
+    public_assets_cmd.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="Output format for the public asset mirror report.",
+    )
+
     return parser
 
 
@@ -2675,6 +2742,36 @@ def main(argv: list[str] | None = None) -> int:
             for check in payload["checks"]:
                 status = "ok" if check["ok"] else "fail"
                 print(f"{check['name']}: {status} ({check['detail']})")
+        else:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0 if payload["ok"] else 1
+
+    if args.command == "public-assets":
+        payload = _public_assets_payload(sync=args.sync)
+        if args.format == "text":
+            print(f"tool: {payload['tool']}")
+            print(f"version: {payload['version']}")
+            print(f"mode: {payload['mode']}")
+            print(f"ok: {str(payload['ok']).lower()}")
+            print(f"status: {payload['status']}")
+            print(f"detail: {payload['detail']}")
+            if "manifest_path" in payload:
+                print(f"manifest_path: {payload['manifest_path']}")
+            if "mirrored_file_count" in payload:
+                print(f"mirrored_file_count: {payload['mirrored_file_count']}")
+            check = payload.get("check")
+            if isinstance(check, dict):
+                print(f"checked_file_count: {check['checked_file_count']}")
+                for key in (
+                    "missing_package_data_entries",
+                    "extra_package_data_entries",
+                    "missing_sources",
+                    "missing_mirrors",
+                    "mismatched_mirrors",
+                ):
+                    values = check.get(key, [])
+                    rendered = ", ".join(values) if values else "<none>"
+                    print(f"{key}: {rendered}")
         else:
             print(json.dumps(payload, ensure_ascii=False, indent=2))
         return 0 if payload["ok"] else 1

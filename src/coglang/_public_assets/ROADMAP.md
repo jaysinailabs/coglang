@@ -59,11 +59,11 @@ changes. The current review-response status is:
 
 Completed in the current maintenance sequence:
 
-1. `1.1.3` package publication and post-publish verification.
+1. `1.1.3` and `1.1.4` package publication and post-publish verification.
    Package metadata, release notes, README/PyPI-facing text,
    machine-readable summaries, package data, manifest metadata, release-check
-   expectations, the GitHub Release, the PyPI wheel/sdist, and post-publish
-   install verification are aligned for the `1.1.3` package line.
+   expectations, GitHub Releases, PyPI wheel/sdist artifacts, and post-publish
+   install verification are aligned for the current `1.1.x` package line.
 2. Reader routing and documentation density.
    The README first screen now starts with a 30-second reader guide and keeps
    larger governance notes outside the first-pass reading path.
@@ -85,13 +85,18 @@ Completed in the current maintenance sequence:
    `coglang release-check` now includes a `public_assets_mirror` gate for
    source and public-extract layouts, so exact `_public_assets/` drift is part
    of the normal release-facing validation path.
+8. Source-checkout public asset mirror maintenance.
+   `coglang public-assets` checks exact public asset mirror alignment, and
+   `coglang public-assets --sync` repairs exact file mirrors in source or
+   public-extract layouts. This is a source-checkout maintenance helper, not
+   part of the minimum stable runtime command surface.
 
 Open follow-through:
 
-1. Public asset generation ergonomics.
+1. Build-time public asset derivation.
    Explore whether `_public_assets/` can eventually be derived during build or
-   release preparation, reducing manual mirror churn without weakening package
-   verification.
+   release preparation, further reducing manual mirror churn without weakening
+   package verification.
 2. External host implementation review.
    Invite or accept a first host or consumer maintained outside the core
    runtime repository, evaluated against the existing HRC companion/formal

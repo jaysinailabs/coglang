@@ -10,6 +10,8 @@ import tomllib
 from contextlib import redirect_stdout
 from pathlib import Path
 
+import pytest
+
 from coglang.cli import (
     COGLANG_LANGUAGE_RELEASE,
     EXAMPLES,
@@ -26,6 +28,7 @@ from coglang.cli import (
     _minimal_ci_baseline_payload,
     _public_repo_extract_manifest_payload,
     _open_source_boundary_payload,
+    _public_assets_payload,
     _release_check_payload,
     _run_conformance_suite,
     _run_demo,
@@ -39,6 +42,10 @@ from coglang.cli import (
 from coglang.generation_eval import (
     load_generation_eval_cases,
     reference_generation_eval_answers,
+)
+from coglang.open_source_extract import (
+    check_public_assets_mirror,
+    materialize_public_repo_extract,
 )
 from coglang.local_host import LocalHostSnapshot, LocalHostSummary, LocalHostTrace
 from coglang.write_bundle import (
@@ -424,6 +431,7 @@ def test_cli_info_payload_shape():
     assert "smoke" in payload["conformance_suites"]
     assert "host-demo" in payload["commands"]
     assert "reference-host-demo" in payload["commands"]
+    assert "public-assets" not in payload["commands"]
 
 
 def test_cli_info_json_output():
@@ -1774,6 +1782,65 @@ def test_cli_release_check_text_output():
         "(examples/node_minimal_host_runtime_stub + package data)" in output
     )
     assert "executor_interface: ok (abstract_methods=execute,validate)" in output
+
+
+def test_cli_public_assets_check_payload_shape():
+    payload = _public_assets_payload()
+
+    assert payload["tool"] == "coglang"
+    assert payload["mode"] == "check"
+    assert payload["ok"] is True
+    assert payload["status"] in {"checked", "installed_package_mode"}
+    if payload["status"] == "checked":
+        assert payload["manifest_path"] == "CogLang_Public_Repo_Extract_Manifest_v0_1.json"
+        assert payload["check"]["checked_file_count"] >= 50
+        assert payload["check"]["mismatched_mirrors"] == []
+
+
+def test_cli_public_assets_json_output():
+    code, output = _run(["public-assets"])
+    payload = json.loads(output)
+
+    assert code == 0
+    assert payload["tool"] == "coglang"
+    assert payload["mode"] == "check"
+    assert payload["ok"] is True
+
+
+def test_cli_public_assets_text_output():
+    code, output = _run(["public-assets", "--format", "text"])
+
+    assert code == 0
+    assert "tool: coglang" in output
+    assert "mode: check" in output
+    assert "ok: true" in output
+    assert "detail:" in output
+
+
+def test_cli_public_assets_sync_repairs_exact_mirror(monkeypatch, tmp_path):
+    if not (_TEST_PROJECT_ROOT / "src" / "coglang" / "__init__.py").exists():
+        pytest.skip("public asset sync repair test requires a source/extract layout")
+
+    destination = tmp_path / "coglang-public-root"
+    materialize_public_repo_extract(destination, project_root=_TEST_PROJECT_ROOT)
+    source_readme = destination / "README.md"
+    mirror_readme = destination / "src" / "coglang" / "_public_assets" / "README.md"
+    mirror_readme.write_text("stale mirror\n", encoding="utf-8")
+
+    monkeypatch.setattr(_cli_attr("_installed_public_package_mode"), lambda: False)
+    monkeypatch.setattr(_cli_attr("_project_root"), lambda: destination)
+
+    code, output = _run(["public-assets", "--sync"])
+    payload = json.loads(output)
+
+    assert code == 0
+    assert payload["mode"] == "sync"
+    assert payload["ok"] is True
+    assert payload["mirrored_file_count"] >= 50
+    assert mirror_readme.read_text(encoding="utf-8") == source_readme.read_text(
+        encoding="utf-8"
+    )
+    assert check_public_assets_mirror(destination)["ok"] is True
 
 
 def test_cli_open_source_boundary_payload_shape():

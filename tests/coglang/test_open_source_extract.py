@@ -64,6 +64,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "CogLang_Public_Repo_Extract_Manifest_v0_1.json").exists()
     assert (destination / "src" / "coglang" / "preflight.py").exists()
     assert (destination / "src" / "coglang" / "schema_versions.py").exists()
+    assert (destination / "src" / "coglang" / "generation_eval_adapters.py").exists()
     assert (
         destination
         / "src"
@@ -74,6 +75,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "tests" / "coglang" / "test_catalog_alignment.py").exists()
     assert (destination / "tests" / "coglang" / "test_executor_interface.py").exists()
     assert (destination / "tests" / "coglang" / "test_preflight.py").exists()
+    assert (destination / "tests" / "coglang" / "test_generation_eval_adapters.py").exists()
     assert (
         destination / "tests" / "coglang" / "test_readable_render_golden_candidates.py"
     ).exists()
@@ -187,6 +189,7 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_catalog_alignment.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_executor_interface.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_preflight.py").exists()
+    assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_generation_eval_adapters.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_node_host_consumer.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_node_minimal_host_runtime_stub.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_public_assets_mirror.py").exists()

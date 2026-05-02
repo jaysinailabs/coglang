@@ -377,20 +377,27 @@ def generation_eval_payload(
     *,
     fixture_path: str | Path | None = None,
     answers_path: str | Path | None = None,
+    answers: dict[str, str] | None = None,
+    answer_source: str | None = None,
 ) -> dict[str, Any]:
+    if answers_path is not None and answers is not None:
+        raise ValueError("use either answers_path or answers, not both")
     fixture = load_generation_eval_fixture(fixture_path)
     cases = [GenerationEvalCase.from_dict(dict(item)) for item in fixture["cases"]]
     defined_levels = _defined_levels_from_fixture(fixture, cases)
-    if answers_path is None:
-        answers = reference_generation_eval_answers(cases)
-        answer_source = "fixture_reference"
+    if answers is not None:
+        scored_answers = answers
+        scored_answer_source = answer_source or "provided_answers"
+    elif answers_path is None:
+        scored_answers = reference_generation_eval_answers(cases)
+        scored_answer_source = "fixture_reference"
     else:
-        answers = load_generation_eval_answers(answers_path)
-        answer_source = str(answers_path)
+        scored_answers = load_generation_eval_answers(answers_path)
+        scored_answer_source = str(answers_path)
     payload = score_generation_eval(
         cases,
-        answers,
-        answer_source=answer_source,
+        scored_answers,
+        answer_source=scored_answer_source,
         defined_levels=defined_levels,
     )
     payload["fixture_path"] = fixture["path"]

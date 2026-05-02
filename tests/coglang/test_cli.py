@@ -920,6 +920,89 @@ def test_cli_generation_eval_summary_only_json_output():
     assert "cases" not in payload
 
 
+def test_cli_generation_eval_export_requests_json_output():
+    code, output = _run(["generation-eval", "--export-requests"])
+    payload = json.loads(output)
+
+    assert code == 0
+    assert payload["schema_version"] == "coglang-generation-eval-request-batch/v0.1"
+    assert payload["response_schema_version"] == (
+        "coglang-generation-eval-response-batch/v0.1"
+    )
+    assert payload["case_count"] == 50
+    assert payload["include_reference"] is False
+    assert payload["response_contract"]["required_fields"] == ["case_id", "output"]
+    assert payload["requests"][0]["case_id"] == "L1-001"
+    assert "reference_expr" not in payload["requests"][0]
+
+
+def test_cli_generation_eval_export_requests_json_output_can_include_reference():
+    code, output = _run(
+        ["generation-eval", "--export-requests", "--include-reference"]
+    )
+    payload = json.loads(output)
+
+    assert code == 0
+    assert payload["include_reference"] is True
+    assert payload["requests"][0]["reference_expr"] == "Equal[1, 1]"
+
+
+def test_cli_generation_eval_export_requests_jsonl_output():
+    code, output = _run(
+        ["generation-eval", "--export-requests", "--request-format", "jsonl"]
+    )
+    records = [json.loads(line) for line in output.splitlines()]
+
+    assert code == 0
+    assert len(records) == 50
+    assert records[0]["case_id"] == "L1-001"
+    assert "reference_expr" not in records[0]
+
+
+def test_cli_generation_eval_export_requests_text_output():
+    code, output = _run(
+        ["generation-eval", "--export-requests", "--format", "text"]
+    )
+
+    assert code == 0
+    assert "schema_version: coglang-generation-eval-request-batch/v0.1" in output
+    assert "case_count: 50" in output
+    assert "include_reference: false" in output
+    assert (
+        "response_schema_version: coglang-generation-eval-response-batch/v0.1"
+        in output
+    )
+    assert "response_required_fields: case_id, output" in output
+
+
+def test_cli_generation_eval_responses_file_json_output(tmp_path):
+    cases = load_generation_eval_cases()
+    answers = reference_generation_eval_answers(cases)
+    responses_path = tmp_path / "responses.jsonl"
+    responses_path.write_text(
+        "\n".join(
+            json.dumps({"case_id": case_id, "output": output})
+            for case_id, output in answers.items()
+        ),
+        encoding="utf-8",
+    )
+
+    code, output = _run(
+        [
+            "generation-eval",
+            "--responses-file",
+            str(responses_path),
+            "--summary-only",
+        ]
+    )
+    payload = json.loads(output)
+
+    assert code == 0
+    assert payload["answer_source"] == str(responses_path)
+    assert payload["summary"]["validate_ok_count"] == 50
+    assert "cases" not in payload
+
+
 def test_cli_generation_eval_failures_only_json_output(tmp_path):
     answers_path = tmp_path / "answers.json"
     _write_generation_eval_answers(answers_path, {"L2-001": "BetterQuery[n_]"})
@@ -1985,11 +2068,13 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     tree_entries = {item["source"]: item for item in payload["entries"] if item["kind"] == "tree"}
     assert "eval_fixtures" in tree_entries["src/coglang"]["include"]
     assert "generation_eval.py" in tree_entries["src/coglang"]["include"]
+    assert "generation_eval_adapters.py" in tree_entries["src/coglang"]["include"]
     assert "preflight.py" in tree_entries["src/coglang"]["include"]
     assert "schema_versions.py" in tree_entries["src/coglang"]["include"]
     assert "test_catalog_alignment.py" in tree_entries["tests/coglang"]["include"]
     assert "test_executor_interface.py" in tree_entries["tests/coglang"]["include"]
     assert "test_generation_eval.py" in tree_entries["tests/coglang"]["include"]
+    assert "test_generation_eval_adapters.py" in tree_entries["tests/coglang"]["include"]
     assert "test_grammar_examples.py" in tree_entries["tests/coglang"]["include"]
     assert "test_node_host_consumer.py" in tree_entries["tests/coglang"]["include"]
     assert "test_node_minimal_host_runtime_stub.py" in tree_entries["tests/coglang"]["include"]

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 import coglang.generation_eval as generation_eval_module
 from coglang.generation_eval import (
     generation_eval_payload,
@@ -59,6 +61,31 @@ def test_generation_eval_reference_outputs_score_cleanly():
     assert level_summary["L2"]["case_count"] == 16
     assert level_summary["L3"]["case_count"] == 16
     assert all(item["ok"] is True for item in level_summary.values())
+
+
+def test_generation_eval_accepts_provided_answers_with_explicit_source():
+    cases = load_generation_eval_cases()
+    answers = reference_generation_eval_answers(cases)
+
+    payload = generation_eval_payload(
+        answers=answers,
+        answer_source="external-run.jsonl",
+    )
+
+    assert payload["ok"] is True
+    assert payload["answer_source"] == "external-run.jsonl"
+    assert payload["summary"]["validate_ok_count"] == 50
+
+
+def test_generation_eval_rejects_two_answer_sources(tmp_path):
+    answers_path = tmp_path / "answers.json"
+    answers_path.write_text('{"answers": []}', encoding="utf-8")
+
+    with pytest.raises(ValueError, match="use either answers_path or answers"):
+        generation_eval_payload(
+            answers_path=answers_path,
+            answers={"L1-001": "Equal[1, 1]"},
+        )
 
 
 def test_generation_eval_detects_hallucinated_operator(tmp_path):

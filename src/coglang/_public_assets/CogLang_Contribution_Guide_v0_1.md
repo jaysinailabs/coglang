@@ -268,6 +268,46 @@ coglang smoke
 If your change touches the host bridge or runtime contract, also read:
 
 - [CogLang_Host_Runtime_Contract_v0_1.md](./CogLang_Host_Runtime_Contract_v0_1.md)
+- [CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md](./CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md)
+- [CogLang_HRC_Companion_Asset_Classification_v0_1.md](./CogLang_HRC_Companion_Asset_Classification_v0_1.md)
+
+### 4.1 First External Host or Consumer PR Checklist
+
+For a first host or consumer maintained outside the core runtime, keep the PR
+narrow and evidence-first. A good first PR usually adds one minimal adapter,
+consumer, or host stub plus deterministic tests. It should not expand the
+language, freeze a new host protocol, or present companion schema material as a
+normative JSON Schema contract.
+
+Before review, include:
+
+- a short statement of whether the PR is a consumer example, a host stub, or an
+  executor implementation
+- the language/runtime used and whether the example imports the Python runtime
+- the exact HRC asset class being consumed, using the companion asset
+  classification document's terms
+- the supported envelope or expression subset, plus explicit non-goals
+- deterministic fixture or sample data small enough to review in one screen
+- tests or commands that fail if correlation IDs, submission IDs, phase counts,
+  or error envelopes drift
+- no claim that the example extends the frozen HRC v0.2 surface unless a
+  separate promotion proposal supplies the required evidence
+
+Run the relevant existing evidence commands before opening the PR:
+
+```powershell
+coglang host-demo
+coglang reference-host-demo
+coglang release-check
+```
+
+If the PR is a non-Python consumer, also show the language-native command, such
+as the existing Node.js examples:
+
+```powershell
+node examples/node_host_consumer/consume_hrc_envelopes.mjs
+node examples/node_minimal_host_runtime_stub/run_demo.mjs
+```
 
 ---
 

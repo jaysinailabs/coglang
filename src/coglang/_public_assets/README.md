@@ -233,6 +233,10 @@ The highest-value contributions are currently:
 - minimal non-Python host/runtime stubs that consume existing typed write envelopes without expanding HRC scope
 - small CLI or packaging improvements that improve repeatable validation
 
+For the first external host or consumer contribution, use the checklist in
+[CogLang_Contribution_Guide_v0_1.md](CogLang_Contribution_Guide_v0_1.md#41-first-external-host-or-consumer-pr-checklist)
+before opening a PR.
+
 For local test development, install the development extras:
 
 ```powershell

@@ -39,6 +39,10 @@ This release publishes the source-maintenance batch accumulated after `1.1.4`:
   `CogLang_Generation_Eval_Request_Response_Contract_v0_1.md`.
 - `examples/generation_eval_offline_runner` provides a no-provider three-case
   dry run for the generation-eval request/response file contract.
+- `examples/semantic_event_audit` provides a no-provider semantic-event audit
+  dry run that turns external runner graph-intent JSONL into local preflight
+  audit records. It is companion example material, not a hosted runner,
+  protocol, transport envelope, benchmark, or HRC expansion.
 - `examples/vscode_textmate_syntax` provides a private, local-installable
   VS Code/TextMate syntax companion for `.coglang` files. It is editor-only
   companion material, not a parser, validator, LSP, formatter, renderer, or
@@ -86,9 +90,10 @@ python scripts/local_ci.py --profile quick
 python scripts/local_ci.py --profile package
 ```
 
-For companion Node and editor-package dry runs:
+For companion semantic-event, Node, and editor-package dry runs:
 
 ```powershell
+python examples/semantic_event_audit/audit_events.py examples/semantic_event_audit/fixtures/external_events.jsonl .tmp_semantic_event_audit.jsonl
 npm --prefix examples/node_host_consumer test
 npm --prefix examples/node_host_consumer run pack:dry
 Push-Location examples/vscode_textmate_syntax

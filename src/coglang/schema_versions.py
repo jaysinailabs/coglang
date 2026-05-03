@@ -45,6 +45,12 @@ NODE_HOST_CONSUMER_DEMO_SCHEMA_VERSION = "coglang-node-host-consumer-demo/v0.1"
 NODE_MINIMAL_HOST_RUNTIME_STUB_DEMO_SCHEMA_VERSION = (
     "coglang-node-minimal-host-runtime-stub-demo/v0.1"
 )
+SEMANTIC_EVENT_AUDIT_DEMO_SCHEMA_VERSION = (
+    "coglang-semantic-event-audit-demo/v0.1"
+)
+SEMANTIC_EVENT_AUDIT_RECORD_DEMO_SCHEMA_VERSION = (
+    "coglang-semantic-event-audit-record-demo/v0.1"
+)
 HOST_RUNTIME_SCHEMA_PACK_ID = "urn:coglang:host-runtime-schema-pack:v0.1"
 
 SCHEMA_VERSION_REGISTRY = MappingProxyType(
@@ -83,6 +89,10 @@ SCHEMA_VERSION_REGISTRY = MappingProxyType(
         "node_minimal_host_runtime_stub_demo": (
             NODE_MINIMAL_HOST_RUNTIME_STUB_DEMO_SCHEMA_VERSION
         ),
+        "semantic_event_audit_demo": SEMANTIC_EVENT_AUDIT_DEMO_SCHEMA_VERSION,
+        "semantic_event_audit_record_demo": (
+            SEMANTIC_EVENT_AUDIT_RECORD_DEMO_SCHEMA_VERSION
+        ),
         "host_runtime_schema_pack": HOST_RUNTIME_SCHEMA_PACK_ID,
     }
 )
@@ -115,5 +125,7 @@ __all__ = [
     "REFERENCE_HOST_DEMO_SCHEMA_VERSION",
     "RELEASE_BUNDLE_SCHEMA_VERSION",
     "SCHEMA_VERSION_REGISTRY",
+    "SEMANTIC_EVENT_AUDIT_DEMO_SCHEMA_VERSION",
+    "SEMANTIC_EVENT_AUDIT_RECORD_DEMO_SCHEMA_VERSION",
     "STATIC_PREFLIGHT_ESTIMATOR",
 ]

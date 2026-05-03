@@ -40,6 +40,7 @@ Key design choices:
 - a provider-neutral `generation-eval` request/response adapter for exporting prompt records and scoring external model JSON/JSONL responses without importing provider SDKs
 - CogLang_Generation_Eval_Request_Response_Contract_v0_1.md as the versioned file contract for external generation-eval runners
 - `examples/generation_eval_offline_runner` for a no-provider dry run and three-case contract smoke of the generation-eval response-file contract
+- `examples/semantic_event_audit` for a no-provider semantic-event audit dry run that turns external graph-intent JSONL into local preflight audit records; not a protocol, hosted runner, transport envelope, or HRC expansion
 - `scripts/local_ci.py` for local-first validation profiles before maintainer-triggered GitHub Actions evidence
 - `examples/vscode_textmate_syntax` for companion editor-only TextMate highlighting; not a parser, validator, LSP, formatter, or normative grammar
 - a minimal executor interface: second implementations should start with `execute` and `validate`; Python host-local query/dict/JSON helpers are convenience APIs, not required inheritance surface
@@ -76,6 +77,7 @@ Core documents:
 - CONTRIBUTING.md: GitHub-facing contribution entry point and validation route
 - CogLang_Contribution_Guide_v0_1.md: contribution boundaries and review expectations
 - examples/grammar: companion Lark and GBNF grammar examples for constrained generation; not a normative parser or validator
+- examples/semantic_event_audit: companion semantic-event audit example; not a stable event schema, hosted runner, provider SDK integration, transport envelope, or HRC expansion
 - examples/vscode_textmate_syntax: companion VS Code/TextMate syntax highlighting for `.coglang` files; not a parser, validator, LSP, formatter, renderer, or normative grammar
 - ROADMAP.md: current direction, not a release contract
 - MAINTENANCE.md: maintenance, freeze, transfer, and archive policy
@@ -98,6 +100,7 @@ python scripts/local_ci.py --profile quick
 coglang demo
 coglang host-demo
 coglang reference-host-demo
+python examples/semantic_event_audit/audit_events.py examples/semantic_event_audit/fixtures/external_events.jsonl .tmp_semantic_event_audit.jsonl
 node examples/node_host_consumer/consume_hrc_envelopes.mjs
 npm --prefix examples/node_host_consumer test
 node examples/node_minimal_host_runtime_stub/run_demo.mjs

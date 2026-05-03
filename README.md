@@ -43,6 +43,7 @@ coglang preflight --format text 'AllNodes[]'
 coglang generation-eval --summary-only
 coglang generation-eval --export-requests --request-format jsonl
 coglang demo
+python examples/semantic_event_audit/audit_events.py examples/semantic_event_audit/fixtures/external_events.jsonl .tmp_semantic_event_audit.jsonl
 node examples/node_host_consumer/consume_hrc_envelopes.mjs
 npm --prefix examples/node_host_consumer test
 node examples/node_minimal_host_runtime_stub/run_demo.mjs
@@ -66,6 +67,12 @@ For a no-provider dry run of that file contract, see
 which includes a three-case contract smoke fixture. The versioned file shape is
 defined in
 [CogLang_Generation_Eval_Request_Response_Contract_v0_1.md](CogLang_Generation_Eval_Request_Response_Contract_v0_1.md).
+
+For a no-provider semantic-event audit example, see
+[examples/semantic_event_audit](examples/semantic_event_audit). It converts
+external runner graph-intent JSONL into local preflight audit records without
+adding a CLI command, provider SDK, hosted runner, transport envelope, or HRC
+scope expansion.
 
 Machine-readable project summaries:
 

@@ -88,6 +88,9 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (
         destination / "tests" / "coglang" / "test_vscode_textmate_syntax_example.py"
     ).exists()
+    assert (
+        destination / "tests" / "coglang" / "test_semantic_event_audit_example.py"
+    ).exists()
     assert (destination / "tests" / "coglang" / "test_node_host_consumer.py").exists()
     assert (destination / "tests" / "coglang" / "test_node_minimal_host_runtime_stub.py").exists()
     assert (destination / "tests" / "coglang" / "test_public_assets_mirror.py").exists()
@@ -138,6 +141,15 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     ).exists()
     assert (
         destination / "examples" / "vscode_textmate_syntax" / "samples" / "basic.coglang"
+    ).exists()
+    assert (destination / "examples" / "semantic_event_audit" / "audit_events.py").exists()
+    assert (destination / "examples" / "semantic_event_audit" / "README.md").exists()
+    assert (
+        destination
+        / "examples"
+        / "semantic_event_audit"
+        / "fixtures"
+        / "external_events.jsonl"
     ).exists()
     assert (destination / "scripts" / "local_ci.py").exists()
     assert (destination / "CogLang_Operator_Catalog_v1_1_0.md").exists()
@@ -259,6 +271,15 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         / "coglang"
         / "test_vscode_textmate_syntax_example.py"
     ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "tests"
+        / "coglang"
+        / "test_semantic_event_audit_example.py"
+    ).exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "examples" / "node_host_consumer" / "consume_hrc_envelopes.mjs").exists()
     assert (
         destination
@@ -354,6 +375,34 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         / "vscode_textmate_syntax"
         / "samples"
         / "basic.coglang"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "examples"
+        / "semantic_event_audit"
+        / "audit_events.py"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "examples"
+        / "semantic_event_audit"
+        / "README.md"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "examples"
+        / "semantic_event_audit"
+        / "fixtures"
+        / "external_events.jsonl"
     ).exists()
     assert (
         destination

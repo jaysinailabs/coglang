@@ -1114,6 +1114,15 @@ def _release_check_payload() -> dict[str, Any]:
     generation_eval_offline_responses_path, _ = _resolve_project_artifact(
         "examples/generation_eval_offline_runner/fixtures/mock_responses.jsonl",
     )
+    semantic_event_audit_script_path, _ = _resolve_project_artifact(
+        "examples/semantic_event_audit/audit_events.py",
+    )
+    semantic_event_audit_readme_path, _ = _resolve_project_artifact(
+        "examples/semantic_event_audit/README.md",
+    )
+    semantic_event_audit_fixture_path, _ = _resolve_project_artifact(
+        "examples/semantic_event_audit/fixtures/external_events.jsonl",
+    )
     local_ci_script_path, _ = _resolve_project_artifact("scripts/local_ci.py")
     license_path, _ = _resolve_project_artifact("LICENSE")
 
@@ -1179,6 +1188,12 @@ def _release_check_payload() -> dict[str, Any]:
     )
     generation_eval_offline_runner_fixtures_packaged = (
         "_public_assets/examples/generation_eval_offline_runner/fixtures/*" in package_data
+    )
+    semantic_event_audit_packaged = (
+        "_public_assets/examples/semantic_event_audit/*" in package_data
+    )
+    semantic_event_audit_fixtures_packaged = (
+        "_public_assets/examples/semantic_event_audit/fixtures/*" in package_data
     )
     local_ci_script_packaged = "_public_assets/scripts/*" in package_data
     reserved_operator_promotion_criteria_packaged = (
@@ -1462,6 +1477,17 @@ def _release_check_payload() -> dict[str, Any]:
                 and generation_eval_offline_runner_fixtures_packaged
             ),
             "detail": "examples/generation_eval_offline_runner + fixture + package data",
+        },
+        {
+            "name": "semantic_event_audit_example",
+            "ok": (
+                semantic_event_audit_script_path.exists()
+                and semantic_event_audit_readme_path.exists()
+                and semantic_event_audit_fixture_path.exists()
+                and semantic_event_audit_packaged
+                and semantic_event_audit_fixtures_packaged
+            ),
+            "detail": "examples/semantic_event_audit + fixture + package data",
         },
         {
             "name": "local_ci_simulation",

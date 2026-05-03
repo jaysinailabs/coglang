@@ -41,6 +41,8 @@ from coglang.schema_versions import (
     REFERENCE_HOST_DEMO_SCHEMA_VERSION,
     RELEASE_BUNDLE_SCHEMA_VERSION,
     SCHEMA_VERSION_REGISTRY,
+    SEMANTIC_EVENT_AUDIT_DEMO_SCHEMA_VERSION,
+    SEMANTIC_EVENT_AUDIT_RECORD_DEMO_SCHEMA_VERSION,
     STATIC_PREFLIGHT_ESTIMATOR,
 )
 
@@ -75,6 +77,10 @@ EXPECTED_SCHEMA_VERSION_REGISTRY = {
     "node_host_consumer_demo": "coglang-node-host-consumer-demo/v0.1",
     "node_minimal_host_runtime_stub_demo": (
         "coglang-node-minimal-host-runtime-stub-demo/v0.1"
+    ),
+    "semantic_event_audit_demo": "coglang-semantic-event-audit-demo/v0.1",
+    "semantic_event_audit_record_demo": (
+        "coglang-semantic-event-audit-record-demo/v0.1"
     ),
     "host_runtime_schema_pack": "urn:coglang:host-runtime-schema-pack:v0.1",
 }
@@ -205,6 +211,14 @@ def test_schema_version_constants_match_registry_values():
     assert (
         NODE_MINIMAL_HOST_RUNTIME_STUB_DEMO_SCHEMA_VERSION
         == SCHEMA_VERSION_REGISTRY["node_minimal_host_runtime_stub_demo"]
+    )
+    assert (
+        SEMANTIC_EVENT_AUDIT_DEMO_SCHEMA_VERSION
+        == SCHEMA_VERSION_REGISTRY["semantic_event_audit_demo"]
+    )
+    assert (
+        SEMANTIC_EVENT_AUDIT_RECORD_DEMO_SCHEMA_VERSION
+        == SCHEMA_VERSION_REGISTRY["semantic_event_audit_record_demo"]
     )
     assert HOST_RUNTIME_SCHEMA_PACK_ID == SCHEMA_VERSION_REGISTRY["host_runtime_schema_pack"]
 

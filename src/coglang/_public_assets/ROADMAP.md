@@ -115,6 +115,11 @@ Completed in the current maintenance sequence:
    now has package metadata, release notes, package data, public extract
    coverage, machine-readable summaries, and local wheel/sdist validation ready
    for a maintainer-triggered release workflow.
+14. Semantic-event audit companion example.
+   `examples/semantic_event_audit` now provides a no-provider JSONL workflow
+   that converts external runner graph intents into local preflight audit
+   records. It is companion example evidence, not a hosted runner, protocol,
+   transport envelope, benchmark, or HRC expansion.
 
 Open follow-through:
 
@@ -149,6 +154,8 @@ maintenance patch for the stable `v1.1.0` language line. This batch includes:
   dependencies
 - a no-provider `examples/generation_eval_offline_runner` dry run for the
   generation-eval request/response file contract
+- a no-provider `examples/semantic_event_audit` dry run for turning external
+  graph-intent records into local preflight audit artifacts
 - `scripts/local_ci.py` profiles for local-first validation before any
   maintainer-triggered remote workflow run
 - a companion `examples/vscode_textmate_syntax` package for editor-only
@@ -322,7 +329,10 @@ Contributions in this area are especially welcome.
 `CogLang` fits naturally as a semantic-event audit layer for AI systems that
 produce graph operations.
 
-Longer-term exploration includes small, runnable examples for:
+The first small runnable example now exists at `examples/semantic_event_audit`.
+It demonstrates external graph-intent JSONL records, CogLang preflight, derived
+audit actions, and no host execution. Longer-term exploration may add more
+examples for:
 
 - agent memory or RAG knowledge-graph write preflight
 - OpenTelemetry sidecar metadata carrying canonical CogLang intent

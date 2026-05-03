@@ -59,6 +59,13 @@ inspectable symbolic graph intent or host-visible graph outcome. Use other
 systems for raw activations, infrastructure telemetry, routing scores, and
 causal intervention results.
 
+`examples/semantic_event_audit` provides the first small companion example for
+this role. It reads external runner graph-intent JSONL, parses and preflights
+each CogLang expression, and writes local audit records with canonical
+expression text, expression hash, preflight decision, and a derived action:
+`allow`, `queue_review`, or `reject`. It does not call provider SDKs, execute a
+host, submit HRC envelopes, define a stable event schema, or expand HRC v0.2.
+
 ## Key Design Choices
 
 1. Canonical M-expression text
@@ -145,6 +152,7 @@ python scripts/local_ci.py --profile quick
 coglang demo
 coglang host-demo
 coglang reference-host-demo
+python examples/semantic_event_audit/audit_events.py examples/semantic_event_audit/fixtures/external_events.jsonl .tmp_semantic_event_audit.jsonl
 node examples/node_host_consumer/consume_hrc_envelopes.mjs
 npm --prefix examples/node_host_consumer test
 node examples/node_minimal_host_runtime_stub/run_demo.mjs
@@ -261,6 +269,8 @@ contributor and maintainer workflow helper, not a new public `coglang` command.
   GitHub-facing contribution entry point and validation route.
 - `examples/grammar`
   Companion Lark and GBNF grammar examples for constrained generation; not a normative parser or validator.
+- `examples/semantic_event_audit`
+  Companion semantic-event audit example; not a stable event schema, hosted runner, provider SDK integration, transport envelope, or HRC expansion.
 - `examples/vscode_textmate_syntax`
   Companion VS Code/TextMate syntax highlighting for `.coglang` files; not a parser, validator, LSP, formatter, renderer, or normative grammar.
 - `ROADMAP.md`

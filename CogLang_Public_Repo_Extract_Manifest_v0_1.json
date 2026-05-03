@@ -60,6 +60,7 @@
         "test_public_assets_mirror.py",
         "test_readable_render_golden_candidates.py",
         "test_schema_versions.py",
+        "test_semantic_event_audit_example.py",
         "test_unify.py",
         "test_validator.py",
         "test_vscode_textmate_syntax_example.py"
@@ -89,6 +90,11 @@
       "kind": "tree",
       "source": "examples/generation_eval_offline_runner",
       "destination": "examples/generation_eval_offline_runner"
+    },
+    {
+      "kind": "tree",
+      "source": "examples/semantic_event_audit",
+      "destination": "examples/semantic_event_audit"
     },
     {
       "kind": "tree",

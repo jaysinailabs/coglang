@@ -37,6 +37,10 @@ CogLang `1.1.5` 是 stable `v1.1.0` 语言线上的包级维护 patch。
   `CogLang_Generation_Eval_Request_Response_Contract_v0_1.md` 明确文档化。
 - `examples/generation_eval_offline_runner` 提供无 provider 的三用例 dry run，
   用于验证 generation-eval request/response 文件契约。
+- `examples/semantic_event_audit` 提供无 provider 的 semantic-event audit
+  dry run，把外部 runner 的 graph-intent JSONL 转成本地 preflight audit
+  records。它是 companion example material，不是 hosted runner、protocol、
+  transport envelope、benchmark 或 HRC 扩展。
 - `examples/vscode_textmate_syntax` 提供 private、可本地安装的
   VS Code/TextMate syntax companion，用于 `.coglang` 文件。它只是 editor-only
   companion material，不是 parser、validator、LSP、formatter、renderer 或
@@ -84,9 +88,10 @@ python scripts/local_ci.py --profile quick
 python scripts/local_ci.py --profile package
 ```
 
-companion Node 与 editor-package dry run：
+companion semantic-event、Node 与 editor-package dry run：
 
 ```powershell
+python examples/semantic_event_audit/audit_events.py examples/semantic_event_audit/fixtures/external_events.jsonl .tmp_semantic_event_audit.jsonl
 npm --prefix examples/node_host_consumer test
 npm --prefix examples/node_host_consumer run pack:dry
 Push-Location examples/vscode_textmate_syntax

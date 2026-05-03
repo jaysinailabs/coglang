@@ -387,6 +387,10 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
         "id-token: write",
         "Verify stable tag matches package version",
     ]
+    publish_workflow_required_action_refs = [
+        "actions/checkout@v4",
+        "actions/setup-python@v5",
+    ]
     if not descriptor_path.exists():
         return {
             "path": descriptor_relpath,
@@ -399,6 +403,10 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
             "publish_workflow_template_present": False,
             "publish_workflow_required_snippets": publish_workflow_required_snippets,
             "publish_workflow_required_snippets_present": False,
+            "publish_workflow_required_action_refs": (
+                publish_workflow_required_action_refs
+            ),
+            "publish_workflow_required_action_refs_present": False,
             "required_command_names": required_command_names,
             "required_command_names_present": False,
             "packaging_verification": [],
@@ -451,6 +459,12 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
     payload["publish_workflow_required_snippets"] = publish_workflow_required_snippets
     payload["publish_workflow_required_snippets_present"] = all(
         snippet in publish_workflow_text for snippet in publish_workflow_required_snippets
+    )
+    payload["publish_workflow_required_action_refs"] = (
+        publish_workflow_required_action_refs
+    )
+    payload["publish_workflow_required_action_refs_present"] = all(
+        ref in publish_workflow_text for ref in publish_workflow_required_action_refs
     )
     payload["required_command_names"] = required_command_names
     payload["required_command_names_present"] = all(
@@ -727,6 +741,7 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
                 and ci_baseline["required_packaging_check_names_present"] is True
                 and ci_baseline["workflow_required_smoke_snippets_present"] is True
                 and ci_baseline["workflow_required_action_refs_present"] is True
+                and ci_baseline["publish_workflow_required_action_refs_present"] is True
             ),
             "detail": "install guide + bundle/release-check/smoke path",
         },
@@ -756,6 +771,7 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
                 and ci_baseline["workflow_required_step_names_present"] is True
                 and ci_baseline["workflow_required_smoke_snippets_present"] is True
                 and ci_baseline["workflow_required_action_refs_present"] is True
+                and ci_baseline["publish_workflow_required_action_refs_present"] is True
             ),
             "detail": ci_baseline["path"],
         },
@@ -1378,6 +1394,8 @@ def _release_check_payload() -> dict[str, Any]:
                 and minimal_ci_baseline["workflow_required_step_names_present"] is True
                 and minimal_ci_baseline["workflow_required_smoke_snippets_present"] is True
                 and minimal_ci_baseline["workflow_required_action_refs_present"] is True
+                and minimal_ci_baseline["publish_workflow_required_action_refs_present"]
+                is True
             ),
             "detail": minimal_ci_baseline["path"],
         },

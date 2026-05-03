@@ -2107,6 +2107,11 @@ def test_cli_minimal_ci_baseline_payload_shape():
     }
     assert payload["publish_workflow_template_present"] is True
     assert payload["publish_workflow_required_snippets_present"] is True
+    assert payload["publish_workflow_required_action_refs"] == [
+        "actions/checkout@v4",
+        "actions/setup-python@v5",
+    ]
+    assert payload["publish_workflow_required_action_refs_present"] is True
     assert payload["stable_release_policy"] == {
         "stable_language_tag": "v1.1.0",
         "stable_python_distribution_version": "1.1.5",

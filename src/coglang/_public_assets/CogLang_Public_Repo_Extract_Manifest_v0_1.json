@@ -46,6 +46,7 @@
         "test_generation_eval.py",
         "test_generation_eval_adapters.py",
         "test_generation_eval_offline_runner.py",
+        "test_gitnexus_audit_bridge_example.py",
         "test_grammar_examples.py",
         "test_host_runtime_schema_seeds.py",
         "test_integration.py",
@@ -95,6 +96,11 @@
       "kind": "tree",
       "source": "examples/semantic_event_audit",
       "destination": "examples/semantic_event_audit"
+    },
+    {
+      "kind": "tree",
+      "source": "examples/gitnexus_audit_bridge",
+      "destination": "examples/gitnexus_audit_bridge"
     },
     {
       "kind": "tree",

@@ -494,6 +494,15 @@ def test_cli_manifest_payload_shape():
     assert payload["docs"]["generation_eval_request_response_contract"].endswith(
         "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
     )
+    assert payload["docs"]["use_cases_and_positioning"].endswith(
+        "CogLang_Use_Cases_and_Positioning_v0_1.md"
+    )
+    assert payload["docs"]["small_scale_promotion_plan"].endswith(
+        "CogLang_Small_Scale_Promotion_Plan_v0_1.md"
+    )
+    assert payload["docs"]["announcement_kit"].endswith(
+        "CogLang_Announcement_Kit_v0_1.md"
+    )
     assert payload["docs"]["roadmap"].endswith("ROADMAP.md")
     assert payload["docs"]["maintenance"].endswith("MAINTENANCE.md")
     assert payload["machine_readable_summaries"]["llms"].endswith("llms.txt")
@@ -546,6 +555,18 @@ def test_cli_manifest_payload_shape():
         ]
         == payload["docs"]["generation_eval_request_response_contract"]
     )
+    assert (
+        payload["public_release_surface"]["project_docs"]["use_cases_and_positioning"]
+        == payload["docs"]["use_cases_and_positioning"]
+    )
+    assert (
+        payload["public_release_surface"]["project_docs"]["small_scale_promotion_plan"]
+        == payload["docs"]["small_scale_promotion_plan"]
+    )
+    assert (
+        payload["public_release_surface"]["project_docs"]["announcement_kit"]
+        == payload["docs"]["announcement_kit"]
+    )
     assert payload["open_source_boundary"]["schema_version"] == "coglang-open-source-boundary/v0.1"
     assert payload["open_source_boundary"]["public_distribution_name"] == "coglang"
     assert payload["open_source_boundary"]["release_roots_exist"] is True
@@ -574,6 +595,9 @@ def test_cli_manifest_json_output():
     assert '"readable_render_api_promotion_checklist"' in output
     assert '"hrc_companion_asset_classification"' in output
     assert '"generation_eval_request_response_contract"' in output
+    assert '"use_cases_and_positioning"' in output
+    assert '"small_scale_promotion_plan"' in output
+    assert '"announcement_kit"' in output
     assert '"open_source_boundary"' in output
     assert '"minimal_ci_baseline"' in output
     assert '"public_repo_extract_manifest"' in output
@@ -636,6 +660,21 @@ def test_cli_manifest_text_output():
     assert (
         f"generation_eval_request_response_contract: "
         f"{_path_in_layout('CogLang_Generation_Eval_Request_Response_Contract_v0_1.md', 'CogLang_Generation_Eval_Request_Response_Contract_v0_1.md')}"
+        in output
+    )
+    assert (
+        f"use_cases_and_positioning: "
+        f"{_path_in_layout('CogLang_Use_Cases_and_Positioning_v0_1.md', 'CogLang_Use_Cases_and_Positioning_v0_1.md')}"
+        in output
+    )
+    assert (
+        f"small_scale_promotion_plan: "
+        f"{_path_in_layout('CogLang_Small_Scale_Promotion_Plan_v0_1.md', 'CogLang_Small_Scale_Promotion_Plan_v0_1.md')}"
+        in output
+    )
+    assert (
+        f"announcement_kit: "
+        f"{_path_in_layout('CogLang_Announcement_Kit_v0_1.md', 'CogLang_Announcement_Kit_v0_1.md')}"
         in output
     )
     assert f"maintenance: {_path_in_layout('MAINTENANCE.md', 'MAINTENANCE.md')}" in output
@@ -718,6 +757,28 @@ def test_cli_bundle_payload_shape():
         _path_in_layout(
             "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
             "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
+        )
+    )
+    assert payload["public_release_surface"]["project_docs"][
+        "use_cases_and_positioning"
+    ].endswith(
+        _path_in_layout(
+            "CogLang_Use_Cases_and_Positioning_v0_1.md",
+            "CogLang_Use_Cases_and_Positioning_v0_1.md",
+        )
+    )
+    assert payload["public_release_surface"]["project_docs"][
+        "small_scale_promotion_plan"
+    ].endswith(
+        _path_in_layout(
+            "CogLang_Small_Scale_Promotion_Plan_v0_1.md",
+            "CogLang_Small_Scale_Promotion_Plan_v0_1.md",
+        )
+    )
+    assert payload["public_release_surface"]["project_docs"]["announcement_kit"].endswith(
+        _path_in_layout(
+            "CogLang_Announcement_Kit_v0_1.md",
+            "CogLang_Announcement_Kit_v0_1.md",
         )
     )
     assert payload["open_source_boundary"]["repository_strategy"] == "standalone_repository"
@@ -1855,6 +1916,13 @@ def test_cli_release_check_payload_shape():
         for item in payload["checks"]
     )
     assert any(
+        item["name"] == "gitnexus_audit_bridge_example"
+        and item["ok"] is True
+        and item["detail"]
+        == "examples/gitnexus_audit_bridge + fixture + package data"
+        for item in payload["checks"]
+    )
+    assert any(
         item["name"] == "generation_eval_file_contract"
         and item["ok"] is True
         for item in payload["checks"]
@@ -1930,6 +1998,7 @@ def test_cli_release_check_json_output():
     assert '"vscode_textmate_syntax"' in output
     assert '"generation_eval_offline_runner"' in output
     assert '"semantic_event_audit_example"' in output
+    assert '"gitnexus_audit_bridge_example"' in output
     assert '"local_ci_simulation"' in output
     assert '"executor_interface"' in output
 
@@ -2010,6 +2079,10 @@ def test_cli_release_check_text_output():
     assert (
         "semantic_event_audit_example: ok "
         "(examples/semantic_event_audit + fixture + package data)" in output
+    )
+    assert (
+        "gitnexus_audit_bridge_example: ok "
+        "(examples/gitnexus_audit_bridge + fixture + package data)" in output
     )
     assert (
         "local_ci_simulation: ok "
@@ -2181,7 +2254,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 70
+    assert payload["entry_count"] == 74
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -2207,6 +2280,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "test_generation_eval.py" in tree_entries["tests/coglang"]["include"]
     assert "test_generation_eval_adapters.py" in tree_entries["tests/coglang"]["include"]
     assert "test_generation_eval_offline_runner.py" in tree_entries["tests/coglang"]["include"]
+    assert "test_gitnexus_audit_bridge_example.py" in tree_entries["tests/coglang"]["include"]
     assert "test_grammar_examples.py" in tree_entries["tests/coglang"]["include"]
     assert "test_local_ci_script.py" in tree_entries["tests/coglang"]["include"]
     assert "test_node_host_consumer.py" in tree_entries["tests/coglang"]["include"]
@@ -2240,6 +2314,9 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "examples/semantic_event_audit" in [
         item["source"] for item in payload["entries"]
     ]
+    assert "examples/gitnexus_audit_bridge" in [
+        item["source"] for item in payload["entries"]
+    ]
     assert "examples/vscode_textmate_syntax" in [
         item["source"] for item in payload["entries"]
     ]
@@ -2265,6 +2342,15 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Use_Cases_and_Positioning_v0_1.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Small_Scale_Promotion_Plan_v0_1.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Announcement_Kit_v0_1.md" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Quickstart_v1_1_0.zh-CN.md" in [

@@ -263,6 +263,21 @@
     },
     {
       "kind": "file",
+      "source": "CogLang_Use_Cases_and_Positioning_v0_1.md",
+      "destination": "CogLang_Use_Cases_and_Positioning_v0_1.md"
+    },
+    {
+      "kind": "file",
+      "source": "CogLang_Small_Scale_Promotion_Plan_v0_1.md",
+      "destination": "CogLang_Small_Scale_Promotion_Plan_v0_1.md"
+    },
+    {
+      "kind": "file",
+      "source": "CogLang_Announcement_Kit_v0_1.md",
+      "destination": "CogLang_Announcement_Kit_v0_1.md"
+    },
+    {
+      "kind": "file",
       "source": "CogLang_Profiles_and_Capabilities_v1_1_0.md",
       "destination": "CogLang_Profiles_and_Capabilities_v1_1_0.md"
     },

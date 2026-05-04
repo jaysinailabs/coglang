@@ -165,6 +165,9 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (
         destination / "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
     ).exists()
+    assert (destination / "CogLang_Use_Cases_and_Positioning_v0_1.md").exists()
+    assert (destination / "CogLang_Small_Scale_Promotion_Plan_v0_1.md").exists()
+    assert (destination / "CogLang_Announcement_Kit_v0_1.md").exists()
     assert (destination / "CogLang_Quickstart_v1_1_0.zh-CN.md").exists()
     assert (destination / "CogLang_Specification_v1_1_0_Draft.zh-CN.md").exists()
     assert (destination / "CogLang_Conformance_Suite_v1_1_0.zh-CN.md").exists()
@@ -528,6 +531,15 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         == "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
     )
     assert (
+        manifest["docs"]["use_cases_and_positioning"]
+        == "CogLang_Use_Cases_and_Positioning_v0_1.md"
+    )
+    assert (
+        manifest["docs"]["small_scale_promotion_plan"]
+        == "CogLang_Small_Scale_Promotion_Plan_v0_1.md"
+    )
+    assert manifest["docs"]["announcement_kit"] == "CogLang_Announcement_Kit_v0_1.md"
+    assert (
         manifest["docs"]["hrc_companion_asset_classification"]
         == "CogLang_HRC_Companion_Asset_Classification_v0_1.md"
     )
@@ -571,6 +583,18 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (
         installed_like_manifest["docs"]["generation_eval_request_response_contract"]
         == "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
+    )
+    assert (
+        installed_like_manifest["docs"]["use_cases_and_positioning"]
+        == "CogLang_Use_Cases_and_Positioning_v0_1.md"
+    )
+    assert (
+        installed_like_manifest["docs"]["small_scale_promotion_plan"]
+        == "CogLang_Small_Scale_Promotion_Plan_v0_1.md"
+    )
+    assert (
+        installed_like_manifest["docs"]["announcement_kit"]
+        == "CogLang_Announcement_Kit_v0_1.md"
     )
     assert (
         installed_like_manifest["docs"]["hrc_companion_asset_classification"]

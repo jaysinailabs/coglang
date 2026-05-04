@@ -875,6 +875,18 @@ def _manifest_payload() -> dict[str, Any]:
         "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
         "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
     )[1]
+    use_cases_and_positioning_relpath = _resolve_project_artifact(
+        "CogLang_Use_Cases_and_Positioning_v0_1.md",
+        "CogLang_Use_Cases_and_Positioning_v0_1.md",
+    )[1]
+    small_scale_promotion_plan_relpath = _resolve_project_artifact(
+        "CogLang_Small_Scale_Promotion_Plan_v0_1.md",
+        "CogLang_Small_Scale_Promotion_Plan_v0_1.md",
+    )[1]
+    announcement_kit_relpath = _resolve_project_artifact(
+        "CogLang_Announcement_Kit_v0_1.md",
+        "CogLang_Announcement_Kit_v0_1.md",
+    )[1]
     vision_proposal_relpath = _resolve_project_artifact(
         "CogLang_Vision_Proposal_v0_1.md",
         "CogLang_Vision_Proposal_v0_1.md",
@@ -906,6 +918,9 @@ def _manifest_payload() -> dict[str, Any]:
         "readable_render_golden_examples": readable_render_golden_examples_relpath,
         "readable_render_api_promotion_checklist": readable_render_api_promotion_checklist_relpath,
         "generation_eval_request_response_contract": generation_eval_contract_relpath,
+        "use_cases_and_positioning": use_cases_and_positioning_relpath,
+        "small_scale_promotion_plan": small_scale_promotion_plan_relpath,
+        "announcement_kit": announcement_kit_relpath,
         "vision_proposal": vision_proposal_relpath,
         "evolution_boundary_proposal": evolution_boundary_proposal_relpath,
         "effect_budget_preflight_vocabulary": effect_budget_preflight_vocabulary_relpath,
@@ -963,6 +978,9 @@ def _manifest_payload() -> dict[str, Any]:
                 "generation_eval_request_response_contract": docs[
                     "generation_eval_request_response_contract"
                 ],
+                "use_cases_and_positioning": docs["use_cases_and_positioning"],
+                "small_scale_promotion_plan": docs["small_scale_promotion_plan"],
+                "announcement_kit": docs["announcement_kit"],
                 "roadmap": docs["roadmap"],
                 "maintenance": docs["maintenance"],
             },
@@ -2847,6 +2865,15 @@ def main(argv: list[str] | None = None) -> int:
                 "generation_eval_request_response_contract: "
                 + payload["docs"]["generation_eval_request_response_contract"]
             )
+            print(
+                "use_cases_and_positioning: "
+                + payload["docs"]["use_cases_and_positioning"]
+            )
+            print(
+                "small_scale_promotion_plan: "
+                + payload["docs"]["small_scale_promotion_plan"]
+            )
+            print("announcement_kit: " + payload["docs"]["announcement_kit"])
             print(f"roadmap: {payload['docs']['roadmap']}")
             print(f"maintenance: {payload['docs']['maintenance']}")
             print(f"llms: {payload['machine_readable_summaries']['llms']}")

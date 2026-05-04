@@ -29,6 +29,8 @@ from coglang.schema_versions import (
     GRAPH_BUDGET_SCHEMA_VERSION,
     HOST_DEMO_SCHEMA_VERSION,
     HOST_RUNTIME_SCHEMA_PACK_ID,
+    LIGHTRAG_AUDIT_BRIDGE_DEMO_SCHEMA_VERSION,
+    LIGHTRAG_AUDIT_BRIDGE_RECORD_DEMO_SCHEMA_VERSION,
     LOCAL_CI_SIMULATION_SCHEMA_VERSION,
     MINIMAL_CI_BASELINE_SCHEMA_VERSION,
     NODE_HOST_CONSUMER_DEMO_SCHEMA_VERSION,
@@ -87,6 +89,10 @@ EXPECTED_SCHEMA_VERSION_REGISTRY = {
     "gitnexus_audit_bridge_demo": "coglang-gitnexus-audit-bridge-demo/v0.1",
     "gitnexus_audit_bridge_record_demo": (
         "coglang-gitnexus-audit-bridge-record-demo/v0.1"
+    ),
+    "lightrag_audit_bridge_demo": "coglang-lightrag-audit-bridge-demo/v0.1",
+    "lightrag_audit_bridge_record_demo": (
+        "coglang-lightrag-audit-bridge-record-demo/v0.1"
     ),
     "host_runtime_schema_pack": "urn:coglang:host-runtime-schema-pack:v0.1",
 }
@@ -233,6 +239,14 @@ def test_schema_version_constants_match_registry_values():
     assert (
         GITNEXUS_AUDIT_BRIDGE_RECORD_DEMO_SCHEMA_VERSION
         == SCHEMA_VERSION_REGISTRY["gitnexus_audit_bridge_record_demo"]
+    )
+    assert (
+        LIGHTRAG_AUDIT_BRIDGE_DEMO_SCHEMA_VERSION
+        == SCHEMA_VERSION_REGISTRY["lightrag_audit_bridge_demo"]
+    )
+    assert (
+        LIGHTRAG_AUDIT_BRIDGE_RECORD_DEMO_SCHEMA_VERSION
+        == SCHEMA_VERSION_REGISTRY["lightrag_audit_bridge_record_demo"]
     )
     assert HOST_RUNTIME_SCHEMA_PACK_ID == SCHEMA_VERSION_REGISTRY["host_runtime_schema_pack"]
 

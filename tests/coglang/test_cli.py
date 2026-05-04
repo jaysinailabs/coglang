@@ -1923,6 +1923,13 @@ def test_cli_release_check_payload_shape():
         for item in payload["checks"]
     )
     assert any(
+        item["name"] == "lightrag_audit_bridge_example"
+        and item["ok"] is True
+        and item["detail"]
+        == "examples/lightrag_audit_bridge + fixture + package data"
+        for item in payload["checks"]
+    )
+    assert any(
         item["name"] == "generation_eval_file_contract"
         and item["ok"] is True
         for item in payload["checks"]
@@ -1999,6 +2006,7 @@ def test_cli_release_check_json_output():
     assert '"generation_eval_offline_runner"' in output
     assert '"semantic_event_audit_example"' in output
     assert '"gitnexus_audit_bridge_example"' in output
+    assert '"lightrag_audit_bridge_example"' in output
     assert '"local_ci_simulation"' in output
     assert '"executor_interface"' in output
 
@@ -2083,6 +2091,10 @@ def test_cli_release_check_text_output():
     assert (
         "gitnexus_audit_bridge_example: ok "
         "(examples/gitnexus_audit_bridge + fixture + package data)" in output
+    )
+    assert (
+        "lightrag_audit_bridge_example: ok "
+        "(examples/lightrag_audit_bridge + fixture + package data)" in output
     )
     assert (
         "local_ci_simulation: ok "
@@ -2254,7 +2266,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 74
+    assert payload["entry_count"] == 75
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -2282,6 +2294,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "test_generation_eval_offline_runner.py" in tree_entries["tests/coglang"]["include"]
     assert "test_gitnexus_audit_bridge_example.py" in tree_entries["tests/coglang"]["include"]
     assert "test_grammar_examples.py" in tree_entries["tests/coglang"]["include"]
+    assert "test_lightrag_audit_bridge_example.py" in tree_entries["tests/coglang"]["include"]
     assert "test_local_ci_script.py" in tree_entries["tests/coglang"]["include"]
     assert "test_node_host_consumer.py" in tree_entries["tests/coglang"]["include"]
     assert "test_node_minimal_host_runtime_stub.py" in tree_entries["tests/coglang"]["include"]
@@ -2315,6 +2328,9 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "examples/gitnexus_audit_bridge" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "examples/lightrag_audit_bridge" in [
         item["source"] for item in payload["entries"]
     ]
     assert "examples/vscode_textmate_syntax" in [

@@ -57,6 +57,12 @@ GITNEXUS_AUDIT_BRIDGE_DEMO_SCHEMA_VERSION = (
 GITNEXUS_AUDIT_BRIDGE_RECORD_DEMO_SCHEMA_VERSION = (
     "coglang-gitnexus-audit-bridge-record-demo/v0.1"
 )
+LIGHTRAG_AUDIT_BRIDGE_DEMO_SCHEMA_VERSION = (
+    "coglang-lightrag-audit-bridge-demo/v0.1"
+)
+LIGHTRAG_AUDIT_BRIDGE_RECORD_DEMO_SCHEMA_VERSION = (
+    "coglang-lightrag-audit-bridge-record-demo/v0.1"
+)
 HOST_RUNTIME_SCHEMA_PACK_ID = "urn:coglang:host-runtime-schema-pack:v0.1"
 
 SCHEMA_VERSION_REGISTRY = MappingProxyType(
@@ -103,6 +109,10 @@ SCHEMA_VERSION_REGISTRY = MappingProxyType(
         "gitnexus_audit_bridge_record_demo": (
             GITNEXUS_AUDIT_BRIDGE_RECORD_DEMO_SCHEMA_VERSION
         ),
+        "lightrag_audit_bridge_demo": LIGHTRAG_AUDIT_BRIDGE_DEMO_SCHEMA_VERSION,
+        "lightrag_audit_bridge_record_demo": (
+            LIGHTRAG_AUDIT_BRIDGE_RECORD_DEMO_SCHEMA_VERSION
+        ),
         "host_runtime_schema_pack": HOST_RUNTIME_SCHEMA_PACK_ID,
     }
 )
@@ -123,6 +133,8 @@ __all__ = [
     "GRAPH_BUDGET_SCHEMA_VERSION",
     "HOST_DEMO_SCHEMA_VERSION",
     "HOST_RUNTIME_SCHEMA_PACK_ID",
+    "LIGHTRAG_AUDIT_BRIDGE_DEMO_SCHEMA_VERSION",
+    "LIGHTRAG_AUDIT_BRIDGE_RECORD_DEMO_SCHEMA_VERSION",
     "LOCAL_CI_SIMULATION_SCHEMA_VERSION",
     "MINIMAL_CI_BASELINE_SCHEMA_VERSION",
     "NODE_HOST_CONSUMER_DEMO_SCHEMA_VERSION",

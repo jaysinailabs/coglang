@@ -1166,6 +1166,15 @@ def _release_check_payload() -> dict[str, Any]:
     gitnexus_audit_bridge_fixture_path, _ = _resolve_project_artifact(
         "examples/gitnexus_audit_bridge/fixtures/gitnexus_tool_events.jsonl",
     )
+    lightrag_audit_bridge_script_path, _ = _resolve_project_artifact(
+        "examples/lightrag_audit_bridge/lightrag_audit_bridge.py",
+    )
+    lightrag_audit_bridge_readme_path, _ = _resolve_project_artifact(
+        "examples/lightrag_audit_bridge/README.md",
+    )
+    lightrag_audit_bridge_fixture_path, _ = _resolve_project_artifact(
+        "examples/lightrag_audit_bridge/fixtures/lightrag_extraction_tuples.jsonl",
+    )
     local_ci_script_path, _ = _resolve_project_artifact("scripts/local_ci.py")
     license_path, _ = _resolve_project_artifact("LICENSE")
 
@@ -1243,6 +1252,12 @@ def _release_check_payload() -> dict[str, Any]:
     )
     gitnexus_audit_bridge_fixtures_packaged = (
         "_public_assets/examples/gitnexus_audit_bridge/fixtures/*" in package_data
+    )
+    lightrag_audit_bridge_packaged = (
+        "_public_assets/examples/lightrag_audit_bridge/*" in package_data
+    )
+    lightrag_audit_bridge_fixtures_packaged = (
+        "_public_assets/examples/lightrag_audit_bridge/fixtures/*" in package_data
     )
     local_ci_script_packaged = "_public_assets/scripts/*" in package_data
     reserved_operator_promotion_criteria_packaged = (
@@ -1550,6 +1565,17 @@ def _release_check_payload() -> dict[str, Any]:
                 and gitnexus_audit_bridge_fixtures_packaged
             ),
             "detail": "examples/gitnexus_audit_bridge + fixture + package data",
+        },
+        {
+            "name": "lightrag_audit_bridge_example",
+            "ok": (
+                lightrag_audit_bridge_script_path.exists()
+                and lightrag_audit_bridge_readme_path.exists()
+                and lightrag_audit_bridge_fixture_path.exists()
+                and lightrag_audit_bridge_packaged
+                and lightrag_audit_bridge_fixtures_packaged
+            ),
+            "detail": "examples/lightrag_audit_bridge + fixture + package data",
         },
         {
             "name": "local_ci_simulation",

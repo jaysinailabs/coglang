@@ -90,6 +90,36 @@ Completed in the current maintenance sequence:
    `coglang public-assets --sync` repairs exact file mirrors in source or
    public-extract layouts. This is a source-checkout maintenance helper, not
    part of the minimum stable runtime command surface.
+9. Local-first CI budget discipline.
+   Contributors should use focused local tests, `coglang release-check`, and
+   `coglang smoke` before pushing. The `ci` workflow is manually triggered and
+   reserved for merge review, release preparation, or platform-specific remote
+   evidence. `scripts/local_ci.py` now provides `quick`, `ci`, and `package`
+   local simulation profiles so maintainers can batch validation before
+   spending GitHub Actions minutes.
+10. Generation-eval offline contract smoke.
+   `examples/generation_eval_offline_runner/fixtures` provides a three-case
+   response-file contract fixture and static response JSONL, keeping the first
+   offline scoring path shorter than the default 50-case eval fixture.
+11. Editor companion syntax highlighting.
+   `examples/vscode_textmate_syntax` provides a private, local-installable
+   VS Code/TextMate syntax package for `.coglang` files. It is explicitly
+   companion DX material, not a parser, validator, LSP, formatter, renderer, or
+   normative grammar.
+12. Node consumer npm scaffold.
+   `examples/node_host_consumer/package.json` keeps the Node HRC consumer
+   locally testable with npm while remaining `private: true`, version `0.0.0`,
+   and explicitly non-SDK/non-runtime example evidence.
+13. `1.1.5` local release preparation.
+   The accumulated local-first validation and AI-first DX companion asset batch
+   now has package metadata, release notes, package data, public extract
+   coverage, machine-readable summaries, and local wheel/sdist validation ready
+   for a maintainer-triggered release workflow.
+14. Semantic-event audit companion example.
+   `examples/semantic_event_audit` now provides a no-provider JSONL workflow
+   that converts external runner graph intents into local preflight audit
+   records. It is companion example evidence, not a hosted runner, protocol,
+   transport envelope, benchmark, or HRC expansion.
 
 Open follow-through:
 
@@ -106,11 +136,10 @@ The governance framework is now strong enough for that external-host review;
 the remaining need is an implementation or consumer outside this repository to
 exercise the companion/formal boundary under real maintainer feedback.
 
-### Source HEAD After `1.1.4`
+### Source HEAD At `1.1.5`
 
-The current PyPI package line is `1.1.4`. Source HEAD intentionally accumulates
-small, reviewed maintenance capabilities before the next package version bump.
-The current unreleased source-maintenance batch includes:
+The current source package version is `1.1.5`, prepared as a local-first
+maintenance patch for the stable `v1.1.0` language line. This batch includes:
 
 - external host/consumer contribution checklist and PR template
 - external host/consumer issue template
@@ -123,11 +152,20 @@ The current unreleased source-maintenance batch includes:
 - provider-neutral `generation-eval` request/response export and import for
   scoring external model JSON/JSONL outputs without adding provider SDK
   dependencies
+- a no-provider `examples/generation_eval_offline_runner` dry run for the
+  generation-eval request/response file contract
+- a no-provider `examples/semantic_event_audit` dry run for turning external
+  graph-intent records into local preflight audit artifacts
+- `scripts/local_ci.py` profiles for local-first validation before any
+  maintainer-triggered remote workflow run
+- a companion `examples/vscode_textmate_syntax` package for editor-only
+  `.coglang` TextMate highlighting
+- a private `examples/node_host_consumer` npm scaffold for local Node consumer
+  testing and dry-run packing, without publishing an npm package
 
-These are source-HEAD capabilities until the next package patch release. When
-the batch is large enough to publish, update the package version, release notes,
-README/PyPI-facing text, machine-readable summaries, package data, and
-post-publish verification together.
+Before publishing, run the local `quick` and `package` profiles. Remote GitHub
+workflow evidence should still be reserved for merge review or release
+preparation.
 
 ---
 
@@ -206,9 +244,10 @@ paths. These examples are companion evidence, not an expansion of the HRC v0.2
 frozen scope.
 
 The companion/formal asset decision is recorded in
-`CogLang_HRC_Companion_Asset_Classification_v0_1.md`. Public CI now runs the
-frozen HRC evidence commands, `coglang host-demo` and
-`coglang reference-host-demo`, against both built distribution paths. The likely
+`CogLang_HRC_Companion_Asset_Classification_v0_1.md`. Pre-merge or
+release-preparation CI can run the frozen HRC evidence commands, `coglang
+host-demo` and `coglang reference-host-demo`, against both built distribution
+paths. The likely
 next step is:
 
 - eventually, a host example maintained outside the core runtime repository
@@ -290,7 +329,10 @@ Contributions in this area are especially welcome.
 `CogLang` fits naturally as a semantic-event audit layer for AI systems that
 produce graph operations.
 
-Longer-term exploration includes small, runnable examples for:
+The first small runnable example now exists at `examples/semantic_event_audit`.
+It demonstrates external graph-intent JSONL records, CogLang preflight, derived
+audit actions, and no host execution. Longer-term exploration may add more
+examples for:
 
 - agent memory or RAG knowledge-graph write preflight
 - OpenTelemetry sidecar metadata carrying canonical CogLang intent

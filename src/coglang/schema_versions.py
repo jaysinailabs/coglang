@@ -16,6 +16,7 @@ PUBLIC_REPO_EXTRACT_MANIFEST_SCHEMA_VERSION = (
     "coglang-public-repo-extract-manifest/v0.1"
 )
 PUBLIC_REPO_EXTRACT_RUN_SCHEMA_VERSION = "coglang-public-repo-extract-run/v0.1"
+LOCAL_CI_SIMULATION_SCHEMA_VERSION = "coglang-local-ci-simulation/v0.1"
 
 EFFECT_SUMMARY_SCHEMA_VERSION = "coglang-effect-summary/v0.1"
 GRAPH_BUDGET_SCHEMA_VERSION = "coglang-graph-budget/v0.1"
@@ -30,9 +31,11 @@ GENERATION_EVAL_RESULT_SCHEMA_VERSION = "coglang-generation-eval-result/v0.1"
 GENERATION_EVAL_REQUEST_BATCH_SCHEMA_VERSION = (
     "coglang-generation-eval-request-batch/v0.1"
 )
+GENERATION_EVAL_REQUEST_SCHEMA_VERSION = "coglang-generation-eval-request/v0.1"
 GENERATION_EVAL_RESPONSE_BATCH_SCHEMA_VERSION = (
     "coglang-generation-eval-response-batch/v0.1"
 )
+GENERATION_EVAL_RESPONSE_SCHEMA_VERSION = "coglang-generation-eval-response/v0.1"
 
 READABLE_RENDER_GOLDEN_CANDIDATES_SCHEMA_VERSION = (
     "coglang-readable-render-golden-candidates/v0.1"
@@ -41,6 +44,12 @@ READABLE_RENDER_GOLDEN_CANDIDATES_SCHEMA_VERSION = (
 NODE_HOST_CONSUMER_DEMO_SCHEMA_VERSION = "coglang-node-host-consumer-demo/v0.1"
 NODE_MINIMAL_HOST_RUNTIME_STUB_DEMO_SCHEMA_VERSION = (
     "coglang-node-minimal-host-runtime-stub-demo/v0.1"
+)
+SEMANTIC_EVENT_AUDIT_DEMO_SCHEMA_VERSION = (
+    "coglang-semantic-event-audit-demo/v0.1"
+)
+SEMANTIC_EVENT_AUDIT_RECORD_DEMO_SCHEMA_VERSION = (
+    "coglang-semantic-event-audit-record-demo/v0.1"
 )
 HOST_RUNTIME_SCHEMA_PACK_ID = "urn:coglang:host-runtime-schema-pack:v0.1"
 
@@ -55,6 +64,7 @@ SCHEMA_VERSION_REGISTRY = MappingProxyType(
         "minimal_ci_baseline": MINIMAL_CI_BASELINE_SCHEMA_VERSION,
         "public_repo_extract_manifest": PUBLIC_REPO_EXTRACT_MANIFEST_SCHEMA_VERSION,
         "public_repo_extract_run": PUBLIC_REPO_EXTRACT_RUN_SCHEMA_VERSION,
+        "local_ci_simulation": LOCAL_CI_SIMULATION_SCHEMA_VERSION,
         "effect_summary": EFFECT_SUMMARY_SCHEMA_VERSION,
         "graph_budget": GRAPH_BUDGET_SCHEMA_VERSION,
         "graph_budget_estimate": GRAPH_BUDGET_ESTIMATE_SCHEMA_VERSION,
@@ -67,15 +77,21 @@ SCHEMA_VERSION_REGISTRY = MappingProxyType(
         "generation_eval_request_batch": (
             GENERATION_EVAL_REQUEST_BATCH_SCHEMA_VERSION
         ),
+        "generation_eval_request": GENERATION_EVAL_REQUEST_SCHEMA_VERSION,
         "generation_eval_response_batch": (
             GENERATION_EVAL_RESPONSE_BATCH_SCHEMA_VERSION
         ),
+        "generation_eval_response": GENERATION_EVAL_RESPONSE_SCHEMA_VERSION,
         "readable_render_golden_candidates": (
             READABLE_RENDER_GOLDEN_CANDIDATES_SCHEMA_VERSION
         ),
         "node_host_consumer_demo": NODE_HOST_CONSUMER_DEMO_SCHEMA_VERSION,
         "node_minimal_host_runtime_stub_demo": (
             NODE_MINIMAL_HOST_RUNTIME_STUB_DEMO_SCHEMA_VERSION
+        ),
+        "semantic_event_audit_demo": SEMANTIC_EVENT_AUDIT_DEMO_SCHEMA_VERSION,
+        "semantic_event_audit_record_demo": (
+            SEMANTIC_EVENT_AUDIT_RECORD_DEMO_SCHEMA_VERSION
         ),
         "host_runtime_schema_pack": HOST_RUNTIME_SCHEMA_PACK_ID,
     }
@@ -87,12 +103,15 @@ __all__ = [
     "FORMAL_OPEN_SOURCE_READINESS_SCHEMA_VERSION",
     "GENERATION_EVAL_FIXTURE_SCHEMA_VERSION",
     "GENERATION_EVAL_REQUEST_BATCH_SCHEMA_VERSION",
+    "GENERATION_EVAL_REQUEST_SCHEMA_VERSION",
     "GENERATION_EVAL_RESPONSE_BATCH_SCHEMA_VERSION",
+    "GENERATION_EVAL_RESPONSE_SCHEMA_VERSION",
     "GENERATION_EVAL_RESULT_SCHEMA_VERSION",
     "GRAPH_BUDGET_ESTIMATE_SCHEMA_VERSION",
     "GRAPH_BUDGET_SCHEMA_VERSION",
     "HOST_DEMO_SCHEMA_VERSION",
     "HOST_RUNTIME_SCHEMA_PACK_ID",
+    "LOCAL_CI_SIMULATION_SCHEMA_VERSION",
     "MINIMAL_CI_BASELINE_SCHEMA_VERSION",
     "NODE_HOST_CONSUMER_DEMO_SCHEMA_VERSION",
     "NODE_MINIMAL_HOST_RUNTIME_STUB_DEMO_SCHEMA_VERSION",
@@ -106,5 +125,7 @@ __all__ = [
     "REFERENCE_HOST_DEMO_SCHEMA_VERSION",
     "RELEASE_BUNDLE_SCHEMA_VERSION",
     "SCHEMA_VERSION_REGISTRY",
+    "SEMANTIC_EVENT_AUDIT_DEMO_SCHEMA_VERSION",
+    "SEMANTIC_EVENT_AUDIT_RECORD_DEMO_SCHEMA_VERSION",
     "STATIC_PREFLIGHT_ESTIMATOR",
 ]

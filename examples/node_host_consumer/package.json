@@ -1,0 +1,19 @@
+{
+  "name": "@coglang/hrc-envelope-consumer-example",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Companion Node.js HRC envelope consumer example for CogLang.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "bin": {
+    "coglang-hrc-consumer-example": "./consume_hrc_envelopes.mjs"
+  },
+  "scripts": {
+    "test": "node ./consume_hrc_envelopes.mjs ../..",
+    "pack:dry": "npm pack --dry-run"
+  },
+  "files": [
+    "README.md",
+    "consume_hrc_envelopes.mjs"
+  ]
+}

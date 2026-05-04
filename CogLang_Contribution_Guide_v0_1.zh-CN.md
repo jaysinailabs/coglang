@@ -170,7 +170,12 @@
 ```powershell
 coglang bundle
 coglang smoke
+python scripts/local_ci.py --profile quick
 ```
+
+为了节省 GitHub Actions 分钟，默认先在本地跑 focused tests、
+`coglang release-check`、`coglang smoke` 或 `scripts/local_ci.py`，等 PR
+准备进入合并审查、发布准备，或确实需要远程平台证据时再触发远程 CI。
 
 如果你的改动涉及宿主桥或运行时契约，再加看：
 

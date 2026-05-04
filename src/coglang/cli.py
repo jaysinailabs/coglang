@@ -131,7 +131,23 @@ def _conformance_base() -> Path:
     return project_base
 
 
+def _pyproject_distribution_version() -> str | None:
+    pyproject_path, _ = _resolve_project_artifact("pyproject.toml")
+    if not pyproject_path.exists():
+        return None
+    try:
+        pyproject = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
+    except (OSError, tomllib.TOMLDecodeError):
+        return None
+    version = pyproject.get("project", {}).get("version")
+    return version if isinstance(version, str) and version else None
+
+
 def _cli_version() -> str:
+    pyproject_version = _pyproject_distribution_version()
+    if pyproject_version is not None:
+        return pyproject_version
+
     distribution = _distribution_metadata()
     candidates = [distribution["name"], "coglang"]
     for candidate in candidates:
@@ -141,7 +157,7 @@ def _cli_version() -> str:
             return package_version(candidate)
         except PackageNotFoundError:
             continue
-    return "1.1.4"
+    return "1.1.5"
 
 
 def _resolve_project_artifact(*relative_candidates: str) -> tuple[Path, str]:
@@ -325,6 +341,9 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
         "CogLang_Public_PyPI_Publish_Workflow_v0_1.yml",
         ".github/workflows/publish.yml",
     )
+    local_ci_script_path, local_ci_script_relpath = _resolve_project_artifact(
+        "scripts/local_ci.py",
+    )
     required_command_names = [
         "bundle",
         "release_check",
@@ -359,10 +378,18 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
         "python -m coglang host-demo",
         "python -m coglang reference-host-demo",
     ]
+    workflow_required_action_refs = [
+        "actions/checkout@v4",
+        "actions/setup-python@v5",
+    ]
     publish_workflow_required_snippets = [
         "pypa/gh-action-pypi-publish@release/v1",
         "id-token: write",
         "Verify stable tag matches package version",
+    ]
+    publish_workflow_required_action_refs = [
+        "actions/checkout@v4",
+        "actions/setup-python@v5",
     ]
     if not descriptor_path.exists():
         return {
@@ -376,6 +403,10 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
             "publish_workflow_template_present": False,
             "publish_workflow_required_snippets": publish_workflow_required_snippets,
             "publish_workflow_required_snippets_present": False,
+            "publish_workflow_required_action_refs": (
+                publish_workflow_required_action_refs
+            ),
+            "publish_workflow_required_action_refs_present": False,
             "required_command_names": required_command_names,
             "required_command_names_present": False,
             "packaging_verification": [],
@@ -385,6 +416,13 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
             "workflow_required_step_names_present": False,
             "workflow_required_smoke_snippets": workflow_required_smoke_snippets,
             "workflow_required_smoke_snippets_present": False,
+            "workflow_required_action_refs": workflow_required_action_refs,
+            "workflow_required_action_refs_present": False,
+            "workflow_manual_trigger_present": False,
+            "local_ci_script_path": local_ci_script_relpath,
+            "local_ci_script_present": False,
+            "local_ci_profiles": ["quick", "ci", "package"],
+            "local_ci_profiles_present": False,
             "public_entrypoint_only": False,
         }
     payload = json.loads(descriptor_path.read_text(encoding="utf-8"))
@@ -403,6 +441,11 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
         if workflow_template_path.exists()
         else ""
     )
+    workflow_manual_trigger_present = (
+        "workflow_dispatch:" in workflow_text
+        and "pull_request:" not in workflow_text
+        and "\n  push:" not in workflow_text
+    )
     publish_workflow_text = (
         publish_workflow_template_path.read_text(encoding="utf-8")
         if publish_workflow_template_path.exists()
@@ -416,6 +459,12 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
     payload["publish_workflow_required_snippets"] = publish_workflow_required_snippets
     payload["publish_workflow_required_snippets_present"] = all(
         snippet in publish_workflow_text for snippet in publish_workflow_required_snippets
+    )
+    payload["publish_workflow_required_action_refs"] = (
+        publish_workflow_required_action_refs
+    )
+    payload["publish_workflow_required_action_refs_present"] = all(
+        ref in publish_workflow_text for ref in publish_workflow_required_action_refs
     )
     payload["required_command_names"] = required_command_names
     payload["required_command_names_present"] = all(
@@ -432,6 +481,22 @@ def _minimal_ci_baseline_payload() -> dict[str, Any]:
     payload["workflow_required_smoke_snippets"] = workflow_required_smoke_snippets
     payload["workflow_required_smoke_snippets_present"] = all(
         snippet in workflow_text for snippet in workflow_required_smoke_snippets
+    )
+    payload["workflow_required_action_refs"] = workflow_required_action_refs
+    payload["workflow_required_action_refs_present"] = all(
+        ref in workflow_text for ref in workflow_required_action_refs
+    )
+    payload["workflow_manual_trigger_present"] = workflow_manual_trigger_present
+    local_simulation = payload.get("local_simulation", {})
+    local_ci_profiles = [
+        str(item) for item in local_simulation.get("profiles", [])
+    ] if isinstance(local_simulation, dict) else []
+    required_local_ci_profiles = ["quick", "ci", "package"]
+    payload["local_ci_script_path"] = local_ci_script_relpath
+    payload["local_ci_script_present"] = local_ci_script_path.exists()
+    payload["local_ci_profiles"] = local_ci_profiles
+    payload["local_ci_profiles_present"] = all(
+        profile in local_ci_profiles for profile in required_local_ci_profiles
     )
     payload["public_entrypoint_only"] = public_entrypoint_only
     return payload
@@ -600,6 +665,10 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
         "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
         "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
     )
+    generation_eval_contract_path, _ = _resolve_project_artifact(
+        "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
+        "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
+    )
     install_guide_path, _ = _resolve_project_artifact(
         "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
         "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
@@ -609,8 +678,8 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
         "CogLang_Contribution_Guide_v0_1.md",
     )
     release_notes_path, _ = _resolve_project_artifact(
-        "CogLang_Release_Notes_v1_1_4.md",
-        "CogLang_Release_Notes_v1_1_4.md",
+        "CogLang_Release_Notes_v1_1_5.md",
+        "CogLang_Release_Notes_v1_1_5.md",
     )
     hrc_v0_2_final_freeze_path, _ = _resolve_project_artifact(
         "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md",
@@ -645,10 +714,11 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
                 and readable_render_boundary_path.exists()
                 and readable_render_golden_examples_path.exists()
                 and readable_render_api_promotion_checklist_path.exists()
+                and generation_eval_contract_path.exists()
                 and llms_path.exists()
                 and llms_full_path.exists()
             ),
-            "detail": "public docs set + operator/render governance",
+            "detail": "public docs set + operator/render/eval governance",
         },
         {
             "name": "G2_public_release_surface",
@@ -670,6 +740,8 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
                 and ci_baseline["required_command_names_present"] is True
                 and ci_baseline["required_packaging_check_names_present"] is True
                 and ci_baseline["workflow_required_smoke_snippets_present"] is True
+                and ci_baseline["workflow_required_action_refs_present"] is True
+                and ci_baseline["publish_workflow_required_action_refs_present"] is True
             ),
             "detail": "install guide + bundle/release-check/smoke path",
         },
@@ -698,6 +770,8 @@ def _formal_open_source_readiness_payload() -> dict[str, Any]:
                 and ci_baseline["workflow_template_present"] is True
                 and ci_baseline["workflow_required_step_names_present"] is True
                 and ci_baseline["workflow_required_smoke_snippets_present"] is True
+                and ci_baseline["workflow_required_action_refs_present"] is True
+                and ci_baseline["publish_workflow_required_action_refs_present"] is True
             ),
             "detail": ci_baseline["path"],
         },
@@ -762,8 +836,8 @@ def _manifest_payload() -> dict[str, Any]:
         "CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
     )[1]
     release_notes_relpath = _resolve_project_artifact(
-        "CogLang_Release_Notes_v1_1_4.md",
-        "CogLang_Release_Notes_v1_1_4.md",
+        "CogLang_Release_Notes_v1_1_5.md",
+        "CogLang_Release_Notes_v1_1_5.md",
     )[1]
     hrc_v0_2_final_freeze_relpath = _resolve_project_artifact(
         "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md",
@@ -797,6 +871,22 @@ def _manifest_payload() -> dict[str, Any]:
         "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
         "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
     )[1]
+    generation_eval_contract_relpath = _resolve_project_artifact(
+        "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
+        "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
+    )[1]
+    use_cases_and_positioning_relpath = _resolve_project_artifact(
+        "CogLang_Use_Cases_and_Positioning_v0_1.md",
+        "CogLang_Use_Cases_and_Positioning_v0_1.md",
+    )[1]
+    small_scale_promotion_plan_relpath = _resolve_project_artifact(
+        "CogLang_Small_Scale_Promotion_Plan_v0_1.md",
+        "CogLang_Small_Scale_Promotion_Plan_v0_1.md",
+    )[1]
+    announcement_kit_relpath = _resolve_project_artifact(
+        "CogLang_Announcement_Kit_v0_1.md",
+        "CogLang_Announcement_Kit_v0_1.md",
+    )[1]
     vision_proposal_relpath = _resolve_project_artifact(
         "CogLang_Vision_Proposal_v0_1.md",
         "CogLang_Vision_Proposal_v0_1.md",
@@ -827,6 +917,10 @@ def _manifest_payload() -> dict[str, Any]:
         "readable_render_boundary": readable_render_boundary_relpath,
         "readable_render_golden_examples": readable_render_golden_examples_relpath,
         "readable_render_api_promotion_checklist": readable_render_api_promotion_checklist_relpath,
+        "generation_eval_request_response_contract": generation_eval_contract_relpath,
+        "use_cases_and_positioning": use_cases_and_positioning_relpath,
+        "small_scale_promotion_plan": small_scale_promotion_plan_relpath,
+        "announcement_kit": announcement_kit_relpath,
         "vision_proposal": vision_proposal_relpath,
         "evolution_boundary_proposal": evolution_boundary_proposal_relpath,
         "effect_budget_preflight_vocabulary": effect_budget_preflight_vocabulary_relpath,
@@ -881,6 +975,12 @@ def _manifest_payload() -> dict[str, Any]:
                 "hrc_companion_asset_classification": docs[
                     "hrc_companion_asset_classification"
                 ],
+                "generation_eval_request_response_contract": docs[
+                    "generation_eval_request_response_contract"
+                ],
+                "use_cases_and_positioning": docs["use_cases_and_positioning"],
+                "small_scale_promotion_plan": docs["small_scale_promotion_plan"],
+                "announcement_kit": docs["announcement_kit"],
                 "roadmap": docs["roadmap"],
                 "maintenance": docs["maintenance"],
             },
@@ -993,11 +1093,18 @@ def _release_check_payload() -> dict[str, Any]:
         "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
         "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
     )
+    generation_eval_contract_path, _ = _resolve_project_artifact(
+        "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
+        "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
+    )
     node_consumer_script_path, _ = _resolve_project_artifact(
         "examples/node_host_consumer/consume_hrc_envelopes.mjs",
     )
     node_consumer_readme_path, _ = _resolve_project_artifact(
         "examples/node_host_consumer/README.md",
+    )
+    node_consumer_package_path, _ = _resolve_project_artifact(
+        "examples/node_host_consumer/package.json",
     )
     node_minimal_stub_run_path, _ = _resolve_project_artifact(
         "examples/node_minimal_host_runtime_stub/run_demo.mjs",
@@ -1014,6 +1121,43 @@ def _release_check_payload() -> dict[str, Any]:
     grammar_readme_path, _ = _resolve_project_artifact(
         "examples/grammar/README.md",
     )
+    vscode_textmate_package_path, _ = _resolve_project_artifact(
+        "examples/vscode_textmate_syntax/package.json",
+    )
+    vscode_textmate_language_config_path, _ = _resolve_project_artifact(
+        "examples/vscode_textmate_syntax/language-configuration.json",
+    )
+    vscode_textmate_grammar_path, _ = _resolve_project_artifact(
+        "examples/vscode_textmate_syntax/syntaxes/coglang.tmLanguage.json",
+    )
+    vscode_textmate_sample_path, _ = _resolve_project_artifact(
+        "examples/vscode_textmate_syntax/samples/basic.coglang",
+    )
+    vscode_textmate_readme_path, _ = _resolve_project_artifact(
+        "examples/vscode_textmate_syntax/README.md",
+    )
+    generation_eval_offline_runner_path, _ = _resolve_project_artifact(
+        "examples/generation_eval_offline_runner/mock_responses.py",
+    )
+    generation_eval_offline_runner_readme_path, _ = _resolve_project_artifact(
+        "examples/generation_eval_offline_runner/README.md",
+    )
+    generation_eval_offline_fixture_path, _ = _resolve_project_artifact(
+        "examples/generation_eval_offline_runner/fixtures/generation_eval_three_case_v0_1.json",
+    )
+    generation_eval_offline_responses_path, _ = _resolve_project_artifact(
+        "examples/generation_eval_offline_runner/fixtures/mock_responses.jsonl",
+    )
+    semantic_event_audit_script_path, _ = _resolve_project_artifact(
+        "examples/semantic_event_audit/audit_events.py",
+    )
+    semantic_event_audit_readme_path, _ = _resolve_project_artifact(
+        "examples/semantic_event_audit/README.md",
+    )
+    semantic_event_audit_fixture_path, _ = _resolve_project_artifact(
+        "examples/semantic_event_audit/fixtures/external_events.jsonl",
+    )
+    local_ci_script_path, _ = _resolve_project_artifact("scripts/local_ci.py")
     license_path, _ = _resolve_project_artifact("LICENSE")
 
     distribution = _distribution_metadata()
@@ -1037,10 +1181,55 @@ def _release_check_payload() -> dict[str, Any]:
         .get("coglang", [])
     )
     node_consumer_packaged = "_public_assets/examples/node_host_consumer/*" in package_data
+    node_consumer_package: dict[str, Any] = {}
+    if node_consumer_package_path.exists():
+        try:
+            node_consumer_package = json.loads(
+                node_consumer_package_path.read_text(encoding="utf-8")
+            )
+        except json.JSONDecodeError:
+            node_consumer_package = {}
+    node_consumer_package_scripts = node_consumer_package.get("scripts", {})
+    node_consumer_package_ok = (
+        node_consumer_package.get("name")
+        == "@coglang/hrc-envelope-consumer-example"
+        and node_consumer_package.get("version") == "0.0.0"
+        and node_consumer_package.get("private") is True
+        and node_consumer_package.get("type") == "module"
+        and node_consumer_package.get("bin", {}).get(
+            "coglang-hrc-consumer-example"
+        )
+        == "./consume_hrc_envelopes.mjs"
+        and node_consumer_package_scripts.get("test")
+        == "node ./consume_hrc_envelopes.mjs ../.."
+        and node_consumer_package_scripts.get("pack:dry") == "npm pack --dry-run"
+    )
     node_minimal_stub_packaged = (
         "_public_assets/examples/node_minimal_host_runtime_stub/*" in package_data
     )
     grammar_examples_packaged = "_public_assets/examples/grammar/*" in package_data
+    vscode_textmate_packaged = (
+        "_public_assets/examples/vscode_textmate_syntax/*" in package_data
+    )
+    vscode_textmate_samples_packaged = (
+        "_public_assets/examples/vscode_textmate_syntax/samples/*" in package_data
+    )
+    vscode_textmate_syntaxes_packaged = (
+        "_public_assets/examples/vscode_textmate_syntax/syntaxes/*" in package_data
+    )
+    generation_eval_offline_runner_packaged = (
+        "_public_assets/examples/generation_eval_offline_runner/*" in package_data
+    )
+    generation_eval_offline_runner_fixtures_packaged = (
+        "_public_assets/examples/generation_eval_offline_runner/fixtures/*" in package_data
+    )
+    semantic_event_audit_packaged = (
+        "_public_assets/examples/semantic_event_audit/*" in package_data
+    )
+    semantic_event_audit_fixtures_packaged = (
+        "_public_assets/examples/semantic_event_audit/fixtures/*" in package_data
+    )
+    local_ci_script_packaged = "_public_assets/scripts/*" in package_data
     reserved_operator_promotion_criteria_packaged = (
         "_public_assets/CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md"
         in package_data
@@ -1063,6 +1252,10 @@ def _release_check_payload() -> dict[str, Any]:
     )
     hrc_companion_asset_classification_packaged = (
         "_public_assets/CogLang_HRC_Companion_Asset_Classification_v0_1.md"
+        in package_data
+    )
+    generation_eval_contract_packaged = (
+        "_public_assets/CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
         in package_data
     )
 
@@ -1186,6 +1379,14 @@ def _release_check_payload() -> dict[str, Any]:
             "detail": "HRC companion asset classification + package data",
         },
         {
+            "name": "generation_eval_file_contract",
+            "ok": (
+                generation_eval_contract_path.exists()
+                and generation_eval_contract_packaged
+            ),
+            "detail": "generation-eval request/response file contract + package data",
+        },
+        {
             "name": "open_source_boundary",
             "ok": (
                 open_source_boundary["schema_version"]
@@ -1205,8 +1406,14 @@ def _release_check_payload() -> dict[str, Any]:
                 and minimal_ci_baseline["required_packaging_check_names_present"] is True
                 and minimal_ci_baseline["public_entrypoint_only"] is True
                 and minimal_ci_baseline["workflow_template_present"] is True
+                and minimal_ci_baseline["workflow_manual_trigger_present"] is True
+                and minimal_ci_baseline["local_ci_script_present"] is True
+                and minimal_ci_baseline["local_ci_profiles_present"] is True
                 and minimal_ci_baseline["workflow_required_step_names_present"] is True
                 and minimal_ci_baseline["workflow_required_smoke_snippets_present"] is True
+                and minimal_ci_baseline["workflow_required_action_refs_present"] is True
+                and minimal_ci_baseline["publish_workflow_required_action_refs_present"]
+                is True
             ),
             "detail": minimal_ci_baseline["path"],
         },
@@ -1256,9 +1463,11 @@ def _release_check_payload() -> dict[str, Any]:
             "ok": (
                 node_consumer_script_path.exists()
                 and node_consumer_readme_path.exists()
+                and node_consumer_package_path.exists()
+                and node_consumer_package_ok
                 and node_consumer_packaged
             ),
-            "detail": "examples/node_host_consumer + package data",
+            "detail": "examples/node_host_consumer + private npm scaffold + package data",
         },
         {
             "name": "node_minimal_host_runtime_stub",
@@ -1278,6 +1487,48 @@ def _release_check_payload() -> dict[str, Any]:
                 and grammar_examples_packaged
             ),
             "detail": "examples/grammar + package data",
+        },
+        {
+            "name": "vscode_textmate_syntax",
+            "ok": (
+                vscode_textmate_package_path.exists()
+                and vscode_textmate_language_config_path.exists()
+                and vscode_textmate_grammar_path.exists()
+                and vscode_textmate_sample_path.exists()
+                and vscode_textmate_readme_path.exists()
+                and vscode_textmate_packaged
+                and vscode_textmate_samples_packaged
+                and vscode_textmate_syntaxes_packaged
+            ),
+            "detail": "examples/vscode_textmate_syntax + package data",
+        },
+        {
+            "name": "generation_eval_offline_runner",
+            "ok": (
+                generation_eval_offline_runner_path.exists()
+                and generation_eval_offline_runner_readme_path.exists()
+                and generation_eval_offline_fixture_path.exists()
+                and generation_eval_offline_responses_path.exists()
+                and generation_eval_offline_runner_packaged
+                and generation_eval_offline_runner_fixtures_packaged
+            ),
+            "detail": "examples/generation_eval_offline_runner + fixture + package data",
+        },
+        {
+            "name": "semantic_event_audit_example",
+            "ok": (
+                semantic_event_audit_script_path.exists()
+                and semantic_event_audit_readme_path.exists()
+                and semantic_event_audit_fixture_path.exists()
+                and semantic_event_audit_packaged
+                and semantic_event_audit_fixtures_packaged
+            ),
+            "detail": "examples/semantic_event_audit + fixture + package data",
+        },
+        {
+            "name": "local_ci_simulation",
+            "ok": local_ci_script_path.exists() and local_ci_script_packaged,
+            "detail": "scripts/local_ci.py + package data",
         },
         {
             "name": "executor_interface",
@@ -2106,10 +2357,22 @@ def _print_generation_eval_request_batch_text(payload: dict[str, Any]) -> None:
     print(f"case_count: {payload['case_count']}")
     print(f"include_reference: {str(payload['include_reference']).lower()}")
     print(f"response_schema_version: {payload['response_schema_version']}")
+    print(
+        "request_record_schema_version: "
+        + str(payload.get("request_record_schema_version", "unknown"))
+    )
+    print(
+        "response_record_schema_version: "
+        + str(payload.get("response_record_schema_version", "unknown"))
+    )
     print("response_format: " + str(response_contract.get("format", "unknown")))
     print(
         "response_required_fields: "
         + ", ".join(response_contract.get("required_fields", []))
+    )
+    print(
+        "response_output_fields: "
+        + ", ".join(response_contract.get("accepted_output_fields", []))
     )
 
 
@@ -2598,6 +2861,19 @@ def main(argv: list[str] | None = None) -> int:
                 "hrc_companion_asset_classification: "
                 + payload["docs"]["hrc_companion_asset_classification"]
             )
+            print(
+                "generation_eval_request_response_contract: "
+                + payload["docs"]["generation_eval_request_response_contract"]
+            )
+            print(
+                "use_cases_and_positioning: "
+                + payload["docs"]["use_cases_and_positioning"]
+            )
+            print(
+                "small_scale_promotion_plan: "
+                + payload["docs"]["small_scale_promotion_plan"]
+            )
+            print("announcement_kit: " + payload["docs"]["announcement_kit"])
             print(f"roadmap: {payload['docs']['roadmap']}")
             print(f"maintenance: {payload['docs']['maintenance']}")
             print(f"llms: {payload['machine_readable_summaries']['llms']}")

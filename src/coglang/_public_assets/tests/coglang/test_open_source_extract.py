@@ -80,12 +80,23 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         destination / "tests" / "coglang" / "test_readable_render_golden_candidates.py"
     ).exists()
     assert (destination / "tests" / "coglang" / "test_schema_versions.py").exists()
+    assert (
+        destination / "tests" / "coglang" / "test_generation_eval_offline_runner.py"
+    ).exists()
+    assert (destination / "tests" / "coglang" / "test_local_ci_script.py").exists()
     assert (destination / "tests" / "coglang" / "test_grammar_examples.py").exists()
+    assert (
+        destination / "tests" / "coglang" / "test_vscode_textmate_syntax_example.py"
+    ).exists()
+    assert (
+        destination / "tests" / "coglang" / "test_semantic_event_audit_example.py"
+    ).exists()
     assert (destination / "tests" / "coglang" / "test_node_host_consumer.py").exists()
     assert (destination / "tests" / "coglang" / "test_node_minimal_host_runtime_stub.py").exists()
     assert (destination / "tests" / "coglang" / "test_public_assets_mirror.py").exists()
     assert (destination / "examples" / "node_host_consumer" / "consume_hrc_envelopes.mjs").exists()
     assert (destination / "examples" / "node_host_consumer" / "README.md").exists()
+    assert (destination / "examples" / "node_host_consumer" / "package.json").exists()
     assert (destination / "examples" / "node_minimal_host_runtime_stub" / "run_demo.mjs").exists()
     assert (destination / "examples" / "node_minimal_host_runtime_stub" / "host_stub.mjs").exists()
     assert (destination / "examples" / "node_minimal_host_runtime_stub" / "runtime_stub.mjs").exists()
@@ -93,6 +104,54 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "examples" / "grammar" / "coglang.lark").exists()
     assert (destination / "examples" / "grammar" / "coglang.gbnf").exists()
     assert (destination / "examples" / "grammar" / "README.md").exists()
+    assert (
+        destination / "examples" / "generation_eval_offline_runner" / "README.md"
+    ).exists()
+    assert (
+        destination
+        / "examples"
+        / "generation_eval_offline_runner"
+        / "mock_responses.py"
+    ).exists()
+    assert (
+        destination
+        / "examples"
+        / "generation_eval_offline_runner"
+        / "fixtures"
+        / "generation_eval_three_case_v0_1.json"
+    ).exists()
+    assert (
+        destination
+        / "examples"
+        / "generation_eval_offline_runner"
+        / "fixtures"
+        / "mock_responses.jsonl"
+    ).exists()
+    assert (destination / "examples" / "vscode_textmate_syntax" / "README.md").exists()
+    assert (destination / "examples" / "vscode_textmate_syntax" / "package.json").exists()
+    assert (
+        destination / "examples" / "vscode_textmate_syntax" / "language-configuration.json"
+    ).exists()
+    assert (
+        destination
+        / "examples"
+        / "vscode_textmate_syntax"
+        / "syntaxes"
+        / "coglang.tmLanguage.json"
+    ).exists()
+    assert (
+        destination / "examples" / "vscode_textmate_syntax" / "samples" / "basic.coglang"
+    ).exists()
+    assert (destination / "examples" / "semantic_event_audit" / "audit_events.py").exists()
+    assert (destination / "examples" / "semantic_event_audit" / "README.md").exists()
+    assert (
+        destination
+        / "examples"
+        / "semantic_event_audit"
+        / "fixtures"
+        / "external_events.jsonl"
+    ).exists()
+    assert (destination / "scripts" / "local_ci.py").exists()
     assert (destination / "CogLang_Operator_Catalog_v1_1_0.md").exists()
     assert (destination / "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md").exists()
     assert (destination / "CogLang_Send_Carry_Forward_Exit_Matrix_v0_1.md").exists()
@@ -103,11 +162,16 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (
         destination / "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md"
     ).exists()
+    assert (
+        destination / "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
+    ).exists()
     assert (destination / "CogLang_Quickstart_v1_1_0.zh-CN.md").exists()
     assert (destination / "CogLang_Specification_v1_1_0_Draft.zh-CN.md").exists()
     assert (destination / "CogLang_Conformance_Suite_v1_1_0.zh-CN.md").exists()
     assert (destination / "CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md").exists()
     assert (destination / "CogLang_Release_Notes_v1_1_0.zh-CN.md").exists()
+    assert (destination / "CogLang_Release_Notes_v1_1_5.md").exists()
+    assert (destination / "CogLang_Release_Notes_v1_1_5.zh-CN.md").exists()
     assert (destination / "CogLang_Release_Notes_v1_1_4.md").exists()
     assert (destination / "CogLang_Release_Notes_v1_1_4.zh-CN.md").exists()
     assert (destination / "CogLang_Release_Notes_v1_1_3.md").exists()
@@ -195,8 +259,37 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_public_assets_mirror.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_readable_render_golden_candidates.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_schema_versions.py").exists()
+    assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_generation_eval_offline_runner.py").exists()
+    assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_local_ci_script.py").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "tests" / "coglang" / "test_grammar_examples.py").exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "tests"
+        / "coglang"
+        / "test_vscode_textmate_syntax_example.py"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "tests"
+        / "coglang"
+        / "test_semantic_event_audit_example.py"
+    ).exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "examples" / "node_host_consumer" / "consume_hrc_envelopes.mjs").exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "examples"
+        / "node_host_consumer"
+        / "package.json"
+    ).exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "examples" / "node_minimal_host_runtime_stub" / "run_demo.mjs").exists()
     assert (
         destination
@@ -206,6 +299,118 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         / "examples"
         / "grammar"
         / "coglang.gbnf"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "examples"
+        / "generation_eval_offline_runner"
+        / "mock_responses.py"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "examples"
+        / "generation_eval_offline_runner"
+        / "fixtures"
+        / "generation_eval_three_case_v0_1.json"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "examples"
+        / "generation_eval_offline_runner"
+        / "fixtures"
+        / "mock_responses.jsonl"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "examples"
+        / "vscode_textmate_syntax"
+        / "README.md"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "examples"
+        / "vscode_textmate_syntax"
+        / "package.json"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "examples"
+        / "vscode_textmate_syntax"
+        / "language-configuration.json"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "examples"
+        / "vscode_textmate_syntax"
+        / "syntaxes"
+        / "coglang.tmLanguage.json"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "examples"
+        / "vscode_textmate_syntax"
+        / "samples"
+        / "basic.coglang"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "examples"
+        / "semantic_event_audit"
+        / "audit_events.py"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "examples"
+        / "semantic_event_audit"
+        / "README.md"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "examples"
+        / "semantic_event_audit"
+        / "fixtures"
+        / "external_events.jsonl"
+    ).exists()
+    assert (
+        destination
+        / "src"
+        / "coglang"
+        / "_public_assets"
+        / "scripts"
+        / "local_ci.py"
     ).exists()
     assert (
         destination
@@ -319,6 +524,10 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         == "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md"
     )
     assert (
+        manifest["docs"]["generation_eval_request_response_contract"]
+        == "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
+    )
+    assert (
         manifest["docs"]["hrc_companion_asset_classification"]
         == "CogLang_HRC_Companion_Asset_Classification_v0_1.md"
     )
@@ -358,6 +567,10 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (
         installed_like_manifest["docs"]["readable_render_api_promotion_checklist"]
         == "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md"
+    )
+    assert (
+        installed_like_manifest["docs"]["generation_eval_request_response_contract"]
+        == "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
     )
     assert (
         installed_like_manifest["docs"]["hrc_companion_asset_classification"]
@@ -419,6 +632,7 @@ def test_contributing_entrypoint_routes_external_host_contributions():
     assert ".github/ISSUE_TEMPLATE/external_host_consumer.yml" in text
     assert "coglang release-check" in text
     assert "coglang public-assets --sync" in text
+    assert "scripts/local_ci.py" in text
     assert "Do not expand HRC v0.2 frozen scope" in text
 
 

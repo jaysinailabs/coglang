@@ -99,6 +99,10 @@ def test_cli_version_output_includes_distribution_and_language_release():
             raise AssertionError("--version should terminate argument parsing")
 
     output = buffer.getvalue().strip()
+    expected_version = tomllib.loads(_PROJECT_PYPROJECT.read_text(encoding="utf-8"))[
+        "project"
+    ]["version"]
+    assert output.startswith(f"coglang {expected_version} ")
     assert output.startswith("coglang ")
     assert f"(language_release {COGLANG_LANGUAGE_RELEASE})" in output
 
@@ -487,6 +491,18 @@ def test_cli_manifest_payload_shape():
     assert payload["docs"]["readable_render_api_promotion_checklist"].endswith(
         "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md"
     )
+    assert payload["docs"]["generation_eval_request_response_contract"].endswith(
+        "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
+    )
+    assert payload["docs"]["use_cases_and_positioning"].endswith(
+        "CogLang_Use_Cases_and_Positioning_v0_1.md"
+    )
+    assert payload["docs"]["small_scale_promotion_plan"].endswith(
+        "CogLang_Small_Scale_Promotion_Plan_v0_1.md"
+    )
+    assert payload["docs"]["announcement_kit"].endswith(
+        "CogLang_Announcement_Kit_v0_1.md"
+    )
     assert payload["docs"]["roadmap"].endswith("ROADMAP.md")
     assert payload["docs"]["maintenance"].endswith("MAINTENANCE.md")
     assert payload["machine_readable_summaries"]["llms"].endswith("llms.txt")
@@ -533,6 +549,24 @@ def test_cli_manifest_payload_shape():
         payload["public_release_surface"]["project_docs"]["hrc_companion_asset_classification"]
         == payload["docs"]["hrc_companion_asset_classification"]
     )
+    assert (
+        payload["public_release_surface"]["project_docs"][
+            "generation_eval_request_response_contract"
+        ]
+        == payload["docs"]["generation_eval_request_response_contract"]
+    )
+    assert (
+        payload["public_release_surface"]["project_docs"]["use_cases_and_positioning"]
+        == payload["docs"]["use_cases_and_positioning"]
+    )
+    assert (
+        payload["public_release_surface"]["project_docs"]["small_scale_promotion_plan"]
+        == payload["docs"]["small_scale_promotion_plan"]
+    )
+    assert (
+        payload["public_release_surface"]["project_docs"]["announcement_kit"]
+        == payload["docs"]["announcement_kit"]
+    )
     assert payload["open_source_boundary"]["schema_version"] == "coglang-open-source-boundary/v0.1"
     assert payload["open_source_boundary"]["public_distribution_name"] == "coglang"
     assert payload["open_source_boundary"]["release_roots_exist"] is True
@@ -560,6 +594,10 @@ def test_cli_manifest_json_output():
     assert '"readable_render_golden_examples"' in output
     assert '"readable_render_api_promotion_checklist"' in output
     assert '"hrc_companion_asset_classification"' in output
+    assert '"generation_eval_request_response_contract"' in output
+    assert '"use_cases_and_positioning"' in output
+    assert '"small_scale_promotion_plan"' in output
+    assert '"announcement_kit"' in output
     assert '"open_source_boundary"' in output
     assert '"minimal_ci_baseline"' in output
     assert '"public_repo_extract_manifest"' in output
@@ -617,6 +655,26 @@ def test_cli_manifest_text_output():
     assert (
         f"hrc_companion_asset_classification: "
         f"{_path_in_layout('CogLang_HRC_Companion_Asset_Classification_v0_1.md', 'CogLang_HRC_Companion_Asset_Classification_v0_1.md')}"
+        in output
+    )
+    assert (
+        f"generation_eval_request_response_contract: "
+        f"{_path_in_layout('CogLang_Generation_Eval_Request_Response_Contract_v0_1.md', 'CogLang_Generation_Eval_Request_Response_Contract_v0_1.md')}"
+        in output
+    )
+    assert (
+        f"use_cases_and_positioning: "
+        f"{_path_in_layout('CogLang_Use_Cases_and_Positioning_v0_1.md', 'CogLang_Use_Cases_and_Positioning_v0_1.md')}"
+        in output
+    )
+    assert (
+        f"small_scale_promotion_plan: "
+        f"{_path_in_layout('CogLang_Small_Scale_Promotion_Plan_v0_1.md', 'CogLang_Small_Scale_Promotion_Plan_v0_1.md')}"
+        in output
+    )
+    assert (
+        f"announcement_kit: "
+        f"{_path_in_layout('CogLang_Announcement_Kit_v0_1.md', 'CogLang_Announcement_Kit_v0_1.md')}"
         in output
     )
     assert f"maintenance: {_path_in_layout('MAINTENANCE.md', 'MAINTENANCE.md')}" in output
@@ -691,6 +749,36 @@ def test_cli_bundle_payload_shape():
         _path_in_layout(
             "CogLang_HRC_Companion_Asset_Classification_v0_1.md",
             "CogLang_HRC_Companion_Asset_Classification_v0_1.md",
+        )
+    )
+    assert payload["public_release_surface"]["project_docs"][
+        "generation_eval_request_response_contract"
+    ].endswith(
+        _path_in_layout(
+            "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
+            "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
+        )
+    )
+    assert payload["public_release_surface"]["project_docs"][
+        "use_cases_and_positioning"
+    ].endswith(
+        _path_in_layout(
+            "CogLang_Use_Cases_and_Positioning_v0_1.md",
+            "CogLang_Use_Cases_and_Positioning_v0_1.md",
+        )
+    )
+    assert payload["public_release_surface"]["project_docs"][
+        "small_scale_promotion_plan"
+    ].endswith(
+        _path_in_layout(
+            "CogLang_Small_Scale_Promotion_Plan_v0_1.md",
+            "CogLang_Small_Scale_Promotion_Plan_v0_1.md",
+        )
+    )
+    assert payload["public_release_surface"]["project_docs"]["announcement_kit"].endswith(
+        _path_in_layout(
+            "CogLang_Announcement_Kit_v0_1.md",
+            "CogLang_Announcement_Kit_v0_1.md",
         )
     )
     assert payload["open_source_boundary"]["repository_strategy"] == "standalone_repository"
@@ -929,9 +1017,26 @@ def test_cli_generation_eval_export_requests_json_output():
     assert payload["response_schema_version"] == (
         "coglang-generation-eval-response-batch/v0.1"
     )
+    assert payload["request_record_schema_version"] == (
+        "coglang-generation-eval-request/v0.1"
+    )
+    assert payload["response_record_schema_version"] == (
+        "coglang-generation-eval-response/v0.1"
+    )
     assert payload["case_count"] == 50
     assert payload["include_reference"] is False
-    assert payload["response_contract"]["required_fields"] == ["case_id", "output"]
+    assert payload["response_contract"]["required_fields"] == [
+        "schema_version",
+        "case_id",
+    ]
+    assert payload["response_contract"]["accepted_output_fields"] == [
+        "output",
+        "text",
+        "completion",
+    ]
+    assert payload["requests"][0]["schema_version"] == (
+        "coglang-generation-eval-request/v0.1"
+    )
     assert payload["requests"][0]["case_id"] == "L1-001"
     assert "reference_expr" not in payload["requests"][0]
 
@@ -955,6 +1060,7 @@ def test_cli_generation_eval_export_requests_jsonl_output():
 
     assert code == 0
     assert len(records) == 50
+    assert records[0]["schema_version"] == "coglang-generation-eval-request/v0.1"
     assert records[0]["case_id"] == "L1-001"
     assert "reference_expr" not in records[0]
 
@@ -972,7 +1078,16 @@ def test_cli_generation_eval_export_requests_text_output():
         "response_schema_version: coglang-generation-eval-response-batch/v0.1"
         in output
     )
-    assert "response_required_fields: case_id, output" in output
+    assert (
+        "request_record_schema_version: coglang-generation-eval-request/v0.1"
+        in output
+    )
+    assert (
+        "response_record_schema_version: coglang-generation-eval-response/v0.1"
+        in output
+    )
+    assert "response_required_fields: schema_version, case_id" in output
+    assert "response_output_fields: output, text, completion" in output
 
 
 def test_cli_generation_eval_responses_file_json_output(tmp_path):
@@ -1766,7 +1881,13 @@ def test_cli_release_check_payload_shape():
     assert any(item["name"] == "formal_open_source_readiness" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "preflight_fixture" and item["ok"] is True for item in payload["checks"])
     assert any(item["name"] == "generation_eval" and item["ok"] is True for item in payload["checks"])
-    assert any(item["name"] == "node_host_consumer" and item["ok"] is True for item in payload["checks"])
+    assert any(
+        item["name"] == "node_host_consumer"
+        and item["ok"] is True
+        and item["detail"]
+        == "examples/node_host_consumer + private npm scaffold + package data"
+        for item in payload["checks"]
+    )
     assert any(
         item["name"] == "node_minimal_host_runtime_stub"
         and item["ok"] is True
@@ -1774,6 +1895,33 @@ def test_cli_release_check_payload_shape():
     )
     assert any(
         item["name"] == "grammar_examples"
+        and item["ok"] is True
+        for item in payload["checks"]
+    )
+    assert any(
+        item["name"] == "vscode_textmate_syntax"
+        and item["ok"] is True
+        for item in payload["checks"]
+    )
+    assert any(
+        item["name"] == "generation_eval_offline_runner"
+        and item["ok"] is True
+        for item in payload["checks"]
+    )
+    assert any(
+        item["name"] == "semantic_event_audit_example"
+        and item["ok"] is True
+        and item["detail"]
+        == "examples/semantic_event_audit + fixture + package data"
+        for item in payload["checks"]
+    )
+    assert any(
+        item["name"] == "generation_eval_file_contract"
+        and item["ok"] is True
+        for item in payload["checks"]
+    )
+    assert any(
+        item["name"] == "local_ci_simulation"
         and item["ok"] is True
         for item in payload["checks"]
     )
@@ -1829,6 +1977,7 @@ def test_cli_release_check_json_output():
     assert '"readable_render_golden_examples"' in output
     assert '"readable_render_api_promotion_checklist"' in output
     assert '"hrc_companion_asset_classification"' in output
+    assert '"generation_eval_file_contract"' in output
     assert '"open_source_boundary"' in output
     assert '"minimal_ci_baseline"' in output
     assert '"public_repo_extract_manifest"' in output
@@ -1839,6 +1988,10 @@ def test_cli_release_check_json_output():
     assert '"node_host_consumer"' in output
     assert '"node_minimal_host_runtime_stub"' in output
     assert '"grammar_examples"' in output
+    assert '"vscode_textmate_syntax"' in output
+    assert '"generation_eval_offline_runner"' in output
+    assert '"semantic_event_audit_example"' in output
+    assert '"local_ci_simulation"' in output
     assert '"executor_interface"' in output
 
 
@@ -1873,6 +2026,7 @@ def test_cli_release_check_text_output():
         "hrc_companion_asset_classification: ok "
         "(HRC companion asset classification + package data)" in output
     )
+    assert "generation_eval_file_contract: ok " in output
     assert (
         f"open_source_boundary: ok "
         f"({_path_in_layout('CogLang_Open_Source_Boundary_v0_1.json', 'CogLang_Open_Source_Boundary_v0_1.json')})"
@@ -1896,12 +2050,32 @@ def test_cli_release_check_text_output():
     assert "formal_open_source_readiness: ok (ready-for-formal-open-source-candidate-decision)" in output
     assert "preflight_fixture: ok (9 cases)" in output
     assert "generation_eval: ok (50 cases)" in output
-    assert "node_host_consumer: ok (examples/node_host_consumer + package data)" in output
+    assert (
+        "node_host_consumer: ok "
+        "(examples/node_host_consumer + private npm scaffold + package data)"
+        in output
+    )
     assert (
         "node_minimal_host_runtime_stub: ok "
         "(examples/node_minimal_host_runtime_stub + package data)" in output
     )
     assert "grammar_examples: ok (examples/grammar + package data)" in output
+    assert (
+        "vscode_textmate_syntax: ok "
+        "(examples/vscode_textmate_syntax + package data)" in output
+    )
+    assert (
+        "generation_eval_offline_runner: ok "
+        "(examples/generation_eval_offline_runner + fixture + package data)" in output
+    )
+    assert (
+        "semantic_event_audit_example: ok "
+        "(examples/semantic_event_audit + fixture + package data)" in output
+    )
+    assert (
+        "local_ci_simulation: ok "
+        "(scripts/local_ci.py + package data)" in output
+    )
     assert "executor_interface: ok (abstract_methods=execute,validate)" in output
 
 
@@ -1984,15 +2158,24 @@ def test_cli_minimal_ci_baseline_payload_shape():
         ".github/workflows/ci.yml",
     }
     assert payload["workflow_template_present"] is True
+    assert payload["workflow_template"]["trigger"] == (
+        "manual workflow_dispatch for pre-merge or release-preparation evidence"
+    )
+    assert payload["workflow_manual_trigger_present"] is True
     assert payload["publish_workflow_template_path"] in {
         "CogLang_Public_PyPI_Publish_Workflow_v0_1.yml",
         ".github/workflows/publish.yml",
     }
     assert payload["publish_workflow_template_present"] is True
     assert payload["publish_workflow_required_snippets_present"] is True
+    assert payload["publish_workflow_required_action_refs"] == [
+        "actions/checkout@v4",
+        "actions/setup-python@v5",
+    ]
+    assert payload["publish_workflow_required_action_refs_present"] is True
     assert payload["stable_release_policy"] == {
         "stable_language_tag": "v1.1.0",
-        "stable_python_distribution_version": "1.1.4",
+        "stable_python_distribution_version": "1.1.5",
         "package_index": "PyPI",
         "pypi_project": "coglang",
         "trusted_publishing": True,
@@ -2003,6 +2186,15 @@ def test_cli_minimal_ci_baseline_payload_shape():
     assert payload["required_packaging_check_names_present"] is True
     assert payload["workflow_required_step_names_present"] is True
     assert payload["workflow_required_smoke_snippets_present"] is True
+    assert payload["workflow_required_action_refs"] == [
+        "actions/checkout@v4",
+        "actions/setup-python@v5",
+    ]
+    assert payload["workflow_required_action_refs_present"] is True
+    assert payload["local_ci_script_path"] == "scripts/local_ci.py"
+    assert payload["local_ci_script_present"] is True
+    assert payload["local_ci_profiles"] == ["quick", "ci", "package"]
+    assert payload["local_ci_profiles_present"] is True
     assert payload["public_entrypoint_only"] is True
     assert payload["required_command_names"] == [
         "bundle",
@@ -2050,7 +2242,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 63
+    assert payload["entry_count"] == 73
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -2075,7 +2267,9 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "test_executor_interface.py" in tree_entries["tests/coglang"]["include"]
     assert "test_generation_eval.py" in tree_entries["tests/coglang"]["include"]
     assert "test_generation_eval_adapters.py" in tree_entries["tests/coglang"]["include"]
+    assert "test_generation_eval_offline_runner.py" in tree_entries["tests/coglang"]["include"]
     assert "test_grammar_examples.py" in tree_entries["tests/coglang"]["include"]
+    assert "test_local_ci_script.py" in tree_entries["tests/coglang"]["include"]
     assert "test_node_host_consumer.py" in tree_entries["tests/coglang"]["include"]
     assert "test_node_minimal_host_runtime_stub.py" in tree_entries["tests/coglang"]["include"]
     assert "test_preflight.py" in tree_entries["tests/coglang"]["include"]
@@ -2084,6 +2278,14 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         in tree_entries["tests/coglang"]["include"]
     )
     assert "test_schema_versions.py" in tree_entries["tests/coglang"]["include"]
+    assert (
+        "test_semantic_event_audit_example.py"
+        in tree_entries["tests/coglang"]["include"]
+    )
+    assert (
+        "test_vscode_textmate_syntax_example.py"
+        in tree_entries["tests/coglang"]["include"]
+    )
     assert "examples/node_host_consumer" in [
         item["source"] for item in payload["entries"]
     ]
@@ -2091,6 +2293,18 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "examples/grammar" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "examples/generation_eval_offline_runner" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "examples/semantic_event_audit" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "examples/vscode_textmate_syntax" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "scripts" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Operator_Catalog_v1_1_0.md" in [
@@ -2111,6 +2325,18 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md" in [
         item["source"] for item in payload["entries"]
     ]
+    assert "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Use_Cases_and_Positioning_v0_1.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Small_Scale_Promotion_Plan_v0_1.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Announcement_Kit_v0_1.md" in [
+        item["source"] for item in payload["entries"]
+    ]
     assert "CogLang_Quickstart_v1_1_0.zh-CN.md" in [
         item["source"] for item in payload["entries"]
     ]
@@ -2121,6 +2347,12 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Release_Notes_v1_1_0.zh-CN.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Release_Notes_v1_1_5.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "CogLang_Release_Notes_v1_1_5.zh-CN.md" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Release_Notes_v1_1_4.md" in [
@@ -2216,7 +2448,7 @@ def test_cli_formal_open_source_readiness_payload_shape():
     ]
     assert (
         payload["gates"][0]["detail"]
-        == "public docs set + operator/render governance"
+        == "public docs set + operator/render/eval governance"
     )
     assert (
         payload["gates"][-1]["detail"]

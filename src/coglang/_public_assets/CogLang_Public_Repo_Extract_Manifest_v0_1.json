@@ -45,10 +45,12 @@
         "test_graph_ops.py",
         "test_generation_eval.py",
         "test_generation_eval_adapters.py",
+        "test_generation_eval_offline_runner.py",
         "test_grammar_examples.py",
         "test_host_runtime_schema_seeds.py",
         "test_integration.py",
         "test_local_host.py",
+        "test_local_ci_script.py",
         "test_node_host_consumer.py",
         "test_node_minimal_host_runtime_stub.py",
         "test_open_source_extract.py",
@@ -58,8 +60,10 @@
         "test_public_assets_mirror.py",
         "test_readable_render_golden_candidates.py",
         "test_schema_versions.py",
+        "test_semantic_event_audit_example.py",
         "test_unify.py",
-        "test_validator.py"
+        "test_validator.py",
+        "test_vscode_textmate_syntax_example.py"
       ]
     },
     {
@@ -81,6 +85,26 @@
       "kind": "tree",
       "source": "examples/grammar",
       "destination": "examples/grammar"
+    },
+    {
+      "kind": "tree",
+      "source": "examples/generation_eval_offline_runner",
+      "destination": "examples/generation_eval_offline_runner"
+    },
+    {
+      "kind": "tree",
+      "source": "examples/semantic_event_audit",
+      "destination": "examples/semantic_event_audit"
+    },
+    {
+      "kind": "tree",
+      "source": "examples/vscode_textmate_syntax",
+      "destination": "examples/vscode_textmate_syntax"
+    },
+    {
+      "kind": "tree",
+      "source": "scripts",
+      "destination": "scripts"
     },
     {
       "kind": "file",
@@ -234,6 +258,26 @@
     },
     {
       "kind": "file",
+      "source": "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
+      "destination": "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
+    },
+    {
+      "kind": "file",
+      "source": "CogLang_Use_Cases_and_Positioning_v0_1.md",
+      "destination": "CogLang_Use_Cases_and_Positioning_v0_1.md"
+    },
+    {
+      "kind": "file",
+      "source": "CogLang_Small_Scale_Promotion_Plan_v0_1.md",
+      "destination": "CogLang_Small_Scale_Promotion_Plan_v0_1.md"
+    },
+    {
+      "kind": "file",
+      "source": "CogLang_Announcement_Kit_v0_1.md",
+      "destination": "CogLang_Announcement_Kit_v0_1.md"
+    },
+    {
+      "kind": "file",
       "source": "CogLang_Profiles_and_Capabilities_v1_1_0.md",
       "destination": "CogLang_Profiles_and_Capabilities_v1_1_0.md"
     },
@@ -261,6 +305,16 @@
       "kind": "file",
       "source": "CogLang_Release_Notes_v1_1_0.zh-CN.md",
       "destination": "CogLang_Release_Notes_v1_1_0.zh-CN.md"
+    },
+    {
+      "kind": "file",
+      "source": "CogLang_Release_Notes_v1_1_5.md",
+      "destination": "CogLang_Release_Notes_v1_1_5.md"
+    },
+    {
+      "kind": "file",
+      "source": "CogLang_Release_Notes_v1_1_5.zh-CN.md",
+      "destination": "CogLang_Release_Notes_v1_1_5.zh-CN.md"
     },
     {
       "kind": "file",

@@ -11,10 +11,10 @@ Current status:
 - active experimental maintenance for host/runtime ecosystem work
 - HRC v0.2 frozen only for the narrow typed write-envelope host bridge
 
-Current public language release: `v1.1.0`. Current Python distribution version: `1.1.4`. Source HEAD may include unreleased maintenance changes after `1.1.4`; package release notes define what is available from PyPI.
-HRC v0.2 is frozen for the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`. A minimal Node.js standard-library consumer under `examples/node_host_consumer` reads the HRC schema pack and envelope samples without importing the Python runtime. An experimental in-repository Node.js minimal host/runtime stub under `examples/node_minimal_host_runtime_stub` is post-freeze example evidence, not an HRC scope expansion.
+Current public language release: `v1.1.0`. Current source Python distribution version: `1.1.5`. Package release notes define what is available from PyPI; source HEAD may be prepared before the remote release workflow is triggered.
+HRC v0.2 is frozen for the narrow typed write-envelope surface demonstrated by `coglang host-demo` and `coglang reference-host-demo`. A minimal Node.js standard-library consumer under `examples/node_host_consumer` reads the HRC schema pack and envelope samples without importing the Python runtime. Its private npm scaffold is local example packaging evidence, not a published JavaScript SDK. An experimental in-repository Node.js minimal host/runtime stub under `examples/node_minimal_host_runtime_stub` is post-freeze example evidence, not an HRC scope expansion.
 
-This file is for LLM-oriented retrieval and summarization. It is not the release contract. For package patch notes, use `CogLang_Release_Notes_v1_1_4.md`; for stable language commitments, use `CogLang_Release_Notes_v1_1_0.md`.
+This file is for LLM-oriented retrieval and summarization. It is not the release contract. For package patch notes, use `CogLang_Release_Notes_v1_1_5.md`; for stable language commitments, use `CogLang_Release_Notes_v1_1_0.md`.
 
 ## What CogLang Is For
 
@@ -59,6 +59,13 @@ inspectable symbolic graph intent or host-visible graph outcome. Use other
 systems for raw activations, infrastructure telemetry, routing scores, and
 causal intervention results.
 
+`examples/semantic_event_audit` provides the first small companion example for
+this role. It reads external runner graph-intent JSONL, parses and preflights
+each CogLang expression, and writes local audit records with canonical
+expression text, expression hash, preflight decision, and a derived action:
+`allow`, `queue_review`, or `reject`. It does not call provider SDKs, execute a
+host, submit HRC envelopes, define a stable event schema, or expand HRC v0.2.
+
 ## Key Design Choices
 
 1. Canonical M-expression text
@@ -99,7 +106,9 @@ surface for every implementation. `coglang release-check` includes an
 8. Non-Python example evidence
 
 `examples/node_host_consumer` shows that Node.js standard-library tooling can
-read the HRC schema pack and envelope samples. `examples/node_minimal_host_runtime_stub`
+read the HRC schema pack and envelope samples. Its private npm scaffold supports
+local `npm test` and `npm pack --dry-run` checks, but is not a published
+JavaScript SDK or runtime API. `examples/node_minimal_host_runtime_stub`
 adds a small in-repository Node.js stub for tiny `execute` / `validate` behavior
 and typed write-envelope success/failure paths. It is companion evidence, not a
 new frozen HRC requirement.
@@ -139,10 +148,13 @@ coglang execute 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
 coglang preflight --format text 'AllNodes[]'
 coglang generation-eval --summary-only
 coglang generation-eval --export-requests --request-format jsonl
+python scripts/local_ci.py --profile quick
 coglang demo
 coglang host-demo
 coglang reference-host-demo
+python examples/semantic_event_audit/audit_events.py examples/semantic_event_audit/fixtures/external_events.jsonl .tmp_semantic_event_audit.jsonl
 node examples/node_host_consumer/consume_hrc_envelopes.mjs
+npm --prefix examples/node_host_consumer test
 node examples/node_minimal_host_runtime_stub/run_demo.mjs
 ```
 
@@ -164,10 +176,43 @@ coglang generation-eval --format text
 ```
 
 The request/response adapter is provider-neutral: it writes prompt records for
-an external runner and imports returned JSON or JSONL records with `case_id` and
-`output` fields. It does not call OpenAI, Anthropic, Ollama, or any other model
+an external runner and imports returned JSON or JSONL records with
+`schema_version`, `case_id`, and `output` fields. It does not call OpenAI,
+Anthropic, Ollama, or any other model
 provider directly. The default fixture currently contains 50 cases. `coglang
 release-check` verifies that the packaged fixture is present and loadable.
+`examples/generation_eval_offline_runner` provides a no-provider dry run of the
+same response-file contract, plus a three-case contract-smoke fixture under
+`examples/generation_eval_offline_runner/fixtures`.
+
+The versioned file boundary is documented in
+`CogLang_Generation_Eval_Request_Response_Contract_v0_1.md`. Request records use
+`coglang-generation-eval-request/v0.1`; response records use
+`coglang-generation-eval-response/v0.1`. New runners should include per-record
+`schema_version` values, while the scorer accepts omitted response
+`schema_version` values for transition compatibility.
+
+## Editor Syntax Companion
+
+`examples/vscode_textmate_syntax` provides a private, local-installable
+VS Code/TextMate syntax package for `.coglang` files. It is companion
+developer-experience material only: it is not a parser, validator, LSP,
+formatter, renderer, or normative grammar, and it does not replace `parse`,
+`valid_coglang`, preflight, or host-runtime checks.
+
+## Local CI Simulation
+
+The GitHub `ci` workflow is manually triggered to conserve Actions minutes.
+Use `scripts/local_ci.py` for local-first validation:
+
+```powershell
+python scripts/local_ci.py --profile quick
+python scripts/local_ci.py --profile ci
+python scripts/local_ci.py --profile package
+```
+
+The script only orchestrates existing release-facing commands. It is a
+contributor and maintainer workflow helper, not a new public `coglang` command.
 
 ## Document Entry Points
 
@@ -203,12 +248,21 @@ release-check` verifies that the packaged fixture is present and loadable.
   Host-runtime contract v0.2 frozen scope and evidence.
 - `CogLang_HRC_v0_2_Freeze_Candidate_2026_04_28.md`
   Prior freeze-candidate review record.
+- `CogLang_Release_Notes_v1_1_5.md`
 - `CogLang_Release_Notes_v1_1_4.md`
 - `CogLang_Release_Notes_v1_1_3.md`
 - `CogLang_Release_Notes_v1_1_2.md`
 - `CogLang_Release_Notes_v1_1_1.md`
 - `CogLang_Release_Notes_v1_1_0.md`
   Current promises and non-promises.
+- `CogLang_Generation_Eval_Request_Response_Contract_v0_1.md`
+  Provider-neutral request/response file contract for external generation-eval runners.
+- `CogLang_Use_Cases_and_Positioning_v0_1.md`
+  Best-fit scenarios, advantages, comparison notes, non-goals, and first-try commands for humans and LLM-assisted readers.
+- `CogLang_Small_Scale_Promotion_Plan_v0_1.md`
+  Evidence-first promotion plan for finding external runner, host, grammar, audit, or editor contributors without broad marketing claims.
+- `CogLang_Announcement_Kit_v0_1.md`
+  Reusable outreach copy blocks and posting checklists for small-scale technical promotion.
 - `CogLang_Vision_Proposal_v0_1.md`
   Long-term capability proposal, including v1.2 candidate themes, graph-compute governance, and AI learning maturity.
 - `CogLang_v1_2_Evolution_Boundary_Proposal_v0_1.md`
@@ -221,6 +275,10 @@ release-check` verifies that the packaged fixture is present and loadable.
   GitHub-facing contribution entry point and validation route.
 - `examples/grammar`
   Companion Lark and GBNF grammar examples for constrained generation; not a normative parser or validator.
+- `examples/semantic_event_audit`
+  Companion semantic-event audit example; not a stable event schema, hosted runner, provider SDK integration, transport envelope, or HRC expansion.
+- `examples/vscode_textmate_syntax`
+  Companion VS Code/TextMate syntax highlighting for `.coglang` files; not a parser, validator, LSP, formatter, renderer, or normative grammar.
 - `ROADMAP.md`
   Current direction layer, not a release guarantee.
 - `MAINTENANCE.md`

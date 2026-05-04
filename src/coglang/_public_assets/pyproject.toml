@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "coglang"
-version = "1.1.4"
+version = "1.1.5"
 description = "Graph-first intermediate language for auditable LLM-generated graph queries and updates"
 readme = "README.md"
 authors = [{ name = "Jason Xin" }]
@@ -80,12 +80,18 @@ coglang = [
     "_public_assets/CogLang_Readable_Render_Boundary_v0_1.md",
     "_public_assets/CogLang_Readable_Render_Golden_Example_Candidates_v0_1.md",
     "_public_assets/CogLang_Readable_Render_API_Promotion_Checklist_v0_1.md",
+    "_public_assets/CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
+    "_public_assets/CogLang_Use_Cases_and_Positioning_v0_1.md",
+    "_public_assets/CogLang_Small_Scale_Promotion_Plan_v0_1.md",
+    "_public_assets/CogLang_Announcement_Kit_v0_1.md",
     "_public_assets/CogLang_Profiles_and_Capabilities_v1_1_0.md",
     "_public_assets/CogLang_Profiles_and_Capabilities_v1_1_0.zh-CN.md",
     "_public_assets/CogLang_Standalone_Install_and_Release_Guide_v0_1.md",
     "_public_assets/CogLang_Standalone_Install_and_Release_Guide_v0_1.zh-CN.md",
     "_public_assets/CogLang_Release_Notes_v1_1_0.md",
     "_public_assets/CogLang_Release_Notes_v1_1_0.zh-CN.md",
+    "_public_assets/CogLang_Release_Notes_v1_1_5.md",
+    "_public_assets/CogLang_Release_Notes_v1_1_5.zh-CN.md",
     "_public_assets/CogLang_Release_Notes_v1_1_4.md",
     "_public_assets/CogLang_Release_Notes_v1_1_4.zh-CN.md",
     "_public_assets/CogLang_Release_Notes_v1_1_3.md",
@@ -123,4 +129,12 @@ coglang = [
     "_public_assets/examples/node_host_consumer/*",
     "_public_assets/examples/node_minimal_host_runtime_stub/*",
     "_public_assets/examples/grammar/*",
+    "_public_assets/examples/generation_eval_offline_runner/*",
+    "_public_assets/examples/generation_eval_offline_runner/fixtures/*",
+    "_public_assets/examples/semantic_event_audit/*",
+    "_public_assets/examples/semantic_event_audit/fixtures/*",
+    "_public_assets/examples/vscode_textmate_syntax/*",
+    "_public_assets/examples/vscode_textmate_syntax/samples/*",
+    "_public_assets/examples/vscode_textmate_syntax/syntaxes/*",
+    "_public_assets/scripts/*",
 ]

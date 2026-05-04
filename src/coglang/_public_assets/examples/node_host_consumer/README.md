@@ -22,6 +22,20 @@ The script uses only Node standard-library modules. A successful run prints a
 JSON summary with `ok: true`, the schema pack id, schema/sample counts, and the
 checks that were applied.
 
+## Local npm Scaffold
+
+This directory also includes a private package scaffold for local Node tooling
+checks:
+
+```powershell
+npm --prefix examples/node_host_consumer test
+npm --prefix examples/node_host_consumer run pack:dry
+```
+
+The package is intentionally `private: true` and versioned `0.0.0`. It is an
+example packaging shell for local validation, not a published npm package, not a
+stable JavaScript SDK, and not a second CogLang runtime API.
+
 This is intentionally a consumer demo, not a second runtime implementation. Its
 purpose is to keep the HRC envelope surface consumable from a non-Python host
 tool while the full multi-host conformance story remains on the roadmap.

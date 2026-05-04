@@ -1,0 +1,30 @@
+{
+  "name": "coglang-syntax-companion",
+  "displayName": "CogLang Syntax Companion",
+  "description": "Companion TextMate syntax highlighting for CogLang M-expression files.",
+  "version": "0.0.0",
+  "publisher": "jaysinailabs",
+  "private": true,
+  "license": "Apache-2.0",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Programming Languages"],
+  "contributes": {
+    "languages": [
+      {
+        "id": "coglang",
+        "aliases": ["CogLang", "coglang"],
+        "extensions": [".coglang"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "coglang",
+        "scopeName": "source.coglang",
+        "path": "./syntaxes/coglang.tmLanguage.json"
+      }
+    ]
+  }
+}

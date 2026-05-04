@@ -4,7 +4,8 @@
   "intent": "release-facing verification baseline",
   "workflow_template": {
     "source": ".github/workflows/ci.yml",
-    "destination": ".github/workflows/ci.yml"
+    "destination": ".github/workflows/ci.yml",
+    "trigger": "manual workflow_dispatch for pre-merge or release-preparation evidence"
   },
   "publish_workflow_template": {
     "source": ".github/workflows/publish.yml",
@@ -15,13 +16,22 @@
   },
   "stable_release_policy": {
     "stable_language_tag": "v1.1.0",
-    "stable_python_distribution_version": "1.1.4",
+    "stable_python_distribution_version": "1.1.5",
     "package_index": "PyPI",
     "pypi_project": "coglang",
     "trusted_publishing": true,
     "long_lived_api_token": false,
     "pre_releases_are_github_only": true
   },
+  "local_simulation": {
+    "script": "scripts/local_ci.py",
+    "profiles": ["quick", "ci", "package"],
+    "intent": "local-first validation before maintainer-triggered remote workflow evidence"
+  },
+  "workflow_action_refs": [
+    "actions/checkout@v4",
+    "actions/setup-python@v5"
+  ],
   "commands": [
     {
       "name": "bundle",

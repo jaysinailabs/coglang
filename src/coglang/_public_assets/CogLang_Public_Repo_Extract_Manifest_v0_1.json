@@ -55,6 +55,7 @@
         "test_local_ci_script.py",
         "test_node_host_consumer.py",
         "test_node_minimal_host_runtime_stub.py",
+        "test_outlines_generation_bridge_example.py",
         "test_open_source_extract.py",
         "test_package_layout.py",
         "test_parser.py",
@@ -107,6 +108,11 @@
       "kind": "tree",
       "source": "examples/lightrag_audit_bridge",
       "destination": "examples/lightrag_audit_bridge"
+    },
+    {
+      "kind": "tree",
+      "source": "examples/outlines_generation_bridge",
+      "destination": "examples/outlines_generation_bridge"
     },
     {
       "kind": "tree",

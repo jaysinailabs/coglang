@@ -51,6 +51,12 @@ SEMANTIC_EVENT_AUDIT_DEMO_SCHEMA_VERSION = (
 SEMANTIC_EVENT_AUDIT_RECORD_DEMO_SCHEMA_VERSION = (
     "coglang-semantic-event-audit-record-demo/v0.1"
 )
+GITNEXUS_AUDIT_BRIDGE_DEMO_SCHEMA_VERSION = (
+    "coglang-gitnexus-audit-bridge-demo/v0.1"
+)
+GITNEXUS_AUDIT_BRIDGE_RECORD_DEMO_SCHEMA_VERSION = (
+    "coglang-gitnexus-audit-bridge-record-demo/v0.1"
+)
 HOST_RUNTIME_SCHEMA_PACK_ID = "urn:coglang:host-runtime-schema-pack:v0.1"
 
 SCHEMA_VERSION_REGISTRY = MappingProxyType(
@@ -93,6 +99,10 @@ SCHEMA_VERSION_REGISTRY = MappingProxyType(
         "semantic_event_audit_record_demo": (
             SEMANTIC_EVENT_AUDIT_RECORD_DEMO_SCHEMA_VERSION
         ),
+        "gitnexus_audit_bridge_demo": GITNEXUS_AUDIT_BRIDGE_DEMO_SCHEMA_VERSION,
+        "gitnexus_audit_bridge_record_demo": (
+            GITNEXUS_AUDIT_BRIDGE_RECORD_DEMO_SCHEMA_VERSION
+        ),
         "host_runtime_schema_pack": HOST_RUNTIME_SCHEMA_PACK_ID,
     }
 )
@@ -107,6 +117,8 @@ __all__ = [
     "GENERATION_EVAL_RESPONSE_BATCH_SCHEMA_VERSION",
     "GENERATION_EVAL_RESPONSE_SCHEMA_VERSION",
     "GENERATION_EVAL_RESULT_SCHEMA_VERSION",
+    "GITNEXUS_AUDIT_BRIDGE_DEMO_SCHEMA_VERSION",
+    "GITNEXUS_AUDIT_BRIDGE_RECORD_DEMO_SCHEMA_VERSION",
     "GRAPH_BUDGET_ESTIMATE_SCHEMA_VERSION",
     "GRAPH_BUDGET_SCHEMA_VERSION",
     "HOST_DEMO_SCHEMA_VERSION",

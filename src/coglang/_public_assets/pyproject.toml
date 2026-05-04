@@ -133,6 +133,8 @@ coglang = [
     "_public_assets/examples/generation_eval_offline_runner/fixtures/*",
     "_public_assets/examples/semantic_event_audit/*",
     "_public_assets/examples/semantic_event_audit/fixtures/*",
+    "_public_assets/examples/gitnexus_audit_bridge/*",
+    "_public_assets/examples/gitnexus_audit_bridge/fixtures/*",
     "_public_assets/examples/vscode_textmate_syntax/*",
     "_public_assets/examples/vscode_textmate_syntax/samples/*",
     "_public_assets/examples/vscode_textmate_syntax/syntaxes/*",

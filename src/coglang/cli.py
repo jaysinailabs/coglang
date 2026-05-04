@@ -1157,6 +1157,15 @@ def _release_check_payload() -> dict[str, Any]:
     semantic_event_audit_fixture_path, _ = _resolve_project_artifact(
         "examples/semantic_event_audit/fixtures/external_events.jsonl",
     )
+    gitnexus_audit_bridge_script_path, _ = _resolve_project_artifact(
+        "examples/gitnexus_audit_bridge/gitnexus_audit_bridge.py",
+    )
+    gitnexus_audit_bridge_readme_path, _ = _resolve_project_artifact(
+        "examples/gitnexus_audit_bridge/README.md",
+    )
+    gitnexus_audit_bridge_fixture_path, _ = _resolve_project_artifact(
+        "examples/gitnexus_audit_bridge/fixtures/gitnexus_tool_events.jsonl",
+    )
     local_ci_script_path, _ = _resolve_project_artifact("scripts/local_ci.py")
     license_path, _ = _resolve_project_artifact("LICENSE")
 
@@ -1228,6 +1237,12 @@ def _release_check_payload() -> dict[str, Any]:
     )
     semantic_event_audit_fixtures_packaged = (
         "_public_assets/examples/semantic_event_audit/fixtures/*" in package_data
+    )
+    gitnexus_audit_bridge_packaged = (
+        "_public_assets/examples/gitnexus_audit_bridge/*" in package_data
+    )
+    gitnexus_audit_bridge_fixtures_packaged = (
+        "_public_assets/examples/gitnexus_audit_bridge/fixtures/*" in package_data
     )
     local_ci_script_packaged = "_public_assets/scripts/*" in package_data
     reserved_operator_promotion_criteria_packaged = (
@@ -1524,6 +1539,17 @@ def _release_check_payload() -> dict[str, Any]:
                 and semantic_event_audit_fixtures_packaged
             ),
             "detail": "examples/semantic_event_audit + fixture + package data",
+        },
+        {
+            "name": "gitnexus_audit_bridge_example",
+            "ok": (
+                gitnexus_audit_bridge_script_path.exists()
+                and gitnexus_audit_bridge_readme_path.exists()
+                and gitnexus_audit_bridge_fixture_path.exists()
+                and gitnexus_audit_bridge_packaged
+                and gitnexus_audit_bridge_fixtures_packaged
+            ),
+            "detail": "examples/gitnexus_audit_bridge + fixture + package data",
         },
         {
             "name": "local_ci_simulation",

@@ -23,6 +23,8 @@ from coglang.schema_versions import (
     GENERATION_EVAL_RESPONSE_BATCH_SCHEMA_VERSION,
     GENERATION_EVAL_RESPONSE_SCHEMA_VERSION,
     GENERATION_EVAL_RESULT_SCHEMA_VERSION,
+    GITNEXUS_AUDIT_BRIDGE_DEMO_SCHEMA_VERSION,
+    GITNEXUS_AUDIT_BRIDGE_RECORD_DEMO_SCHEMA_VERSION,
     GRAPH_BUDGET_ESTIMATE_SCHEMA_VERSION,
     GRAPH_BUDGET_SCHEMA_VERSION,
     HOST_DEMO_SCHEMA_VERSION,
@@ -81,6 +83,10 @@ EXPECTED_SCHEMA_VERSION_REGISTRY = {
     "semantic_event_audit_demo": "coglang-semantic-event-audit-demo/v0.1",
     "semantic_event_audit_record_demo": (
         "coglang-semantic-event-audit-record-demo/v0.1"
+    ),
+    "gitnexus_audit_bridge_demo": "coglang-gitnexus-audit-bridge-demo/v0.1",
+    "gitnexus_audit_bridge_record_demo": (
+        "coglang-gitnexus-audit-bridge-record-demo/v0.1"
     ),
     "host_runtime_schema_pack": "urn:coglang:host-runtime-schema-pack:v0.1",
 }
@@ -219,6 +225,14 @@ def test_schema_version_constants_match_registry_values():
     assert (
         SEMANTIC_EVENT_AUDIT_RECORD_DEMO_SCHEMA_VERSION
         == SCHEMA_VERSION_REGISTRY["semantic_event_audit_record_demo"]
+    )
+    assert (
+        GITNEXUS_AUDIT_BRIDGE_DEMO_SCHEMA_VERSION
+        == SCHEMA_VERSION_REGISTRY["gitnexus_audit_bridge_demo"]
+    )
+    assert (
+        GITNEXUS_AUDIT_BRIDGE_RECORD_DEMO_SCHEMA_VERSION
+        == SCHEMA_VERSION_REGISTRY["gitnexus_audit_bridge_record_demo"]
     )
     assert HOST_RUNTIME_SCHEMA_PACK_ID == SCHEMA_VERSION_REGISTRY["host_runtime_schema_pack"]
 

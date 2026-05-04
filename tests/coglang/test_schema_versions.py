@@ -36,6 +36,8 @@ from coglang.schema_versions import (
     NODE_HOST_CONSUMER_DEMO_SCHEMA_VERSION,
     NODE_MINIMAL_HOST_RUNTIME_STUB_DEMO_SCHEMA_VERSION,
     OPEN_SOURCE_BOUNDARY_SCHEMA_VERSION,
+    OUTLINES_GENERATION_BRIDGE_DEMO_SCHEMA_VERSION,
+    OUTLINES_GENERATION_BRIDGE_RECORD_DEMO_SCHEMA_VERSION,
     PREFLIGHT_DECISION_SCHEMA_VERSION,
     PREFLIGHT_FIXTURE_RESULT_SCHEMA_VERSION,
     PREFLIGHT_FIXTURE_SCHEMA_VERSION,
@@ -93,6 +95,12 @@ EXPECTED_SCHEMA_VERSION_REGISTRY = {
     "lightrag_audit_bridge_demo": "coglang-lightrag-audit-bridge-demo/v0.1",
     "lightrag_audit_bridge_record_demo": (
         "coglang-lightrag-audit-bridge-record-demo/v0.1"
+    ),
+    "outlines_generation_bridge_demo": (
+        "coglang-outlines-generation-bridge-demo/v0.1"
+    ),
+    "outlines_generation_bridge_record_demo": (
+        "coglang-outlines-generation-bridge-record-demo/v0.1"
     ),
     "host_runtime_schema_pack": "urn:coglang:host-runtime-schema-pack:v0.1",
 }
@@ -247,6 +255,14 @@ def test_schema_version_constants_match_registry_values():
     assert (
         LIGHTRAG_AUDIT_BRIDGE_RECORD_DEMO_SCHEMA_VERSION
         == SCHEMA_VERSION_REGISTRY["lightrag_audit_bridge_record_demo"]
+    )
+    assert (
+        OUTLINES_GENERATION_BRIDGE_DEMO_SCHEMA_VERSION
+        == SCHEMA_VERSION_REGISTRY["outlines_generation_bridge_demo"]
+    )
+    assert (
+        OUTLINES_GENERATION_BRIDGE_RECORD_DEMO_SCHEMA_VERSION
+        == SCHEMA_VERSION_REGISTRY["outlines_generation_bridge_record_demo"]
     )
     assert HOST_RUNTIME_SCHEMA_PACK_ID == SCHEMA_VERSION_REGISTRY["host_runtime_schema_pack"]
 

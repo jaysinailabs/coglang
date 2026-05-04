@@ -63,6 +63,12 @@ LIGHTRAG_AUDIT_BRIDGE_DEMO_SCHEMA_VERSION = (
 LIGHTRAG_AUDIT_BRIDGE_RECORD_DEMO_SCHEMA_VERSION = (
     "coglang-lightrag-audit-bridge-record-demo/v0.1"
 )
+OUTLINES_GENERATION_BRIDGE_DEMO_SCHEMA_VERSION = (
+    "coglang-outlines-generation-bridge-demo/v0.1"
+)
+OUTLINES_GENERATION_BRIDGE_RECORD_DEMO_SCHEMA_VERSION = (
+    "coglang-outlines-generation-bridge-record-demo/v0.1"
+)
 HOST_RUNTIME_SCHEMA_PACK_ID = "urn:coglang:host-runtime-schema-pack:v0.1"
 
 SCHEMA_VERSION_REGISTRY = MappingProxyType(
@@ -113,6 +119,12 @@ SCHEMA_VERSION_REGISTRY = MappingProxyType(
         "lightrag_audit_bridge_record_demo": (
             LIGHTRAG_AUDIT_BRIDGE_RECORD_DEMO_SCHEMA_VERSION
         ),
+        "outlines_generation_bridge_demo": (
+            OUTLINES_GENERATION_BRIDGE_DEMO_SCHEMA_VERSION
+        ),
+        "outlines_generation_bridge_record_demo": (
+            OUTLINES_GENERATION_BRIDGE_RECORD_DEMO_SCHEMA_VERSION
+        ),
         "host_runtime_schema_pack": HOST_RUNTIME_SCHEMA_PACK_ID,
     }
 )
@@ -140,6 +152,8 @@ __all__ = [
     "NODE_HOST_CONSUMER_DEMO_SCHEMA_VERSION",
     "NODE_MINIMAL_HOST_RUNTIME_STUB_DEMO_SCHEMA_VERSION",
     "OPEN_SOURCE_BOUNDARY_SCHEMA_VERSION",
+    "OUTLINES_GENERATION_BRIDGE_DEMO_SCHEMA_VERSION",
+    "OUTLINES_GENERATION_BRIDGE_RECORD_DEMO_SCHEMA_VERSION",
     "PREFLIGHT_DECISION_SCHEMA_VERSION",
     "PREFLIGHT_FIXTURE_RESULT_SCHEMA_VERSION",
     "PREFLIGHT_FIXTURE_SCHEMA_VERSION",

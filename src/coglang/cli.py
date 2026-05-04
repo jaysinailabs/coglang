@@ -1175,6 +1175,15 @@ def _release_check_payload() -> dict[str, Any]:
     lightrag_audit_bridge_fixture_path, _ = _resolve_project_artifact(
         "examples/lightrag_audit_bridge/fixtures/lightrag_extraction_tuples.jsonl",
     )
+    outlines_generation_bridge_script_path, _ = _resolve_project_artifact(
+        "examples/outlines_generation_bridge/outlines_generation_bridge.py",
+    )
+    outlines_generation_bridge_readme_path, _ = _resolve_project_artifact(
+        "examples/outlines_generation_bridge/README.md",
+    )
+    outlines_generation_bridge_fixture_path, _ = _resolve_project_artifact(
+        "examples/outlines_generation_bridge/fixtures/outlines_generated_expressions.jsonl",
+    )
     local_ci_script_path, _ = _resolve_project_artifact("scripts/local_ci.py")
     license_path, _ = _resolve_project_artifact("LICENSE")
 
@@ -1258,6 +1267,12 @@ def _release_check_payload() -> dict[str, Any]:
     )
     lightrag_audit_bridge_fixtures_packaged = (
         "_public_assets/examples/lightrag_audit_bridge/fixtures/*" in package_data
+    )
+    outlines_generation_bridge_packaged = (
+        "_public_assets/examples/outlines_generation_bridge/*" in package_data
+    )
+    outlines_generation_bridge_fixtures_packaged = (
+        "_public_assets/examples/outlines_generation_bridge/fixtures/*" in package_data
     )
     local_ci_script_packaged = "_public_assets/scripts/*" in package_data
     reserved_operator_promotion_criteria_packaged = (
@@ -1576,6 +1591,17 @@ def _release_check_payload() -> dict[str, Any]:
                 and lightrag_audit_bridge_fixtures_packaged
             ),
             "detail": "examples/lightrag_audit_bridge + fixture + package data",
+        },
+        {
+            "name": "outlines_generation_bridge_example",
+            "ok": (
+                outlines_generation_bridge_script_path.exists()
+                and outlines_generation_bridge_readme_path.exists()
+                and outlines_generation_bridge_fixture_path.exists()
+                and outlines_generation_bridge_packaged
+                and outlines_generation_bridge_fixtures_packaged
+            ),
+            "detail": "examples/outlines_generation_bridge + fixture + package data",
         },
         {
             "name": "local_ci_simulation",

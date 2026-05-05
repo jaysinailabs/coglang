@@ -69,6 +69,12 @@ OUTLINES_GENERATION_BRIDGE_DEMO_SCHEMA_VERSION = (
 OUTLINES_GENERATION_BRIDGE_RECORD_DEMO_SCHEMA_VERSION = (
     "coglang-outlines-generation-bridge-record-demo/v0.1"
 )
+INTERACTION_ARTIFACT_PRESSURE_TESTS_SCHEMA_VERSION = (
+    "coglang-interaction-artifact-pressure-tests/v0.1"
+)
+INTERACTION_ARTIFACT_PRESSURE_TESTS_RECORD_SCHEMA_VERSION = (
+    "coglang-interaction-artifact-pressure-tests-record/v0.1"
+)
 HOST_RUNTIME_SCHEMA_PACK_ID = "urn:coglang:host-runtime-schema-pack:v0.1"
 
 SCHEMA_VERSION_REGISTRY = MappingProxyType(
@@ -125,6 +131,12 @@ SCHEMA_VERSION_REGISTRY = MappingProxyType(
         "outlines_generation_bridge_record_demo": (
             OUTLINES_GENERATION_BRIDGE_RECORD_DEMO_SCHEMA_VERSION
         ),
+        "interaction_artifact_pressure_tests": (
+            INTERACTION_ARTIFACT_PRESSURE_TESTS_SCHEMA_VERSION
+        ),
+        "interaction_artifact_pressure_tests_record": (
+            INTERACTION_ARTIFACT_PRESSURE_TESTS_RECORD_SCHEMA_VERSION
+        ),
         "host_runtime_schema_pack": HOST_RUNTIME_SCHEMA_PACK_ID,
     }
 )
@@ -145,6 +157,8 @@ __all__ = [
     "GRAPH_BUDGET_SCHEMA_VERSION",
     "HOST_DEMO_SCHEMA_VERSION",
     "HOST_RUNTIME_SCHEMA_PACK_ID",
+    "INTERACTION_ARTIFACT_PRESSURE_TESTS_RECORD_SCHEMA_VERSION",
+    "INTERACTION_ARTIFACT_PRESSURE_TESTS_SCHEMA_VERSION",
     "LIGHTRAG_AUDIT_BRIDGE_DEMO_SCHEMA_VERSION",
     "LIGHTRAG_AUDIT_BRIDGE_RECORD_DEMO_SCHEMA_VERSION",
     "LOCAL_CI_SIMULATION_SCHEMA_VERSION",

@@ -1,0 +1,100 @@
+{
+  "schema_version": "coglang-interaction-artifact-pressure-tests/v0.1",
+  "status": "companion-pressure-test",
+  "scenario": "interaction-artifact graph for AI-assisted software work",
+  "language_baseline": "v1.1.0",
+  "stable_protocol": false,
+  "cases": [
+    {
+      "id": "IAG-PT-001",
+      "name": "causal ancestors along a named relation",
+      "candidate_track": "language-candidate",
+      "current_v1_1_expression": "List[Traverse[\"output:design-doc-v4\", \"caused_by\"], ForEach[Traverse[\"output:design-doc-v4\", \"caused_by\"], parent_, Traverse[parent_, \"caused_by\"]], ForEach[ForEach[Traverse[\"output:design-doc-v4\", \"caused_by\"], parent_, Traverse[parent_, \"caused_by\"]], grandparent_, Traverse[grandparent_, \"caused_by\"]]]",
+      "proposed_after_shape": "CausalAncestors[\"output:design-doc-v4\", \"caused_by\", {\"max_depth\": 3, \"scope\": \"project:alpha\"}]",
+      "expected": {
+        "canonical_expression": "List[Traverse[\"output:design-doc-v4\", \"caused_by\"], ForEach[Traverse[\"output:design-doc-v4\", \"caused_by\"], parent_, Traverse[parent_, \"caused_by\"]], ForEach[ForEach[Traverse[\"output:design-doc-v4\", \"caused_by\"], parent_, Traverse[parent_, \"caused_by\"]], grandparent_, Traverse[grandparent_, \"caused_by\"]]]",
+        "preflight_decision": "cannot_estimate",
+        "effects": ["graph.read", "graph.traverse", "host.policy", "human.review"],
+        "required_capabilities": ["graph.read"],
+        "required_review": true,
+        "min_traverse_count": 6
+      },
+      "pressure_note": "A three-hop causal query repeats traversal boilerplate and loses the user's causal intent in generic List/ForEach nesting.",
+      "promotion_risk": "Named recursion depth, scope, and cycle behavior must be explicit before any operator promotion.",
+      "conformance_test_sketch": "Given a fixture graph with a finite caused_by chain and a cycle guard, CausalAncestors[target, relation, {max_depth:3}] should produce the same ordered ancestor set as the expanded v1.1.0 expression."
+    },
+    {
+      "id": "IAG-PT-002",
+      "name": "revision chain traversal",
+      "candidate_track": "language-candidate",
+      "current_v1_1_expression": "List[Traverse[\"output:adr-0004-v3\", \"revises\"], ForEach[Traverse[\"output:adr-0004-v3\", \"revises\"], previous_, Traverse[previous_, \"revises\"]], ForEach[ForEach[Traverse[\"output:adr-0004-v3\", \"revises\"], previous_, Traverse[previous_, \"revises\"]], older_, Traverse[older_, \"revises\"]]]",
+      "proposed_after_shape": "RevisionChain[\"output:adr-0004-v3\", {\"edge\": \"revises\", \"max_depth\": 3}]",
+      "expected": {
+        "canonical_expression": "List[Traverse[\"output:adr-0004-v3\", \"revises\"], ForEach[Traverse[\"output:adr-0004-v3\", \"revises\"], previous_, Traverse[previous_, \"revises\"]], ForEach[ForEach[Traverse[\"output:adr-0004-v3\", \"revises\"], previous_, Traverse[previous_, \"revises\"]], older_, Traverse[older_, \"revises\"]]]",
+        "preflight_decision": "cannot_estimate",
+        "effects": ["graph.read", "graph.traverse", "host.policy", "human.review"],
+        "required_capabilities": ["graph.read"],
+        "required_review": true,
+        "min_traverse_count": 6
+      },
+      "pressure_note": "Revision history is a recurring graph shape where generated expressions are verbose and easy to accidentally under-bound.",
+      "promotion_risk": "A shortcut must not assume a storage-specific timestamp or revision field; edge name and max depth must remain explicit.",
+      "conformance_test_sketch": "Given a linear v3->v2->v1 revises chain, RevisionChain should return the same chain as the expanded traversal expression under the same max_depth."
+    },
+    {
+      "id": "IAG-PT-003",
+      "name": "manual provenance write for a durable output",
+      "candidate_track": "language-or-profile-candidate",
+      "current_v1_1_expression": "Do[Create[\"Entity\", {\"id\":\"output:adr-0004-v3\", \"kind\":\"durable_output\", \"title\":\"ADR 0004\"}], Create[\"Edge\", {\"from\":\"event:review-17\", \"to\":\"output:adr-0004-v3\", \"relation_type\":\"produced\"}], Create[\"Edge\", {\"from\":\"agent:architect\", \"to\":\"event:review-17\", \"relation_type\":\"participated_in\"}]]",
+      "proposed_after_shape": "CreateWithProvenance[\"Entity\", {\"id\":\"output:adr-0004-v3\", \"kind\":\"durable_output\", \"title\":\"ADR 0004\"}, {\"produced_by\":\"event:review-17\", \"agents\":List[\"agent:architect\"]}]",
+      "expected": {
+        "canonical_expression": "Do[Create[\"Entity\", {\"id\": \"output:adr-0004-v3\", \"kind\": \"durable_output\", \"title\": \"ADR 0004\"}], Create[\"Edge\", {\"from\": \"event:review-17\", \"relation_type\": \"produced\", \"to\": \"output:adr-0004-v3\"}], Create[\"Edge\", {\"from\": \"agent:architect\", \"relation_type\": \"participated_in\", \"to\": \"event:review-17\"}]]",
+        "preflight_decision": "requires_review",
+        "effects": ["graph.write", "host.policy", "human.review"],
+        "required_capabilities": ["graph.write"],
+        "required_review": true,
+        "min_create_count": 3
+      },
+      "pressure_note": "Every durable output write repeats the same provenance edge-laying pattern, increasing omission risk.",
+      "promotion_risk": "A provenance helper must not collapse host audit metadata and in-graph provenance into the same layer.",
+      "conformance_test_sketch": "Given a strict provenance profile, CreateWithProvenance should expand to a node plus produced/participated_in edges and preserve the same write-review preflight posture."
+    },
+    {
+      "id": "IAG-PT-004",
+      "name": "strict provenance reject pressure",
+      "candidate_track": "profile-integration-candidate",
+      "current_v1_1_expression": "Create[\"Entity\", {\"id\":\"output:unprovenanced\", \"kind\":\"durable_output\", \"title\":\"Unprovenanced Output\"}]",
+      "proposed_after_shape": "PreflightProfile[\"strict-provenance\", Create[\"Entity\", {\"id\":\"output:unprovenanced\", \"kind\":\"durable_output\", \"title\":\"Unprovenanced Output\"}]]",
+      "expected": {
+        "canonical_expression": "Create[\"Entity\", {\"id\": \"output:unprovenanced\", \"kind\": \"durable_output\", \"title\": \"Unprovenanced Output\"}]",
+        "preflight_decision": "requires_review",
+        "effects": ["graph.write", "host.policy", "human.review"],
+        "required_capabilities": ["graph.write"],
+        "required_review": true,
+        "min_create_count": 1
+      },
+      "desired_future_profile_decision": "rejected",
+      "pressure_note": "Current v1.1.0 can require review for writes, but it cannot express a profile rule that rejects durable outputs missing in-graph provenance.",
+      "promotion_risk": "Strict provenance belongs to profile/preflight integration unless repeated evidence shows it should become a core write concern.",
+      "conformance_test_sketch": "Under a strict-provenance profile, a durable_output Create without produced_by provenance should reject during preflight with a deterministic provenance.missing reason."
+    },
+    {
+      "id": "IAG-PT-005",
+      "name": "reviewer point-of-view projection",
+      "candidate_track": "profile-or-capability-candidate",
+      "current_v1_1_expression": "List[Query[n_, Equal[Get[n_, \"kind\"], \"decision\"], {\"k\":25, \"mode\":\"default\"}], Query[e_, Equal[Get[e_, \"relation_type\"], \"constrains\"], {\"k\":25, \"mode\":\"default\"}], Query[e_, Equal[Get[e_, \"relation_type\"], \"blocks\"], {\"k\":25, \"mode\":\"default\"}]]",
+      "proposed_after_shape": "ProjectFromPOV[AllNodes[], \"reviewer\"]",
+      "expected": {
+        "canonical_expression": "List[Query[n_, Equal[Get[n_, \"kind\"], \"decision\"], {\"k\": 25, \"mode\": \"default\"}], Query[e_, Equal[Get[e_, \"relation_type\"], \"constrains\"], {\"k\": 25, \"mode\": \"default\"}], Query[e_, Equal[Get[e_, \"relation_type\"], \"blocks\"], {\"k\": 25, \"mode\": \"default\"}]]",
+        "preflight_decision": "accepted_with_warnings",
+        "effects": ["graph.read"],
+        "required_capabilities": ["graph.read"],
+        "required_review": false,
+        "min_query_count": 3
+      },
+      "pressure_note": "Role-specific views repeat private filter bundles and cannot be checked as named capabilities.",
+      "promotion_risk": "POV registration should start as profile/capability integration; otherwise CogLang risks becoming a UI authorization language.",
+      "conformance_test_sketch": "Given a declared reviewer POV, ProjectFromPOV[AllNodes[], \"reviewer\"] should be preflight-checkable against a profile capability and equivalent to the explicit filter bundle for the fixture graph."
+    }
+  ]
+}

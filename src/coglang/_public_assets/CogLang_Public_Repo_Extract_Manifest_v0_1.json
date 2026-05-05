@@ -50,6 +50,7 @@
         "test_grammar_examples.py",
         "test_host_runtime_schema_seeds.py",
         "test_integration.py",
+        "test_interaction_artifact_pressure_tests_example.py",
         "test_lightrag_audit_bridge_example.py",
         "test_local_host.py",
         "test_local_ci_script.py",
@@ -113,6 +114,11 @@
       "kind": "tree",
       "source": "examples/outlines_generation_bridge",
       "destination": "examples/outlines_generation_bridge"
+    },
+    {
+      "kind": "tree",
+      "source": "examples/interaction_artifact_pressure_tests",
+      "destination": "examples/interaction_artifact_pressure_tests"
     },
     {
       "kind": "tree",

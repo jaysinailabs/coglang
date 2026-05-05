@@ -278,6 +278,26 @@ spending full validation minutes. Mark the PR ready for review only when the
 local checks are already clean or when a platform-specific remote check is the
 thing being tested.
 
+### 4.0.1 Lightweight Design Discussion Flow
+
+CogLang does not use a heavyweight RFC process by default. Prefer the lightest
+entry point that can preserve evidence and boundaries:
+
+1. Use GitHub Discussions for exploratory design questions, early use-case
+   reports, and "would this fit CogLang?" conversations.
+2. Use an issue when a proposal is actionable, especially for an external host,
+   consumer, adapter, executor, or companion example.
+3. Use a draft PR when there is already a branch, fixture, or document sketch
+   and early review would help before full validation evidence exists.
+4. Use a focused governance proposal before implementation when the change would
+   expand language semantics, promote a reserved operator, alter profile
+   obligations, or change HRC frozen scope.
+
+Focused governance proposals should stay narrow. A useful proposal states the
+problem, non-goals, affected surface, compatibility posture, preflight or
+validation implications, fixture plan, and rollback or rejection conditions. It
+does not replace executable tests or release-check evidence.
+
 Before opening a PR, follow this minimal path:
 
 1. Read [CogLang_Quickstart_v1_1_0.md](./CogLang_Quickstart_v1_1_0.md).

@@ -12,6 +12,18 @@ Start here:
 - Check the latest package release notes before assuming a source-HEAD command
   is available from PyPI.
 
+Choosing where to discuss a change:
+
+- Use GitHub Discussions for exploratory design questions, early use-case
+  reports, and "would this fit CogLang?" conversations.
+- Use an issue when the proposal is actionable, especially for an external
+  host, consumer, adapter, executor, or companion example.
+- Use a draft PR when there is already a branch, fixture, or document sketch
+  and early review would help before full validation evidence exists.
+- Use a focused governance proposal before implementation when the change would
+  expand language semantics, promote a reserved operator, or change HRC frozen
+  scope.
+
 Before opening a pull request:
 
 - Use a local-first validation flow to conserve GitHub Actions minutes. Batch

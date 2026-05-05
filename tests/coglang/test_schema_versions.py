@@ -14,6 +14,8 @@ from coglang import (
     schema_versions,
 )
 from coglang.schema_versions import (
+    AGENT_MEMORY_AUDIT_PRESSURE_TESTS_RECORD_SCHEMA_VERSION,
+    AGENT_MEMORY_AUDIT_PRESSURE_TESTS_SCHEMA_VERSION,
     CLI_SCHEMA_VERSION,
     EFFECT_SUMMARY_SCHEMA_VERSION,
     FORMAL_OPEN_SOURCE_READINESS_SCHEMA_VERSION,
@@ -109,6 +111,12 @@ EXPECTED_SCHEMA_VERSION_REGISTRY = {
     ),
     "interaction_artifact_pressure_tests_record": (
         "coglang-interaction-artifact-pressure-tests-record/v0.1"
+    ),
+    "agent_memory_audit_pressure_tests": (
+        "coglang-agent-memory-audit-pressure-tests/v0.1"
+    ),
+    "agent_memory_audit_pressure_tests_record": (
+        "coglang-agent-memory-audit-pressure-tests-record/v0.1"
     ),
     "host_runtime_schema_pack": "urn:coglang:host-runtime-schema-pack:v0.1",
 }
@@ -279,6 +287,14 @@ def test_schema_version_constants_match_registry_values():
     assert (
         INTERACTION_ARTIFACT_PRESSURE_TESTS_RECORD_SCHEMA_VERSION
         == SCHEMA_VERSION_REGISTRY["interaction_artifact_pressure_tests_record"]
+    )
+    assert (
+        AGENT_MEMORY_AUDIT_PRESSURE_TESTS_SCHEMA_VERSION
+        == SCHEMA_VERSION_REGISTRY["agent_memory_audit_pressure_tests"]
+    )
+    assert (
+        AGENT_MEMORY_AUDIT_PRESSURE_TESTS_RECORD_SCHEMA_VERSION
+        == SCHEMA_VERSION_REGISTRY["agent_memory_audit_pressure_tests_record"]
     )
     assert HOST_RUNTIME_SCHEMA_PACK_ID == SCHEMA_VERSION_REGISTRY["host_runtime_schema_pack"]
 

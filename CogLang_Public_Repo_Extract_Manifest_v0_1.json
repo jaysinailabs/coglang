@@ -36,6 +36,7 @@
       "destination": "tests/coglang",
       "include": [
         "conftest.py",
+        "test_agent_memory_audit_pressure_tests_example.py",
         "test_boundary.py",
         "test_catalog_alignment.py",
         "test_cli.py",
@@ -119,6 +120,11 @@
       "kind": "tree",
       "source": "examples/interaction_artifact_pressure_tests",
       "destination": "examples/interaction_artifact_pressure_tests"
+    },
+    {
+      "kind": "tree",
+      "source": "examples/agent_memory_audit_pressure_tests",
+      "destination": "examples/agent_memory_audit_pressure_tests"
     },
     {
       "kind": "tree",

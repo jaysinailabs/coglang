@@ -29,6 +29,8 @@ from coglang.schema_versions import (
     GRAPH_BUDGET_SCHEMA_VERSION,
     HOST_DEMO_SCHEMA_VERSION,
     HOST_RUNTIME_SCHEMA_PACK_ID,
+    INTERACTION_ARTIFACT_PRESSURE_TESTS_RECORD_SCHEMA_VERSION,
+    INTERACTION_ARTIFACT_PRESSURE_TESTS_SCHEMA_VERSION,
     LIGHTRAG_AUDIT_BRIDGE_DEMO_SCHEMA_VERSION,
     LIGHTRAG_AUDIT_BRIDGE_RECORD_DEMO_SCHEMA_VERSION,
     LOCAL_CI_SIMULATION_SCHEMA_VERSION,
@@ -101,6 +103,12 @@ EXPECTED_SCHEMA_VERSION_REGISTRY = {
     ),
     "outlines_generation_bridge_record_demo": (
         "coglang-outlines-generation-bridge-record-demo/v0.1"
+    ),
+    "interaction_artifact_pressure_tests": (
+        "coglang-interaction-artifact-pressure-tests/v0.1"
+    ),
+    "interaction_artifact_pressure_tests_record": (
+        "coglang-interaction-artifact-pressure-tests-record/v0.1"
     ),
     "host_runtime_schema_pack": "urn:coglang:host-runtime-schema-pack:v0.1",
 }
@@ -263,6 +271,14 @@ def test_schema_version_constants_match_registry_values():
     assert (
         OUTLINES_GENERATION_BRIDGE_RECORD_DEMO_SCHEMA_VERSION
         == SCHEMA_VERSION_REGISTRY["outlines_generation_bridge_record_demo"]
+    )
+    assert (
+        INTERACTION_ARTIFACT_PRESSURE_TESTS_SCHEMA_VERSION
+        == SCHEMA_VERSION_REGISTRY["interaction_artifact_pressure_tests"]
+    )
+    assert (
+        INTERACTION_ARTIFACT_PRESSURE_TESTS_RECORD_SCHEMA_VERSION
+        == SCHEMA_VERSION_REGISTRY["interaction_artifact_pressure_tests_record"]
     )
     assert HOST_RUNTIME_SCHEMA_PACK_ID == SCHEMA_VERSION_REGISTRY["host_runtime_schema_pack"]
 

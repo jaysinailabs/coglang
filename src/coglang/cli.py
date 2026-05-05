@@ -1184,6 +1184,15 @@ def _release_check_payload() -> dict[str, Any]:
     outlines_generation_bridge_fixture_path, _ = _resolve_project_artifact(
         "examples/outlines_generation_bridge/fixtures/outlines_generated_expressions.jsonl",
     )
+    interaction_artifact_pressure_tests_script_path, _ = _resolve_project_artifact(
+        "examples/interaction_artifact_pressure_tests/interaction_artifact_pressure_tests.py",
+    )
+    interaction_artifact_pressure_tests_readme_path, _ = _resolve_project_artifact(
+        "examples/interaction_artifact_pressure_tests/README.md",
+    )
+    interaction_artifact_pressure_tests_fixture_path, _ = _resolve_project_artifact(
+        "examples/interaction_artifact_pressure_tests/fixtures/interaction_artifact_pressure_tests_v0_1.json",
+    )
     local_ci_script_path, _ = _resolve_project_artifact("scripts/local_ci.py")
     license_path, _ = _resolve_project_artifact("LICENSE")
 
@@ -1273,6 +1282,13 @@ def _release_check_payload() -> dict[str, Any]:
     )
     outlines_generation_bridge_fixtures_packaged = (
         "_public_assets/examples/outlines_generation_bridge/fixtures/*" in package_data
+    )
+    interaction_artifact_pressure_tests_packaged = (
+        "_public_assets/examples/interaction_artifact_pressure_tests/*" in package_data
+    )
+    interaction_artifact_pressure_tests_fixtures_packaged = (
+        "_public_assets/examples/interaction_artifact_pressure_tests/fixtures/*"
+        in package_data
     )
     local_ci_script_packaged = "_public_assets/scripts/*" in package_data
     reserved_operator_promotion_criteria_packaged = (
@@ -1602,6 +1618,19 @@ def _release_check_payload() -> dict[str, Any]:
                 and outlines_generation_bridge_fixtures_packaged
             ),
             "detail": "examples/outlines_generation_bridge + fixture + package data",
+        },
+        {
+            "name": "interaction_artifact_pressure_tests_example",
+            "ok": (
+                interaction_artifact_pressure_tests_script_path.exists()
+                and interaction_artifact_pressure_tests_readme_path.exists()
+                and interaction_artifact_pressure_tests_fixture_path.exists()
+                and interaction_artifact_pressure_tests_packaged
+                and interaction_artifact_pressure_tests_fixtures_packaged
+            ),
+            "detail": (
+                "examples/interaction_artifact_pressure_tests + fixture + package data"
+            ),
         },
         {
             "name": "local_ci_simulation",

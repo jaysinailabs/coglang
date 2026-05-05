@@ -1944,6 +1944,13 @@ def test_cli_release_check_payload_shape():
         for item in payload["checks"]
     )
     assert any(
+        item["name"] == "agent_memory_audit_pressure_tests_example"
+        and item["ok"] is True
+        and item["detail"]
+        == "examples/agent_memory_audit_pressure_tests + fixture + package data"
+        for item in payload["checks"]
+    )
+    assert any(
         item["name"] == "generation_eval_file_contract"
         and item["ok"] is True
         for item in payload["checks"]
@@ -2023,6 +2030,7 @@ def test_cli_release_check_json_output():
     assert '"lightrag_audit_bridge_example"' in output
     assert '"outlines_generation_bridge_example"' in output
     assert '"interaction_artifact_pressure_tests_example"' in output
+    assert '"agent_memory_audit_pressure_tests_example"' in output
     assert '"local_ci_simulation"' in output
     assert '"executor_interface"' in output
 
@@ -2119,6 +2127,11 @@ def test_cli_release_check_text_output():
     assert (
         "interaction_artifact_pressure_tests_example: ok "
         "(examples/interaction_artifact_pressure_tests + fixture + package data)"
+        in output
+    )
+    assert (
+        "agent_memory_audit_pressure_tests_example: ok "
+        "(examples/agent_memory_audit_pressure_tests + fixture + package data)"
         in output
     )
     assert (
@@ -2291,7 +2304,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 77
+    assert payload["entry_count"] == 78
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -2307,6 +2320,10 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["source_paths_exist"] is True
     assert payload["destination_paths_unique"] is True
     tree_entries = {item["source"]: item for item in payload["entries"] if item["kind"] == "tree"}
+    assert (
+        "test_agent_memory_audit_pressure_tests_example.py"
+        in tree_entries["tests/coglang"]["include"]
+    )
     assert "eval_fixtures" in tree_entries["src/coglang"]["include"]
     assert "generation_eval.py" in tree_entries["src/coglang"]["include"]
     assert "generation_eval_adapters.py" in tree_entries["src/coglang"]["include"]
@@ -2370,6 +2387,9 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "examples/interaction_artifact_pressure_tests" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "examples/agent_memory_audit_pressure_tests" in [
         item["source"] for item in payload["entries"]
     ]
     assert "examples/vscode_textmate_syntax" in [

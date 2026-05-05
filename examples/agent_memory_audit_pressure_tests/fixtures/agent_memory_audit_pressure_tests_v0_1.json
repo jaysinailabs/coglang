@@ -1,0 +1,103 @@
+{
+  "schema_version": "coglang-agent-memory-audit-pressure-tests/v0.1",
+  "status": "companion-pressure-test",
+  "scenario": "auditable agent memory operations",
+  "language_baseline": "v1.1.0",
+  "stable_protocol": false,
+  "cases": [
+    {
+      "id": "AMA-PT-001",
+      "name": "memory write with explicit provenance edges",
+      "candidate_track": "language-or-profile-candidate",
+      "current_v1_1_expression": "Do[Create[\"Entity\", {\"id\":\"memory:handoff-2026-05-05\", \"kind\":\"agent_memory\", \"tier\":\"handoff\", \"summary\":\"parser pressure test ready\"}], Create[\"Edge\", {\"from\":\"event:session-42\", \"to\":\"memory:handoff-2026-05-05\", \"relation_type\":\"captured_in\"}], Create[\"Edge\", {\"from\":\"agent:planner\", \"to\":\"memory:handoff-2026-05-05\", \"relation_type\":\"authored\"}]]",
+      "proposed_after_shape": "StoreMemoryWithProvenance[{\"id\":\"memory:handoff-2026-05-05\", \"tier\":\"handoff\", \"summary\":\"parser pressure test ready\"}, {\"source_event\":\"event:session-42\", \"agents\":List[\"agent:planner\"]}]",
+      "expected": {
+        "canonical_expression": "Do[Create[\"Entity\", {\"id\": \"memory:handoff-2026-05-05\", \"kind\": \"agent_memory\", \"summary\": \"parser pressure test ready\", \"tier\": \"handoff\"}], Create[\"Edge\", {\"from\": \"event:session-42\", \"relation_type\": \"captured_in\", \"to\": \"memory:handoff-2026-05-05\"}], Create[\"Edge\", {\"from\": \"agent:planner\", \"relation_type\": \"authored\", \"to\": \"memory:handoff-2026-05-05\"}]]",
+        "preflight_decision": "requires_review",
+        "effects": ["graph.write", "host.policy", "human.review"],
+        "required_capabilities": ["graph.write"],
+        "required_review": true,
+        "min_create_count": 3
+      },
+      "pressure_note": "A basic memory write repeats the same provenance edge pattern as other durable output writes.",
+      "promotion_risk": "A memory-specific helper must not turn CogLang into a memory store or collapse host audit metadata into in-graph provenance.",
+      "conformance_test_sketch": "Given a strict memory provenance profile, StoreMemoryWithProvenance should expand to a memory node plus captured_in/authored edges and preserve write-review preflight posture."
+    },
+    {
+      "id": "AMA-PT-002",
+      "name": "recall with read-set tracking pressure",
+      "candidate_track": "hrc-or-profile-candidate",
+      "current_v1_1_expression": "List[Query[m_, Equal[Get[m_, \"kind\"], \"agent_memory\"], {\"k\":20, \"mode\":\"default\"}], Trace[Query[m_, Equal[Get[m_, \"tier\"], \"handoff\"], {\"k\":20, \"mode\":\"default\"}]]]",
+      "proposed_after_shape": "RecallWithReadSet[Query[m_, Equal[Get[m_, \"kind\"], \"agent_memory\"], {\"k\":20, \"mode\":\"default\"}], {\"reader\":\"agent:reviewer\", \"read_set\":\"tracked\"}]",
+      "expected": {
+        "canonical_expression": "List[Query[m_, Equal[Get[m_, \"kind\"], \"agent_memory\"], {\"k\": 20, \"mode\": \"default\"}], Trace[Query[m_, Equal[Get[m_, \"tier\"], \"handoff\"], {\"k\": 20, \"mode\": \"default\"}]]]",
+        "preflight_decision": "accepted_with_warnings",
+        "effects": ["graph.read", "meta.trace"],
+        "required_capabilities": ["graph.read"],
+        "required_review": false,
+        "min_query_count": 2,
+        "min_trace_count": 1
+      },
+      "pressure_note": "Current v1.1.0 can trace a recall expression, but it does not produce a host-level read-set token for later stale-read checks.",
+      "promotion_risk": "Read-set tracking likely belongs first to host execution/HRC evidence, not core language semantics.",
+      "conformance_test_sketch": "Given a recall query, RecallWithReadSet should preserve the query result while returning a deterministic read_set_id or trace field that a later guarded write can cite."
+    },
+    {
+      "id": "AMA-PT-003",
+      "name": "embedding backfill transform pressure",
+      "candidate_track": "profile-integration-candidate",
+      "current_v1_1_expression": "ForEach[Query[m_, Equal[Get[m_, \"embedding_status\"], \"missing\"], {\"k\":50, \"mode\":\"default\"}], memory_, Update[memory_, {\"embedding_status\":\"queued\", \"backfill_requested_by\":\"agent:indexer\"}]]",
+      "proposed_after_shape": "MemoryTransform[\"embedding_backfill\", Query[m_, Equal[Get[m_, \"embedding_status\"], \"missing\"], {\"k\":50, \"mode\":\"default\"}], {\"dry_run\":True[], \"requested_by\":\"agent:indexer\"}]",
+      "expected": {
+        "canonical_expression": "ForEach[Query[m_, Equal[Get[m_, \"embedding_status\"], \"missing\"], {\"k\": 50, \"mode\": \"default\"}], memory_, Update[memory_, {\"backfill_requested_by\": \"agent:indexer\", \"embedding_status\": \"queued\"}]]",
+        "preflight_decision": "requires_review",
+        "effects": ["graph.read", "graph.write", "host.policy", "human.review"],
+        "required_capabilities": ["graph.read", "graph.write"],
+        "required_review": true,
+        "min_query_count": 1,
+        "min_update_count": 1
+      },
+      "pressure_note": "Bulk memory maintenance workflows are expressible with ForEach + Query + Update, but dry-run and batch bounds are host-policy concepts hidden in private convention.",
+      "promotion_risk": "Transform helpers should start as profile integration; otherwise CogLang risks becoming an operational job scheduler.",
+      "conformance_test_sketch": "Given a bounded selector, MemoryTransform should preflight aggregate read/write cost, require graph.write, and expose dry_run as a host-visible policy field."
+    },
+    {
+      "id": "AMA-PT-004",
+      "name": "retention cleanup pressure",
+      "candidate_track": "profile-integration-candidate",
+      "current_v1_1_expression": "ForEach[Query[m_, Equal[Get[m_, \"retention\"], \"expired\"], {\"k\":50, \"mode\":\"default\"}], memory_, Delete[memory_]]",
+      "proposed_after_shape": "RetentionCleanup[Query[m_, Equal[Get[m_, \"retention\"], \"expired\"], {\"k\":50, \"mode\":\"default\"}], {\"max_deletes\":50, \"mode\":\"soft_delete\"}]",
+      "expected": {
+        "canonical_expression": "ForEach[Query[m_, Equal[Get[m_, \"retention\"], \"expired\"], {\"k\": 50, \"mode\": \"default\"}], memory_, Delete[memory_]]",
+        "preflight_decision": "requires_review",
+        "effects": ["graph.read", "graph.write", "graph.delete", "host.policy", "human.review"],
+        "required_capabilities": ["graph.read", "graph.write"],
+        "required_review": true,
+        "min_query_count": 1,
+        "min_delete_count": 1
+      },
+      "pressure_note": "Retention workflows need explicit max-delete and soft-delete posture; current expressions make those bounds a private host convention.",
+      "promotion_risk": "Retention policy is domain-specific and should not enter core without repeated evidence across non-memory applications.",
+      "conformance_test_sketch": "Given an expired-memory selector, RetentionCleanup should require review, expose max_deletes in preflight, and never imply hard deletion."
+    },
+    {
+      "id": "AMA-PT-005",
+      "name": "stale-read guarded update pressure",
+      "candidate_track": "hrc-candidate",
+      "current_v1_1_expression": "If[Equal[Get[\"memory:handoff-2026-05-05\", \"revision\"], \"rev-7\"], Update[\"memory:handoff-2026-05-05\", {\"summary\":\"updated after review\", \"expected_previous_revision\":\"rev-7\"}], PermissionError[\"stale_read\", \"memory:handoff-2026-05-05\"]]",
+      "proposed_after_shape": "GuardedUpdate[\"memory:handoff-2026-05-05\", {\"summary\":\"updated after review\"}, {\"if_revision\":\"rev-7\", \"read_set\":\"readset:abc\"}]",
+      "expected": {
+        "canonical_expression": "If[Equal[Get[\"memory:handoff-2026-05-05\", \"revision\"], \"rev-7\"], Update[\"memory:handoff-2026-05-05\", {\"expected_previous_revision\": \"rev-7\", \"summary\": \"updated after review\"}], PermissionError[\"stale_read\", \"memory:handoff-2026-05-05\"]]",
+        "preflight_decision": "requires_review",
+        "effects": ["graph.read", "graph.write", "host.policy", "human.review"],
+        "required_capabilities": ["graph.read", "graph.write"],
+        "required_review": true,
+        "min_get_count": 1,
+        "min_update_count": 1
+      },
+      "pressure_note": "Stale-read protection is possible as ordinary expression logic, but the host cannot see an atomic compare-and-write intent.",
+      "promotion_risk": "Guarded writes belong on the HRC evolution path unless a purely expression-level form can preserve atomicity without host guarantees.",
+      "conformance_test_sketch": "Given a previous read_set or revision token, GuardedUpdate should preflight as read+write, require review, and return a deterministic stale_read error if the guard fails."
+    }
+  ]
+}

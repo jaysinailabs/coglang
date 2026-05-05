@@ -1193,6 +1193,15 @@ def _release_check_payload() -> dict[str, Any]:
     interaction_artifact_pressure_tests_fixture_path, _ = _resolve_project_artifact(
         "examples/interaction_artifact_pressure_tests/fixtures/interaction_artifact_pressure_tests_v0_1.json",
     )
+    agent_memory_audit_pressure_tests_script_path, _ = _resolve_project_artifact(
+        "examples/agent_memory_audit_pressure_tests/agent_memory_audit_pressure_tests.py",
+    )
+    agent_memory_audit_pressure_tests_readme_path, _ = _resolve_project_artifact(
+        "examples/agent_memory_audit_pressure_tests/README.md",
+    )
+    agent_memory_audit_pressure_tests_fixture_path, _ = _resolve_project_artifact(
+        "examples/agent_memory_audit_pressure_tests/fixtures/agent_memory_audit_pressure_tests_v0_1.json",
+    )
     local_ci_script_path, _ = _resolve_project_artifact("scripts/local_ci.py")
     license_path, _ = _resolve_project_artifact("LICENSE")
 
@@ -1288,6 +1297,13 @@ def _release_check_payload() -> dict[str, Any]:
     )
     interaction_artifact_pressure_tests_fixtures_packaged = (
         "_public_assets/examples/interaction_artifact_pressure_tests/fixtures/*"
+        in package_data
+    )
+    agent_memory_audit_pressure_tests_packaged = (
+        "_public_assets/examples/agent_memory_audit_pressure_tests/*" in package_data
+    )
+    agent_memory_audit_pressure_tests_fixtures_packaged = (
+        "_public_assets/examples/agent_memory_audit_pressure_tests/fixtures/*"
         in package_data
     )
     local_ci_script_packaged = "_public_assets/scripts/*" in package_data
@@ -1630,6 +1646,19 @@ def _release_check_payload() -> dict[str, Any]:
             ),
             "detail": (
                 "examples/interaction_artifact_pressure_tests + fixture + package data"
+            ),
+        },
+        {
+            "name": "agent_memory_audit_pressure_tests_example",
+            "ok": (
+                agent_memory_audit_pressure_tests_script_path.exists()
+                and agent_memory_audit_pressure_tests_readme_path.exists()
+                and agent_memory_audit_pressure_tests_fixture_path.exists()
+                and agent_memory_audit_pressure_tests_packaged
+                and agent_memory_audit_pressure_tests_fixtures_packaged
+            ),
+            "detail": (
+                "examples/agent_memory_audit_pressure_tests + fixture + package data"
             ),
         },
         {

@@ -75,6 +75,12 @@ INTERACTION_ARTIFACT_PRESSURE_TESTS_SCHEMA_VERSION = (
 INTERACTION_ARTIFACT_PRESSURE_TESTS_RECORD_SCHEMA_VERSION = (
     "coglang-interaction-artifact-pressure-tests-record/v0.1"
 )
+AGENT_MEMORY_AUDIT_PRESSURE_TESTS_SCHEMA_VERSION = (
+    "coglang-agent-memory-audit-pressure-tests/v0.1"
+)
+AGENT_MEMORY_AUDIT_PRESSURE_TESTS_RECORD_SCHEMA_VERSION = (
+    "coglang-agent-memory-audit-pressure-tests-record/v0.1"
+)
 HOST_RUNTIME_SCHEMA_PACK_ID = "urn:coglang:host-runtime-schema-pack:v0.1"
 
 SCHEMA_VERSION_REGISTRY = MappingProxyType(
@@ -137,11 +143,19 @@ SCHEMA_VERSION_REGISTRY = MappingProxyType(
         "interaction_artifact_pressure_tests_record": (
             INTERACTION_ARTIFACT_PRESSURE_TESTS_RECORD_SCHEMA_VERSION
         ),
+        "agent_memory_audit_pressure_tests": (
+            AGENT_MEMORY_AUDIT_PRESSURE_TESTS_SCHEMA_VERSION
+        ),
+        "agent_memory_audit_pressure_tests_record": (
+            AGENT_MEMORY_AUDIT_PRESSURE_TESTS_RECORD_SCHEMA_VERSION
+        ),
         "host_runtime_schema_pack": HOST_RUNTIME_SCHEMA_PACK_ID,
     }
 )
 
 __all__ = [
+    "AGENT_MEMORY_AUDIT_PRESSURE_TESTS_RECORD_SCHEMA_VERSION",
+    "AGENT_MEMORY_AUDIT_PRESSURE_TESTS_SCHEMA_VERSION",
     "CLI_SCHEMA_VERSION",
     "EFFECT_SUMMARY_SCHEMA_VERSION",
     "FORMAL_OPEN_SOURCE_READINESS_SCHEMA_VERSION",

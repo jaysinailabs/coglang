@@ -59,11 +59,13 @@
         "test_node_minimal_host_runtime_stub.py",
         "test_outlines_generation_bridge_example.py",
         "test_open_source_extract.py",
+        "test_package_asset_audit_script.py",
         "test_package_layout.py",
         "test_parser.py",
         "test_preflight.py",
         "test_public_assets_mirror.py",
         "test_readable_render_golden_candidates.py",
+        "test_readme_end_to_end_audit_example.py",
         "test_schema_versions.py",
         "test_semantic_event_audit_example.py",
         "test_unify.py",
@@ -125,6 +127,11 @@
       "kind": "tree",
       "source": "examples/agent_memory_audit_pressure_tests",
       "destination": "examples/agent_memory_audit_pressure_tests"
+    },
+    {
+      "kind": "tree",
+      "source": "examples/readme_end_to_end_audit",
+      "destination": "examples/readme_end_to_end_audit"
     },
     {
       "kind": "tree",

@@ -34,20 +34,27 @@ When not to use CogLang:
 - You want a schema definition language.
 - You simply need the native query language of a specific graph database in its native setting.
 
-Short runnable examples:
+First runnable path:
 
 ```powershell
-coglang execute 'Query[n_, Equal[Get[n_, "category"], "Person"]]'
-coglang execute 'IfFound[Traverse["einstein", "born_in"], x_, x_, "unknown"]'
-coglang preflight --format text 'AllNodes[]'
-coglang generation-eval --summary-only
-coglang generation-eval --export-requests --request-format jsonl
-coglang demo
-python examples/semantic_event_audit/audit_events.py examples/semantic_event_audit/fixtures/external_events.jsonl .tmp_semantic_event_audit.jsonl
-node examples/node_host_consumer/consume_hrc_envelopes.mjs
-npm --prefix examples/node_host_consumer test
-node examples/node_minimal_host_runtime_stub/run_demo.mjs
+python examples/readme_end_to_end_audit/readme_end_to_end_audit.py
 ```
+
+That demo shows the core adoption path without any provider SDK: model/runner
+expression text -> parse -> canonical hash -> preflight -> execute allowed
+read-only work -> queue write intent for review.
+
+Three commands cover the normal first-run surface:
+
+```powershell
+coglang demo
+coglang preflight --format text 'AllNodes[]'
+coglang execute 'Equal[1, 1]'
+coglang generation-eval --summary-only
+```
+
+Release, host-boundary, Node, grammar, editor, and outreach examples remain in
+the repository, but they are not the first surface new users need to learn.
 
 For constrained-generation companion grammars, see
 [examples/grammar](examples/grammar). Those files reduce malformed model
@@ -74,6 +81,11 @@ external runner graph-intent JSONL into local preflight audit records without
 adding a CLI command, provider SDK, hosted runner, transport envelope, or HRC
 scope expansion.
 
+For the shortest end-to-end audit walk-through, see
+[examples/readme_end_to_end_audit](examples/readme_end_to_end_audit). It is the
+README-facing demo and intentionally keeps the graph, model output, preflight,
+execution, and trace evidence in one small script.
+
 Machine-readable project summaries:
 
 - [llms.txt](llms.txt)
@@ -95,7 +107,7 @@ Use this table when you do not know which document to open first:
 | Checking install or release health | [CogLang_Standalone_Install_and_Release_Guide_v0_1.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.md) | `coglang release-check`, then [CogLang_Minimal_CI_Baseline_v0_1.json](CogLang_Minimal_CI_Baseline_v0_1.json) |
 | Implementing a host boundary | [CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md](CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md) | [CogLang_HRC_Companion_Asset_Classification_v0_1.md](CogLang_HRC_Companion_Asset_Classification_v0_1.md), then `examples/node_host_consumer` |
 | Contributing changes | [CONTRIBUTING.md](CONTRIBUTING.md) | [CogLang_Contribution_Guide_v0_1.md](CogLang_Contribution_Guide_v0_1.md), then [ROADMAP.md](ROADMAP.md) |
-| Evaluating fit or sharing CogLang | [CogLang_Use_Cases_and_Positioning_v0_1.md](CogLang_Use_Cases_and_Positioning_v0_1.md) | [CogLang_Small_Scale_Promotion_Plan_v0_1.md](CogLang_Small_Scale_Promotion_Plan_v0_1.md), then [CogLang_Announcement_Kit_v0_1.md](CogLang_Announcement_Kit_v0_1.md) |
+| Evaluating fit | [examples/readme_end_to_end_audit](examples/readme_end_to_end_audit) | [CogLang_Use_Cases_and_Positioning_v0_1.md](CogLang_Use_Cases_and_Positioning_v0_1.md), then the announcement kit only if you are preparing outreach |
 | Reviewing future work | [ROADMAP.md](ROADMAP.md) | v1.2 and readable-render notes only when that subsystem is in scope |
 
 ## First Reading Path
@@ -121,7 +133,7 @@ but they are not required first-pass reading.
 
 If you only have 10 minutes:
 
-1. Run `coglang demo`.
+1. Run `python examples/readme_end_to_end_audit/readme_end_to_end_audit.py`.
 2. Read the Quickstart.
 3. Skim the release notes to understand what is promised and what is not.
 
@@ -174,6 +186,10 @@ locally without spending GitHub Actions minutes, use
 release candidate when wheel/sdist install evidence is needed.
 
 The public CLI entry point is `coglang`.
+
+Most new users should start with `demo`, `preflight`, `execute`, and
+`generation-eval`. The remaining commands are reference, conformance,
+host-boundary, or release-facing helpers.
 
 The current minimal public command surface includes:
 

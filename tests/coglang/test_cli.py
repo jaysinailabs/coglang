@@ -107,6 +107,23 @@ def test_cli_version_output_includes_distribution_and_language_release():
     assert f"(language_release {COGLANG_LANGUAGE_RELEASE})" in output
 
 
+def test_cli_help_guides_new_users_to_core_commands():
+    buffer = io.StringIO()
+    with redirect_stdout(buffer):
+        try:
+            main(["--help"])
+        except SystemExit as exc:
+            assert exc.code == 0
+        else:
+            raise AssertionError("--help should terminate argument parsing")
+
+    output = buffer.getvalue()
+    assert "New users" in output
+    assert "demo, preflight, execute, and generation-eval" in output
+    assert "release or integration" in output
+    assert "evidence helpers" in output
+
+
 def test_cli_parse_canonical_output():
     code, output = _run(["parse", 'Equal[1, 1]'])
     assert code == 0
@@ -2031,6 +2048,7 @@ def test_cli_release_check_json_output():
     assert '"outlines_generation_bridge_example"' in output
     assert '"interaction_artifact_pressure_tests_example"' in output
     assert '"agent_memory_audit_pressure_tests_example"' in output
+    assert '"readme_end_to_end_audit_example"' in output
     assert '"local_ci_simulation"' in output
     assert '"executor_interface"' in output
 
@@ -2133,6 +2151,10 @@ def test_cli_release_check_text_output():
         "agent_memory_audit_pressure_tests_example: ok "
         "(examples/agent_memory_audit_pressure_tests + fixture + package data)"
         in output
+    )
+    assert (
+        "readme_end_to_end_audit_example: ok "
+        "(examples/readme_end_to_end_audit + package data)" in output
     )
     assert (
         "local_ci_simulation: ok "
@@ -2304,7 +2326,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 78
+    assert payload["entry_count"] == 79
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -2343,6 +2365,11 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "test_lightrag_audit_bridge_example.py" in tree_entries["tests/coglang"]["include"]
     assert (
         "test_outlines_generation_bridge_example.py"
+        in tree_entries["tests/coglang"]["include"]
+    )
+    assert "test_package_asset_audit_script.py" in tree_entries["tests/coglang"]["include"]
+    assert (
+        "test_readme_end_to_end_audit_example.py"
         in tree_entries["tests/coglang"]["include"]
     )
     assert "test_local_ci_script.py" in tree_entries["tests/coglang"]["include"]
@@ -2390,6 +2417,9 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "examples/agent_memory_audit_pressure_tests" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "examples/readme_end_to_end_audit" in [
         item["source"] for item in payload["entries"]
     ]
     assert "examples/vscode_textmate_syntax" in [

@@ -143,6 +143,7 @@ coglang = [
     "_public_assets/examples/interaction_artifact_pressure_tests/fixtures/*",
     "_public_assets/examples/agent_memory_audit_pressure_tests/*",
     "_public_assets/examples/agent_memory_audit_pressure_tests/fixtures/*",
+    "_public_assets/examples/readme_end_to_end_audit/*",
     "_public_assets/examples/vscode_textmate_syntax/*",
     "_public_assets/examples/vscode_textmate_syntax/samples/*",
     "_public_assets/examples/vscode_textmate_syntax/syntaxes/*",

@@ -1202,6 +1202,12 @@ def _release_check_payload() -> dict[str, Any]:
     agent_memory_audit_pressure_tests_fixture_path, _ = _resolve_project_artifact(
         "examples/agent_memory_audit_pressure_tests/fixtures/agent_memory_audit_pressure_tests_v0_1.json",
     )
+    readme_end_to_end_audit_script_path, _ = _resolve_project_artifact(
+        "examples/readme_end_to_end_audit/readme_end_to_end_audit.py",
+    )
+    readme_end_to_end_audit_readme_path, _ = _resolve_project_artifact(
+        "examples/readme_end_to_end_audit/README.md",
+    )
     local_ci_script_path, _ = _resolve_project_artifact("scripts/local_ci.py")
     license_path, _ = _resolve_project_artifact("LICENSE")
 
@@ -1305,6 +1311,9 @@ def _release_check_payload() -> dict[str, Any]:
     agent_memory_audit_pressure_tests_fixtures_packaged = (
         "_public_assets/examples/agent_memory_audit_pressure_tests/fixtures/*"
         in package_data
+    )
+    readme_end_to_end_audit_packaged = (
+        "_public_assets/examples/readme_end_to_end_audit/*" in package_data
     )
     local_ci_script_packaged = "_public_assets/scripts/*" in package_data
     reserved_operator_promotion_criteria_packaged = (
@@ -1660,6 +1669,15 @@ def _release_check_payload() -> dict[str, Any]:
             "detail": (
                 "examples/agent_memory_audit_pressure_tests + fixture + package data"
             ),
+        },
+        {
+            "name": "readme_end_to_end_audit_example",
+            "ok": (
+                readme_end_to_end_audit_script_path.exists()
+                and readme_end_to_end_audit_readme_path.exists()
+                and readme_end_to_end_audit_packaged
+            ),
+            "detail": "examples/readme_end_to_end_audit + package data",
         },
         {
             "name": "local_ci_simulation",
@@ -2597,7 +2615,12 @@ def _pytest_args_include_basetemp(pytest_args: list[str]) -> bool:
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="coglang",
-        description="Minimal standalone CLI for CogLang parse/validate/execute flows.",
+        description=(
+            "Minimal standalone CLI for CogLang parse/validate/execute flows. "
+            "New users should start with demo, preflight, execute, and generation-eval; "
+            "bundle, release-check, public-assets, and host demos are release or "
+            "integration evidence helpers."
+        ),
     )
     parser.add_argument(
         "--version",

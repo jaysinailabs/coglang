@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 import tomllib
@@ -68,8 +69,20 @@ def audit_package_assets(root: Path) -> dict[str, Any]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    args = list(sys.argv[1:] if argv is None else argv)
-    root = Path(args[0]).resolve() if args else Path.cwd()
+    parser = argparse.ArgumentParser(
+        description=(
+            "Report package-data and mirrored public-asset size for future "
+            "wheel/package trimming decisions. This tool is evidence-only."
+        )
+    )
+    parser.add_argument(
+        "root",
+        nargs="?",
+        default=".",
+        help="Project root containing pyproject.toml. Defaults to the current directory.",
+    )
+    args = parser.parse_args(sys.argv[1:] if argv is None else argv)
+    root = Path(args.root).resolve()
     print(json.dumps(audit_package_assets(root), indent=2, sort_keys=True))
     return 0
 

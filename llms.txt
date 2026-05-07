@@ -49,6 +49,8 @@ Key design choices:
 Core documents:
 
 - README.md: public document index and entry points
+- ADOPTING.md: human decision brief for adoption, risk, and first evaluation path
+- AGENTS.md: AI/operator guide for repository work, quality gates, and boundary discipline
 - CogLang_Quickstart_v1_1_0.md: first-pass guide and common patterns
 - CogLang_Specification_v1_1_0_Draft.md: language semantics
 - CogLang_Conformance_Suite_v1_1_0.md: executable examples and regression boundaries

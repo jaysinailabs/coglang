@@ -107,6 +107,25 @@ def test_cli_version_output_includes_distribution_and_language_release():
     assert f"(language_release {COGLANG_LANGUAGE_RELEASE})" in output
 
 
+def test_cli_help_guides_new_users_to_core_commands():
+    buffer = io.StringIO()
+    with redirect_stdout(buffer):
+        try:
+            main(["--help"])
+        except SystemExit as exc:
+            assert exc.code == 0
+        else:
+            raise AssertionError("--help should terminate argument parsing")
+
+    output = buffer.getvalue()
+    assert "New users" in output
+    assert "demo, preflight, execute, and generation-eval" in output
+    assert "release or integration" in output
+    assert "evidence helpers" in output
+    assert "python -m coglang release-check --format" in output
+    assert "text" in output
+
+
 def test_cli_parse_canonical_output():
     code, output = _run(["parse", 'Equal[1, 1]'])
     assert code == 0
@@ -462,6 +481,8 @@ def test_cli_manifest_payload_shape():
     assert payload["entrypoints"]["console_script"] == "coglang"
     assert payload["entrypoints"]["recommended"] == "coglang"
     assert payload["implementation_metadata"]["distribution_name"] == DISTRIBUTION_NAME
+    assert payload["docs"]["adopting"].endswith("ADOPTING.md")
+    assert payload["docs"]["agents"].endswith("AGENTS.md")
     assert payload["docs"]["install_guide"].endswith("CogLang_Standalone_Install_and_Release_Guide_v0_1.md")
     assert payload["docs"]["hrc_v0_2_final_freeze"].endswith(
         "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md"
@@ -509,6 +530,14 @@ def test_cli_manifest_payload_shape():
     assert payload["machine_readable_summaries"]["llms_full"].endswith("llms-full.txt")
     assert payload["public_release_surface"]["entrypoint"] == "coglang"
     assert payload["public_release_surface"]["project_docs"]["readme"] == payload["docs"]["readme"]
+    assert (
+        payload["public_release_surface"]["project_docs"]["adopting"]
+        == payload["docs"]["adopting"]
+    )
+    assert (
+        payload["public_release_surface"]["project_docs"]["agents"]
+        == payload["docs"]["agents"]
+    )
     assert (
         payload["public_release_surface"]["project_docs"]["vision_proposal"]
         == payload["docs"]["vision_proposal"]
@@ -611,6 +640,8 @@ def test_cli_manifest_text_output():
     assert "language_release: v1.1.0" in output
     assert "recommended_entrypoint: coglang" in output
     assert "console_script: coglang" in output
+    assert f"adopting: {_path_in_layout('ADOPTING.md', 'ADOPTING.md')}" in output
+    assert f"agents: {_path_in_layout('AGENTS.md', 'AGENTS.md')}" in output
     assert f"roadmap: {_path_in_layout('ROADMAP.md', 'ROADMAP.md')}" in output
     assert (
         f"vision_proposal: "
@@ -702,6 +733,12 @@ def test_cli_bundle_payload_shape():
     assert payload["public_release_surface"]["entrypoint"] == "coglang"
     assert payload["public_release_surface"]["project_docs"]["readme"].endswith(
         _path_in_layout("README.md", "README.md")
+    )
+    assert payload["public_release_surface"]["project_docs"]["adopting"].endswith(
+        _path_in_layout("ADOPTING.md", "ADOPTING.md")
+    )
+    assert payload["public_release_surface"]["project_docs"]["agents"].endswith(
+        _path_in_layout("AGENTS.md", "AGENTS.md")
     )
     assert payload["public_release_surface"]["project_docs"][
         "reserved_operator_promotion_criteria"
@@ -1930,6 +1967,27 @@ def test_cli_release_check_payload_shape():
         for item in payload["checks"]
     )
     assert any(
+        item["name"] == "outlines_generation_bridge_example"
+        and item["ok"] is True
+        and item["detail"]
+        == "examples/outlines_generation_bridge + fixture + package data"
+        for item in payload["checks"]
+    )
+    assert any(
+        item["name"] == "interaction_artifact_pressure_tests_example"
+        and item["ok"] is True
+        and item["detail"]
+        == "examples/interaction_artifact_pressure_tests + fixture + package data"
+        for item in payload["checks"]
+    )
+    assert any(
+        item["name"] == "agent_memory_audit_pressure_tests_example"
+        and item["ok"] is True
+        and item["detail"]
+        == "examples/agent_memory_audit_pressure_tests + fixture + package data"
+        for item in payload["checks"]
+    )
+    assert any(
         item["name"] == "generation_eval_file_contract"
         and item["ok"] is True
         for item in payload["checks"]
@@ -2007,6 +2065,10 @@ def test_cli_release_check_json_output():
     assert '"semantic_event_audit_example"' in output
     assert '"gitnexus_audit_bridge_example"' in output
     assert '"lightrag_audit_bridge_example"' in output
+    assert '"outlines_generation_bridge_example"' in output
+    assert '"interaction_artifact_pressure_tests_example"' in output
+    assert '"agent_memory_audit_pressure_tests_example"' in output
+    assert '"readme_end_to_end_audit_example"' in output
     assert '"local_ci_simulation"' in output
     assert '"executor_interface"' in output
 
@@ -2017,7 +2079,11 @@ def test_cli_release_check_text_output():
     assert "tool: coglang" in output
     assert "language_release: v1.1.0" in output
     assert "license_file: ok (LICENSE)" in output
-    assert "public_release_docs: ok (README + roadmap + maintenance + llms summaries)" in output
+    assert (
+        "public_release_docs: ok "
+        "(README + adoption/operator entries + roadmap + maintenance + llms summaries)"
+        in output
+    )
     assert (
         "reserved_operator_promotion_criteria: ok "
         "(reserved operator promotion criteria + package data)" in output
@@ -2095,6 +2161,24 @@ def test_cli_release_check_text_output():
     assert (
         "lightrag_audit_bridge_example: ok "
         "(examples/lightrag_audit_bridge + fixture + package data)" in output
+    )
+    assert (
+        "outlines_generation_bridge_example: ok "
+        "(examples/outlines_generation_bridge + fixture + package data)" in output
+    )
+    assert (
+        "interaction_artifact_pressure_tests_example: ok "
+        "(examples/interaction_artifact_pressure_tests + fixture + package data)"
+        in output
+    )
+    assert (
+        "agent_memory_audit_pressure_tests_example: ok "
+        "(examples/agent_memory_audit_pressure_tests + fixture + package data)"
+        in output
+    )
+    assert (
+        "readme_end_to_end_audit_example: ok "
+        "(examples/readme_end_to_end_audit + package data)" in output
     )
     assert (
         "local_ci_simulation: ok "
@@ -2266,7 +2350,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 75
+    assert payload["entry_count"] == 81
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -2282,6 +2366,10 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["source_paths_exist"] is True
     assert payload["destination_paths_unique"] is True
     tree_entries = {item["source"]: item for item in payload["entries"] if item["kind"] == "tree"}
+    assert (
+        "test_agent_memory_audit_pressure_tests_example.py"
+        in tree_entries["tests/coglang"]["include"]
+    )
     assert "eval_fixtures" in tree_entries["src/coglang"]["include"]
     assert "generation_eval.py" in tree_entries["src/coglang"]["include"]
     assert "generation_eval_adapters.py" in tree_entries["src/coglang"]["include"]
@@ -2294,7 +2382,20 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "test_generation_eval_offline_runner.py" in tree_entries["tests/coglang"]["include"]
     assert "test_gitnexus_audit_bridge_example.py" in tree_entries["tests/coglang"]["include"]
     assert "test_grammar_examples.py" in tree_entries["tests/coglang"]["include"]
+    assert (
+        "test_interaction_artifact_pressure_tests_example.py"
+        in tree_entries["tests/coglang"]["include"]
+    )
     assert "test_lightrag_audit_bridge_example.py" in tree_entries["tests/coglang"]["include"]
+    assert (
+        "test_outlines_generation_bridge_example.py"
+        in tree_entries["tests/coglang"]["include"]
+    )
+    assert "test_package_asset_audit_script.py" in tree_entries["tests/coglang"]["include"]
+    assert (
+        "test_readme_end_to_end_audit_example.py"
+        in tree_entries["tests/coglang"]["include"]
+    )
     assert "test_local_ci_script.py" in tree_entries["tests/coglang"]["include"]
     assert "test_node_host_consumer.py" in tree_entries["tests/coglang"]["include"]
     assert "test_node_minimal_host_runtime_stub.py" in tree_entries["tests/coglang"]["include"]
@@ -2333,6 +2434,18 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "examples/lightrag_audit_bridge" in [
         item["source"] for item in payload["entries"]
     ]
+    assert "examples/outlines_generation_bridge" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "examples/interaction_artifact_pressure_tests" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "examples/agent_memory_audit_pressure_tests" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "examples/readme_end_to_end_audit" in [
+        item["source"] for item in payload["entries"]
+    ]
     assert "examples/vscode_textmate_syntax" in [
         item["source"] for item in payload["entries"]
     ]
@@ -2340,6 +2453,12 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Operator_Catalog_v1_1_0.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "ADOPTING.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "AGENTS.md" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md" in [

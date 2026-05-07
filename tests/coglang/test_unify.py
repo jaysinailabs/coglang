@@ -15,8 +15,11 @@ Coverage:
 Local Janus availability is probed once at collection time because some
 incompatible builds can terminate the process at import time.
 """
+import warnings
+
 import pytest
 
+import coglang.unify_backend as unify_backend_module
 from coglang.parser import CogLangExpr, CogLangVar
 from coglang.unify_backend import (
     JanusUnifyBackend,
@@ -87,6 +90,24 @@ def test_factory_returns_unify_backend():
     """get_unify_backend() always returns a UnifyBackend instance."""
     backend = get_unify_backend()
     assert isinstance(backend, UnifyBackend)
+
+
+@pytest.mark.L1
+def test_factory_warns_about_python_fallback_once(monkeypatch):
+    """Janus fallback should be visible but not repeated for every executor."""
+    monkeypatch.setattr(unify_backend_module, "_JANUS_AVAILABLE_CACHE", False)
+    monkeypatch.setattr(unify_backend_module, "_JANUS_FALLBACK_WARNED", False)
+
+    with pytest.warns(RuntimeWarning, match="using PythonUnifyBackend"):
+        first = get_unify_backend()
+
+    with warnings.catch_warnings(record=True) as captured:
+        warnings.simplefilter("always")
+        second = get_unify_backend()
+
+    assert isinstance(first, PythonUnifyBackend)
+    assert isinstance(second, PythonUnifyBackend)
+    assert captured == []
 
 
 @pytest.mark.L1

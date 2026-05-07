@@ -823,6 +823,8 @@ def _manifest_payload() -> dict[str, Any]:
     public_repo_extract_manifest = _public_repo_extract_manifest_payload()
     formal_open_source_readiness = _formal_open_source_readiness_payload()
     readme_relpath = _resolve_project_artifact("README.md", "README.md")[1]
+    adopting_relpath = _resolve_project_artifact("ADOPTING.md", "ADOPTING.md")[1]
+    agents_relpath = _resolve_project_artifact("AGENTS.md", "AGENTS.md")[1]
     quickstart_relpath = _resolve_project_artifact(
         "CogLang_Quickstart_v1_1_0.md",
         "CogLang_Quickstart_v1_1_0.md",
@@ -905,6 +907,8 @@ def _manifest_payload() -> dict[str, Any]:
     llms_full_relpath = _resolve_project_artifact("llms-full.txt", "llms-full.txt")[1]
     docs = {
         "readme": readme_relpath,
+        "adopting": adopting_relpath,
+        "agents": agents_relpath,
         "quickstart": quickstart_relpath,
         "spec": spec_relpath,
         "install_guide": install_guide_relpath,
@@ -956,6 +960,8 @@ def _manifest_payload() -> dict[str, Any]:
             "entrypoint": "coglang",
             "project_docs": {
                 "readme": docs["readme"],
+                "adopting": docs["adopting"],
+                "agents": docs["agents"],
                 "vision_proposal": docs["vision_proposal"],
                 "evolution_boundary_proposal": docs["evolution_boundary_proposal"],
                 "effect_budget_preflight_vocabulary": docs["effect_budget_preflight_vocabulary"],
@@ -1049,6 +1055,8 @@ def _release_check_payload() -> dict[str, Any]:
     root = _project_root()
     pyproject_path, _ = _resolve_project_artifact("pyproject.toml")
     public_readme_path, _ = _resolve_project_artifact("README.md", "README.md")
+    adopting_path, _ = _resolve_project_artifact("ADOPTING.md", "ADOPTING.md")
+    agents_path, _ = _resolve_project_artifact("AGENTS.md", "AGENTS.md")
     roadmap_path, _ = _resolve_project_artifact("ROADMAP.md", "ROADMAP.md")
     maintenance_path, _ = _resolve_project_artifact("MAINTENANCE.md", "MAINTENANCE.md")
     llms_path, _ = _resolve_project_artifact("llms.txt", "llms.txt")
@@ -1409,12 +1417,14 @@ def _release_check_payload() -> dict[str, Any]:
             "name": "public_release_docs",
             "ok": (
                 public_readme_path.exists()
+                and adopting_path.exists()
+                and agents_path.exists()
                 and roadmap_path.exists()
                 and maintenance_path.exists()
                 and llms_path.exists()
                 and llms_full_path.exists()
             ),
-            "detail": "README + roadmap + maintenance + llms summaries",
+            "detail": "README + adoption/operator entries + roadmap + maintenance + llms summaries",
         },
         {
             "name": "reserved_operator_promotion_criteria",
@@ -2621,6 +2631,10 @@ def _build_parser() -> argparse.ArgumentParser:
             "bundle, release-check, public-assets, and host demos are release or "
             "integration evidence helpers."
         ),
+        epilog=(
+            "Source checkout note: if the coglang console script is not on PATH yet, "
+            "use the module entry point, for example `python -m coglang release-check --format text`."
+        ),
     )
     parser.add_argument(
         "--version",
@@ -2992,6 +3006,8 @@ def main(argv: list[str] | None = None) -> int:
             print("commands: " + ", ".join(payload["commands"]))
             print("conformance_suites: " + ", ".join(payload["conformance_suites"]))
             print(f"readme: {payload['docs']['readme']}")
+            print(f"adopting: {payload['docs']['adopting']}")
+            print(f"agents: {payload['docs']['agents']}")
             print(f"install_guide: {payload['docs']['install_guide']}")
             print(f"vision_proposal: {payload['docs']['vision_proposal']}")
             print(f"evolution_boundary_proposal: {payload['docs']['evolution_boundary_proposal']}")

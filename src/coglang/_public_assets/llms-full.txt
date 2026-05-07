@@ -218,6 +218,10 @@ contributor and maintainer workflow helper, not a new public `coglang` command.
 
 - `README.md`
   Public document index and entry points.
+- `ADOPTING.md`
+  Human decision brief for adoption, risk, and first evaluation path.
+- `AGENTS.md`
+  AI/operator guide for repository work, quality gates, and boundary discipline.
 - `CogLang_Quickstart_v1_1_0.md`
   First-pass guide, common patterns, and common mistakes.
 - `CogLang_Specification_v1_1_0_Draft.md`

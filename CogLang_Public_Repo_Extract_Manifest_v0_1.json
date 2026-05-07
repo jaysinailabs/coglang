@@ -205,6 +205,16 @@
     },
     {
       "kind": "file",
+      "source": "ADOPTING.md",
+      "destination": "ADOPTING.md"
+    },
+    {
+      "kind": "file",
+      "source": "AGENTS.md",
+      "destination": "AGENTS.md"
+    },
+    {
+      "kind": "file",
       "source": "CONTRIBUTING.md",
       "destination": "CONTRIBUTING.md"
     },

@@ -58,6 +58,8 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / ".mailmap").exists()
     assert (destination / "pytest.ini").exists()
     assert (destination / "README.md").exists()
+    assert (destination / "ADOPTING.md").exists()
+    assert (destination / "AGENTS.md").exists()
     assert (destination / "CONTRIBUTING.md").exists()
     assert (destination / "CogLang_Open_Source_Boundary_v0_1.json").exists()
     assert (destination / "CogLang_Minimal_CI_Baseline_v0_1.json").exists()
@@ -165,6 +167,9 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (
         destination / "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
     ).exists()
+    assert (destination / "CogLang_Use_Cases_and_Positioning_v0_1.md").exists()
+    assert (destination / "CogLang_Small_Scale_Promotion_Plan_v0_1.md").exists()
+    assert (destination / "CogLang_Announcement_Kit_v0_1.md").exists()
     assert (destination / "CogLang_Quickstart_v1_1_0.zh-CN.md").exists()
     assert (destination / "CogLang_Specification_v1_1_0_Draft.zh-CN.md").exists()
     assert (destination / "CogLang_Conformance_Suite_v1_1_0.zh-CN.md").exists()
@@ -194,6 +199,8 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (destination / ".github" / "workflows" / "ci.yml").exists()
     assert (destination / ".github" / "workflows" / "publish.yml").exists()
     assert (destination / "src" / "coglang" / "_public_assets" / "README.md").exists()
+    assert (destination / "src" / "coglang" / "_public_assets" / "ADOPTING.md").exists()
+    assert (destination / "src" / "coglang" / "_public_assets" / "AGENTS.md").exists()
     assert (
         destination / "src" / "coglang" / "_public_assets" / "CONTRIBUTING.md"
     ).exists()
@@ -494,6 +501,8 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
 
     assert manifest["package"] == "coglang"
     assert manifest["docs"]["readme"] == "README.md"
+    assert manifest["docs"]["adopting"] == "ADOPTING.md"
+    assert manifest["docs"]["agents"] == "AGENTS.md"
     assert manifest["docs"]["vision_proposal"] == "CogLang_Vision_Proposal_v0_1.md"
     assert (
         manifest["docs"]["evolution_boundary_proposal"]
@@ -528,6 +537,15 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
         == "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
     )
     assert (
+        manifest["docs"]["use_cases_and_positioning"]
+        == "CogLang_Use_Cases_and_Positioning_v0_1.md"
+    )
+    assert (
+        manifest["docs"]["small_scale_promotion_plan"]
+        == "CogLang_Small_Scale_Promotion_Plan_v0_1.md"
+    )
+    assert manifest["docs"]["announcement_kit"] == "CogLang_Announcement_Kit_v0_1.md"
+    assert (
         manifest["docs"]["hrc_companion_asset_classification"]
         == "CogLang_HRC_Companion_Asset_Classification_v0_1.md"
     )
@@ -548,6 +566,8 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     installed_like_release_check = extracted_cli._release_check_payload()
 
     assert installed_like_manifest["docs"]["readme"] == "README.md"
+    assert installed_like_manifest["docs"]["adopting"] == "ADOPTING.md"
+    assert installed_like_manifest["docs"]["agents"] == "AGENTS.md"
     assert (
         installed_like_manifest["docs"]["reserved_operator_promotion_criteria"]
         == "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md"
@@ -571,6 +591,18 @@ def test_materialize_public_repo_extract_creates_importable_public_root(monkeypa
     assert (
         installed_like_manifest["docs"]["generation_eval_request_response_contract"]
         == "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
+    )
+    assert (
+        installed_like_manifest["docs"]["use_cases_and_positioning"]
+        == "CogLang_Use_Cases_and_Positioning_v0_1.md"
+    )
+    assert (
+        installed_like_manifest["docs"]["small_scale_promotion_plan"]
+        == "CogLang_Small_Scale_Promotion_Plan_v0_1.md"
+    )
+    assert (
+        installed_like_manifest["docs"]["announcement_kit"]
+        == "CogLang_Announcement_Kit_v0_1.md"
     )
     assert (
         installed_like_manifest["docs"]["hrc_companion_asset_classification"]

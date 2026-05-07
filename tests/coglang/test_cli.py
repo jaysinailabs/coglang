@@ -122,6 +122,8 @@ def test_cli_help_guides_new_users_to_core_commands():
     assert "demo, preflight, execute, and generation-eval" in output
     assert "release or integration" in output
     assert "evidence helpers" in output
+    assert "python -m coglang release-check --format" in output
+    assert "text" in output
 
 
 def test_cli_parse_canonical_output():
@@ -479,6 +481,8 @@ def test_cli_manifest_payload_shape():
     assert payload["entrypoints"]["console_script"] == "coglang"
     assert payload["entrypoints"]["recommended"] == "coglang"
     assert payload["implementation_metadata"]["distribution_name"] == DISTRIBUTION_NAME
+    assert payload["docs"]["adopting"].endswith("ADOPTING.md")
+    assert payload["docs"]["agents"].endswith("AGENTS.md")
     assert payload["docs"]["install_guide"].endswith("CogLang_Standalone_Install_and_Release_Guide_v0_1.md")
     assert payload["docs"]["hrc_v0_2_final_freeze"].endswith(
         "CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md"
@@ -526,6 +530,14 @@ def test_cli_manifest_payload_shape():
     assert payload["machine_readable_summaries"]["llms_full"].endswith("llms-full.txt")
     assert payload["public_release_surface"]["entrypoint"] == "coglang"
     assert payload["public_release_surface"]["project_docs"]["readme"] == payload["docs"]["readme"]
+    assert (
+        payload["public_release_surface"]["project_docs"]["adopting"]
+        == payload["docs"]["adopting"]
+    )
+    assert (
+        payload["public_release_surface"]["project_docs"]["agents"]
+        == payload["docs"]["agents"]
+    )
     assert (
         payload["public_release_surface"]["project_docs"]["vision_proposal"]
         == payload["docs"]["vision_proposal"]
@@ -628,6 +640,8 @@ def test_cli_manifest_text_output():
     assert "language_release: v1.1.0" in output
     assert "recommended_entrypoint: coglang" in output
     assert "console_script: coglang" in output
+    assert f"adopting: {_path_in_layout('ADOPTING.md', 'ADOPTING.md')}" in output
+    assert f"agents: {_path_in_layout('AGENTS.md', 'AGENTS.md')}" in output
     assert f"roadmap: {_path_in_layout('ROADMAP.md', 'ROADMAP.md')}" in output
     assert (
         f"vision_proposal: "
@@ -719,6 +733,12 @@ def test_cli_bundle_payload_shape():
     assert payload["public_release_surface"]["entrypoint"] == "coglang"
     assert payload["public_release_surface"]["project_docs"]["readme"].endswith(
         _path_in_layout("README.md", "README.md")
+    )
+    assert payload["public_release_surface"]["project_docs"]["adopting"].endswith(
+        _path_in_layout("ADOPTING.md", "ADOPTING.md")
+    )
+    assert payload["public_release_surface"]["project_docs"]["agents"].endswith(
+        _path_in_layout("AGENTS.md", "AGENTS.md")
     )
     assert payload["public_release_surface"]["project_docs"][
         "reserved_operator_promotion_criteria"
@@ -2059,7 +2079,11 @@ def test_cli_release_check_text_output():
     assert "tool: coglang" in output
     assert "language_release: v1.1.0" in output
     assert "license_file: ok (LICENSE)" in output
-    assert "public_release_docs: ok (README + roadmap + maintenance + llms summaries)" in output
+    assert (
+        "public_release_docs: ok "
+        "(README + adoption/operator entries + roadmap + maintenance + llms summaries)"
+        in output
+    )
     assert (
         "reserved_operator_promotion_criteria: ok "
         "(reserved operator promotion criteria + package data)" in output
@@ -2326,7 +2350,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 79
+    assert payload["entry_count"] == 81
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -2429,6 +2453,12 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Operator_Catalog_v1_1_0.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "ADOPTING.md" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "AGENTS.md" in [
         item["source"] for item in payload["entries"]
     ]
     assert "CogLang_Reserved_Operator_Promotion_Criteria_v0_1.md" in [

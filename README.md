@@ -86,6 +86,16 @@ For the shortest end-to-end audit walk-through, see
 README-facing demo and intentionally keeps the graph, model output, preflight,
 execution, and trace evidence in one small script.
 
+Documentation has two first-class entry points:
+
+- [ADOPTING.md](ADOPTING.md) is the human decision brief for deciding whether
+  CogLang fits an external project.
+- [AGENTS.md](AGENTS.md) is the AI/operator guide for repository work, quality
+  gates, and boundary discipline.
+
+Both files route to the same specifications, release notes, tests, examples,
+and release-check evidence. They do not redefine the stable language contract.
+
 Machine-readable project summaries:
 
 - [llms.txt](llms.txt)
@@ -103,6 +113,8 @@ Use this table when you do not know which document to open first:
 
 | You are... | Read first | Then read |
 | --- | --- | --- |
+| Deciding whether to adopt CogLang | [ADOPTING.md](ADOPTING.md) | [examples/readme_end_to_end_audit](examples/readme_end_to_end_audit), then the path-specific Eval, Audit, or Host document |
+| An AI agent or maintainer working in this repo | [AGENTS.md](AGENTS.md) | `coglang release-check --format text`, then the change-type gate listed there |
 | Trying CogLang as a user | [CogLang_Quickstart_v1_1_0.md](CogLang_Quickstart_v1_1_0.md) | `coglang demo`, then [CogLang_Release_Notes_v1_1_5.md](CogLang_Release_Notes_v1_1_5.md) |
 | Checking install or release health | [CogLang_Standalone_Install_and_Release_Guide_v0_1.md](CogLang_Standalone_Install_and_Release_Guide_v0_1.md) | `coglang release-check`, then [CogLang_Minimal_CI_Baseline_v0_1.json](CogLang_Minimal_CI_Baseline_v0_1.json) |
 | Implementing a host boundary | [CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md](CogLang_HRC_v0_2_Final_Freeze_2026_04_28.md) | [CogLang_HRC_Companion_Asset_Classification_v0_1.md](CogLang_HRC_Companion_Asset_Classification_v0_1.md), then `examples/node_host_consumer` |
@@ -175,6 +187,11 @@ coglang conformance --level smoke
 python scripts/local_ci.py --profile quick
 ```
 
+If the checkout has not placed the console script on `PATH`, use the module
+entry point instead, for example `python -m coglang release-check --format text`.
+In this repository's Windows virtual environment, the equivalent form is
+`.\.venv\Scripts\python.exe -m coglang release-check --format text`.
+
 Use local validation as the normal edit/test loop. Accumulate small fixes in a
 local branch, run focused tests plus `coglang release-check` and `coglang smoke`
 when relevant, then push only when a PR is ready for review or remote evidence.
@@ -226,6 +243,11 @@ Start with four boundaries:
 - Explicitly qualified extension operators are not yet the first teaching surface for everyday users.
 
 ## Public Documentation Set
+
+Entry documents:
+
+- [ADOPTING.md](ADOPTING.md)
+- [AGENTS.md](AGENTS.md)
 
 Stable core documents:
 

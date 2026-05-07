@@ -288,6 +288,7 @@ class PythonUnifyBackend(UnifyBackend):
 #   before enabling Janus.
 
 _JANUS_AVAILABLE_CACHE: "bool | None" = None
+_JANUS_FALLBACK_WARNED = False
 
 
 def _janus_available() -> bool:
@@ -324,12 +325,15 @@ def get_unify_backend() -> UnifyBackend:
     ABI mismatch — see TD-003).  Falls back to PythonUnifyBackend when janus
     is unavailable.
     """
+    global _JANUS_FALLBACK_WARNED
     if _janus_available():
         return JanusUnifyBackend()
-    warnings.warn(
-        "janus-swi not available (see TD-003); using PythonUnifyBackend. "
-        "Fix: rebuild janus-swi against SWI-Prolog 10.0.2 before enabling the optional Janus backend.",
-        RuntimeWarning,
-        stacklevel=2,
-    )
+    if not _JANUS_FALLBACK_WARNED:
+        warnings.warn(
+            "janus-swi not available (see TD-003); using PythonUnifyBackend. "
+            "Fix: rebuild janus-swi against SWI-Prolog 10.0.2 before enabling the optional Janus backend.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+        _JANUS_FALLBACK_WARNED = True
     return PythonUnifyBackend()

@@ -63,6 +63,8 @@ coglang = [
     "_public_assets/pyproject.toml",
     "_public_assets/LICENSE",
     "_public_assets/README.md",
+    "_public_assets/ADOPTING.md",
+    "_public_assets/AGENTS.md",
     "_public_assets/ROADMAP.md",
     "_public_assets/MAINTENANCE.md",
     "_public_assets/llms.txt",

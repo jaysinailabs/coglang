@@ -31,3 +31,16 @@ def test_package_asset_audit_reports_current_public_asset_weight():
     assert payload["public_asset_category_counts"]["tests"] >= 30
     assert "historical release notes" in payload["trim_candidates"]
     assert "does not change package-data" in payload["non_goals"]
+
+
+def test_package_asset_audit_help_is_non_destructive():
+    completed = subprocess.run(
+        [sys.executable, "scripts/package_asset_audit.py", "--help"],
+        check=True,
+        cwd=_repo_root(),
+        text=True,
+        capture_output=True,
+    )
+
+    assert "Project root containing pyproject.toml" in completed.stdout
+    assert "evidence-only" in completed.stdout

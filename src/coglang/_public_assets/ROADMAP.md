@@ -136,11 +136,15 @@ The governance framework is now strong enough for that external-host review;
 the remaining need is an implementation or consumer outside this repository to
 exercise the companion/formal boundary under real maintainer feedback.
 
-### Source HEAD At `1.1.5`
+### Source HEAD At `1.1.6`
 
-The current source package version is `1.1.5`, prepared as a local-first
+The current source package version is `1.1.6`, prepared as a downstream-feedback
 maintenance patch for the stable `v1.1.0` language line. This batch includes:
 
+- explicit host API-only classification for write-envelope names
+- `Unify` / `Match` wrong-arity errors returned as CogLang error values
+- public operator inventory for downstream prompt and CI checks
+- `coglang info --operators`
 - external host/consumer contribution checklist and PR template
 - external host/consumer issue template
 - GitHub-recognized `CONTRIBUTING.md` entry point

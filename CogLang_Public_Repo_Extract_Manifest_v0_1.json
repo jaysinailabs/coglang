@@ -355,6 +355,16 @@
     },
     {
       "kind": "file",
+      "source": "CogLang_Release_Notes_v1_1_6.md",
+      "destination": "CogLang_Release_Notes_v1_1_6.md"
+    },
+    {
+      "kind": "file",
+      "source": "CogLang_Release_Notes_v1_1_6.zh-CN.md",
+      "destination": "CogLang_Release_Notes_v1_1_6.zh-CN.md"
+    },
+    {
+      "kind": "file",
       "source": "CogLang_Release_Notes_v1_1_5.md",
       "destination": "CogLang_Release_Notes_v1_1_5.md"
     },

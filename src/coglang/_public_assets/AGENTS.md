@@ -4,7 +4,7 @@ Status: public AI/operator entry point
 Audience: AI coding agents, maintainers, and reviewers working in this repository
 Authority: routing and operating guidance only; executable tests, release-check, specifications, and release notes remain authoritative
 Scope: preserves CogLang boundaries while helping AI agents work safely and efficiently
-Stability: valid for the stable `v1.1.0` language line and source package `1.1.5`
+Stability: valid for the stable `v1.1.0` language line and source package `1.1.6`
 Read after: `README.md`
 
 CogLang is an independent open-source project. Treat this file as an operating

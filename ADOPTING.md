@@ -39,7 +39,7 @@ Stop early if you need one of these instead:
 
 The public language line is stable at `v1.1.0`.
 
-The current Python source package version is `1.1.5`. Package release notes
+The current Python source package version is `1.1.6`. Package release notes
 define what is available from PyPI; source HEAD may be prepared before a remote
 release workflow is triggered.
 

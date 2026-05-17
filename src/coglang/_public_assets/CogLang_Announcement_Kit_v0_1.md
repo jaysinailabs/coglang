@@ -1,6 +1,6 @@
 # CogLang Announcement Kit v0.1
 
-This file contains copy blocks for small-scale, targeted CogLang 1.1.5
+This file contains copy blocks for small-scale, targeted CogLang 1.1.6
 promotion. Treat the text as a starting point. Edit each message for the
 recipient and community before posting.
 
@@ -19,10 +19,10 @@ provider-neutral generation evaluation.
 
 CogLang sits between a language model and a graph-backed system. Instead of
 executing raw model output, a host can parse, canonicalize, validate, preflight,
-hash, review, and replay the graph operation before trusting it. Version 1.1.5
-adds AI-first developer-experience assets around provider-neutral generation
-evaluation, constrained-generation grammar examples, TextMate syntax scaffolding,
-Node.js companion examples, semantic-event audit, and local-first validation.
+hash, review, and replay the graph operation before trusting it. Version 1.1.6
+keeps the AI-first developer-experience assets from 1.1.5 and adds
+downstream-driven operator inventory plus clearer host API-only envelope
+boundaries.
 
 ### 1.3 Boundary Statement
 
@@ -97,7 +97,7 @@ Hi,
 
 CogLang is aimed at cases where an LLM proposes graph queries or updates, but a
 host needs to inspect, preflight, review, and replay the operation before
-trusting it. The 1.1.5 source tree includes a semantic-event audit example that
+trusting it. The 1.1.6 source tree includes a semantic-event audit example that
 converts external graph-intent JSONL into local audit records with canonical
 expression text, expression hashes, preflight decisions, and derived actions.
 
@@ -146,7 +146,7 @@ External generation-eval runner feedback wanted
 
 Body:
 
-CogLang 1.1.5 includes a provider-neutral request/response file contract for
+CogLang 1.1.6 includes a provider-neutral request/response file contract for
 generation evaluation. The project exports request records, an external runner
 produces response records, and CogLang scores the returned expression text
 deterministically.
@@ -214,7 +214,7 @@ Feedback wanted:
 
 Title:
 
-CogLang 1.1.5: an auditable language layer for LLM-generated graph operations
+CogLang 1.1.6: an auditable language layer for LLM-generated graph operations
 
 Body:
 
@@ -223,13 +223,16 @@ design goal is not to let a model directly mutate a graph. The goal is to keep
 the model's graph intent in a structured form that a host can parse,
 canonicalize, validate, preflight, hash, review, and replay.
 
-Version 1.1.5 focuses on AI-first developer-experience assets:
+Version 1.1.6 keeps the AI-first developer-experience assets and adds
+downstream-driven runtime clarity:
 
 - provider-neutral generation-eval request/response files
 - companion Lark and GBNF grammars for constrained-generation experiments
 - semantic-event audit example for external graph-intent JSONL
 - Node.js companion examples for host-runtime evidence
 - local-first CI profiles to conserve GitHub Actions minutes
+- `coglang info --operators` for executable operator discovery
+- clearer host API-only boundaries for write-envelope names
 
 The project is intentionally narrow. It is not a graph database, general-purpose
 agent framework, npm SDK, marketplace extension, hosted playground, or benchmark
@@ -308,12 +311,12 @@ https://github.com/jaysinailabs/coglang
 
 ### 5.1 Short Technical Post
 
-CogLang 1.1.5 is out. It is a small auditable language for LLM-generated graph
+CogLang 1.1.6 is out. It is a small auditable language for LLM-generated graph
 operations: parse, canonicalize, validate, preflight, review, hash, and replay
 before trusting model-written graph intent.
 
-New focus: provider-neutral eval files, grammar examples, semantic-event audit,
-Node companion evidence, and local-first CI.
+New focus: explicit operator inventory, host API-only write-envelope boundaries,
+provider-neutral eval files, semantic-event audit, and local-first CI.
 
 https://github.com/jaysinailabs/coglang
 

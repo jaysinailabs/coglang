@@ -1,7 +1,7 @@
 # CogLang Small-Scale Promotion Plan v0.1
 
 This document defines a narrow, evidence-first promotion plan for CogLang
-1.1.5 and near-term source HEAD work.
+1.1.6 and near-term source HEAD work.
 
 It is not a growth campaign, paid launch plan, platform-publishing promise, or
 claim that CogLang is production-ready for every graph workload.
@@ -234,7 +234,7 @@ Complete before posting:
 
 - PyPI package is published and installable.
 - GitHub Release exists.
-- `README.md`, `llms.txt`, and `llms-full.txt` describe 1.1.5 accurately.
+- `README.md`, `llms.txt`, and `llms-full.txt` describe 1.1.6 accurately.
 - Release notes state what changed and what did not change.
 - Contribution path explains local-first validation.
 

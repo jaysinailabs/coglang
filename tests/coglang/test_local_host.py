@@ -30,6 +30,27 @@ def test_local_host_executes_string_expression():
     assert result == CogLangExpr("True", ())
 
 
+def test_local_host_operator_inventory_lists_special_forms_and_host_api_only_names():
+    host = LocalCogLangHost(nx.DiGraph())
+
+    operators = host.available_operators()
+    inventory = host.operator_inventory()
+
+    assert "Create" in operators
+    assert "Query" in operators
+    assert "Do" in operators
+    assert "Unify" in operators
+    assert "Match" in operators
+    assert "Query" in inventory["special_forms"]
+    assert "WriteBundleCandidate" in inventory["host_api_only"]
+    assert "WriteBundleSubmissionMessage" in inventory["host_api_only"]
+    assert "WriteResult" in inventory["host_api_only"]
+    assert "WriteBundleCandidate" not in operators
+    assert host.execute('WriteBundleCandidate[{"action": "a"}]') == CogLangExpr(
+        "ParseError", ("unknown_head", "WriteBundleCandidate")
+    )
+
+
 def test_local_host_submit_candidate_and_query_result():
     source_host = LocalCogLangHost(nx.DiGraph())
     target_host = LocalCogLangHost(nx.DiGraph())

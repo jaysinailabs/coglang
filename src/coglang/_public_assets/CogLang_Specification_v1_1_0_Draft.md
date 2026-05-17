@@ -2242,7 +2242,25 @@ Capabilities already converged as `Core` in the current draft include:
 - Minimum Readable Render contract
 - Abstract dispatch model and default priority for name resolution
 
-### 11.2 Reserved
+### 11.2 Host API-only Runtime Envelope Names
+
+The host-runtime write-envelope family includes package-level typed object names that are intentionally **not** executable expression operators in the `v1.1.0` language line.
+
+The following names are host API-only in the current reference runtime:
+
+- `WriteBundleCandidate`
+- `WriteBundleSubmissionMessage`
+- `WriteResult`
+
+They are part of the host bridge / typed envelope surface described by the Host Runtime Contract and HRC companion material. They do not enter static operator resolution, are not callable inside `Do[...]`, and should not be listed in sender-facing operator prompts. An implementation may expose them through host methods, typed dictionaries, JSON envelopes, or transport messages. Calling them as expression heads should be treated as an unresolved name rather than as a language-level write operation.
+
+The recommended path for sender-generated write intent remains:
+
+1. express graph write intent with `Create / Update / Delete`
+2. let the host capture the resulting write candidate
+3. submit, reject, defer, or inspect that candidate through the host API
+
+### 11.3 Reserved
 
 Capabilities reserved as `Reserved` in the current draft, but not required to be implemented by default, include:
 
@@ -2255,7 +2273,7 @@ Capabilities reserved as `Reserved` in the current draft, but not required to be
 - Concrete surface syntax for explicitly qualified names
 - More complete cross-instance trace field set and cross-component provenance stitching details
 
-### 11.3 Experimental
+### 11.4 Experimental
 
 Directions currently recorded only as `Experimental` topics and not yet part of the stable specification include:
 
@@ -2265,7 +2283,7 @@ Directions currently recorded only as `Experimental` topics and not yet part of 
 - Syntax sugar, such as local bindings and pipelines
 - High-risk, strongly host-coupled adapter-specific capabilities
 
-### 11.4 `Baseline / Enhanced` Profiles
+### 11.5 `Baseline / Enhanced` Profiles
 
 `v1.1.0` recommends distinguishing at least the following two profile classes:
 
@@ -2286,13 +2304,14 @@ The currently recommended convergence is:
 
 Profile is a boundary for execution availability and capability packaging, not a new language layer. Its role is to absorb complexity pressure, not to rewrite the semantic trunk of `Core`.
 
-### 11.5 Relationship to §1.4
+### 11.6 Relationship to §1.4
 
 This chapter does not redefine promotion / demotion rules; the authoritative rules are in `§1.4`.
 
 This chapter is responsible only for recording which capabilities in the current version are in:
 
 - `Core`
+- `Host API-only`
 - `Reserved`
 - `Experimental`
 

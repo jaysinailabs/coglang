@@ -11,9 +11,11 @@ from .vocab import (
 )
 from .executor import (
     CogLangExecutor,
+    HOST_API_ONLY_ENVELOPE_NAMES,
     NullObserver,
     Observer,
     PythonCogLangExecutor,
+    runtime_operator_inventory,
 )
 from .generation_eval import (
     GENERATION_EVAL_FIXTURE_SCHEMA_VERSION,
@@ -82,6 +84,8 @@ __all__ = [
     "ERROR_HEADS",
     "NodeType",
     "PythonCogLangExecutor",
+    "runtime_operator_inventory",
+    "HOST_API_ONLY_ENVELOPE_NAMES",
     "LocalCogLangHost",
     "LocalHostSnapshot",
     "LocalHostSummary",

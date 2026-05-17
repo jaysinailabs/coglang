@@ -256,6 +256,14 @@ class LocalCogLangHost:
     def execute(self, expr: str | CogLangExpr, env: dict[str, Any] | None = None) -> Any:
         return self.executor.execute(_coerce_expr(expr), env=env)
 
+    def available_operators(self) -> tuple[str, ...]:
+        """Return executable expression heads for this host's executor."""
+        return self.executor.available_operators()
+
+    def operator_inventory(self) -> dict[str, tuple[str, ...]]:
+        """Return executable and host-API-only name categories."""
+        return self.executor.operator_inventory()
+
     @staticmethod
     def _to_dict(value: Any) -> dict[str, Any]:
         return value.to_dict()

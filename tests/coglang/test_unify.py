@@ -20,6 +20,7 @@ import warnings
 import pytest
 
 import coglang.unify_backend as unify_backend_module
+from coglang.local_host import LocalCogLangHost
 from coglang.parser import CogLangExpr, CogLangVar
 from coglang.unify_backend import (
     JanusUnifyBackend,
@@ -120,6 +121,35 @@ def test_factory_returns_janus_when_available():
     """
     backend = get_unify_backend()
     assert isinstance(backend, JanusUnifyBackend)
+
+
+@pytest.mark.L1
+@pytest.mark.parametrize("source, head", [("Unify[]", "Unify"), ("Match[]", "Match")])
+def test_executor_unify_and_match_zero_arity_return_type_error(source, head):
+    """Arity mismatch must return a CogLang error value, not a Python exception."""
+    host = LocalCogLangHost()
+
+    result = host.execute(source)
+
+    assert result == CogLangExpr("TypeError", (head, "arity", "expected 2 args"))
+
+
+@pytest.mark.L1
+@pytest.mark.parametrize(
+    "source, head",
+    [
+        ("Unify[a]", "Unify"),
+        ("Match[a]", "Match"),
+        ("Unify[a, a, a]", "Unify"),
+        ("Match[a, a, a]", "Match"),
+    ],
+)
+def test_executor_unify_and_match_wrong_arity_return_type_error(source, head):
+    host = LocalCogLangHost()
+
+    result = host.execute(source)
+
+    assert result == CogLangExpr("TypeError", (head, "arity", "expected 2 args"))
 
 
 # ---------------------------------------------------------------------------

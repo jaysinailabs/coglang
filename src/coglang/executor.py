@@ -34,6 +34,83 @@ from .write_bundle import (
 
 MAX_DEPTH = 200
 
+DEFAULT_DISPATCH_OPERATOR_HEADS = frozenset(
+    {
+        "NotFound",
+        "TypeError",
+        "PermissionError",
+        "ParseError",
+        "StubError",
+        "RecursionError",
+        "True",
+        "False",
+        "Deferred",
+        "Draft",
+        "Published",
+        "List",
+        "Traverse",
+        "Create",
+        "Update",
+        "Delete",
+        "AllNodes",
+        "Get",
+        "Equal",
+        "Compare",
+        "Abstract",
+        "Instantiate",
+        "Probe",
+        "Explore",
+        "Estimate",
+        "Decompose",
+        "Defer",
+        "Resume",
+        "Merge",
+        "Explain",
+        "Send",
+        "Inspect",
+    }
+)
+SPECIAL_FORM_OPERATOR_HEADS = frozenset(
+    {
+        "If",
+        "IfFound",
+        "ForEach",
+        "Do",
+        "Compose",
+        "Assert",
+        "Query",
+        "Trace",
+        "Unify",
+        "Match",
+    }
+)
+HOST_API_ONLY_ENVELOPE_NAMES = frozenset(
+    {
+        "WriteBundleCandidate",
+        "WriteBundleSubmissionMessage",
+        "WriteResult",
+    }
+)
+
+
+def runtime_operator_inventory(
+    user_defined: tuple[str, ...] | list[str] | set[str] = (),
+) -> dict[str, tuple[str, ...]]:
+    """Return the reference runtime's public operator/name inventory."""
+    user_defined_heads = tuple(sorted(str(head) for head in user_defined))
+    executable = (
+        DEFAULT_DISPATCH_OPERATOR_HEADS
+        | SPECIAL_FORM_OPERATOR_HEADS
+        | set(user_defined_heads)
+    )
+    return {
+        "executable": tuple(sorted(executable)),
+        "default_dispatch": tuple(sorted(DEFAULT_DISPATCH_OPERATOR_HEADS)),
+        "special_forms": tuple(sorted(SPECIAL_FORM_OPERATOR_HEADS)),
+        "user_defined": user_defined_heads,
+        "host_api_only": tuple(sorted(HOST_API_ONLY_ENVELOPE_NAMES)),
+    }
+
 
 def _var_key(var: CogLangVar) -> str:
     """Canonical env dict key for a CogLangVar: first letter uppercased, no trailing '_'.
@@ -1115,6 +1192,8 @@ class PythonCogLangExecutor(CogLangExecutor):
         Prolog-style free variables.  If eagerly evaluated, unbound vars would
         resolve to TypeError["unbound_variable"] before unification.
         """
+        if len(expr.args) != 2:
+            return CogLangExpr("TypeError", (expr.head, "arity", "expected 2 args"))
         pattern, target = expr.args[0], expr.args[1]
         return self.unify_backend.unify(pattern, target)
 
@@ -1357,3 +1436,24 @@ class PythonCogLangExecutor(CogLangExecutor):
         """Return True if expr is a valid CogLang expression (per vocabulary)."""
         from .validator import valid_coglang
         return valid_coglang(expr, graph=self.graph_backend.graph)
+
+    def available_operators(self) -> tuple[str, ...]:
+        """Return executable expression heads for this executor instance."""
+        return self.operator_inventory()["executable"]
+
+    def operator_inventory(self) -> dict[str, tuple[str, ...]]:
+        """Return executable and host-API-only name categories.
+
+        This intentionally reports special forms and eager-dispatch heads
+        together as executable names. Host bridge envelope names are reported in
+        a separate category because they are typed host API objects, not
+        expression heads that can be called inside `Do[...]`.
+        """
+        inventory = runtime_operator_inventory(tuple(self._user_ops.keys()))
+        executable = set(self._dispatch) | set(self._special_forms) | set(self._user_ops)
+        return {
+            **inventory,
+            "executable": tuple(sorted(executable)),
+            "default_dispatch": tuple(sorted(self._dispatch)),
+            "special_forms": tuple(sorted(self._special_forms)),
+        }

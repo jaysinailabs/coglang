@@ -4,17 +4,18 @@
 
 This document is the public companion catalog for `CogLang_Specification_v1_1_0_Draft.md`.
 
-It answers three questions:
+It answers four questions:
 
 - which operators are explicitly closed in the `v1.1.0` specification set
 - which operators still carry forward the `v1.0.2` compatibility position because they have not yet been migrated into the new template
 - which operators must remain `Reserved / Experimental`
+- which host-runtime names are typed host API envelopes, not callable expression operators
 
 This document is a catalog, not the authoritative semantic source. The main specification remains authoritative for semantics. This catalog provides a status index for implementers, authors, and reviewers.
 
 ## 1. How to Read This Catalog
 
-Entries in this catalog use three categories:
+Entries in this catalog use four categories:
 
 - `Explicit`
   The operator is described item by item in the `v1.1.0` main specification using the current operator template.
@@ -22,6 +23,8 @@ Entries in this catalog use three categories:
   The operator has not yet been rewritten item by item in `v1.1.0`, but continues to follow the `v1.0.2` semantics when that position does not conflict with the new main line.
 - `Reserved / Experimental`
   Only the signature, direction, or status is frozen. A default implementation is not required.
+- `Host API-only`
+  The name belongs to the host-runtime typed envelope surface, not to executable CogLang expression syntax. It must not be emitted as a `Do[...]`-callable head by sender prompts.
 
 If documents conflict, precedence is:
 
@@ -55,6 +58,18 @@ The following operators are explicitly closed in the `v1.1.0` main specification
 | `Trace` | `Core` | `observability` | `diagnostic` | Normal execution | Value-transparent wrapper. |
 | `Assert` | `Core` | `observability` | `diagnostic` | Normal execution | Non-fatal assertion. |
 | `Explain` | `Reserved` | `observability` | `meta` | `StubError[...]` | Signature frozen. The plan object schema is not frozen. |
+
+## 2.1 Host API-only Envelope Names
+
+The following names are package-level host-runtime typed envelope names. They are not executable expression operators in the `v1.1.0` language line, are not `Do[...]`-callable, and are intentionally excluded from `LocalCogLangHost.available_operators()`.
+
+| Name | Status | Layer | Callable as expression head? | Access surface | Notes |
+|------|--------|-------|------------------------------|----------------|-------|
+| `WriteBundleCandidate` | `Host API-only` | `host_runtime` | No | `LocalCogLangHost.execute_with_candidate(...)`, `peek_candidate(...)`, `submit_candidate(...)`, typed dict/JSON envelopes | Formed by executing `Create / Update / Delete` and consuming the captured candidate through host methods. |
+| `WriteBundleSubmissionMessage` | `Host API-only` | `host_runtime` | No | `prepare_submission_message(...)`, `execute_and_prepare_submission_message(...)`, reference-host submission helpers, typed dict/JSON envelopes | Carries a candidate into a host submission flow. |
+| `WriteResult` | `Host API-only` | `host_runtime` | No | local/reference host response payloads, typed dict/JSON envelopes | Returned inside host response envelopes after submission, not called by the CogLang executor. |
+
+Calling these names as ordinary CogLang expressions, for example `WriteBundleCandidate[{...}]`, is expected to fail as an unresolved expression head in the current reference runtime. Downstream sender prompts should express write intent with ordinary graph-write operators such as `Create / Update / Delete`, then use the host API to read or submit the captured typed envelope.
 
 ## 3. Carry-forward Operators
 

@@ -28,6 +28,7 @@ from coglang.cli import (
     _minimal_ci_baseline_payload,
     _public_repo_extract_manifest_payload,
     _open_source_boundary_payload,
+    _operator_inventory_payload,
     _public_assets_payload,
     _release_check_payload,
     _run_conformance_suite,
@@ -471,6 +472,33 @@ def test_cli_info_text_output():
     assert "tool: coglang" in output
     assert "language_release: v1.1.0" in output
     assert "conformance_suites: smoke, core, full" in output
+
+
+def test_cli_info_operators_json_output():
+    payload = _operator_inventory_payload()
+    assert "Create" in payload["executable"]
+    assert "Query" in payload["executable"]
+    assert "Do" in payload["executable"]
+    assert "Unify" in payload["special_forms"]
+    assert "WriteBundleCandidate" in payload["host_api_only"]
+    assert "WriteBundleCandidate" not in payload["executable"]
+
+    code, output = _run(["info", "--operators", "--format", "json"])
+    assert code == 0
+    rendered = json.loads(output)
+    assert "Query" in rendered["executable"]
+    assert "WriteResult" in rendered["host_api_only"]
+    assert "WriteResult" not in rendered["executable"]
+
+
+def test_cli_info_operators_text_output():
+    code, output = _run(["info", "--operators", "--format", "text"])
+    assert code == 0
+    assert "executable:" in output
+    assert "Query" in output
+    assert "special_forms:" in output
+    assert "host_api_only:" in output
+    assert "WriteBundleSubmissionMessage" in output
 
 
 def test_cli_manifest_payload_shape():

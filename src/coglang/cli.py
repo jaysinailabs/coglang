@@ -10,7 +10,7 @@ from textwrap import dedent
 from typing import Any
 import tomllib
 
-from .executor import CogLangExecutor, PythonCogLangExecutor
+from .executor import CogLangExecutor, PythonCogLangExecutor, runtime_operator_inventory
 from .generation_eval import generation_eval_payload
 from .generation_eval_adapters import (
     generation_eval_request_batch_payload,
@@ -250,6 +250,10 @@ def _info_payload() -> dict[str, Any]:
         ],
         "conformance_suites": ["smoke", "core", "full"],
     }
+
+
+def _operator_inventory_payload() -> dict[str, Any]:
+    return dict(runtime_operator_inventory())
 
 
 def _distribution_metadata() -> dict[str, Any]:
@@ -2782,6 +2786,11 @@ def _build_parser() -> argparse.ArgumentParser:
         default="json",
         help="Output format for tool metadata.",
     )
+    info_cmd.add_argument(
+        "--operators",
+        action="store_true",
+        help="Print executable expression heads and host-API-only envelope names.",
+    )
 
     manifest_cmd = subparsers.add_parser(
         "manifest", help="Print stable machine-readable release-facing metadata."
@@ -2975,14 +2984,21 @@ def main(argv: list[str] | None = None) -> int:
         return _run_repl()
 
     if args.command == "info":
-        payload = _info_payload()
+        payload = _operator_inventory_payload() if args.operators else _info_payload()
         if args.format == "text":
-            print(f"tool: {payload['tool']}")
-            print(f"package: {payload['package']}")
-            print(f"version: {payload['version']}")
-            print(f"language_release: {payload['language_release']}")
-            print("commands: " + ", ".join(payload["commands"]))
-            print("conformance_suites: " + ", ".join(payload["conformance_suites"]))
+            if args.operators:
+                print("executable: " + ", ".join(payload["executable"]))
+                print("default_dispatch: " + ", ".join(payload["default_dispatch"]))
+                print("special_forms: " + ", ".join(payload["special_forms"]))
+                print("user_defined: " + ", ".join(payload["user_defined"]))
+                print("host_api_only: " + ", ".join(payload["host_api_only"]))
+            else:
+                print(f"tool: {payload['tool']}")
+                print(f"package: {payload['package']}")
+                print(f"version: {payload['version']}")
+                print(f"language_release: {payload['language_release']}")
+                print("commands: " + ", ".join(payload["commands"]))
+                print("conformance_suites: " + ", ".join(payload["conformance_suites"]))
         else:
             print(json.dumps(payload, ensure_ascii=False, indent=2))
         return 0

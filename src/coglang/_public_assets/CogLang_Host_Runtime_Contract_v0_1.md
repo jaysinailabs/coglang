@@ -155,6 +155,13 @@ Inside this companion boundary, these objects should be treated as:
 
 > a reference bridge for the host bridge layer, not as a fully frozen cross-system standard protocol.
 
+They are typed host API envelopes, not CogLang expression heads. In the current
+reference runtime, names such as `WriteBundleCandidate`,
+`WriteBundleSubmissionMessage`, and `WriteResult` are accessed through host
+methods and typed dict/JSON envelopes. They are not callable inside `Do[...]`;
+sender-facing prompts should use `Create / Update / Delete` for write intent and
+let the host expose or submit the captured candidate.
+
 ### 4.1 Minimal `WriteBundleCandidate` fields
 
 `WriteBundleCandidate` should at least contain these stable fields:

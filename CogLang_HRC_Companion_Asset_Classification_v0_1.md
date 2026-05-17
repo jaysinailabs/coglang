@@ -54,6 +54,10 @@ record:
 - `committed`, `failed`, and `not_found` local status semantics
 - success and failure response-envelope behavior for local/reference hosts
 
+These names describe typed host-runtime objects and invariants. They do not
+promote `WriteBundleCandidate`, `WriteBundleSubmissionMessage`, `WriteResult`,
+or nearby envelope names into executable CogLang expression heads.
+
 The executable evidence paths for that surface are:
 
 - `coglang host-demo`

@@ -47,6 +47,8 @@ from coglang.schema_versions import (
     PREFLIGHT_FIXTURE_SCHEMA_VERSION,
     PUBLIC_REPO_EXTRACT_MANIFEST_SCHEMA_VERSION,
     PUBLIC_REPO_EXTRACT_RUN_SCHEMA_VERSION,
+    PYTHON_SCHEMA_SIDECAR_DEMO_SCHEMA_VERSION,
+    PYTHON_SCHEMA_SIDECAR_RECORD_DEMO_SCHEMA_VERSION,
     READABLE_RENDER_GOLDEN_CANDIDATES_SCHEMA_VERSION,
     REFERENCE_HOST_DEMO_SCHEMA_VERSION,
     RELEASE_BUNDLE_SCHEMA_VERSION,
@@ -105,6 +107,10 @@ EXPECTED_SCHEMA_VERSION_REGISTRY = {
     ),
     "outlines_generation_bridge_record_demo": (
         "coglang-outlines-generation-bridge-record-demo/v0.1"
+    ),
+    "python_schema_sidecar_demo": "coglang-python-schema-sidecar-demo/v0.1",
+    "python_schema_sidecar_record_demo": (
+        "coglang-python-schema-sidecar-record-demo/v0.1"
     ),
     "interaction_artifact_pressure_tests": (
         "coglang-interaction-artifact-pressure-tests/v0.1"
@@ -279,6 +285,14 @@ def test_schema_version_constants_match_registry_values():
     assert (
         OUTLINES_GENERATION_BRIDGE_RECORD_DEMO_SCHEMA_VERSION
         == SCHEMA_VERSION_REGISTRY["outlines_generation_bridge_record_demo"]
+    )
+    assert (
+        PYTHON_SCHEMA_SIDECAR_DEMO_SCHEMA_VERSION
+        == SCHEMA_VERSION_REGISTRY["python_schema_sidecar_demo"]
+    )
+    assert (
+        PYTHON_SCHEMA_SIDECAR_RECORD_DEMO_SCHEMA_VERSION
+        == SCHEMA_VERSION_REGISTRY["python_schema_sidecar_record_demo"]
     )
     assert (
         INTERACTION_ARTIFACT_PRESSURE_TESTS_SCHEMA_VERSION

@@ -1109,6 +1109,10 @@ def _release_check_payload() -> dict[str, Any]:
         "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
         "CogLang_Generation_Eval_Request_Response_Contract_v0_1.md",
     )
+    python_schema_sidecar_plan_path, _ = _resolve_project_artifact(
+        "CogLang_Python_Schema_Sidecar_Ecosystem_Plan_v0_1.md",
+        "CogLang_Python_Schema_Sidecar_Ecosystem_Plan_v0_1.md",
+    )
     node_consumer_script_path, _ = _resolve_project_artifact(
         "examples/node_host_consumer/consume_hrc_envelopes.mjs",
     )
@@ -1195,6 +1199,15 @@ def _release_check_payload() -> dict[str, Any]:
     )
     outlines_generation_bridge_fixture_path, _ = _resolve_project_artifact(
         "examples/outlines_generation_bridge/fixtures/outlines_generated_expressions.jsonl",
+    )
+    python_schema_sidecar_script_path, _ = _resolve_project_artifact(
+        "examples/python_schema_sidecar/python_schema_sidecar.py",
+    )
+    python_schema_sidecar_readme_path, _ = _resolve_project_artifact(
+        "examples/python_schema_sidecar/README.md",
+    )
+    python_schema_sidecar_fixture_path, _ = _resolve_project_artifact(
+        "examples/python_schema_sidecar/fixtures/generated_expression_events.jsonl",
     )
     interaction_artifact_pressure_tests_script_path, _ = _resolve_project_artifact(
         "examples/interaction_artifact_pressure_tests/interaction_artifact_pressure_tests.py",
@@ -1310,6 +1323,12 @@ def _release_check_payload() -> dict[str, Any]:
     outlines_generation_bridge_fixtures_packaged = (
         "_public_assets/examples/outlines_generation_bridge/fixtures/*" in package_data
     )
+    python_schema_sidecar_packaged = (
+        "_public_assets/examples/python_schema_sidecar/*" in package_data
+    )
+    python_schema_sidecar_fixtures_packaged = (
+        "_public_assets/examples/python_schema_sidecar/fixtures/*" in package_data
+    )
     interaction_artifact_pressure_tests_packaged = (
         "_public_assets/examples/interaction_artifact_pressure_tests/*" in package_data
     )
@@ -1354,6 +1373,10 @@ def _release_check_payload() -> dict[str, Any]:
     )
     generation_eval_contract_packaged = (
         "_public_assets/CogLang_Generation_Eval_Request_Response_Contract_v0_1.md"
+        in package_data
+    )
+    python_schema_sidecar_plan_packaged = (
+        "_public_assets/CogLang_Python_Schema_Sidecar_Ecosystem_Plan_v0_1.md"
         in package_data
     )
 
@@ -1485,6 +1508,14 @@ def _release_check_payload() -> dict[str, Any]:
                 and generation_eval_contract_packaged
             ),
             "detail": "generation-eval request/response file contract + package data",
+        },
+        {
+            "name": "python_schema_sidecar_ecosystem_plan",
+            "ok": (
+                python_schema_sidecar_plan_path.exists()
+                and python_schema_sidecar_plan_packaged
+            ),
+            "detail": "Python schema sidecar ecosystem plan + package data",
         },
         {
             "name": "open_source_boundary",
@@ -1657,6 +1688,17 @@ def _release_check_payload() -> dict[str, Any]:
                 and outlines_generation_bridge_fixtures_packaged
             ),
             "detail": "examples/outlines_generation_bridge + fixture + package data",
+        },
+        {
+            "name": "python_schema_sidecar_example",
+            "ok": (
+                python_schema_sidecar_script_path.exists()
+                and python_schema_sidecar_readme_path.exists()
+                and python_schema_sidecar_fixture_path.exists()
+                and python_schema_sidecar_packaged
+                and python_schema_sidecar_fixtures_packaged
+            ),
+            "detail": "examples/python_schema_sidecar + fixture + package data",
         },
         {
             "name": "interaction_artifact_pressure_tests_example",

@@ -69,6 +69,12 @@ OUTLINES_GENERATION_BRIDGE_DEMO_SCHEMA_VERSION = (
 OUTLINES_GENERATION_BRIDGE_RECORD_DEMO_SCHEMA_VERSION = (
     "coglang-outlines-generation-bridge-record-demo/v0.1"
 )
+PYTHON_SCHEMA_SIDECAR_DEMO_SCHEMA_VERSION = (
+    "coglang-python-schema-sidecar-demo/v0.1"
+)
+PYTHON_SCHEMA_SIDECAR_RECORD_DEMO_SCHEMA_VERSION = (
+    "coglang-python-schema-sidecar-record-demo/v0.1"
+)
 INTERACTION_ARTIFACT_PRESSURE_TESTS_SCHEMA_VERSION = (
     "coglang-interaction-artifact-pressure-tests/v0.1"
 )
@@ -137,6 +143,10 @@ SCHEMA_VERSION_REGISTRY = MappingProxyType(
         "outlines_generation_bridge_record_demo": (
             OUTLINES_GENERATION_BRIDGE_RECORD_DEMO_SCHEMA_VERSION
         ),
+        "python_schema_sidecar_demo": PYTHON_SCHEMA_SIDECAR_DEMO_SCHEMA_VERSION,
+        "python_schema_sidecar_record_demo": (
+            PYTHON_SCHEMA_SIDECAR_RECORD_DEMO_SCHEMA_VERSION
+        ),
         "interaction_artifact_pressure_tests": (
             INTERACTION_ARTIFACT_PRESSURE_TESTS_SCHEMA_VERSION
         ),
@@ -187,6 +197,8 @@ __all__ = [
     "PREFLIGHT_FIXTURE_SCHEMA_VERSION",
     "PUBLIC_REPO_EXTRACT_MANIFEST_SCHEMA_VERSION",
     "PUBLIC_REPO_EXTRACT_RUN_SCHEMA_VERSION",
+    "PYTHON_SCHEMA_SIDECAR_DEMO_SCHEMA_VERSION",
+    "PYTHON_SCHEMA_SIDECAR_RECORD_DEMO_SCHEMA_VERSION",
     "READABLE_RENDER_GOLDEN_CANDIDATES_SCHEMA_VERSION",
     "REFERENCE_HOST_DEMO_SCHEMA_VERSION",
     "RELEASE_BUNDLE_SCHEMA_VERSION",

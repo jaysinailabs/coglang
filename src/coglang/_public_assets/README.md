@@ -292,6 +292,7 @@ Positioning and small-scale outreach materials:
 - [CogLang_Use_Cases_and_Positioning_v0_1.md](CogLang_Use_Cases_and_Positioning_v0_1.md)
 - [CogLang_Small_Scale_Promotion_Plan_v0_1.md](CogLang_Small_Scale_Promotion_Plan_v0_1.md)
 - [CogLang_Announcement_Kit_v0_1.md](CogLang_Announcement_Kit_v0_1.md)
+- [CogLang_Python_Schema_Sidecar_Ecosystem_Plan_v0_1.md](CogLang_Python_Schema_Sidecar_Ecosystem_Plan_v0_1.md)
 
 Chinese companion translations:
 

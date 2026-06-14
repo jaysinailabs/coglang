@@ -2002,6 +2002,20 @@ def test_cli_release_check_payload_shape():
         for item in payload["checks"]
     )
     assert any(
+        item["name"] == "python_schema_sidecar_ecosystem_plan"
+        and item["ok"] is True
+        and item["detail"]
+        == "Python schema sidecar ecosystem plan + package data"
+        for item in payload["checks"]
+    )
+    assert any(
+        item["name"] == "python_schema_sidecar_example"
+        and item["ok"] is True
+        and item["detail"]
+        == "examples/python_schema_sidecar + fixture + package data"
+        for item in payload["checks"]
+    )
+    assert any(
         item["name"] == "interaction_artifact_pressure_tests_example"
         and item["ok"] is True
         and item["detail"]
@@ -2094,6 +2108,8 @@ def test_cli_release_check_json_output():
     assert '"gitnexus_audit_bridge_example"' in output
     assert '"lightrag_audit_bridge_example"' in output
     assert '"outlines_generation_bridge_example"' in output
+    assert '"python_schema_sidecar_ecosystem_plan"' in output
+    assert '"python_schema_sidecar_example"' in output
     assert '"interaction_artifact_pressure_tests_example"' in output
     assert '"agent_memory_audit_pressure_tests_example"' in output
     assert '"readme_end_to_end_audit_example"' in output
@@ -2193,6 +2209,14 @@ def test_cli_release_check_text_output():
     assert (
         "outlines_generation_bridge_example: ok "
         "(examples/outlines_generation_bridge + fixture + package data)" in output
+    )
+    assert (
+        "python_schema_sidecar_ecosystem_plan: ok "
+        "(Python schema sidecar ecosystem plan + package data)" in output
+    )
+    assert (
+        "python_schema_sidecar_example: ok "
+        "(examples/python_schema_sidecar + fixture + package data)" in output
     )
     assert (
         "interaction_artifact_pressure_tests_example: ok "
@@ -2378,7 +2402,7 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert payload["schema_version"] == "coglang-public-repo-extract-manifest/v0.1"
     assert payload["repository_strategy"] == "standalone_repository"
     assert payload["public_distribution_name"] == "coglang"
-    assert payload["entry_count"] == 83
+    assert payload["entry_count"] == 85
     assert payload["required_destinations"] == [
         "pyproject.toml",
         "README.md",
@@ -2417,6 +2441,10 @@ def test_cli_public_repo_extract_manifest_payload_shape():
     assert "test_lightrag_audit_bridge_example.py" in tree_entries["tests/coglang"]["include"]
     assert (
         "test_outlines_generation_bridge_example.py"
+        in tree_entries["tests/coglang"]["include"]
+    )
+    assert (
+        "test_python_schema_sidecar_example.py"
         in tree_entries["tests/coglang"]["include"]
     )
     assert "test_package_asset_audit_script.py" in tree_entries["tests/coglang"]["include"]
@@ -2463,6 +2491,9 @@ def test_cli_public_repo_extract_manifest_payload_shape():
         item["source"] for item in payload["entries"]
     ]
     assert "examples/outlines_generation_bridge" in [
+        item["source"] for item in payload["entries"]
+    ]
+    assert "examples/python_schema_sidecar" in [
         item["source"] for item in payload["entries"]
     ]
     assert "examples/interaction_artifact_pressure_tests" in [
